@@ -17,10 +17,10 @@ from pprint import pprint as pp
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject
 
-import pynitrokey.libnk as nk_api
+import nitropyapp.libnk as nk_api
 
 #pyrcc5 -o gui_resources.py ui/resources.qrc
-import pynitrokey.gui_resources
+import nitropyapp.gui_resources
 
 
 #import pysnooper
@@ -269,10 +269,16 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         ################################################################################
         # load UI-files and prepare them accordingly
-        self.load_ui("mainwindow.ui", self)
+        ui_dir = Path(__file__).parent.resolve().absolute() / "ui"
+        ui_files = {
+            "main": (ui_dir / "mainwindow.ui").as_posix(),
+            "pin": (ui_dir / "pindialog.ui").as_posix()
+        }
+
+        self.load_ui(ui_files["main"], self)
 
         self.pin_dialog = PINDialog(qt_app)
-        self.pin_dialog.load_ui("pindialog.ui", self.pin_dialog)
+        self.pin_dialog.load_ui(ui_files["pin"], self.pin_dialog)
         self.pin_dialog.init_gui()
 
         ################################################################################
@@ -576,10 +582,13 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.set_enabled(QtWidgets.QLabel, ["l_utf8_info"], False)
 
 
-# backend thread init
-QtUtilsMixIn.backend_thread = BackendThread()
+def main():
+    # backend thread init
+    QtUtilsMixIn.backend_thread = BackendThread()
 
-app = QtWidgets.QApplication(sys.argv)
-window = GUI(app)
-app.exec()
+    app = QtWidgets.QApplication(sys.argv)
+    window = GUI(app)
+    app.exec()
 
+if __name__ == "__main__":
+    main()

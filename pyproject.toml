@@ -1,0 +1,31 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.metadata]
+module = "nitropyapp"
+dist-name = "nitropyapp"
+author = "Nitrokey - Markus Meissner"
+author-email = "pypi@nitrokey.com"
+home-page = "https://github.com/daringer/nitropy-app"
+requires-python = ">=3.6"
+description-file = "README.md"
+requires = [
+  "pynitrokey",
+  "pyqt5",
+	"pyqt5-stubs",
+]
+
+classifiers=[
+    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+]
+
+[tool.flit.scripts]
+nitropy-app = "nitropyapp.gui:main"
+

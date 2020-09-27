@@ -30,7 +30,7 @@ from enum import IntEnum
 
 from typing import Tuple, List
 
-from pynitrokey.exceptions import BasePyNKException
+from nitropyapp.exceptions import BasePyNKException
 
 
 class LibraryNotFound(BasePyNKException): pass
