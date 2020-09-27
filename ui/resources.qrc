@@ -1,0 +1,35 @@
+<RCC>
+    <qresource prefix="/images">
+        <file alias="ProgressWheel.GIF">images/ProgressWheel.GIF</file>
+        <file alias="progressWheel2.gif">images/progressWheel2.gif</file>
+    </qresource>
+    <qresource prefix="/i18n">
+        <file alias="nitrokey_de_DE.qm">i18n/nitrokey_de_DE.qm</file>
+        <file alias="nitrokey_en.qm">i18n/nitrokey_en.qm</file>
+        <file alias="nitrokey_arabic.qm">i18n/nitrokey_arabic.qm</file>
+        <file alias="nitrokey_fr.qm">i18n/nitrokey_fr.qm</file>
+        <file alias="nitrokey_pl.qm">i18n/nitrokey_pl.qm</file>
+        <file alias="nitrokey_it.qm">i18n/nitrokey_it.qm</file>
+    </qresource>
+    <qresource prefix="/license">
+        <file alias="General">3RDPARTY.txt</file>
+        <file alias="Nitrokey-App">LICENSES/GPLv3</file>
+        <file alias="Qt-framework">LICENSES/GPLv3</file>
+        <file alias="libnitrokey">LICENSES/LGPLv3</file>
+        <file alias="cppcodec">LICENSES/MIT</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>images/new/icon_about_nitrokey.svg</file>
+        <file>images/new/icon_fragezeichen.svg</file>
+        <file>images/new/icon_harddrive.svg</file>
+        <file>images/new/icon_info.svg</file>
+        <file>images/new/icon_Logo_App.svg</file>
+        <file>images/new/icon_NK.svg</file>
+        <file>images/new/icon_passwords.svg</file>
+        <file>images/new/icon_quit.svg</file>
+        <file>images/new/icon_safe.svg</file>
+        <file>images/new/icon_unsafe.svg</file>
+        <file>images/new/icon_settings.svg</file>
+        <file>images/new/icon_warning.svg</file>
+    </qresource>
+</RCC>
