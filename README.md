@@ -1,1 +1,3 @@
-# nitropy-app
+# Alternative Nitrokey Application - nitropy-app
+
+WIP!
