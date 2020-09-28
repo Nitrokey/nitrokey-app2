@@ -22,6 +22,7 @@ SPDX-License-Identifier: LGPL-3.0
 
 from pathlib import Path
 from random import randint
+from time import time as timestamp
 from datetime import datetime as dt
 from functools import wraps
 
@@ -37,6 +38,11 @@ class LibraryNotFound(BasePyNKException): pass
 class DeviceNotFound(BasePyNKException): pass
 class InvalidHOTPSecret(BasePyNKException): pass
 class InvalidTOTPSecret(BasePyNKException): pass
+
+class AuthError(BasePyNKException): pass
+class AdminAuthError(AuthError): pass
+class UserAuthError(AuthError): pass
+
 
 
 
@@ -102,27 +108,55 @@ def to_hex(ss):
 #     return wrapper
 #
 
-
-
-class DeviceErrorCode(IntEnum):
+class RetCode(IntEnum):
+    # DeviceErrCodes
     STATUS_OK = 0
     NOT_PROGRAMMED = 3
     WRONG_PASSWORD = 4
     STATUS_NOT_AUTHORIZED = 5
     STATUS_AES_DEC_FAILED = 0xA
 
-class LibraryErrorCode(IntEnum):
-    # Library
+    # LibErrCodes (+200)
     InvalidSlotException = 201
     TooLongStringException = 200
     TargetBufferSmallerThanSource = 203
     InvalidHexString = 202
 
-class DeviceCommunicationErrorCode(IntEnum):
-    DeviceNotConnected = 2
-    DeviceSendingFailure = 3
-    DeviceReceivingFailure = 4
-    InvalidCRCReceived = 5
+    # DeviceCommunicationErrorCode (+50)
+    DeviceNotConnected = 52
+    DeviceSendingFailure = 53
+    DeviceReceivingFailure = 54
+    InvalidCRCReceived = 55
+
+    # libnk.py added error codes (+20)
+    CONN_FAIL = 20
+    CONN_OK = 21
+
+    UNKNOWN = 99999
+
+    @classmethod
+    def from_connect(cls, ret_code):
+        if ret_code in [cls.CONN_FAIL, cls.CONN_OK]:
+            return cls(ret_code)
+        return cls(ret_code + 20)
+
+
+    @property
+    def ok(self):
+        return self in [RetCode.STATUS_OK, RetCode.CONN_OK]
+
+def ret_code(f, wrap_with=None):
+    wrapper = wrap_with if wrap_with else RetCode
+    @wraps(f)
+    def wrapped(*v, **kw):
+        try:
+            return wrapper(f(*v, **kw))
+        except ValueError:
+            return RetCode.UNKNOWN
+    return wrapped
+
+def con_ret_code(f):
+    return ret_code(f, wrap_with=RetCode.from_connect)
 
 
 # @todo: derive/get from c-header ?
@@ -145,40 +179,49 @@ class DeviceModel(IntEnum):
 c_enc = lambda x: x.encode("ascii") if isinstance(x, str) else x
 py_enc = lambda x: ffi.string(x).decode() if not isinstance(x, str) else x
 
-def gen_tmp_pass():
-    _hay = "1234567890abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    return c_enc("".join(_hay[randint(0, len(_hay) - 1)] \
-                         for _ in range(MAX_PASS_LEN)))
-
-MAX_PASS_LEN = 20
-
-ADMIN_PIN = "12345678"
-USER_PIN = "123456"
-
-ADMIN_SESSION_PIN = gen_tmp_pass()
-USER_SESSION_PIN = ADMIN_SESSION_PIN #gen_tmp_pass()
-
 
 class BaseLibNitrokey:
     single_api = None
 
+    max_pass_len = 20
+    default_user_pin = "123456"
+    default_admin_pin = "12345678"
+
     friendly_name = "Nitrokey Device"
 
-    def __init__(self):
+    def __init__(self, user_auth_cb=None, admin_auth_cb=None):
         self._connected = False
 
-        self.HOTP = self.hotp = HOTPSlots(self.api)
-        self.TOTP = self.totp = TOTPSlots(self.api)
-        self.PSafe = self.psafe = PasswordSlots(self.api)
+        self._admin_pin = None
+        self._admin_auth_token = None
 
-    ###################################################
-    @classmethod
-    def get_api(cls):
+        self._user_pin = None
+        self._user_auth_token = None
+
+        self.user_auth_callback = None
+        self.admin_auth_callback = None
+
+        self.HOTP = self.hotp = HOTPSlots(self)
+        self.TOTP = self.totp = TOTPSlots(self)
+        self.PSafe = self.psafe = PasswordSlots(self)
+
+    @staticmethod
+    def get_api():
         if not BaseLibNitrokey.single_api:
             BaseLibNitrokey.single_api = _get_c_library()
             if not BaseLibNitrokey.single_api:
                 raise LibraryNotFound()
         return BaseLibNitrokey.single_api
+
+    ###################################################
+    @classmethod
+    def gen_random(cls, length=None, hex=False):
+        if hex:
+            _hay = list(map(lambda x: f"{x:02x}", range(256)))
+        else:
+            _hay = "1234567890abcdefghijklmnopqrstuwvxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        return c_enc("".join(_hay[randint(0, len(_hay) - 1)] \
+                             for _ in range(length or cls.max_pass_len)))
 
     @classmethod
     def library_version(cls):
@@ -220,33 +263,48 @@ class BaseLibNitrokey:
     def api(self):
         return self.get_api()
 
+    @con_ret_code
     def connect(self, path=None, cpu_id=None):
         """base-class uses 'auto' to connect to any key, or by path/id"""
         if path:
-            self.api.NK_connect_with_path(c_enc(path))
+            ret = self.api.NK_connect_with_path(c_enc(path))
         elif cpu_id:
-            self.api.NK_connect_with_ID(c_enc(cpu_id))
+            ret = self.api.NK_connect_with_ID(c_enc(cpu_id))
         else:
-            self._connect()
+            ret = self._connect()
 
-        if not self.connected:
+        robj = RetCode.from_connect(ret)
+
+        if not robj.ok or not self.connected:
             raise DeviceNotFound(self.friendly_name)
+        return robj
 
+    @con_ret_code
     def _connect(self):
         return self.api.NK_login_auto()
 
+    @ret_code
     def admin_auth(self, admin_pass):
+        self._admin_auth_token = self.gen_random()
         return self.api.NK_first_authenticate(c_enc(admin_pass),
-                                              c_enc(ADMIN_SESSION_PIN))
+                                              c_enc(self._admin_auth_token))
 
+    @ret_code
     def user_auth(self, user_pass):
+        self._user_auth_token = self.gen_random()
         return self.api.NK_user_authenticate(c_enc(user_pass),
-                                             c_enc(USER_SESSION_PIN))
+                                             c_enc(self._user_auth_token))
 
+    @ret_code
     def lock(self):
+        self._user_auth_token = None
+        self._admin_auth_token = None
         return self.api.NK_lock_device()
 
+    @ret_code
     def logout(self):
+        self._user_auth_token = None
+        self._admin_auth_token = None
         return self.api.NK_logout()
 
     def set_debug_level(self, lvl):
@@ -254,12 +312,46 @@ class BaseLibNitrokey:
         self.api.NK_set_debug_level(lvl)
 
     @property
-    def connected(self):
-        # @fixme: on performance issues a timed-cache (~1sec?) might help
+    def is_auth_user(self):
+        return self._user_auth_token is not None
 
+    @property
+    def is_auth_admin(self):
+        return self._admin_auth_token is not None
+
+    def _get_auth_token(self, which, callback, exc_cls):
+        var_name = f"_{which}_auth_token"
+        _get = lambda: getattr(self, var_name)
+        val = _get()
+        if val:
+            return val
+
+        if callback:
+            auth_token = callback()
+            if auth_token:
+                return auth_token
+
+        raise exc_cls()
+
+    @property
+    def admin_auth_token(self):
+        return self._get_auth_token("admin", self.admin_auth_callback, AdminAuthError)
+
+    @property
+    def user_auth_token(self):
+        return self._get_auth_token("user", self.user_auth_callback, UserAuthError)
+
+    @property
+    def connected(self):
         # using `device_model` to determine, if some device is connected
         self._connected = self.device_model > DeviceModel.NONE and \
                           len(self.raw_status.strip()) > 0
+
+        # clear auth tokens, if not connected
+        if not self._connected:
+            self._user_auth_token = None
+            self._admin_auth_token = None
+
         return self._connected
 
     @property
@@ -288,9 +380,9 @@ class BaseLibNitrokey:
 
     @property
     def status(self):
-        dct = dict([line.split(":") for line in self.raw_status.split("\n") \
+        dct = dict([line.split(":") for line in self.raw_status.split("\n")
                     if line.strip()])
-        out = {key: val.replace("-", "").replace("\t", "").replace(".", "").strip() \
+        out = {key: val.replace("-", "").replace("\t", "").replace(".", "").strip()
                     for key, val in dct.items()}
         out["fw_version"] = self.fw_version
         out["last_cmd_status"] = self.last_command_status
@@ -299,20 +391,27 @@ class BaseLibNitrokey:
         out["card_serial"] = out["card_serial"][:11]
         out["model"] = DeviceModel(self.device_model)
         out["connected"] = self.connected
+        out["user_auth"] = self.is_auth_user
+        out["admin_auth"] = self.is_auth_admin
         return out
 
+    @ret_code
     def build_aes_key(self, admin_pass):
         return self.api.NK_build_aes_key(c_enc(admin_pass))
 
+    @ret_code
     def factory_reset(self, admin_pass):
         return self.api.NK_factory_reset(c_enc(admin_pass))
 
+    @ret_code
     def change_admin_pin(self, old_pin, new_pin):
         return self.api.NK_change_admin_PIN(c_enc(old_pin), c_enc(new_pin))
 
+    @ret_code
     def change_user_pin(self, old_pin, new_pin):
         return self.api.NK_change_user_PIN(c_enc(old_pin), c_enc(new_pin))
 
+    @ret_code
     def unlock_user_pin(self, admin_pass, new_user_pin):
         return self.api.NK_unlock_user_password(c_enc(admin_pass), c_enc(new_user_pin))
 
@@ -336,6 +435,7 @@ class BaseLibNitrokey:
 class NitrokeyStorage(BaseLibNitrokey):
     friendly_name = "Nitrokey Storage"
 
+    @con_ret_code
     def _connect(self):
         """only connects to NitrokeyStorage devices"""
         return self.api.NK_login(b'S')
@@ -344,14 +444,16 @@ class NitrokeyStorage(BaseLibNitrokey):
 class NitrokeyPro(BaseLibNitrokey):
     friendly_name = "Nitrokey Pro"
 
+    @con_ret_code
     def _connect(self):
         """only connects to NitrokeyPro devices"""
         return self.api.NK_login(b'P')
 
 
 class BaseSlots:
-    def __init__(self, api):
-        self.api = api
+    def __init__(self, parent):
+        self.owner = parent
+        self.api = parent.api
 
     def get_code(self, *v, **kw):
         return py_enc(self._get_code(*v, **kw))
@@ -359,15 +461,17 @@ class BaseSlots:
     def get_name(self, *v, **kw):
         return py_enc(self._get_name(*v, **kw))
 
-    def write_slot(self, *v, **kw):
-        return self._write_slot(*v, **kw)
+    @ret_code
+    def write(self, *v, **kw):
+        return self._write(*v, **kw)
 
-    def erase_slot(self, *v, **kw):
-        return self._erase_slot(*v, **kw)
+    @ret_code
+    def erase(self, *v, **kw):
+        return self._erase(*v, **kw)
 
     def _get_code(self, *v, **kw):
         raise NotImplementedError((v, kw))
-    _erase_slot = _write_slot = _get_name = _get_code
+    _erase = _write = _get_name = _get_code
 
     # def __getitem__(self, slot_idx):
     #     return self.get_code().get_code
@@ -385,7 +489,7 @@ class HOTPSlots(BaseSlots):
     def _get_code(self, slot_idx):
         return self.api.NK_get_hotp_slot_name(slot_idx)
 
-    def _write_slot(self, slot_idx, name, secret, hotp_cnt, use_8_digits=False,
+    def _write(self, slot_idx, name, secret, hotp_cnt, use_8_digits=False,
                     use_enter=False, token_id=None):
         """secret is expected without(!) \0 termination"""
 
@@ -393,41 +497,55 @@ class HOTPSlots(BaseSlots):
             raise InvalidHOTPSecret(("len", len(secret)))
         secret = secret.encode("ascii") + '\x00'.encode("ascii")
 
-        tmp_pass = c_enc(ADMIN_SESSION_PIN)
+        tmp_pass = self.owner.admin_auth_token
 
         # @TODO: interpret ret-val as LibraryErrorCode
         return self.api.NK_write_hotp_slot(slot_idx, c_enc(name), secret,
             hotp_cnt, use_8_digits, use_enter, not token_id, c_enc(""), tmp_pass)
 
-    def _erase_slot(self, slot_idx):
-        return self.api.NK_erase_hotp_slot(slot_idx, ADMIN_SESSION_PIN)
-
+    def _erase(self, slot_idx):
+        tmp_pass = self.owner.admin_auth_token
+        return self.api.NK_erase_hotp_slot(slot_idx, tmp_pass)
 
 class TOTPSlots(BaseSlots):
     count = 15
+
     def _get_name(self, slot_idx):
-        return self.api.NK_get_totp_slot_name(slot_idx)
+        ret = self.api.NK_get_totp_slot_name(slot_idx)
+        # @fixme: handle return code
+        return ret
 
     def _get_code(self, slot_idx):
-        return self.api.NK_get_totp_code(slot_idx)
+        self.set_time(int(timestamp()))
+        ret = self.api.NK_get_totp_code(slot_idx, 0, 0, 0)
+        # @fixme: handle return code
+        return ret
 
-    def _write_slot(self, slot_idx, name, secret, time_window=30, use_8_digits=False,
-                    use_enter=False, token_id=None):
-        tmp_pass = c_enc(ADMIN_SESSION_PIN)
-        return self.api.NK_write_totp_slot(slot_idx, c_enc(name), c_enc(secret),
+    def _write(self, slot_idx, name, secret, time_window=30, use_8_digits=False,
+               use_enter=False, token_id=None):
+        tmp_pass = self.owner.admin_auth_token
+        ret = self.api.NK_write_totp_slot(slot_idx, c_enc(name), c_enc(secret),
                                            time_window, use_8_digits, use_enter,
                                            not token_id, c_enc(""), tmp_pass)
+        # @fixme: handle return code
+        return ret
 
-        # NdK_write_totp_slot(uint8_t slot_number, const char *slot_name, const char *secret, uint16_t time_window,
+        # NK_write_totp_slot(uint8_t slot_number, const char *slot_name, const char *secret, uint16_t time_window,
         # 		bool use_8_digits, bool use_enter, bool use_tokenID, const char *token_ID,
         # 		const char *temporary_password);
 
-    def _erase_slot(self, slot_idx):
-        tmp_pass = c_enc(ADMIN_SESSION_PIN)
-        self.api.NK_erase_totp_slot(slot_idx, tmp_pass)
+    def _erase(self, slot_idx):
+        tmp_pass = self.owner.admin_auth_token
+        ret = self.api.NK_erase_totp_slot(slot_idx, tmp_pass)
+        # @fixme: handle errorcode!
+        return ret
 
         # (uint8_t slot_number, const char *temporary_password)
         # NK_get_hotp_code_PIN(uint8_t slot_number, const char *user_temporary_password);
+
+    def set_time(self, stamp):
+        ret = self.api.NK_totp_set_time(stamp)
+        # @fixme: handle errorcode!
 
 
 class PasswordSlots(BaseSlots):

@@ -1,18 +1,12 @@
 
-
-
 # use "pbs" for packaging...
 # pip-run -> pyqt5
 # pip-dev -> pyqt5-stubs
-
 
 import sys
 import os
 from pathlib import Path
 from queue import Queue
-
-from pprint import pprint as pp
-
 
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject
@@ -25,10 +19,6 @@ import nitropyapp.gui_resources
 
 #import pysnooper
 #@pysnooper.snoop
-
-UI_FILES_PATH = "ui"
-
-class ResultUIDNotFound(Exception): pass
 
 
 class BackendThread(QThread):
@@ -67,15 +57,15 @@ class BackendThread(QThread):
 ########################################################################################
 ########################################################################################
 # Define function to import external files when using PyInstaller.
-def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
+# def resource_path(relative_path):
+#     """ Get absolute path to resource, works for dev and for PyInstaller """
+#     try:
+#         # PyInstaller creates a temp folder and stores path in _MEIPASS
+#         base_path = sys._MEIPASS
+#     except Exception:
+#         base_path = os.path.abspath(".")
+#
+#     return os.path.join(base_path, relative_path)
 
 
 # Import .ui forms for the GUI using function resource_path()
@@ -152,9 +142,7 @@ class QtUtilsMixIn:
             self.get_widget(cls, name).setVisible(visible)
 
     def load_ui(self, filename, qt_obj):
-        ui_path = Path(UI_FILES_PATH)
-        ui_res = resource_path((ui_path / filename).as_posix())
-        uic.loadUi(ui_res, qt_obj)
+        uic.loadUi(filename, qt_obj)
         return True
 
     # def set_layout_visible(self, cls, obj_name, visible=True):
@@ -185,6 +173,8 @@ class PINDialog(QtUtilsMixIn, QtWidgets.QDialog):
         self.status, self.title = None, None
         self.ok_signal, self.tries_left = None, None
 
+        self.opts = {}
+
     def init_gui(self):
         self.checkbox = self.get_widget(QtWidgets.QCheckBox, "checkBox")
         self.checkbox.stateChanged.connect(self.checkbox_toggled)
@@ -205,13 +195,17 @@ class PINDialog(QtUtilsMixIn, QtWidgets.QDialog):
         self.ok_signal, self.tries_left = None, None
         self.line_edit.setText("")
         self.checkbox.setCheckState(0)
+        self.opts = {}
         self.hide()
 
     @pyqtSlot(dict)
-    def invoke(self, dct):
+    def invoke(self, opts):
+        self.opts = dct = opts
+
         self.tries_left = dct.get("retries", 0)
+        who = dct.get("who")
         if self.tries_left == 0:
-            self.user_warn("Please reset the user pin counter before continuing",
+            self.user_warn(f"Please reset the {who} pin counter before continuing",
                            "No attempts left")
             self.reset()
             return
@@ -231,13 +225,14 @@ class PINDialog(QtUtilsMixIn, QtWidgets.QDialog):
     @pyqtSlot()
     def ok_clicked(self):
         pin = self.line_edit.text()
-        # @fixme: mmmh, hardcoded or not?
+        def_pin = self.opts.get("default", "(?)")
+        # @fixme: get len-range from libnk.py
         if len(pin) < 6 or len(pin) > 20:
             self.line_edit.selectAll()
             self.user_warn("The pin requires to be 6-20 chars in length\n"
-                "default: 123456", "Invalid PIN")
+                f"default: {def_pin}", "Invalid PIN")
         else:
-            self.ok_signal.emit(pin)
+            self.ok_signal.emit(self.opts, pin)
 
 
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
@@ -246,11 +241,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     sig_disconnected = pyqtSignal()
     sig_lock = pyqtSignal(dict)
 
-    sig_admin_auth = pyqtSignal(str)
-
-    sig_ask_user_pin = pyqtSignal(dict)
-    sig_user_auth = pyqtSignal(str)
-    sig_confirm_user = pyqtSignal()
+    sig_ask_pin = pyqtSignal(dict)
+    sig_auth = pyqtSignal(dict, str)
+    sig_confirm_auth = pyqtSignal(str)
 
     sig_status_upd = pyqtSignal(dict)
 
@@ -281,25 +274,43 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.pin_dialog.load_ui(ui_files["pin"], self.pin_dialog)
         self.pin_dialog.init_gui()
 
-        ################################################################################
-        # app wide widgets
-        self.status_bar = self.get_widget(QtWidgets.QStatusBar, "statusBar")
-        self.menu_bar = self.get_widget(QtWidgets.QMenuBar, "menuBar")
-        self.tabs = self.get_widget(QtWidgets.QTabWidget, "tabWidget")
-        self.tab_overview = self.get_widget(QtWidgets.QWidget, "tab_5")
-        self.tab_otp_conf = self.get_widget(QtWidgets.QWidget, "tab")
-        self.tab_otp_gen = self.get_widget(QtWidgets.QWidget, "tab_2")
-        self.tab_pws = self.get_widget(QtWidgets.QWidget, "tab_3")
-        self.tab_settings = self.get_widget(QtWidgets.QWidget, "tab_4")
+        _get = self.get_widget
+        _qt = QtWidgets
 
         ################################################################################
+        #### get widget objects
+        ## app wide widgets
+        self.status_bar = _get(_qt.QStatusBar, "statusBar")
+        self.menu_bar = _get(_qt.QMenuBar, "menuBar")
+        self.tabs = _get(_qt.QTabWidget, "tabWidget")
+        self.tab_overview = _get(_qt.QWidget, "tab_5")
+        self.tab_otp_conf = _get(_qt.QWidget, "tab")
+        self.tab_otp_gen = _get(_qt.QWidget, "tab_2")
+        self.tab_pws = _get(_qt.QWidget, "tab_3")
+        self.tab_settings = _get(_qt.QWidget, "tab_4")
+
+        ## overview buttons
+        self.quit_button = _get(_qt.QPushButton, "btn_dial_quit")
+        self.help_btn = _get(_qt.QPushButton, "btn_dial_help")
+        self.lock_btn = _get(_qt.QPushButton, "btn_dial_lock")
+        self.unlock_pws_btn = _get(_qt.QPushButton, "btn_dial_PWS")
+
         # OTP widgets
-        self.radio_hotp = self.get_widget(QtWidgets.QRadioButton, "radioButton")
-        self.radio_totp = self.get_widget(QtWidgets.QRadioButton, "radioButton_2")
-        self.otp_combo_box = self.get_widget(QtWidgets.QComboBox, "slotComboBox")
-        self.otp_name = self.get_widget(QtWidgets.QLineEdit, "nameEdit")
-        self.otp_len_label = self.get_widget(QtWidgets.QLabel, "label_5")
-
+        self.radio_hotp = _get(_qt.QRadioButton, "radioButton")
+        self.radio_totp = _get(_qt.QRadioButton, "radioButton_2")
+        self.otp_combo_box = _get(_qt.QComboBox, "slotComboBox")
+        self.otp_name = _get(_qt.QLineEdit, "nameEdit")
+        self.otp_len_label = _get(_qt.QLabel, "label_5")
+        self.otp_erase_btn = _get(_qt.QPushButton, "eraseButton")
+        self.otp_save_btn = _get(_qt.QPushButton, "writeButton")
+        self.otp_cancel_btn = _get(_qt.QPushButton, "cancelButton")
+        self.otp_secret = _get(_qt.QLineEdit, "secretEdit")
+        self.otp_secret_type_b32 = _get(_qt.QRadioButton, "base32RadioButton")
+        self.otp_secret_type_hex = _get(_qt.QRadioButton, "hexRadioButton")
+        self.otp_gen_len = _get(_qt.QSpinBox, "secret_key_generated_len")
+        self.otp_gen_secret_btn = _get(_qt.QPushButton, "randomSecretButton")
+        self.otp_gen_secret_clipboard_btn = _get(_qt.QPushButton, "btn_copyToClipboard")
+        self.otp_gen_secret_hide = _get(_qt.QCheckBox, "checkBox")
 
         ################################################################################
         # set some props, initial enabled/visible, finally show()
@@ -307,7 +318,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         #self.tabs.setCurrentIndex(0)
         self.tabs.setCurrentWidget(self.tab_overview)
-        self.tabs.currentChanged.connect(self.tab_changed)
+        self.tabs.currentChanged.connect(self.slot_tab_changed)
 
         self.init_gui()
         self.show()
@@ -316,67 +327,152 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         ################################################################################
         # app wide callbacks
-        self.quit_button = self.get_widget(QtWidgets.QPushButton, "btn_dial_quit")
-        self.quit_button.clicked.connect(self.quit_button_pressed)
-
-        self.help_btn = self.get_widget(QtWidgets.QPushButton, "btn_dial_help")
-
-        self.lock_btn = self.get_widget(QtWidgets.QPushButton, "btn_dial_lock")
-        self.lock_btn.clicked.connect(self.lock_button_pressed)
-
-        self.unlock_pws = self.get_widget(QtWidgets.QPushButton, "btn_dial_PWS")
-        self.unlock_pws.clicked.connect(self.unlock_pws_button_pressed)
-
+        self.quit_button.clicked.connect(self.slot_quit_button_pressed)
+        self.lock_btn.clicked.connect(self.slot_lock_button_pressed)
+        self.unlock_pws_btn.clicked.connect(self.unlock_pws_button_pressed)
 
         ################################################################################
-        # connections for functional signals
+        #### connections for functional signals
+        ## generic / global
         self.connect_signal_slots(self.help_btn.clicked, self.sig_connected,
             [self.job_nk_connected, self.slot_toggle_otp], self.job_connect_device)
 
         self.sig_status_upd.connect(self.update_status_bar)
         self.sig_disconnected.connect(self.init_gui)
 
+        ## otp stuff
         self.radio_totp.toggled.connect(self.slot_toggle_otp)
         self.radio_hotp.toggled.connect(self.slot_toggle_otp)
 
-        ################################################################################
-        self.sig_ask_user_pin.connect(self.pin_dialog.invoke)
-        self.sig_user_auth.connect(self.slot_try_user_auth)
-        self.sig_confirm_user.connect(self.slot_confirm_user_auth)
+        self.otp_combo_box.currentIndexChanged.connect(self.slot_select_otp)
+        self.otp_erase_btn.clicked.connect(self.slot_erase_otp)
+        self.otp_cancel_btn.clicked.connect(self.slot_cancel_otp)
+        self.otp_save_btn.clicked.connect(self.slot_save_otp)
+
+        self.otp_secret.textChanged.connect(self.slot_otp_save_enable)
+        self.otp_name.textChanged.connect(self.slot_otp_save_enable)
+
+        self.otp_gen_secret_btn.clicked.connect(self.slot_random_secret)
+        self.otp_gen_secret_hide.stateChanged.connect(self.slot_secret_hide)
+
+        ## auth related
+        self.sig_ask_pin.connect(self.pin_dialog.invoke)
+        self.sig_auth.connect(self.slot_auth)
+        self.sig_confirm_auth.connect(self.slot_confirm_auth)
+
         self.sig_lock.connect(self.slot_lock)
 
+    #### helper
+    def get_active_otp(self):
+        who = "totp" if self.radio_totp.isChecked() else "hotp"
+        idx = self.otp_combo_box.currentIndex()
+        return who, idx, self.device.TOTP if who == "totp" else self.device.HOTP,
+
+    def ask_pin(self, who):
+        assert who in ["user", "admin"]
+        who_cap = who.capitalize()
+        dct = dict(
+                title=f"{who_cap} PIN:",
+                retries=self.device.user_pin_retries if who == "user" else
+                        self.device.admin_pin_retries,
+                sig=self.sig_auth,
+                default=self.device.default_user_pin if who == "user" else
+                        self.device.default_admin_pin,
+                who=who
+        )
+
+        self.sig_ask_pin.emit(dct)
+        self.msg(f"need {who_cap} auth")
+        return
+
+    def msg(self, what):
+        what = what if isinstance(what, dict) else {"msg": what}
+        self.sig_status_upd.emit(what)
+
+    #### OTP related callbacks
     @pyqtSlot()
-    def slot_confirm_user_auth(self):
-        self.unlock_pws.setEnabled(False)
-        self.lock_btn.setEnabled(True)
+    def slot_random_secret(self):
+        self.otp_secret_type_hex.setChecked(True)
+        cnt = int(self.otp_gen_len.text())
+        self.otp_secret.setText(self.device.gen_random(cnt, hex=True).decode("utf-8"))
 
-    @pyqtSlot(dict)
-    def slot_lock(self, status):
-        self.unlock_pws.setEnabled(True)
-        self.lock_btn.setEnabled(False)
+    @pyqtSlot()
+    def slot_cancel_otp(self):
+        _, _, otp_obj = self.get_active_otp()
 
-    @pyqtSlot(str)
-    def slot_try_user_auth(self, pin=None):
-        # @fixme: error translation must be done within libnk(!)
-        #         0 == "ok" .... bad bad
-        if self.device.user_auth(pin) == 0:
-            self.sig_confirm_user.emit()
-            self.pin_dialog.reset()
-            self.user_info("User authentification successful", parent=self.pin_dialog)
+        self.otp_secret.clear()
+        self.slot_select_otp()
+
+    @pyqtSlot()
+    def slot_erase_otp(self):
+        who, idx, otp_obj = self.get_active_otp()
+
+        if not self.device.is_auth_admin:
+            self.ask_pin("admin")
+            return
+
+        ret = otp_obj.erase(idx)
+        if not ret.ok:
+            self.msg(f"failed erase {who.upper()} #{idx + 1} err: {ret.name}")
         else:
-            self.user_err("The provided user-PIN is not correct, please retry!",
-                          "Not authenticated", parent=self.pin_dialog)
+            self.msg(f"erased {who.upper()} #{idx + 1}")
+            self.slot_select_otp(idx)
 
-            self.sig_ask_user_pin.emit(dict(title="User PIN:",
-                retries=self.device.user_pin_retries,
-                sig=self.sig_user_auth))
+    @pyqtSlot()
+    def slot_otp_save_enable(self):
+        self.otp_save_btn.setEnabled(True)
+        self.otp_cancel_btn.setEnabled(True)
+
+    @pyqtSlot()
+    def slot_save_otp(self):
+        who, idx, otp_obj = self.get_active_otp()
+
+        if not self.device.is_auth_admin:
+            self.ask_pin("admin")
+            return
+
+        name = self.otp_name.text()
+        if len(name) == 0:
+            self.user_err("need non-empty name")
+            return
+
+        secret = self.otp_secret.text()
+        # @fixme: what are the secret allowed lengths/chars
+        #if len(secret)
+
+        ret = otp_obj.write(idx, name, secret)
+        if not ret.ok:
+            self.msg(f"failed writing to {who.upper()} slot #{idx+1} err: {ret.name}")
+        else:
+            self.msg(f"wrote {who.upper()} slot #{idx+1}")
+            self.otp_secret.clear()
+            self.slot_select_otp(idx)
+
+    @pyqtSlot()
+    def slot_select_otp(self, force_idx=None):
+        who, idx, otp_obj = self.get_active_otp()
+
+        if force_idx is not None and idx != force_idx:
+            idx = force_idx
+            self.otp_combo_box.setCurrentIndex(idx)
+
+        if idx < 0 or idx is None:
+            return
+
+        name = otp_obj.get_name(idx)
+        self.otp_name.setText(name)
+        self.otp_combo_box.setItemText(idx, f"{who.upper()} #{idx+1} ({name})")
+
+        if name:
+            self.sig_status_upd.emit({"msg": otp_obj.get_code(idx)})
+
+        self.otp_cancel_btn.setEnabled(False)
+        self.otp_save_btn.setEnabled(False)
 
     @pyqtSlot()
     def slot_toggle_otp(self):
-        who = None
-        if self.radio_totp.isChecked():
-            who = "totp"
-
+        who, idx, otp_obj = self.get_active_otp()
+        if who == "totp":
             # labels
             self.otp_len_label.setText("TOTP length:")
             self.set_visible(QtWidgets.QLabel, ["label_6"], False)
@@ -390,8 +486,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 ["setToRandomButton", "setToZeroButton"], False)
             self.set_visible(QtWidgets.QLineEdit, ["counterEdit"], False)
         else:
-            who = "hotp"
-
             # labels
             self.otp_len_label.setText("HOTP length:")
             self.set_visible(QtWidgets.QLabel, ["intervalLabel"], False)
@@ -407,14 +501,49 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         # drop down contents
         self.otp_combo_box.clear()
-        what = self.device.TOTP if who == "totp" else self.device.HOTP
-        for idx in range(what.count):
-            name = what.get_name(idx) or "n/a"
+        for idx in range(otp_obj.count):
+            name = otp_obj.get_name(idx) or ""
             self.otp_combo_box.addItem(f"{who.upper()} #{idx+1} ({name})")
             if idx == 0:
                 self.otp_name.setText(name)
 
+    @pyqtSlot(int)
+    def slot_secret_hide(self, state):
+        if state == 2:
+            self.otp_secret.setEchoMode(QtWidgets.QLineEdit.Password)
+        elif state == 0:
+            self.otp_secret.setEchoMode(QtWidgets.QLineEdit.Normal)
 
+    @pyqtSlot(str)
+    def slot_confirm_auth(self, who):
+        self.unlock_pws_btn.setEnabled(False)
+        self.lock_btn.setEnabled(True)
+
+        self.msg(f"{who.capitalize()} authenticated!")
+
+    @pyqtSlot(dict)
+    def slot_lock(self, status):
+        self.unlock_pws_btn.setEnabled(True)
+        self.lock_btn.setEnabled(False)
+        self.sig_disconnected.emit()
+
+    #### app-wide slots
+    @pyqtSlot(dict, str)
+    def slot_auth(self, opts, pin=None):
+        who = opts.get("who")
+        assert who in ["user", "admin"]
+        who_cap = who.capitalize()
+
+        auth_func = self.device.user_auth if who == "user" else self.device.admin_auth
+        if pin is not None and auth_func(pin).ok:
+            self.sig_confirm_auth.emit(who)
+            self.pin_dialog.reset()
+            self.user_info(f"{who_cap} auth successful", parent=self.pin_dialog)
+        else:
+            self.user_err(f"The provided {who}-PIN is not correct, please retry!",
+                          f"{who_cap} not authenticated",
+                          parent=self.pin_dialog)
+            self.ask_pin(who)
 
     @pyqtSlot()
     def init_gui(self):
@@ -434,12 +563,13 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         if len(devs) > 0:
             _dev = devs[tuple(devs.keys())[0]]
+
             if _dev["model"] == 1:
                 dev = nk_api.NitrokeyPro()
             elif _dev["model"] == 2:
                 dev = nk_api.NitrokeyStorage()
             else:
-                self.sig_status_upd.emit({"msg": "Unknown device model detected"})
+                self.msg("Unknown device model detected")
                 return {"connected": False}
 
             try:
@@ -447,8 +577,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 self.device = dev
             except nk_api.DeviceNotFound as e:
                 self.device = None
-                self.sig_status_upd.emit(
-                    {"msg": "Connection failed, already in use?"})
+                self.msg("Connection failed, already in use?")
                 return {"connected": False}
 
         if not self.device.connected:
@@ -456,7 +585,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             return {"connected": False}
 
         status = dev.status
-        self.sig_status_upd.emit({"status": status, "connected": status["connected"]})
+        self.msg({"status": status, "connected": status["connected"]})
 
         return {"connected": status["connected"], "status": status, "device": dev}
 
@@ -488,7 +617,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     @pyqtSlot(dict)
     def job_nk_connected(self, res_dct):
         if not res_dct["connected"]:
-            self.sig_status_upd.emit({"msg": "Not connected"})
+            self.msg("Not connected")
             return
 
         info = res_dct["status"]
@@ -510,37 +639,35 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         print(f"hello signaled from worker, started successfully")
 
     @pyqtSlot(int)
-    def tab_changed(self, idx):
+    def slot_tab_changed(self, idx):
         pass
 
     #### main-window callbacks
     @pyqtSlot()
-    def quit_button_pressed(self):
+    def slot_quit_button_pressed(self):
         self.backend_thread.stop_loop()
         self.backend_thread.wait()
         self.app.quit()
 
     @pyqtSlot()
-    def lock_button_pressed(self):
+    def slot_lock_button_pressed(self):
         if not self.device.connected:
-            self.sig_status_upd.emit({"connected": False})
+            self.msg({"connected": False})
             self.sig_disconnected.emit()
             return
 
         self.device.lock()
-        self.sig_status_upd.emit({"msg": "Locked device!"})
+        self.msg("Locked device!")
         self.sig_lock.emit(self.device.status)
 
     @pyqtSlot()
     def unlock_pws_button_pressed(self):
         if not self.device.connected:
-            self.sig_status_upd.emit({"connected": False})
+            self.msg({"connected": False})
             self.sig_disconnected.emit()
             return
 
-        self.sig_ask_user_pin.emit(dict(title="User PIN:",
-            retries=self.device.user_pin_retries,
-            sig=self.sig_user_auth))
+        self.ask_pin("user")
 
 
     #### init main windows
@@ -562,8 +689,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         self.radio_totp.setChecked(True)
         self.radio_hotp.setChecked(False)
-
-
 
     @pyqtSlot()
     def init_otp_general(self):
