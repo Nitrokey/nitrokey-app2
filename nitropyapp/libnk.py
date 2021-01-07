@@ -655,5 +655,6 @@ class PasswordSlots(BaseSlots):
 
 if __name__ == "__main__":
     nkp = NitrokeyPro()
+    nkp.list_devices()
     print(nkp.connect())
     print(nkp.admin_auth("12345678"))
