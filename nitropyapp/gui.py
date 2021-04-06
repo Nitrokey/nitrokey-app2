@@ -161,6 +161,14 @@ class QtUtilsMixIn:
     #         cur = to_hide.pop(0)
 
 
+class AboutDialog(QtUtilsMixIn, QtWidgets.QDialog):
+    def __init__(self, qt_app: QtWidgets.QApplication):
+        QtWidgets.QDialog.__init__(self)
+        QtUtilsMixIn.__init__(self)
+
+        self.app = qt_app
+
+
 ##### @fixme: PINDialog should be modal!
 class PINDialog(QtUtilsMixIn, QtWidgets.QDialog):
     def __init__(self, qt_app: QtWidgets.QApplication):
@@ -276,6 +284,16 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         _get = self.get_widget
         _qt = QtWidgets
+
+        ################################################################################
+        # playground
+
+        self.about_dialog = AboutDialog(qt_app)
+        self.about_dialog.load_ui(ui_dir / "aboutdialog.ui", self.about_dialog)
+        self.about_dialog.show()
+
+
+
 
         ################################################################################
         #### get widget objects
