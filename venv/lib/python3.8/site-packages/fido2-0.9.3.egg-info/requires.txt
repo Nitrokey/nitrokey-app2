@@ -1,0 +1,8 @@
+cryptography>=1.5
+six
+
+[:python_version < "3.4"]
+enum34
+
+[pcsc]
+pyscard

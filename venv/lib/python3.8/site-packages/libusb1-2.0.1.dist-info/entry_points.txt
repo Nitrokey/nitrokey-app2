@@ -1,0 +1,4 @@
+[pyinstaller40]
+hook-dirs = usb1.__pyinstaller:get_hook_dirs
+tests = usb1.__pyinstaller:get_PyInstaller_tests
+

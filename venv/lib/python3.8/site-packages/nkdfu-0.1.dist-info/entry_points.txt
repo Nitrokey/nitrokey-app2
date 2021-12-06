@@ -1,0 +1,3 @@
+[console_scripts]
+nkdfu=nkdfu.dfu_flash:cli
+
