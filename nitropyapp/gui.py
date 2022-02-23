@@ -2,9 +2,12 @@
 # use "pbs" for packaging...
 # pip-run -> pyqt5
 # pip-dev -> pyqt5-stubs
-
+import pyudev
+from pyudev.pyqt5 import MonitorObserver
 import sys
 import os
+import functools
+
 from pathlib import Path
 from queue import Queue
 
@@ -14,6 +17,9 @@ from PyQt5.Qt import QApplication, QClipboard, QLabel, QMovie, QIcon
 
 sys.path.append("submodules/pynitrokey/pynitrokey")
 import libnk as nk_api
+# Nitrokey 3
+from pynitrokey.nk3.base import Nitrokey3Base
+from pynitrokey.nk3.device import Nitrokey3Device
 #import nitropyapp.libnk as nk_api
 import nitropyapp.ui.breeze_resources
 #pyrcc5 -o gui_resources.py ui/resources.qrc
@@ -108,6 +114,8 @@ class QtUtilsMixIn:
         """
         for res_slot in res_slots:
             signal.connect(res_slot)
+            print(signal)
+            print(res_slot)
         _func = lambda: cls.backend_thread.add_job(signal, func, *va, **kw)
         return slot.connect(_func)
 
@@ -496,8 +504,11 @@ class PINDialog(QtUtilsMixIn, QtWidgets.QDialog):
                 f"default: {def_pin}", "Invalid PIN")
         else:
             self.ok_signal.emit(self.opts, pin)
-
-
+#############################################classes for the nitrokeys
+class Nitrokey_3():
+#########needs to create button in the vertical navigation with the nitrokey type and serial number as text
+    btn = QPushButton("button1")
+    self.navigation_frame.addWidget(btn)
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     sig_connected = pyqtSignal(dict)
@@ -523,6 +534,18 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.backend_thread.hello.connect(self.backend_cb_hello)
         self.backend_thread.start()
         
+        #pyudev stuff
+        self.context = pyudev.Context()
+        self.monitor = pyudev.Monitor.from_netlink(self.context)
+        self.monitor.filter_by(subsystem='usb')
+        self.observer = MonitorObserver(self.monitor)
+        self.observer.deviceEvent.connect(self.device_connect)
+        #for device in self.context.list_devices(subsystem="usb"):
+        #    print(device)
+        #     print('{0}'.format(device))
+
+        self.monitor.start()
+
         ################################################################################
         # load UI-files and prepare them accordingly
         ui_dir = Path(__file__).parent.resolve().absolute() / "ui"
@@ -591,6 +614,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.frame_p = _get(_qt.QFrame, "frame_pro")
         self.frame_s = _get(_qt.QFrame, "frame_storage")
         self.frame_f = _get(_qt.QFrame, "frame_fido2")
+        self.navigation_frame = _get(_qt.QFrame, "vertical_navigation")
         self.hidden_volume = _get(_qt.QPushButton, "btn_dial_HV")
         ## PWS
         self.information_label = _get(_qt.QLabel, "label_16")
@@ -676,12 +700,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         ################################################################################
         #### connections for functional signals
         ## generic / global
-        self.connect_signal_slots(self.help_btn.clicked, self.sig_connected,
+        self.connect_signal_slots(self.pro_btn.clicked, self.sig_connected,
             [self.job_nk_connected, 
             ### otp_combo_box is missing
-            #self.slot_toggle_otp
+            #self.toggle_otp
+            self.load_active_slot
             ], self.job_connect_device)
-
         self.sig_status_upd.connect(self.update_status_bar)
         self.sig_disconnected.connect(self.init_gui)
         ## overview
@@ -741,6 +765,53 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.sig_confirm_auth.connect(self.slot_confirm_auth)
 
         self.sig_lock.connect(self.slot_lock)
+        
+    ### experimental idea to differ between removed and added
+    def device_connect(self):
+         for dvc in iter(functools.partial(self.monitor.poll, 2), None):
+            print(dvc.action)
+            if (dvc.action == "remove"):
+                print("remove")
+                print(dvc)
+
+            elif (dvc.action == "add"):
+                print("add")
+               
+                func1 = lambda w: (w.setEnabled(False), w.setVisible(False))
+                self.apply_by_name(["pushButton_storage","pushButton_pro", "btn_dial_HV"], func1) # overview
+                ############## devs for the libraries
+                devs = nk_api.BaseLibNitrokey.list_devices()
+                devs_nk3 = pynitrokey.Nitrokey3Device.list()
+
+                print(devs)
+                print(devs_nk3)
+                dev = None
+                #print(self.device.status)
+                #print(self.device.serial)
+                if self.device is not None:
+                    return {"device": self.device, "connected": self.device.connected,
+                            "status": self.device.status}
+                
+                if len(devs) > 0:
+                    _dev = devs[tuple(devs.keys())[0]]
+                    # enable and show needed widgets
+                    func = lambda w: (w.setEnabled(True), w.setVisible(True))
+                    if _dev["model"] == 1:
+                        dev = nk_api.NitrokeyPro()
+                        print("pro")
+                        self.apply_by_name(["pushButton_pro", "btn_dial_HV"], func) # overview
+                    elif _dev["model"] == 2:
+                        dev = nk_api.NitrokeyStorage()
+                        print("storage")
+                        self.apply_by_name(["pushButton_storage", "btn_dial_HV"], func) # overview 
+                    elif                  
+                    else:
+                        #func = lambda w: (w.setEnabled(False), w.setVisible(False))
+                        #self.apply_by_name(["pushButton_storage","pushButton_pro", "btn_dial_HV"], func) # overview
+                        print("removed button(s)")
+                        self.msg("Unknown device model detected")
+                        return {"connected": False}
+
     @pyqtSlot()   
     #### press f1 for connecting keys
     def keyPressEvent(self, event):
@@ -770,7 +841,21 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         who = "totp" if self.radio_totp_2.isChecked() else "hotp"
         idx = self.otp_combo_box.currentIndex()
         return who, idx, self.device.TOTP if who == "totp" else self.device.HOTP,
-
+        ############## get the current password slots from the key
+    @pyqtSlot()
+    def load_active_slot_name(self):
+        if self.device is not None:
+            return self.device.TOTP
+        else:
+            print("device is none")
+    def load_active_slot(self):
+        all_otp = self.load_active_slot_name()
+        for index in range(10):
+            name = all_otp.get_name(index)
+            if name:
+                self.add_table_pws_from_key(index)
+                
+                    
     def ask_pin(self, who):
         assert who in ["user", "admin"]
         who_cap = who.capitalize()
@@ -828,6 +913,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         
         print(index.row(), index.column())
         print(item.text())
+        self.scrollArea.show()
+        self.information_label.show()
         self.pws_editslotname.setText(item.text())
         self.pws_editloginname.setText(item2.text())
         self.pws_editpassword.setText(item3.text())
@@ -844,6 +931,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.pws_editOTP.setEchoMode(QtWidgets.QLineEdit.Password)
         self.show_hide_btn_2.hide()
     def add_table_pws(self):
+
         row = self.table_pws.rowCount()
         self.table_pws.insertRow(row)
         # self.table_pws.setItem(row , 0, (QtWidgets.QTableWidgetItem("Name")))
@@ -855,6 +943,108 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         qline3 = self.pws_editpassword.text()
         qline4 = self.pws_editOTP.text()
         qline5 = self.pws_editnotes.toPlainText()
+        res = "{} {} {}".format(qline, "\n", qline2)
+
+        ##### creates otp on key
+
+        if not self.device.is_auth_admin:
+            self.ask_pin("admin")
+            return
+
+        name = qline
+        if len(name) == 0:
+            self.user_err("need non-empty name")
+            return
+
+        secret = qline4
+        idx = row
+        who = "totp"
+        print(type(secret))
+        print(type(idx))
+        print(type(name))
+        # @fixme: what are the secret allowed lengths/chars
+        #if len(secret)
+        print(row)
+
+        ret = self.device.TOTP.write(idx, name, qline4)
+        if not ret.ok:
+            self.msg(f"failed writing to {who.upper()} slot #{idx+1} err: {ret.name}")
+            print("ret not ok")
+        else:
+            self.msg(f"wrote {who.upper()} slot #{idx+1}")
+            self.otp_secret.clear()
+            self.slot_select_otp(idx)
+            print("ret ok")
+
+        class EditButtonsWidget(QtWidgets.QWidget):
+            def __init__(self, table= self.table_pws, pop_up_copy= self.pop_up_copy, parent=None):
+                super().__init__(parent)
+                self.table_pws = table
+                self.pop_up_copy = pop_up_copy
+                
+                # add your buttons
+                layout = QtWidgets.QHBoxLayout()
+                layout.setContentsMargins(0,0,0,0)
+                layout.setSpacing(0)
+
+                Copy = QtWidgets.QPushButton('Icon')
+                Copy.setFixedSize(65,65)
+                Copy.clicked.connect(self.copy_to_clipboard_function)
+                layout.addWidget(Copy)
+                layout.addWidget(QtWidgets.QLabel(str(res)))
+               
+                self.setLayout(layout)
+            @pyqtSlot()
+            def copy_to_clipboard_function(self):
+                buttons_index = self.table_pws.indexAt(self.pos())
+                item = self.table_pws.item(buttons_index.row(), buttons_index.column()+3)
+                QApplication.clipboard().setText(item.text())
+                 # qtimer popup
+                self.time_to_wait = 5
+                self.pop_up_copy.setText("Data added to clipboard.") #{0} for time display
+                self.pop_up_copy.setStyleSheet("background-color: #2B5DD1; color: #FFFFFF ; border-style: outset;" 
+                "padding: 2px ; font: bold 20px ; border-width: 6px ; border-radius: 10px ; border-color: #2752B8;")
+                self.pop_up_copy.show()
+                self.timer = QTimer(self)
+                self.timer.setInterval(1000)
+                self.timer.timeout.connect(self.changeContent)
+                self.timer.start()  
+            def changeContent(self):
+                self.pop_up_copy.setText("Data added to clipboard.")
+                self.time_to_wait -= 1
+                if self.time_to_wait <= 0:
+                    self.pop_up_copy.hide()
+                    self.timer.stop()
+            def closeEvent(self, event):
+                self.timer.stop()
+                event.accept()
+
+            
+        self.table_pws.setCellWidget(row , 0, (EditButtonsWidget()))
+        self.table_pws.setItem(row , 1, (QtWidgets.QTableWidgetItem(qline)))
+        self.table_pws.setItem(row , 2, (QtWidgets.QTableWidgetItem(qline2)))
+        self.table_pws.setItem(row , 3, (QtWidgets.QTableWidgetItem(qline3)))
+        self.table_pws.setItem(row , 4, (QtWidgets.QTableWidgetItem(qline4)))
+        self.table_pws.setItem(row , 5, (QtWidgets.QTableWidgetItem(qline5)))
+        self.pws_editslotname.setText("")
+        self.pws_editloginname.setText("")
+        self.pws_editpassword.setText("")
+        self.pws_editOTP.setText("")
+        self.pws_editnotes.setText("")
+    ######################## adds the data existing of the key to the table
+    def add_table_pws_from_key(self, x):
+        row = self.table_pws.rowCount()
+        print(row)
+        self.table_pws.insertRow(row)
+        # self.table_pws.setItem(row , 0, (QtWidgets.QTableWidgetItem("Name")))
+        # self.table_pws.setItem(row , 1, (QtWidgets.QTableWidgetItem("Username")))
+
+        index = (self.table_pws.currentIndex())
+        qline = self.device.TOTP.get_name(x)
+        qline2 = ""
+        qline3 = ""
+        qline4 = self.device.TOTP.get_code(x)
+        qline5 = ""
         res = "{} {} {}".format(qline, "\n", qline2)
 
         class EditButtonsWidget(QtWidgets.QWidget):
@@ -912,6 +1102,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.pws_editpassword.setText("")
         self.pws_editOTP.setText("")
         self.pws_editnotes.setText("")
+
     def add_pws(self):
         self.scrollArea.show()
         self.information_label.show()
@@ -1178,7 +1369,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.msg(f"wrote {who.upper()} slot #{idx+1}")
             self.otp_secret.clear()
             self.slot_select_otp(idx)
-
     @pyqtSlot()
     def slot_select_otp(self, force_idx=None):
         who, idx, otp_obj = self.get_active_otp()
@@ -1276,6 +1466,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                           parent=self.pin_dialog)
             self.ask_pin(who)
 ###############################################################################################
+
     @pyqtSlot()
     def init_gui(self):
         self.init_otp_conf()
@@ -1289,15 +1480,21 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         if self.device is not None:
             return {"device": self.device, "connected": self.device.connected,
-                    "status": self.device.status}
-
+                    "status": self.device.status, "serial": self.device.serial}
+        ####### "serial" to get the serial number
         if len(devs) > 0:
             _dev = devs[tuple(devs.keys())[0]]
 
             if _dev["model"] == 1:
                 dev = nk_api.NitrokeyPro()
+                print("pro")
+                #print(self.device.status)
+                #print(self.device.serial)
             elif _dev["model"] == 2:
                 dev = nk_api.NitrokeyStorage()
+                print("storage")
+                #print(self.device.status)
+                #print(self.device.serial)
             else:
                 self.msg("Unknown device model detected")
                 return {"connected": False}
@@ -1362,7 +1559,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         if info["model"] == nk_api.DeviceModel.NK_STORAGE:
             self.apply_by_name(["pushButton_storage", "btn_dial_HV"], func) # overview
-
+        elif info["model"] == nk_api.DeviceModel.NK_PRO:
+            self.apply_by_name(["pushButton_pro", "btn_dial_HV"], func) # overview
     #### backend callbacks
     @pyqtSlot()
     def backend_cb_hello(self):
@@ -1516,7 +1714,7 @@ def main():
     QtUtilsMixIn.backend_thread = BackendThread()
 
     app = QtWidgets.QApplication(sys.argv)
-
+  
     # set stylesheet
     file = QFile(":/light.qss")
     file.open(QFile.ReadOnly | QFile.Text)
