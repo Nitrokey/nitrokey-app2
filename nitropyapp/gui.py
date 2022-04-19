@@ -6,20 +6,44 @@ import pyudev
 from pyudev.pyqt5 import MonitorObserver
 import sys
 import os
+import os.path
 import functools
+import platform
+#tests
+import datetime 
+import time
 
 from pathlib import Path
 from queue import Queue
+from tqdm import tqdm
 
+from typing import List, Optional, Tuple, Type, TypeVar
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTextStream, QTimer, QSortFilterProxyModel, QSize, QRect
-from PyQt5.Qt import QApplication, QClipboard, QLabel, QMovie, QIcon
-
-sys.path.append("submodules/pynitrokey/pynitrokey")
-import libnk as nk_api
+from PyQt5.Qt import QApplication, QClipboard, QLabel, QMovie, QIcon, QProgressBar, QMessageBox
+####### submodule is not needed!!!
+#sys.path.append("submodules/pynitrokey/pynitrokey")
+from pynitrokey import libnk as nk_api
 # Nitrokey 3
+from pynitrokey.cli.exceptions import CliException
+from pynitrokey.helpers import Retries, local_print
 from pynitrokey.nk3.base import Nitrokey3Base
-from pynitrokey.nk3.device import Nitrokey3Device
+from pynitrokey.nk3.exceptions import TimeoutException
+from pynitrokey.nk3.device import BootMode, Nitrokey3Device
+from pynitrokey.nk3 import list as list_nk3
+from pynitrokey.nk3 import open as open_nk3
+from pynitrokey.nk3.updates import get_repo
+from pynitrokey.nk3.utils import Version
+from pynitrokey.updates import OverwriteError
+from pynitrokey.nk3.bootloader import (
+    RKHT,
+    FirmwareMetadata,
+    Nitrokey3Bootloader,
+    check_firmware_image,
+)
+from spsdk.mboot.exceptions import McuBootConnectionError
+
+
 #import nitropyapp.libnk as nk_api
 import nitropyapp.ui.breeze_resources
 #pyrcc5 -o gui_resources.py ui/resources.qrc
@@ -28,8 +52,9 @@ import nitropyapp.gui_resources
 
 #import pysnooper
 #@pysnooper.snoop
-
-
+T = TypeVar("T", bound=Nitrokey3Base)
+start_time = 0
+block_time = 0
 class BackendThread(QThread):
     hello = pyqtSignal()
 
@@ -89,8 +114,362 @@ class BackendThread(QThread):
 ########################################################################################
 ########################################################################################
 ########################################################################################
+#### nk3
+################c++ code from cli.nk3.init
+#logger = logging.getLogger(__name__)
+class Nk3_Context:
+    def __init__(self, nk3_context: Nitrokey3Base) -> None:
+        self.path = nk3_context
+        print(self.path)
+
+    def list(self) -> List[Nitrokey3Base]:
+        if self.path:
+            device = open_nk3(self.path)
+            if device:
+                print("funzt")
+                print(type(device))
+                return [device]
+                
+            else:
+                print("funzt nicht")
+                return []
+                
+        else:
+            print("list_nk3")
+            return list_nk3()
+
+    
+    def _select_unique(self, name: str, devices: List[T]) -> T:
+        if len(devices) == 0:
+            msg = f"No {name} device found"
+            if self.path:
+                msg += f" at path {self.path}"
+            raise CliException(msg)
+
+        if len(devices) > 1:
+            raise CliException(
+                f"Multiple {name} devices found -- use the --path option to select one"
+            )
+
+        return devices[0]
+
+    def connect(self) -> Nitrokey3Base:
+        return self._select_unique("Nitrokey 3", self.list())
+
+    def connect_device(self) -> Nitrokey3Device:
+        devices = [
+            device for device in self.list() if isinstance(device, Nitrokey3Device)
+        ]
+        print(devices)
+        return self._select_unique("Nitrokey 3", devices)
+
+    def _await(self, name, ty: Type[T]) -> T:
+        for t in Retries(10):
+            #logger.debug(f"Searching {name} device ({t})")
+            print(f"Searching {name} device ({t})")
+            devices = [device for device in list_nk3() if isinstance(device, ty)] # changed self.list() to list_nk3()
+            if len(devices) == 0:
+                #logger.debug(f"No {name} device found, continuing")
+                print(f"No {name} device found, continuing")
+                continue
+            if len(devices) > 1:
+                raise CliException(f"Multiple {name} devices found")
+            return devices[0]
+
+        raise CliException(f"No {name} device found")
+
+    def await_device(self) -> Nitrokey3Device:
+        return self._await("Nitrokey 3", Nitrokey3Device)
+
+    def await_bootloader(self) -> Nitrokey3Bootloader:
+        return self._await("Nitrokey 3 bootloader", Nitrokey3Bootloader)
+
+# def nk3(ctx: click.Context, path=None):
+#     """Interact with Nitrokey 3, see subcommands."""
+#     ctx.obj = Context(path)
 
 
+def list():
+    """List all Nitrokey 3 devices."""
+    print(":: 'Nitrokey 3' keys")
+    #device = Nitrokey3Device.list
+    for device in list_nk3():
+            uuid = device.uuid()
+            if uuid:
+                print(f"{device.path}: {device.name} {device.uuid():X}")
+            else:
+                print(f"{device.path}: {device.name}")
+
+def test(ctx, pin: Optional[str]):
+    """Run some tests on all connected Nitrokey 3 devices."""
+    from pynitrokey.cli.nk3.test import TestContext, log_devices, log_system, run_tests
+
+    log_system()
+    devices = ctx.list()
+
+    if len(devices) == 0:
+        log_devices()
+        raise CliException("No connected Nitrokey 3 devices found")
+
+    print(f"Found {len(devices)} Nitrokey 3 device(s):")
+    for device in devices:
+        print(f"- {device.name} at {device.path}")
+
+    results = []
+    test_ctx = TestContext(pin=pin)
+    for device in devices:
+        results.append(run_tests(test_ctx, device))
+
+    n = len(devices)
+    success = sum(results)
+    failure = n - success
+    print("")
+    print(
+        f"Summary: {n} device(s) tested, {success} successful, {failure} failed"
+    )
+
+    if failure > 0:
+        print("")
+        raise CliException(f"Test failed for {failure} device(s)")
+def version(ctx: Nk3_Context) -> None:
+    """Query the firmware version of the device."""
+    with ctx.connect_device() as device:
+        version = device.version()
+        local_print(version)
+
+def wink(ctx: Nk3_Context) -> None:
+    """Send wink command to the device (blinks LED a few times)."""
+    with ctx.connect_device() as device:
+        device.wink()
+def _download_latest_update(device: Nitrokey3Base):
+    try:
+        update = get_repo().get_latest_update()
+        #logger.info(f"Latest firmware version: {update.tag}")
+        print(f"Latest firmware version: {update.tag}")
+    except Exception as e:
+        raise CliException("Failed to find latest firmware update", e)
+
+    try:
+        release_version = Version.from_v_str(update.tag)
+
+        if isinstance(device, Nitrokey3Device):
+            current_version = device.version()
+            #_print_download_warning(release_version, current_version)
+        else:
+            #_print_download_warning(release_version)
+            print("relaseversion")
+    except ValueError as e:
+        #logger.warning("Failed to parse version from release tag", e)
+        print(("Failed to parse version from release tag", e))
+
+    try:
+        #logger.info(f"Trying to download firmware update from URL: {update.url}")
+        print((f"Trying to download firmware update from URL: {update.url}"))
+
+        bar = DownloadProgressBar(desc=update.tag)
+        data = update.read(callback=bar.update)
+        bar.close()
+
+        return (release_version, data)
+    except Exception as e:
+        raise CliException(f"Failed to download latest firmware update {update.tag}", e)
+
+def nk3_update(ctx: Nk3_Context, image: Optional[str]):
+    """
+    Update the firmware of the device using the given image.
+    This command requires that exactly one Nitrokey 3 in bootloader or firmware mode is connected.
+    The user is asked to confirm the operation before the update is started.  The Nitrokey 3 may
+    not be removed during the update.  Also, additional Nitrokey 3 devices may not be connected
+    during the update.
+    If no firmware image is given, the latest firmware release is downloaded automatically.
+    If the connected Nitrokey 3 device is in firmware mode, the user is prompted to touch the
+    device’s button to confirm rebooting to bootloader mode.
+    """
+
+    #if experimental:
+    "The --experimental switch is not required to run this command anymore and can be safely removed."
+
+    with ctx.connect() as device:
+        #loading_screen1 = LoadingScreen()
+        #loading_screen1.startAnimation()
+        #msgbox = QMessageBox( QMessageBox.Warning, "My title", "My text.", QMessageBox.NoButton )
+        #l = msgbox.layout()
+        #l.itemAtPosition( l.rowCount() - 1, 0 ).widget().hide()
+        #qprogressbar = QProgressBar()
+        #l.addWidget(qprogressbar,l.rowCount(), 0, 1, l.columnCount(), Qt.AlignCenter )
+        #msgbox.show()
+        release_version = None
+        if image:
+            with open(image, "rb") as f:
+                data = f.read()
+        else:
+            release_version, data = _download_latest_update(device)
+
+        metadata = check_firmware_image(data)
+        if release_version and release_version != metadata.version:
+            raise CliException(
+                f"The firmware image for the release {release_version} has the unexpected product "
+                f"version {metadata.version}."
+            )
+
+        if isinstance(device, Nitrokey3Device):
+            if not release_version:
+                current_version = device.version()
+                #_print_version_warning(metadata, current_version)
+            #_print_update_warning()
+
+            local_print("")
+            _reboot_to_bootloader(device)
+            local_print("")
+
+            if platform.system() == "Darwin":
+                # Currently there is an issue with device enumeration after reboot on macOS, see
+                # <https://github.com/Nitrokey/pynitrokey/issues/145>.  To avoid this issue, we
+                # cancel the command now and ask the user to run it again.
+                local_print(
+                    "Bootloader mode enabled. Please repeat this command to apply the update."
+                )
+                raise click.Abort()
+
+            exc = None
+            for t in Retries(3):
+                #logger.debug(f"Trying to connect to bootloader ({t})")
+                print(f"Trying to connect to bootloader ({t})")
+                try:
+                    # path doesnt change automatically
+                    #ctx = Nk3_Context("/dev/hidraw2")
+                    #time.sleep(1)
+                    with ctx.await_bootloader() as bootloader:
+                        #QtUtilsMixIn.backend_thread.add_job(signal=GUI.change_value, slot=GUI.setProgressVal,func=_perform_update(bootloader, data))
+                        _perform_update(bootloader, data)
+                        print("worked")
+                    break
+                except McuBootConnectionError as e:
+                    #logger.debug("Received connection error", exc_info=True)
+                    print("Received connection error", exc_info=True)
+                    exc = e
+            else:
+                msgs = ["Failed to connect to Nitrokey 3 bootloader"]
+                if platform.system() == "Linux":
+                    msgs += ["Are the Nitrokey udev rules installed and active?"]
+                raise CliException(*msgs, exc)
+                print((*msgs, exc))
+        elif isinstance(device, Nitrokey3Bootloader):
+            #_print_version_warning(metadata)
+            #_print_update_warning()
+            _perform_update(device, data)
+        else:
+            raise CliException(f"Unexpected Nitrokey 3 device: {device}")
+            print(f"Unexpected Nitrokey 3 device: {device}")
+        local_print("")
+        with ctx.await_device() as device:
+            version = device.version()
+            if version == metadata.version:
+                #msgbox.close()
+                local_print(f"Successfully updated the firmware to version {version}.")
+                print(f"Successfully updated the firmware to version {version}.")
+            else:
+                raise CliException(
+                    f"The firmware update to {metadata.version} was successful, but the firmware "
+                    f"is still reporting version {version}."
+                )
+                print(f"The firmware update to {metadata.version} was successful, but the firmware "
+                    f"is still reporting version {version}.")
+
+def reboot(ctx: Nk3_Context, bootloader: bool) -> None:
+    """
+    Reboot the key.
+    Per default, the key will reboot into regular firmware mode.  If the --bootloader option
+    is set, a key can boot from firmware mode to bootloader mode.  Booting into
+    bootloader mode has to be confirmed by pressing the touch button.
+    """
+    with ctx.connect() as device:
+        if bootloader:
+            if isinstance(device, Nitrokey3Device):
+                _reboot_to_bootloader(device)
+            else:
+                raise CliException(
+                    "A Nitrokey 3 device in bootloader mode can only reboot into firmware mode.",
+                    support_hint=False,
+                )
+        else:
+            device.reboot()
+
+
+def _reboot_to_bootloader(device: Nitrokey3Device) -> None:
+    local_print(
+        "Please press the touch button to reboot the device into bootloader mode ..."
+    )
+    try:
+        device.reboot(BootMode.BOOTROM)
+    except TimeoutException:
+        raise CliException(
+            "The reboot was not confirmed with the touch button.",
+            support_hint=False,
+        )
+
+def _perform_update(device: Nitrokey3Bootloader, image: bytes) -> None:
+    #logger.debug("Starting firmware update")
+    with ProgressBar(
+        desc="Performing firmware update", unit="B", unit_scale=True
+    ) as bar:
+        result = device.update(image, callback=bar.update_sum)
+    #logger.debug(f"Firmware update finished with status {device.status}")
+
+    if result:
+        #logger.debug("Firmware update finished successfully")
+        device.reboot()
+    else:
+        (code, message) = device.status
+        raise CliException(f"Firmware update failed with status code {code}: {message}")
+
+class ProgressBar:
+    """
+    Helper class for progress bars where the total length of the progress bar
+    is not available before the first iteration.
+    """
+
+    def __init__(self, **kwargs) -> None:
+        self.bar: Optional[tqdm] = None
+        self.kwargs = kwargs
+        self.sum = 0
+
+    def __enter__(self) -> "ProgressBar":
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        self.close()
+
+    def update(self, n: int, total: int) -> None:
+        if not self.bar:
+            self.bar = tqdm(total=total, **self.kwargs)
+        self.bar.update(n)
+        self.sum += n
+        # gui
+        #GUI.change_value.emit(self.sum)
+
+    def update_sum(self, n: int, total: int) -> None:
+        if not self.bar:
+            self.bar = tqdm(total=total, **self.kwargs)
+        if n > self.sum:
+            self.bar.update(n - self.sum)
+            self.sum = n
+
+    def close(self) -> None:
+        if self.bar:
+            self.bar.close()
+
+
+class DownloadProgressBar(ProgressBar):
+    """
+    Helper class for progress bars for downloading a file.
+    """
+
+    def __init__(self, desc: str) -> None:
+        super().__init__(desc=f"Download {desc}", unit="B", unit_scale=True)
+
+
+    
 class QtUtilsMixIn:
     # singleton backend-thread
     backend_thread = None
@@ -407,27 +786,28 @@ class InsertNitrokey(QtUtilsMixIn, QtWidgets.QDialog):
         self.setup_wizard.show()
 # loading screen
 class LoadingScreen(QtWidgets.QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setFixedSize(128,128)  #128 128
-        self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.CustomizeWindowHint)
+    # def __init__(self):
+    #     super().__init__()
+    #     self.setFixedSize(128,128)  #128 128
+    #     self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.CustomizeWindowHint)
 
-        self.label_animation = QLabel(self)
-        self.setGeometry(QRect(650,300,0,0))
-        self.movie = QMovie(":/images/ProgressWheel.GIF")
-        self.label_animation.setMovie(self.movie)
+    #     self.label_animation = QLabel(self)
+    #     self.qprogressbar = QProgressBar(self)
+    #     self.setGeometry(QRect(650,300,0,0))
+        #self.movie = QMovie(":/images/ProgressWheel.GIF")
+        #self.label_animation.setMovie(self.movie)
         
-        timer = QTimer(self)
-        self.startAnimation()
-        timer.singleShot(1000, self.stopAnimation)
+        #timer = QTimer(self)
+        #self.startAnimation()
+        #timer.singleShot(1000, self.stopAnimation)
 
-        self.show()
-        
+    #    self.show()
+    
     def startAnimation(self):
         self.movie.start()
 
     def stopAnimation(self):
-        self.movie.stop()
+        #self.movie.stop()
         self.close()
         GUI.user_info("success","You now have a main key with the capability\n to sign and certify and a subkey for encryption.  ",title ="Key generation was successful", parent=self.label_animation)
         
@@ -504,11 +884,7 @@ class PINDialog(QtUtilsMixIn, QtWidgets.QDialog):
                 f"default: {def_pin}", "Invalid PIN")
         else:
             self.ok_signal.emit(self.opts, pin)
-#############################################classes for the nitrokeys
-class Nitrokey_3():
-#########needs to create button in the vertical navigation with the nitrokey type and serial number as text
-    btn = QPushButton("button1")
-    self.navigation_frame.addWidget(btn)
+
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     sig_connected = pyqtSignal(dict)
@@ -525,12 +901,11 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     sig_unlock_hv = pyqtSignal(dict)
     sig_unlock_ev = pyqtSignal(dict)
 
+    change_value = pyqtSignal(int)
+
     def __init__(self, qt_app: QtWidgets.QApplication):
         QtWidgets.QMainWindow.__init__(self)
         QtUtilsMixIn.__init__(self)
-
-        self.app = qt_app
-
         self.backend_thread.hello.connect(self.backend_cb_hello)
         self.backend_thread.start()
         
@@ -539,11 +914,15 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.monitor = pyudev.Monitor.from_netlink(self.context)
         self.monitor.filter_by(subsystem='usb')
         self.observer = MonitorObserver(self.monitor)
+        device_before = 0
         self.observer.deviceEvent.connect(self.device_connect)
-        #for device in self.context.list_devices(subsystem="usb"):
+        # for self.device in self.context.list_devices(subsystem="usb"):
+        #     if device_before != self.device:
+        #         print("ccccccc")
+        #         self.device_connect
+        #         device_before = self.device
         #    print(device)
         #     print('{0}'.format(device))
-
         self.monitor.start()
 
         ################################################################################
@@ -615,7 +994,13 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.frame_s = _get(_qt.QFrame, "frame_storage")
         self.frame_f = _get(_qt.QFrame, "frame_fido2")
         self.navigation_frame = _get(_qt.QFrame, "vertical_navigation")
+        self.nitrokeys_window = _get(_qt.QScrollArea, "Nitrokeys") 
         self.hidden_volume = _get(_qt.QPushButton, "btn_dial_HV")
+        ### nk3
+        self.nk3_lineedit_1 = _get(_qt.QLineEdit, "nk3_lineedit_1")
+        self.nk3_lineedit_2 = _get(_qt.QLineEdit, "nk3_lineedit_2")
+        self.nk3_lineedit_3 = _get(_qt.QLineEdit, "nk3_lineedit_3")
+        self.update_nk3_btn = _get(_qt.QPushButton, "update_nk3_btn")
         ## PWS
         self.information_label = _get(_qt.QLabel, "label_16")
         self.scrollArea = _get(_qt.QScrollArea, "scrollArea")
@@ -689,7 +1074,16 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.device = None
 
         ################################################################################
-        # app wide callbacks
+        ######nk3
+        self.help_btn.clicked.connect(self.device_connect)
+        self.change_value.connect(self.setProgressVal)
+        #self.update_nk3_btn.clicked.connect(lambda: nk3_update(self.ctx,0))
+        #self.connect_signal_slots(lambda:self.update_nk3_btn.clicked, self.change_value, [GUI.setProgressVal], lambda:nk3_update(self.ctx,0))
+        # Nitrokey 3 update
+        #self.firmware_started=lambda:self.user_info("Firmware Update started")
+        self.update_nk3_btn.clicked.connect(lambda:self.backend_thread.add_job(self.change_value,nk3_update(self.ctx, 0)))
+        #self.update_nk3_btn.clicked.connect(lambda:nk3_update(self.ctx, 0))
+        
         self.quit_button.clicked.connect(self.slot_quit_button_pressed)
         self.lock_btn.clicked.connect(self.slot_lock_button_pressed)
         self.unlock_pws_btn.clicked.connect(self.unlock_pws_button_pressed)
@@ -765,35 +1159,55 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.sig_confirm_auth.connect(self.slot_confirm_auth)
 
         self.sig_lock.connect(self.slot_lock)
-        
+
+    #nk3 stuff
+    def info_success(self):
+        self.user_info(self, "success")
+    def time_block(self):
+        global block_time
+        global start_time
+        if block_time == 0:
+            start_time = datetime.datetime.utcnow()
+            return True
+            
+        else:
+            passed_time = datetime.datetime.utcnow() - start_time  
+            if passed_time.total_seconds() > 1:
+                block_time = 0  
+                return False
+
+
+    def setProgressVal(self, val):
+        self.nk3_lineedit_3.setText(val)
+    def change_value_emit(self, n):
+        self.change_value.emit(n)
     ### experimental idea to differ between removed and added
     def device_connect(self):
-         for dvc in iter(functools.partial(self.monitor.poll, 2), None):
-            print(dvc.action)
+        global block_time
+        for dvc in iter(functools.partial(self.monitor.poll, 3), None):
+            #print(dvc.action)
+            #print(dvc.tags) 
             if (dvc.action == "remove"):
                 print("remove")
-                print(dvc)
-
-            elif (dvc.action == "add"):
-                print("add")
-               
+            elif dvc.action == "bind" and self.time_block():
+                print("bind")
+                time.sleep(0.1)
+                #test(Nitrokey3Device,"pin")
+                nk3s = list_nk3()
+                #print(self.device)
+                print(nk3s)
                 func1 = lambda w: (w.setEnabled(False), w.setVisible(False))
                 self.apply_by_name(["pushButton_storage","pushButton_pro", "btn_dial_HV"], func1) # overview
                 ############## devs for the libraries
                 devs = nk_api.BaseLibNitrokey.list_devices()
-                devs_nk3 = pynitrokey.Nitrokey3Device.list()
 
                 print(devs)
-                print(devs_nk3)
                 dev = None
                 #print(self.device.status)
                 #print(self.device.serial)
-                if self.device is not None:
-                    return {"device": self.device, "connected": self.device.connected,
-                            "status": self.device.status}
-                
                 if len(devs) > 0:
                     _dev = devs[tuple(devs.keys())[0]]
+                    #print(_dev)
                     # enable and show needed widgets
                     func = lambda w: (w.setEnabled(True), w.setVisible(True))
                     if _dev["model"] == 1:
@@ -804,13 +1218,36 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                         dev = nk_api.NitrokeyStorage()
                         print("storage")
                         self.apply_by_name(["pushButton_storage", "btn_dial_HV"], func) # overview 
-                    elif                  
+                                
+                                    
                     else:
                         #func = lambda w: (w.setEnabled(False), w.setVisible(False))
                         #self.apply_by_name(["pushButton_storage","pushButton_pro", "btn_dial_HV"], func) # overview
                         print("removed button(s)")
                         self.msg("Unknown device model detected")
                         return {"connected": False}
+                elif len(nk3s) > 0 and self.device != nk3s[0]: 
+                    self.device = nk3s[0]
+                    uuid = self.device.uuid()
+                    if uuid:
+                        print(f"{self.device.path}: {self.device.name} {self.device.uuid():X}")
+                    else:
+                        print(f"{self.device.path}: {self.device.name}")
+                    #########needs to create button in the vertical navigation with the nitrokey type and serial number as text
+                    self.btn_nk3 = QtWidgets.QPushButton("Nitrokey 3:"f"{self.device.uuid()%10000}")
+                    #self.btn_test.setFixedSize(65,65)
+                    self.nitrokeys_window.setWidget(self.btn_nk3)  
+                    self.btn_nk3.clicked.connect(self.nk3_btn_pressed)
+                    self.nk3_lineedit_1.setText(str(self.device.uuid()))
+                    self.nk3_lineedit_2.setText(str(self.device.path))
+                    self.nk3_lineedit_3.setText("nothing yet")
+                    self.ctx = Nk3_Context(self.device.path) 
+                    print("DAS NUR 1 MAL!!!!")
+                    print(pyudev.Context.list_devices)
+                    self.device = None    
+                block_time = 1
+
+
 
     @pyqtSlot()   
     #### press f1 for connecting keys
@@ -884,8 +1321,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     @pyqtSlot()
     def loading(self):
         self.loading_screen = LoadingScreen()
-        self.main_key.show()
-        self.sub_key_key.show()
+        #self.main_key.show()
+        #self.sub_key_key.show()
     #### PIN setup
     @pyqtSlot()
     def init_pin_setup(self):
@@ -1130,6 +1567,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.table_pws.removeRow(index.row())
         self.table_pws.setCurrentCell(0, 0)
         
+#############################################classes for the nitrokeys
+#class Nitrokey_3(QtWidgets.QWidget):
 
 # you use show() and hide() function to make it visible or not where you want it
     def change_pws(self):
@@ -1477,7 +1916,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def job_connect_device(self):
         devs = nk_api.BaseLibNitrokey.list_devices()
         dev = None
-
         if self.device is not None:
             return {"device": self.device, "connected": self.device.connected,
                     "status": self.device.status, "serial": self.device.serial}
@@ -1495,6 +1933,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 print("storage")
                 #print(self.device.status)
                 #print(self.device.serial)
+            
             else:
                 self.msg("Unknown device model detected")
                 return {"connected": False}
@@ -1570,6 +2009,14 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def slot_tab_changed(self, idx):
         pass
 
+    @pyqtSlot()
+    def nk3_btn_pressed(self):
+        self.tabs.show()
+        self.tabs.setTabVisible(1, False)
+        self.tabs.setTabVisible(2, False)
+        self.tabs.setTabVisible(3, False)
+        self.tabs.setTabVisible(4, False)
+        self.tabs.setTabVisible(5, False)
     #### main-window callbacks
     @pyqtSlot()
     def pro_btn_pressed(self):
