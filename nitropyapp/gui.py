@@ -2,14 +2,14 @@
 # use "pbs" for packaging...
 # pip-run -> pyqt5
 # pip-dev -> pyqt5-stubs
-import pyudev
-from pyudev.pyqt5 import MonitorObserver
+
+
 import sys
 import os
 import os.path
 import functools
 import platform
-
+# windows
 import subprocess
 
 #tests
@@ -24,6 +24,7 @@ from typing import List, Optional, Tuple, Type, TypeVar
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTextStream, QTimer, QSortFilterProxyModel, QSize, QRect
 from PyQt5.Qt import QApplication, QClipboard, QLabel, QMovie, QIcon, QProgressBar,QProgressDialog, QMessageBox
+
 ####### submodule is not needed!!!
 #sys.path.append("submodules/pynitrokey/pynitrokey")
 from pynitrokey import libnk as nk_api
@@ -48,9 +49,10 @@ from spsdk.mboot.exceptions import McuBootConnectionError
 
 
 #import nitropyapp.libnk as nk_api
-import nitropyapp.ui.breeze_resources
+import nitropyapp.ui.breeze_resources 
 #pyrcc5 -o gui_resources.py ui/resources.qrc
 import nitropyapp.gui_resources
+
 
 
 #import pysnooper
@@ -558,21 +560,146 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     sig_unlock_ev = pyqtSignal(dict)
 
     change_value = pyqtSignal(int)
-
+    
     def __init__(self, qt_app: QtWidgets.QApplication):
         QtWidgets.QMainWindow.__init__(self)
         QtUtilsMixIn.__init__(self)
         self.backend_thread.hello.connect(self.backend_cb_hello)
         self.backend_thread.start()
-        
-        #pyudev stuff
-        self.context = pyudev.Context()
-        self.monitor = pyudev.Monitor.from_netlink(self.context)
-        self.monitor.filter_by(subsystem='usb')
-        self.observer = MonitorObserver(self.monitor)
-        self.observer.deviceEvent.connect(self.device_connect)
-        self.monitor.start()
-       
+        ##### windows usb monitoring 
+        class Notification(GUI):
+            def __init__(self, detect_nk3= self.detect_nk3):
+                self.detect_nk3 =detect_nk3
+                message_map = {
+                    win32con.WM_DEVICECHANGE: self.onDeviceChange
+                }
+
+                wc = win32gui.WNDCLASS()
+                hinst = wc.hInstance = win32api.GetModuleHandle(None)
+                wc.lpszClassName = "DeviceChangeDemo"
+                wc.style = win32con.CS_VREDRAW | win32con.CS_HREDRAW
+                wc.hCursor = win32gui.LoadCursor(0, win32con.IDC_ARROW)
+                wc.hbrBackground = win32con.COLOR_WINDOW
+                wc.lpfnWndProc = message_map
+                classAtom = win32gui.RegisterClass(wc)
+                style = win32con.WS_OVERLAPPED | win32con.WS_SYSMENU
+                self.hwnd = win32gui.CreateWindow(
+                    classAtom,
+                    "Device Change Demo",
+                    style,
+                    0, 0,
+                    win32con.CW_USEDEFAULT, win32con.CW_USEDEFAULT,
+                    0, 0,
+                    hinst, None
+                )
+
+            def onDeviceChange(self, hwnd, msg, wparam, lparam):
+                #
+                # WM_DEVICECHANGE:
+                #  wParam - type of change: arrival, removal etc.
+                #  lParam - what's changed?
+                #    if it's a volume then...
+                #  lParam - what's changed more exactly
+                #
+                dev_broadcast_hdr = DEV_BROADCAST_HDR.from_address(lparam)
+
+                if wparam == DBT_DEVICEARRIVAL:
+                    print("Something's arrived")
+                    self.detect_nk3()
+                    #self.tray.show() 
+                    #self.tray.setToolTip("Nitrokey 3")
+                    #self.tray.showMessage("Nitrokey 3 connected!!!","Nitrokey 3 connected!!!!")
+                    if dev_broadcast_hdr.dbch_devicetype == DBT_DEVTYP_VOLUME:
+                        print("It's a volume!")
+
+                        dev_broadcast_volume = DEV_BROADCAST_VOLUME.from_address(lparam)
+                        if dev_broadcast_volume.dbcv_flags & DBTF_MEDIA:
+                            print("with some media")
+                            drive_letter = drive_from_mask(dev_broadcast_volume.dbcv_unitmask)
+                            print("in drive", chr(ord("A") + drive_letter))
+
+                return 1
+        # linux
+        if  platform.system() == "Linux":
+            # pyudev stuff 
+            import pyudev
+            from pyudev.pyqt5 import MonitorObserver
+            # start monitoring usb
+            self.context = pyudev.Context()
+            self.monitor = pyudev.Monitor.from_netlink(self.context)
+            self.monitor.filter_by(subsystem='usb')
+            self.observer = MonitorObserver(self.monitor)
+            self.observer.deviceEvent.connect(self.device_connect)
+            self.monitor.start()
+        # windows
+        if platform.system() == "Windows":
+            print("OS:Windows")
+            # https://stackoverflow.com/questions/62601721/usb-hotplugging-callbacks-with-python-on-windows
+            # windows
+            from ctypes import c_ulong, c_ushort,Structure
+            import win32api
+            import win32con
+            import win32gui
+
+                    #
+            # Device change events (WM_DEVICECHANGE wParam)
+            #
+            DBT_DEVICEARRIVAL = 0x8000
+            DBT_DEVICEQUERYREMOVE = 0x8001
+            DBT_DEVICEQUERYREMOVEFAILED = 0x8002
+            DBT_DEVICEMOVEPENDING = 0x8003
+            DBT_DEVICEREMOVECOMPLETE = 0x8004
+            DBT_DEVICETYPESSPECIFIC = 0x8005
+            DBT_CONFIGCHANGED = 0x0018
+
+            #
+            # type of device in DEV_BROADCAST_HDR
+            #
+            DBT_DEVTYP_OEM = 0x00000000
+            DBT_DEVTYP_DEVNODE = 0x00000001
+            DBT_DEVTYP_VOLUME = 0x00000002
+            DBT_DEVTYPE_PORT = 0x00000003
+            DBT_DEVTYPE_NET = 0x00000004
+
+            #
+            # media types in DBT_DEVTYP_VOLUME
+            #
+            DBTF_MEDIA = 0x0001
+            DBTF_NET = 0x0002
+
+            WORD = c_ushort
+            DWORD = c_ulong
+
+            w = Notification()
+            #win32gui.PumpMessages()
+            print("not trapped")
+        ################# more stuff for usb monitoring windows    
+        def drive_from_mask(mask):
+            n_drive = 0
+            while 1:
+                if (mask & (2 ** n_drive)):
+                    return n_drive
+                else:
+                    n_drive += 1
+
+        class DEV_BROADCAST_HDR(Structure):
+                _fields_ = [
+                    ("dbch_size", DWORD),
+                    ("dbch_devicetype", DWORD),
+                    ("dbch_reserved", DWORD)
+                ]
+
+
+        class DEV_BROADCAST_VOLUME(Structure):
+            _fields_ = [
+                ("dbcv_size", DWORD),
+                ("dbcv_devicetype", DWORD),
+                ("dbcv_reserved", DWORD),
+                ("dbcv_unitmask", DWORD),
+                ("dbcv_flags", WORD)
+            ]
+
+
         ################################################################################
         # load UI-files and prepare them accordingly
         ui_dir = Path(__file__).parent.resolve().absolute() / "ui"
@@ -590,6 +717,11 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         ################################################################################
         # playground
+
+        ## os notification
+        self.tray = QtWidgets.QSystemTrayIcon()  
+        self.tray.setIcon(QIcon(":/images/new/down_arrow.png"))
+
         self.key_generation = Keygeneration(qt_app)
         self.key_generation.load_ui(ui_dir / "key_generation.ui", self.key_generation)
         self.key_generation.init_keygen()
@@ -813,6 +945,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.sig_lock.connect(self.slot_lock)
 
     #nk3 stuff
+        
     def info_success(self):
         self.user_info(self, "success")
     def time_block(self):
@@ -910,9 +1043,18 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.nk3_lineedit_2.setText(str(self.device.path))
             self.nk3_lineedit_3.setText(str(self.device.version()))
             self.ctx = self.Nk3_Context(self.device.path) 
-            self.sendmessage("Nitrokey 3 connected.")
-            self.device = None   
-      
+            self.tray.show() 
+            self.tray.setToolTip("Nitrokey 3")
+            self.tray.showMessage("Nitrokey 3 connected.","Nitrokey 3 connected.")
+            #self.sendmessage("Nitrokey 3 connected.")
+            self.device = None 
+        
+        else:
+            print("no nk3 in list. no admin?")
+            self.tray.show() 
+            self.tray.setToolTip("Nitrokey 3")
+            self.tray.showMessage("Nitrokey 3 not connected.","Nitrokey 3 not connected.")
+        
     @pyqtSlot()   
     #### press f1 for connecting keys
     def keyPressEvent(self, event):
@@ -1830,7 +1972,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.kwargs = kwargs
             self.sum = 0
 
-        def __enter__(self) -> "ProgressBar":
+        def __enter__(self):
             return self
 
         def __exit__(self, exc_type, exc_val, exc_tb) -> None:
@@ -1950,7 +2092,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                     print(f"{device.path}: {device.name}")
 
     def test(self, ctx, pin: Optional[str]):
-        """Run some tests on all connected Nitrokey 3 devices."""
+        """Run some tests on all connected Nitrokey 3 dtevices."""
         from pynitrokey.cli.nk3.test import TestContext, log_devices, log_system, run_tests
 
         log_system()
@@ -2037,7 +2179,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         #if experimental:
         "The --experimental switch is not required to run this command anymore and can be safely removed."
-
+        print ("HIEEEEEER!!!",ctx.path)
         with ctx.connect() as device:
             self.progressBarUpdate.show()
             release_version = None
@@ -2071,7 +2213,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                     local_print(
                         "Bootloader mode enabled. Please repeat this command to apply the update."
                     )
-                    raise click.Abort()
+                    print("Darwin")
 
                 exc = None
                 for t in Retries(3):
@@ -2084,7 +2226,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                             print("worked")
                             #### qprogressbar
                             self.progressBarUpdate.setValue(100)
-                            self.sendmessage("Successfully updated your Nitrokey 3.")
+                            self.tray.show() 
+                            self.tray.setToolTip("Nitrokey 3")
+                            self.tray.showMessage("Successfully updated your Nitrokey 3.","Successfully updated your Nitrokey 3.")
+                            #self.sendmessage("Successfully updated your Nitrokey 3.")
                             self.progressBarUpdate.hide()
                         break
                     except McuBootConnectionError as e:
@@ -2142,7 +2287,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         local_print(
             "Please press the touch button to reboot the device into bootloader mode ..."
         )
-        self.sendmessage("Please touch the Nitrokey 3 t start the firmware update.")
+        self.tray.show() 
+        self.tray.setToolTip("Nitrokey 3")
+        self.tray.showMessage("Please touch the Nitrokey 3 to start the firmware update.","Please touch the Nitrokey 3 to start the firmware update.")
+        #self.sendmessage("Please touch the Nitrokey 3 to start the firmware update.")
         try:
             device.reboot(BootMode.BOOTROM)
         except TimeoutException:
@@ -2185,3 +2333,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
