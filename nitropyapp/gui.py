@@ -26,8 +26,6 @@ from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTextStream, QTimer, QSortFilterProxyModel, QSize, QRect
 from PyQt5.Qt import QApplication, QClipboard, QLabel, QMovie, QIcon, QProgressBar,QProgressDialog, QMessageBox
 
-####### submodule is not needed!!!
-#sys.path.append("submodules/pynitrokey/pynitrokey")
 from pynitrokey import libnk as nk_api
 # Nitrokey 3
 from pynitrokey.cli.exceptions import CliException
@@ -48,6 +46,12 @@ from pynitrokey.nk3.bootloader import (
 )
 from spsdk.mboot.exceptions import McuBootConnectionError
 
+# import wizards and stuff
+from setup_wizard import SetupWizard
+from qt_utils_mix_in import QtUtilsMixIn
+from about_dialog import AboutDialog
+from key_generation import KeyGeneration
+from windows_notification import WindowsUSBNotification
 
 #import nitropyapp.libnk as nk_api
 import nitropyapp.ui.breeze_resources 
@@ -126,231 +130,7 @@ class BackendThread(QThread):
 
 ######## nk3 stuff
 sum = 0    
-class QtUtilsMixIn:
-    # singleton backend-thread
-    backend_thread = None
 
-    def __init__(self):
-        self.widgets = {}
-
-        # ensure we are always mixed-in with an QObject-ish class
-        assert isinstance(self, QObject)
-
-    @classmethod
-    def connect_signal_slots(cls, slot, signal, res_slots, func, *va, **kw):
-        """
-        Signal to Slot connection helper for functions to be executed inside
-        the BackgroundThread.
-
-        slot: the event to bind to (e.g., a clicked button)
-        signal: the `signal` to be emitted once the `func` returns its results
-        res_slots: list-of-slots to be connected to the `signal`
-        func: function to be run inside the BackgroundThread, with *va & **kw passed
-        """
-        for res_slot in res_slots:
-            signal.connect(res_slot)
-            print(signal)
-            print(res_slot)
-        _func = lambda: cls.backend_thread.add_job(signal, func, *va, **kw)
-        return slot.connect(_func)
-
-    def user_warn(self, msg, title=None, parent=None):
-        QtWidgets.QMessageBox.warning(parent or self, title or msg, msg)
-    def user_info(self, msg, title=None, parent=None):
-        QtWidgets.QMessageBox.information(parent or self, title or msg, msg)
-    def user_err(self, msg, title=None, parent=None):
-        QtWidgets.QMessageBox.critical(parent or self, title or msg, msg)
-    # os notifications
-    def sendmessage(self, message):
-        subprocess.Popen(['notify-send', message])
-        return
-
-    def get_widget(self, qt_cls, name=""):
-        """while finding widgets, why not cache them into a map"""
-        widget = self.widgets.get(name)
-        if not widget:
-            # ensure `self` will always be mixed-in with a QObject derived class
-            assert isinstance(self, QObject)
-            widget = self.findChild(qt_cls, name)
-            self.widgets[name] = widget
-        return widget
-
-    def apply_by_name(self, names, func):
-        """expects only known widget-names (`name` in `self.widgets`)"""
-        for name in names:
-            func(self.widgets[name])
-
-    def set_enabled(self, cls, names, enable):
-        # @todo: replace with 'apply_by_name'
-        for name in names:
-            self.get_widget(cls, name).setEnabled(enable)
-
-    def set_visible(self, cls, names, visible):
-        # @todo: replace with 'apply_by_name'
-        for name in names:
-            self.get_widget(cls, name).setVisible(visible)
-
-    def load_ui(self, filename, qt_obj):
-        uic.loadUi(filename, qt_obj)
-        return True
-
-    def collapse(self, gBox, expand_button):
-	# Find out if the state is on or off
-        gbState = expand_button.isChecked()
-        if not gbState:
-            expand_button.setIcon(QIcon(":/images/new/right_arrow.png"))
-            gBox.setFixedHeight(15)
-                # Set window Height
-            #self.setFixedHeight(self.sizeHint().height())
-			
-        else:
-            expand_button.setIcon(QIcon(":/images/new/down_arrow.png"))
-            oSize = gBox.sizeHint()
-            gBox.setFixedHeight(oSize.height())
-                # Set window Height
-            #self.setFixedHeight(self.sizeHint().height())
-    # https://groups.google.com/g/python_inside_maya/c/Y6r8o9zpWfU
-    # def set_layout_visible(self, cls, obj_name, visible=True):
-    #     to_hide = [(cls, obj_name)]
-    #     cur = to_hide.pop()
-    #     while cur:
-    #         cur_cls, cur_name = cur
-    #         widget = self.findChild(cur_cls, cur_name)
-    #         if cls in [QtWidgets.QHBoxLayout, QtWidgets.QVBoxLayout]:
-    #             for idx in range(widget.count()):
-    #                 obj = widget.itemAt(idx).widget()
-    #                 if obj:
-    #                     to_hide.append((obj.__class__, obj.objectName()))
-    #         else:
-    #             widget.setVisible(visible)
-    #         cur = to_hide.pop(0)
-
-class SetupWizard(QtUtilsMixIn, QtWidgets.QWizard):
-    def __init__(self, qt_app: QtWidgets.QApplication):
-        QtWidgets.QWizard.__init__(self)
-        QtUtilsMixIn.__init__(self)
-        self.app = qt_app
-    
-    def init_setup(self):
-        self.userpin_page = self.get_widget(QtWidgets.QWizardPage, "wizardPage")
-        self.userpin_1 = self.get_widget(QtWidgets.QLineEdit, "lineEdit")
-        self.userpin_2 = self.get_widget(QtWidgets.QLineEdit, "lineEdit_2")
-        self.userpin_page.registerField("user_pin_1*", self.userpin_1)
-        self.userpin_page.registerField("user_pin_2*", self.userpin_2)
-
-        self.adminpin_page = self.get_widget(QtWidgets.QWizardPage, "wizardPage2")
-        self.adminpin_1 = self.get_widget(QtWidgets.QLineEdit, "lineEdit_4")
-        self.adminpin_2 = self.get_widget(QtWidgets.QLineEdit, "lineEdit_3")
-        self.adminpin_page.registerField("admin_pin_1*", self.adminpin_1)
-        self.adminpin_page.registerField("admin_pin_2*", self.adminpin_2)
-
-        self.userpin_2.textChanged.connect(self.same_setup_wizard)
-        self.adminpin_2.textChanged.connect(self.same_setup_wizard_2)
-
-    def same_setup_wizard(self):
-        if self.userpin_1.text() != self.userpin_2.text():
-            print(self.userpin_1.text())
-            print(self.userpin_2.text())
-            self.button(QtWidgets.QWizard.NextButton).setEnabled(False)
-        else:
-            self.button(QtWidgets.QWizard.NextButton).setEnabled(True)
-    def same_setup_wizard_2(self):
-        if self.adminpin_1.text() != self.adminpin_2.text():
-            print(self.adminpin_1.text())
-            print(self.adminpin_2.text())
-            self.button(QtWidgets.QWizard.FinishButton).setEnabled(False)
-        else:
-            self.button(QtWidgets.QWizard.FinishButton).setEnabled(True)
-    def closeEvent(self, event):
-        reply = QtWidgets.QMessageBox.question(self, 'Message',
-            "Are you sure to exit?", QtWidgets.QMessageBox.Yes |
-            QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No)
-
-        if reply == QtWidgets.QMessageBox.Yes:
-            event.accept()
-            
-        else:
-            event.ignore()        
-class AboutDialog(QtUtilsMixIn, QtWidgets.QDialog):
-    def __init__(self, qt_app: QtWidgets.QApplication):
-        QtWidgets.QDialog.__init__(self)
-        QtUtilsMixIn.__init__(self)
-
-        self.app = qt_app
-
-
-class Keygeneration(QtUtilsMixIn, QtWidgets.QWizard):
-    def __init__(self, qt_app: QtWidgets.QApplication):
-        QtWidgets.QWizard.__init__(self)
-        QtUtilsMixIn.__init__(self)
-
-        self.app = qt_app
-
-    def init_keygen(self):
-        ## dialogs
-        self.adsettings_button = self.get_widget(QtWidgets.QPushButton, "pushButton_wiz")
-        self.adsettings = self.get_widget(QtWidgets.QWidget, "adsettings_key")
-
-        self.wizard_page_userinfo = self.get_widget(QtWidgets.QWizardPage, "wizardPage1")
-
-        self.placeholder_path = self.get_widget(QtWidgets.QLineEdit, "lineEdit")
-        self.placeholder_path.setPlaceholderText("Path")
-
-        self.with_backup = self.get_widget(QtWidgets.QRadioButton, "radioButton_3")
-        self.lastpage_keygen = self.get_widget(QtWidgets.QWizardPage, "wizardPage")
-        self.confirm_path = self.get_widget(QtWidgets.QLineEdit, "lineEdit")
-        self.confirm_path.setEnabled(False)
-
-        self.real_name = self.get_widget(QtWidgets.QLineEdit, "lineEdit_2")
-        self.wizard_page_userinfo.registerField("real_name*", self.real_name)
-
-        self.email = self.get_widget(QtWidgets.QLineEdit, "lineEdit_3")
-        self.wizard_page_userinfo.comment_line = self.get_widget(QtWidgets.QLineEdit, "lineEdit_4")
-        self.wizard_page_userinfo.registerField("email*", self.email)
-
-        self.comment_line = self.get_widget(QtWidgets.QLineEdit, "lineEdit_4")
-        self.comment_line.setPlaceholderText("Optional")
-
-        self.back_up_info = self.get_widget(QtWidgets.QLabel, "label_2")
-        self.back_up_info.hide()
-         ## insert Nitrokey
-        self.adsettings_button.clicked.connect(self.adsettings_func)
-        self.collapse(self.adsettings, self.adsettings_button)
-        self.with_backup.toggled.connect(self.finish_show_hide)
-        self.confirm_path.textChanged.connect(self.finish_show_hide_2)
-            #### insert Nitrokey
-    @pyqtSlot()
-    def finish_show_hide(self):
-        if self.with_backup.isChecked():
-            self.button(QtWidgets.QWizard.FinishButton).setEnabled(False)
-            self.lastpage_keygen.cleanupPage()
-            self.confirm_path.setEnabled(True)
-            self.back_up_info.show()
-        else:
-            self.button(QtWidgets.QWizard.FinishButton).setEnabled(True)
-            self.lastpage_keygen.cleanupPage()
-            self.confirm_path.setEnabled(False)
-            self.back_up_info.hide()
-
-    def finish_show_hide_2(self):
-        print(self.confirm_path.text())
-        if self.confirm_path.text():
-            self.button(QtWidgets.QWizard.FinishButton).setEnabled(True)
-
-    def adsettings_func(self):
-        self.collapse(self.adsettings, self.adsettings_button)
-
-    def loading(self):
-        ## dialogs
-        self.ok_insert = self.get_widget(QtWidgets.QPushButton, "pushButton_ok_insert")
-         ## insert Nitrokey
-        self.ok_insert.clicked.connect(self.ok_insert_btn)
-            #### insert Nitrokey
-    @pyqtSlot()
-    def ok_insert_btn(self):
-        self.hide()
-        
-        self.setup_wizard.show()
 class Storage(QtUtilsMixIn, QtWidgets.QWizard):
     def __init__(self, qt_app: QtWidgets.QApplication):
         QtWidgets.QWizard.__init__(self)
@@ -543,127 +323,49 @@ class PINDialog(QtUtilsMixIn, QtWidgets.QDialog):
                 f"default: {def_pin}", "Invalid PIN")
         else:
             self.ok_signal.emit(self.opts, pin)
-##### windows usb monitoring 
-class Notification():
-    from ctypes import Structure, c_ulong, c_ushort
-    #
-    # Device change events (WM_DEVICECHANGE wParam)
-    #
-    DBT_DEVICEARRIVAL = 0x8000
-    DBT_DEVICEQUERYREMOVE = 0x8001
-    DBT_DEVICEQUERYREMOVEFAILED = 0x8002
-    DBT_DEVICEMOVEPENDING = 0x8003
-    DBT_DEVICEREMOVECOMPLETE = 0x8004
-    DBT_DEVICETYPESSPECIFIC = 0x8005
-    DBT_CONFIGCHANGED = 0x0018
 
-    #
-    # type of device in DEV_BROADCAST_HDR
-    #
-    DBT_DEVTYP_OEM = 0x00000000
-    DBT_DEVTYP_DEVNODE = 0x00000001
-    DBT_DEVTYP_VOLUME = 0x00000002
-    DBT_DEVTYPE_PORT = 0x00000003
-    DBT_DEVTYPE_NET = 0x00000004
-
-    #
-    # media types in DBT_DEVTYP_VOLUME
-    #
-    DBTF_MEDIA = 0x0001
-    DBTF_NET = 0x0002
-
-    WORD = c_ushort
-    DWORD = c_ulong
-    
-    def __init__(self, detect_nk3):
-        # https://stackoverflow.com/questions/62601721/usb-hotplugging-callbacks-with-python-on-windows
-        # windows
-        import win32api
-        import win32con
-        import win32gui
-
-        self.detect_nk3 =detect_nk3
-        message_map = {
-            win32con.WM_DEVICECHANGE: self.onDeviceChange
-        }
-
-        wc = win32gui.WNDCLASS()
-        hinst = wc.hInstance = win32api.GetModuleHandle(None)
-        wc.lpszClassName = "DeviceChangeDemo"
-        wc.style = win32con.CS_VREDRAW | win32con.CS_HREDRAW
-        wc.hCursor = win32gui.LoadCursor(0, win32con.IDC_ARROW)
-        wc.hbrBackground = win32con.COLOR_WINDOW
-        wc.lpfnWndProc = message_map
-        classAtom = win32gui.RegisterClass(wc)
-        style = win32con.WS_OVERLAPPED | win32con.WS_SYSMENU
-        self.hwnd = win32gui.CreateWindow(
-            classAtom,
-            "Device Change Demo",
-            style,
-            0, 0,
-            win32con.CW_USEDEFAULT, win32con.CW_USEDEFAULT,
-            0, 0,
-            hinst, None
-        )
-       
-    def onDeviceChange(self, hwnd, msg, wparam, lparam):
-        #
-        # WM_DEVICECHANGE:
-        #  wParam - type of change: arrival, removal etc.
-        #  lParam - what's changed?
-        #    if it's a volume then...
-        #  lParam - what's changed more exactly
-        #
-        dev_broadcast_hdr = self.DEV_BROADCAST_HDR.from_address(lparam)
-
-        if wparam == self.DBT_DEVICEARRIVAL:
-            print("Something's arrived")
-            self.detect_nk3()
-            #self.tray.show() 
-            #self.tray.setToolTip("Nitrokey 3")
-            #self.tray.showMessage("Nitrokey 3 connected!!!","Nitrokey 3 connected!!!!")
-            if dev_broadcast_hdr.dbch_devicetype ==  self.DBT_DEVTYP_VOLUME:
-                print("It's a volume!")
-
-                dev_broadcast_volume =  self.DEV_BROADCAST_VOLUME.from_address(lparam)
-                if dev_broadcast_volume.dbcv_flags &  self.DBTF_MEDIA:
-                    print("with some media")
-                    drive_letter = self.drive_from_mask(dev_broadcast_volume.dbcv_unitmask)
-                    print("in drive", chr(ord("A") + drive_letter))
-
-                return 1
-    ################# more stuff for usb monitoring windows 
-    def drive_from_mask(mask):
-        n_drive = 0
-        while 1:
-            if (mask & (2 ** n_drive)):
-                return n_drive
-            else:
-                n_drive += 1
+class EditButtonsWidget(QtWidgets.QWidget):
+    def __init__(self, table, pop_up_copy, res, parent=None):
+        super().__init__(parent)
+        self.table_pws = table
+        self.pop_up_copy = pop_up_copy
         
-    
-    class DEV_BROADCAST_HDR(Structure):
-        from ctypes import c_ulong, c_ushort
-        WORD = c_ushort
-        DWORD = c_ulong
-        _fields_ = [
-            ("dbch_size", DWORD),
-            ("dbch_devicetype", DWORD),
-            ("dbch_reserved", DWORD)
-        ]
+        # add your buttons
+        layout = QtWidgets.QHBoxLayout()
+        layout.setContentsMargins(0,0,0,0)
+        layout.setSpacing(0)
 
-    class DEV_BROADCAST_VOLUME(Structure):   
-        from ctypes import c_ulong, c_ushort
-        WORD = c_ushort
-        DWORD = c_ulong   
-        _fields_ = [
-            ("dbcv_size", DWORD),
-            ("dbcv_devicetype", DWORD),
-            ("dbcv_reserved", DWORD),
-            ("dbcv_unitmask", DWORD),
-            ("dbcv_flags", WORD)
-        ]
-    
+        Copy = QtWidgets.QPushButton('Icon')
+        Copy.setFixedSize(65,65)
+        Copy.clicked.connect(self.copy_to_clipboard_function)
+        layout.addWidget(Copy)
+        layout.addWidget(QtWidgets.QLabel(str(res)))
+        
+        self.setLayout(layout)
+    @pyqtSlot()
+    def copy_to_clipboard_function(self):
+        buttons_index = self.table_pws.indexAt(self.pos())
+        item = self.table_pws.item(buttons_index.row(), buttons_index.column()+3)
+        QApplication.clipboard().setText(item.text())
+            # qtimer popup
+        self.time_to_wait = 5
+        self.pop_up_copy.setText("Data added to clipboard.") #{0} for time display
+        self.pop_up_copy.setStyleSheet("background-color: #2B5DD1; color: #FFFFFF ; border-style: outset;" 
+        "padding: 2px ; font: bold 20px ; border-width: 6px ; border-radius: 10px ; border-color: #2752B8;")
+        self.pop_up_copy.show()
+        self.timer = QTimer(self)
+        self.timer.setInterval(1000)
+        self.timer.timeout.connect(self.changeContent)
+        self.timer.start()  
+    def changeContent(self):
+        self.pop_up_copy.setText("Data added to clipboard.")
+        self.time_to_wait -= 1
+        if self.time_to_wait <= 0:
+            self.pop_up_copy.hide()
+            self.timer.stop()
+    def closeEvent(self, event):
+        self.timer.stop()
+        event.accept()   
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     sig_connected = pyqtSignal(dict)
@@ -681,6 +383,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     sig_unlock_ev = pyqtSignal(dict)
 
     change_value = pyqtSignal(int)
+
     
     def __init__(self, qt_app: QtWidgets.QApplication):
         QtWidgets.QMainWindow.__init__(self)
@@ -703,7 +406,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         if platform.system() == "Windows":
             print("OS:Windows")
            
-            w = Notification(self.detect_nk3)
+            w = WindowsUSBNotification(self.detect_nk3)
             #win32gui.PumpMessages()
             print("not trapped")
         
@@ -729,7 +432,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.tray = QtWidgets.QSystemTrayIcon()  
         self.tray.setIcon(QIcon(":/images/new/down_arrow.png"))
 
-        self.key_generation = Keygeneration(qt_app)
+        self.key_generation = KeyGeneration(qt_app)
         self.key_generation.load_ui(ui_dir / "key_generation.ui", self.key_generation)
         self.key_generation.init_keygen()
 
@@ -970,22 +673,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def update_qbar(self, n: int, total: int) -> None:
         global sum
         if n > sum:
-            print(((sum)*100//total))
-        #if sum:      
+            print(((sum)*100//total))    
             self.progressBarUpdate.setValue(((sum)*100//total))
-            #self.progressBarUpdate.setValue(n-sum)
+          
             sum += n
-            #sum = sum + 1
-        
-    # MÜLL
-    # def setprogressbar(self, numbr):
-    #     self.progressBarUpdate.setValue(numbr)
-
-    # def setProgressVal(self, val):
-    #     self.nk3_lineedit_3.setText(val)
-    # def change_value_emit(self, n):
-    #     self.change_value.emit(n)
-    
     
     ### experimental idea to differ between removed and added
     def device_connect(self):
@@ -993,7 +684,11 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         for dvc in iter(functools.partial(self.monitor.poll, 3), None):
             if (dvc.action == "remove"):
                 print("remove")
-                self.btn_nk3.hide()
+                self.one_nk3_btn.__del__()
+                self.tabs.hide()
+                self.nitrokeys_window.update()
+                self.one_nk3_btn.btn_nk3.hide()
+                self.detect_nk3()
                 #self.nitrokeys_window.findChild(QtWidgets.QPushButton,"Nitrokey 3:3743").hide()
             elif dvc.action == "bind" and self.time_block():
                 print("bind")
@@ -1027,8 +722,38 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                         return {"connected": False}
                 self.detect_nk3()
                 block_time = 1
-
-
+    # nk3 button mit nk3context verbinden???
+    class Nk3Button(QtWidgets.QWidget):
+        def __init__(self, device, nitrokeys_window, nk3_lineedit_1, nk3_lineedit_2, nk3_lineedit_3, tabs):
+            super().__init__()
+            self.device = device
+            self.nitrokeys_window = nitrokeys_window
+            self.tabs = tabs
+            self.nk3_lineedit_1 = nk3_lineedit_1
+            self.nk3_lineedit_2 = nk3_lineedit_2
+            self.nk3_lineedit_3 = nk3_lineedit_3
+            #########needs to create buttoGUIn in the vertical navigation with the nitrokey type and serial number as text
+            self.btn_nk3 = QtWidgets.QPushButton("Nitrokey 3:"f"{self.device.uuid()%10000}")
+            #self.btn_test.setFixedSize(65,65)
+            self.btn_nk3.clicked.connect(lambda:self.nk3_btn_pressed())
+            self.nitrokeys_window.setWidget(self.btn_nk3)  
+            
+            
+            print("das wollen wir sehen!!!!",type(self.device.path),type(self.device))
+        @pyqtSlot()    
+        def nk3_btn_pressed(self):
+            print("geht bis hier!")
+            self.tabs.show()
+            self.tabs.setTabVisible(1, False)
+            self.tabs.setTabVisible(2, False)
+            self.tabs.setTabVisible(3, False)
+            self.tabs.setTabVisible(4, False)
+            self.tabs.setTabVisible(5, False)
+            self.nk3_lineedit_1.setText(str(self.device.uuid()))
+            self.nk3_lineedit_2.setText(str(self.device.path))
+            self.nk3_lineedit_3.setText(str(self.device.version()))
+        def __del__(self):
+            print ("deleted")
     def detect_nk3(self):
         nk3s = list_nk3()
         print(nk3s)
@@ -1039,21 +764,11 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 print(f"{self.device.path}: {self.device.name} {self.device.uuid():X}")
             else:
                 print(f"{self.device.path}: {self.device.name}")
-            #########needs to create button in the vertical navigation with the nitrokey type and serial number as text
-            
-            
-            self.btn_nk3 = QtWidgets.QPushButton("Nitrokey 3:"f"{self.device.uuid()%10000}")
-            #self.btn_test.setFixedSize(65,65)
-            self.nitrokeys_window.setWidget(self.btn_nk3)  
-            self.btn_nk3.clicked.connect(self.nk3_btn_pressed)
-            self.nk3_lineedit_1.setText(str(self.device.uuid()))
-            self.nk3_lineedit_2.setText(str(self.device.path))
-            self.nk3_lineedit_3.setText(str(self.device.version()))
-            print("das wollen wir sehen!!!!",type(self.device.path),type(self.device))
-            self.ctx = self.Nk3_Context(self.device.path)
+            self.one_nk3_btn = self.Nk3Button(self.device, self.nitrokeys_window, self.nk3_lineedit_1, self.nk3_lineedit_2, self.nk3_lineedit_3, self.tabs)
+            self.ctx = self.Nk3Context(self.device.path)
             self.tray.show() 
             self.tray.setToolTip("Nitrokey 3")
-            self.tray.showMessage("Nitrokey 3 connected.","Nitrokey 3 connected.")
+            self.tray.showMessage("Nitrokey 3 connected.","Nitrokey 3 connected.", msecs=2000)
             #self.sendmessage("Nitrokey 3 connected.")
             self.device = None 
         
@@ -1061,7 +776,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             print("no nk3 in list. no admin?")
             self.tray.show() 
             self.tray.setToolTip("Nitrokey 3")
-            self.tray.showMessage("Nitrokey 3 not connected.","Nitrokey 3 not connected.")
+            self.tray.showMessage("Nitrokey 3 not connected.","Nitrokey 3 not connected.", msecs=2000)
         
     @pyqtSlot()   
     #### press f1 for connecting keys
@@ -1226,52 +941,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.otp_secret.clear()
             self.slot_select_otp(idx)
             print("ret ok")
-
-        class EditButtonsWidget(QtWidgets.QWidget):
-            def __init__(self, table= self.table_pws, pop_up_copy= self.pop_up_copy, parent=None):
-                super().__init__(parent)
-                self.table_pws = table
-                self.pop_up_copy = pop_up_copy
-                
-                # add your buttons
-                layout = QtWidgets.QHBoxLayout()
-                layout.setContentsMargins(0,0,0,0)
-                layout.setSpacing(0)
-
-                Copy = QtWidgets.QPushButton('Icon')
-                Copy.setFixedSize(65,65)
-                Copy.clicked.connect(self.copy_to_clipboard_function)
-                layout.addWidget(Copy)
-                layout.addWidget(QtWidgets.QLabel(str(res)))
-               
-                self.setLayout(layout)
-            @pyqtSlot()
-            def copy_to_clipboard_function(self):
-                buttons_index = self.table_pws.indexAt(self.pos())
-                item = self.table_pws.item(buttons_index.row(), buttons_index.column()+3)
-                QApplication.clipboard().setText(item.text())
-                 # qtimer popup
-                self.time_to_wait = 5
-                self.pop_up_copy.setText("Data added to clipboard.") #{0} for time display
-                self.pop_up_copy.setStyleSheet("background-color: #2B5DD1; color: #FFFFFF ; border-style: outset;" 
-                "padding: 2px ; font: bold 20px ; border-width: 6px ; border-radius: 10px ; border-color: #2752B8;")
-                self.pop_up_copy.show()
-                self.timer = QTimer(self)
-                self.timer.setInterval(1000)
-                self.timer.timeout.connect(self.changeContent)
-                self.timer.start()  
-            def changeContent(self):
-                self.pop_up_copy.setText("Data added to clipboard.")
-                self.time_to_wait -= 1
-                if self.time_to_wait <= 0:
-                    self.pop_up_copy.hide()
-                    self.timer.stop()
-            def closeEvent(self, event):
-                self.timer.stop()
-                event.accept()
-
-            
-        self.table_pws.setCellWidget(row , 0, (EditButtonsWidget()))
+        
+        self.table_pws.setCellWidget(row , 0, (EditButtonsWidget(self.table_pws, self.pop_up_copy, res)))
         self.table_pws.setItem(row , 1, (QtWidgets.QTableWidgetItem(qline)))
         self.table_pws.setItem(row , 2, (QtWidgets.QTableWidgetItem(qline2)))
         self.table_pws.setItem(row , 3, (QtWidgets.QTableWidgetItem(qline3)))
@@ -1298,51 +969,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         qline5 = ""
         res = "{} {} {}".format(qline, "\n", qline2)
 
-        class EditButtonsWidget(QtWidgets.QWidget):
-            def __init__(self, table= self.table_pws, pop_up_copy= self.pop_up_copy, parent=None):
-                super().__init__(parent)
-                self.table_pws = table
-                self.pop_up_copy = pop_up_copy
-                
-                # add your buttons
-                layout = QtWidgets.QHBoxLayout()
-                layout.setContentsMargins(0,0,0,0)
-                layout.setSpacing(0)
-
-                Copy = QtWidgets.QPushButton('Icon')
-                Copy.setFixedSize(65,65)
-                Copy.clicked.connect(self.copy_to_clipboard_function)
-                layout.addWidget(Copy)
-                layout.addWidget(QtWidgets.QLabel(str(res)))
-               
-                self.setLayout(layout)
-            @pyqtSlot()
-            def copy_to_clipboard_function(self):
-                buttons_index = self.table_pws.indexAt(self.pos())
-                item = self.table_pws.item(buttons_index.row(), buttons_index.column()+3)
-                QApplication.clipboard().setText(item.text())
-                 # qtimer popup
-                self.time_to_wait = 5
-                self.pop_up_copy.setText("Data added to clipboard.") #{0} for time display
-                self.pop_up_copy.setStyleSheet("background-color: #2B5DD1; color: #FFFFFF ; border-style: outset;" 
-                "padding: 2px ; font: bold 20px ; border-width: 6px ; border-radius: 10px ; border-color: #2752B8;")
-                self.pop_up_copy.show()
-                self.timer = QTimer(self)
-                self.timer.setInterval(1000)
-                self.timer.timeout.connect(self.changeContent)
-                self.timer.start()  
-            def changeContent(self):
-                self.pop_up_copy.setText("Data added to clipboard.")
-                self.time_to_wait -= 1
-                if self.time_to_wait <= 0:
-                    self.pop_up_copy.hide()
-                    self.timer.stop()
-            def closeEvent(self, event):
-                self.timer.stop()
-                event.accept()
+        
 
             
-        self.table_pws.setCellWidget(row , 0, (EditButtonsWidget()))
+        self.table_pws.setCellWidget(row , 0, (EditButtonsWidget(self.table_pws, self.pop_up_copy, res)))
         self.table_pws.setItem(row , 1, (QtWidgets.QTableWidgetItem(qline)))
         self.table_pws.setItem(row , 2, (QtWidgets.QTableWidgetItem(qline2)))
         self.table_pws.setItem(row , 3, (QtWidgets.QTableWidgetItem(qline3)))
@@ -1397,50 +1027,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         qline5 = self.pws_editnotes.toPlainText()
         res = "{} {} {}".format(qline, "\n", qline2)
 
-        class EditButtonsWidget(QtWidgets.QWidget):
-            def __init__(self, table= self.table_pws, pop_up_copy= self.pop_up_copy, parent=None):
-                super().__init__(parent)
-                self.table_pws = table
-                self.pop_up_copy = pop_up_copy
-                
-                # add your buttons
-                layout = QtWidgets.QHBoxLayout()
-                layout.setContentsMargins(0,0,0,0)
-                layout.setSpacing(0)
-
-                Copy = QtWidgets.QPushButton('Icon')
-                Copy.setFixedSize(65,65)
-                Copy.clicked.connect(self.copy_to_clipboard_function)
-                layout.addWidget(Copy)
-                layout.addWidget(QtWidgets.QLabel(str(res)))
                
-                self.setLayout(layout)
-            @pyqtSlot()
-            def copy_to_clipboard_function(self):
-                buttons_index = self.table_pws.indexAt(self.pos())
-                item = self.table_pws.item(buttons_index.row(), buttons_index.column()+3)
-                QApplication.clipboard().setText(item.text())
-                 # qtimer popup
-                self.time_to_wait = 5
-                self.pop_up_copy.setText("Data added to clipboard.") #{0} for time display
-                self.pop_up_copy.setStyleSheet("background-color: #2B5DD1; color: #FFFFFF ; border-style: outset;" 
-                "padding: 2px ; font: bold 20px ; border-width: 6px ; border-radius: 10px ; border-color: #2752B8;")
-                self.pop_up_copy.show()
-                self.timer = QTimer(self)
-                self.timer.setInterval(1000)
-                self.timer.timeout.connect(self.changeContent)
-                self.timer.start()  
-            def changeContent(self):
-                self.pop_up_copy.setText("Data added to clipboard.")
-                self.time_to_wait -= 1
-                if self.time_to_wait <= 0:
-                    self.pop_up_copy.hide()
-                    self.timer.stop()
-            def closeEvent(self, event):
-                self.timer.stop()
-                event.accept()
-               
-        self.table_pws.setCellWidget(row , 0, (EditButtonsWidget()))
+        self.table_pws.setCellWidget(row , 0, (EditButtonsWidget(self.table_pws, self.pop_up_copy, res)))
         self.table_pws.setItem(row , 1, (QtWidgets.QTableWidgetItem(qline)))
         self.table_pws.setItem(row , 2, (QtWidgets.QTableWidgetItem(qline2)))
         self.table_pws.setItem(row , 3, (QtWidgets.QTableWidgetItem(qline3)))
@@ -1512,7 +1100,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 self.pop_up_copy.hide()
                 self.timer.stop()
     def closeEvent(self, event):
-        self.timer.stop()
+        lambda:self.timer.stop()
         event.accept()
     def copyusername(self):
         QApplication.clipboard().setText(self.pws_editloginname.text())
@@ -1825,14 +1413,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def slot_tab_changed(self, idx):
         pass
 
-    @pyqtSlot()
-    def nk3_btn_pressed(self):
-        self.tabs.show()
-        self.tabs.setTabVisible(1, False)
-        self.tabs.setTabVisible(2, False)
-        self.tabs.setTabVisible(3, False)
-        self.tabs.setTabVisible(4, False)
-        self.tabs.setTabVisible(5, False)
     #### main-window callbacks
     @pyqtSlot()
     def pro_btn_pressed(self):
@@ -1886,7 +1466,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def slot_quit_button_pressed(self):
         self.backend_thread.stop_loop()
         self.backend_thread.wait()
-        self.app.quit()
+        #self.app.quit()
+        QApplication.quit() 
 
     @pyqtSlot()
     def slot_lock_button_pressed(self):
@@ -1970,52 +1551,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.others_btn.hide()
         self.show()
 
-    class ProgressBar():
-        """
-        Helper class for progress bars where the total length of the progress bar
-        is not available before the first iteration.
-        """
-        def __init__(self, **kwargs):
-            self.bar: Optional[tqdm] = None
-            self.kwargs = kwargs
-            self.sum = 0
-
-        def __enter__(self):
-            return self
-
-        def __exit__(self, exc_type, exc_val, exc_tb) -> None:
-            self.close()
-
-        def update(self, n: int, total: int) -> None:
-            if not self.bar:
-                self.bar = tqdm(total=total, **self.kwargs)
-            self.bar.update(n)
-            self.sum += n
-            # gui
-            #GUI.change_value.emit(self.sum)
-
-        def update_sum(self, n: int, total: int) -> None:
-            if not self.bar:
-                self.bar = tqdm(total=total, **self.kwargs)
-            if n > self.sum:
-                self.bar.update(n - self.sum)
-                #self.progressBarUpdate.setValue(n - self.sum)
-                self.sum = n
-
-        def close(self) -> None:
-            if self.bar:
-                self.bar.close()
-
-
-    class DownloadProgressBar(ProgressBar):
-        """
-        Helper class for progress bars for downloading a file.
-        """
-        def __init__(self, desc: str) -> None:
-            super().__init__(desc=f"Download {desc}", unit="B", unit_scale=True)
-        
-
-    class Nk3_Context:
+    class Nk3Context:
         def __init__(self, nk3_context: Nitrokey3Base) -> None:
             self.path = nk3_context
             print(self.path)
@@ -2087,7 +1623,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     #     """Interact with Nitrokey 3, see subcommands."""
     #     ctx.obj = Context(path)
 
-
+    # alles nach pynitrokey???
     def list(self):
         """List all Nitrokey 3 devices."""
         print(":: 'Nitrokey 3' keys")
@@ -2130,13 +1666,13 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         if failure > 0:
             print("")
             raise CliException(f"Test failed for {failure} device(s)")
-    def version(self, ctx: Nk3_Context) -> None:
+    def version(self, ctx: Nk3Context) -> None:
         """Query the firmware version of the device."""
         with ctx.connect_device() as device:
             version = device.version()
             local_print(version)
 
-    def wink(self, ctx: Nk3_Context) -> None:
+    def wink(self, ctx: Nk3Context) -> None:
         """Send wink command to the device (blinks LED a few times)."""
         with ctx.connect_device() as device:
             device.wink()
@@ -2165,15 +1701,16 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             #logger.info(f"Trying to download firmware update from URL: {update.url}")
             print((f"Trying to download firmware update from URL: {update.url}"))
 
-            bar = self.DownloadProgressBar(desc=update.tag)
-            data = update.read(callback=bar.update)
-            bar.close()
+            #bar = self.DownloadProgressBar(desc=update.tag)
+            # qbar not shown (for now) maybe add it in the future?
+            data = update.read(callback=self.update_qbar)
+            #bar.close()
 
             return (release_version, data)
         except Exception as e:
             raise CliException(f"Failed to download latest firmware update {update.tag}", e)
 
-    def nk3_update(self, ctx: Nk3_Context, image: Optional[str]):
+    def nk3_update(self, ctx: Nk3Context, image: Optional[str]):
         """
         Update the firmware of the device using the given image.
         This command requires that exactly one Nitrokey 3 in bootloader or firmware mode is connected.
@@ -2236,7 +1773,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                             self.progressBarUpdate.setValue(100)
                             self.tray.show() 
                             self.tray.setToolTip("Nitrokey 3")
-                            self.tray.showMessage("Successfully updated your Nitrokey 3.","Successfully updated your Nitrokey 3.")
+                            self.tray.showMessage("Successfully updated your Nitrokey 3.","Successfully updated your Nitrokey 3.", msecs=2000)
                             #self.sendmessage("Successfully updated your Nitrokey 3.")
                             self.progressBarUpdate.hide()
                         break
@@ -2271,7 +1808,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                     print(f"The firmware update to {metadata.version} was successful, but the firmware "
                         f"is still reporting version {version}.")
 
-    def reboot(self, ctx: Nk3_Context, bootloader: bool) -> None:
+    def reboot(self, ctx: Nk3Context, bootloader: bool) -> None:
         """
         Reboot the key.
         Per default, the key will reboot into regular firmware mode.  If the --bootloader option
@@ -2297,7 +1834,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         )
         self.tray.show() 
         self.tray.setToolTip("Nitrokey 3")
-        self.tray.showMessage("Please touch the Nitrokey 3 to start the firmware update.","Please touch the Nitrokey 3 to start the firmware update.")
+        self.tray.showMessage("Please touch the Nitrokey 3 to start the firmware update.","Please touch the Nitrokey 3 to start the firmware update.", msecs=2000)
         #self.sendmessage("Please touch the Nitrokey 3 to start the firmware update.")
         try:
             device.reboot(BootMode.BOOTROM)
@@ -2309,10 +1846,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     def _perform_update(self, device: Nitrokey3Bootloader, image: bytes) -> None:
         #logger.debug("Starting firmware update")
-        with self.ProgressBar(
-            desc="Performing firmware update", unit="B", unit_scale=True
-        ) as bar:
-            result = device.update(image, callback=self.update_qbar)#bar.update_sum)
+        result = device.update(image, callback=self.update_qbar)#bar.update_sum)
             
         #logger.debug(f"Firmware update finished with status {device.status}")
 
