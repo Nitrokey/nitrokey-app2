@@ -1,3 +1,0 @@
-[submodule "submodules/pynitrokey"]
-	path = submodules/pynitrokey
-	url = https://github.com/Nitrokey/pynitrokey.git
