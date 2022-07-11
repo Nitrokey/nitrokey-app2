@@ -18,6 +18,8 @@ from pynitrokey.nk3.bootloader import (
     check_firmware_image,
 )
 from spsdk.mboot.exceptions import McuBootConnectionError
+# tray icon
+from tray_notification import TrayNotification
 
 T = TypeVar("T", bound=Nitrokey3Base)
 
@@ -244,9 +246,7 @@ def nk3_update(ctx: Nk3Context, progressBarUpdate, image: Optional[str]):
                         print("worked")
                         #### qprogressbar
                         progressBarUpdate.setValue(100)
-                        #self.tray.show() 
-                        #self.tray.setToolTip("Nitrokey 3")
-                        #self.tray.showMessage("Successfully updated your Nitrokey 3.","Successfully updated your Nitrokey 3.", msecs=2000)
+                        tray_successful_update = TrayNotification("Nitrokey 3", "Successfully updated your Nitrokey 3.","Successfully updated your Nitrokey 3.")
                         #self.sendmessage("Successfully updated your Nitrokey 3.")
                         progressBarUpdate.hide()
                     break
@@ -305,9 +305,7 @@ def _reboot_to_bootloader(device: Nitrokey3Device) -> None:
     local_print(
         "Please press the touch button to reboot the device into bootloader mode ..."
     )
-    #self.tray.show() 
-    #self.tray.setToolTip("Nitrokey 3")
-    #self.tray.showMessage("Please touch the Nitrokey 3 to start the firmware update.","Please touch the Nitrokey 3 to start the firmware update.", msecs=2000)
+    tray_please_touch = TrayNotification("Nitrokey 3","Please touch the Nitrokey 3 to start the firmware update.","Please touch the Nitrokey 3 to start the firmware update.")
     #self.sendmessage("Please touch the Nitrokey 3 to start the firmware update.")
     try:
         device.reboot(BootMode.BOOTROM)

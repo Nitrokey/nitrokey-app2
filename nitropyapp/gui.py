@@ -12,36 +12,17 @@ import subprocess
 #tests
 import datetime 
 import time
-
 from pathlib import Path
 from queue import Queue
-from tqdm import tqdm
-
 from typing import List, Optional, Tuple, Type, TypeVar
+
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTextStream, QTimer, QSortFilterProxyModel, QSize, QRect
 from PyQt5.Qt import QApplication, QClipboard, QLabel, QMovie, QIcon, QProgressBar,QProgressDialog, QMessageBox
-
+# Nitrokey 2
 from pynitrokey import libnk as nk_api
 # Nitrokey 3
-from pynitrokey.cli.exceptions import CliException
-from pynitrokey.helpers import Retries, local_print
-from pynitrokey.nk3.base import Nitrokey3Base
-from pynitrokey.nk3.exceptions import TimeoutException
-from pynitrokey.nk3.device import BootMode, Nitrokey3Device
 from pynitrokey.nk3 import list as list_nk3
-from pynitrokey.nk3 import open as open_nk3
-from pynitrokey.nk3.updates import get_repo
-from pynitrokey.nk3.utils import Version
-from pynitrokey.updates import OverwriteError
-from pynitrokey.nk3.bootloader import (
-    RKHT,
-    FirmwareMetadata,
-    Nitrokey3Bootloader,
-    check_firmware_image,
-)
-from spsdk.mboot.exceptions import McuBootConnectionError
-
 # import wizards and stuff
 from setup_wizard import SetupWizard
 from qt_utils_mix_in import QtUtilsMixIn
@@ -49,18 +30,15 @@ from about_dialog import AboutDialog
 from key_generation import KeyGeneration
 from windows_notification import WindowsUSBNotification
 from pynitrokey_for_gui import Nk3Context, list, test, version, wink, _download_latest_update, nk3_update, reboot, _reboot_to_bootloader, _perform_update
-
+from tray_notification import TrayNotification
 #import nitropyapp.libnk as nk_api
 import nitropyapp.ui.breeze_resources 
 #pyrcc5 -o gui_resources.py ui/resources.qrc
 import nitropyapp.gui_resources
-
-
-
-#import pysnooper
-#@pysnooper.snoop
+# global var for time_block 
 start_time = 0
 block_time = 0
+
 class BackendThread(QThread):
     hello = pyqtSignal()
 
@@ -405,6 +383,7 @@ class Nk3Button(QtWidgets.QWidget):
         self.tabs.hide()
         self.nitrokeys_window.update()
         self.btn_nk3.hide()
+
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     sig_connected = pyqtSignal(dict)
@@ -466,10 +445,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         ################################################################################
         # playground
-
-        ## os notification
-        self.tray = QtWidgets.QSystemTrayIcon()  
-        self.tray.setIcon(QIcon(":/images/new/down_arrow.png"))
 
         self.key_generation = KeyGeneration(qt_app)
         self.key_generation.load_ui(ui_dir / "key_generation.ui", self.key_generation)
@@ -697,6 +672,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         
     def info_success(self):
         self.user_info(self, "success")
+        
     def time_block(self):
         global block_time
         global start_time
@@ -779,16 +755,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 print(f"{self.device.path}: {self.device.name}")
             self.one_nk3_btn = Nk3Button(self.device, self.nitrokeys_window, self.nk3_lineedit_1, self.nk3_lineedit_2, self.nk3_lineedit_3, self.tabs, self.update_nk3_btn, self.progressBarUpdate)
             #self.sendmessage("Nitrokey 3 connected.")
-            self.tray.show() 
-            self.tray.setToolTip("Nitrokey 3")
-            self.tray.showMessage("Nitrokey 3 connected.","Nitrokey 3 connected.", msecs=2000)
+            tray_connect = TrayNotification("Nitrokey 3", "Nitrokey 3 connected.","Nitrokey 3 connected.")
             self.device = None 
         
         else:
             print("no nk3 in list. no admin?")
-            self.tray.show() 
-            self.tray.setToolTip("Nitrokey 3")
-            self.tray.showMessage("Nitrokey 3 not connected.","Nitrokey 3 not connected.", msecs=2000)
+            tray_not_connect = TrayNotification("Nitrokey 3", "Nitrokey 3 not connected.","Nitrokey 3 not connected.")
         
     @pyqtSlot()   
     #### press f1 for connecting keys
@@ -1483,14 +1455,17 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     @pyqtSlot()
     def slot_lock_button_pressed(self):
-        if not self.device.connected:
-            self.msg({"connected": False})
-            self.sig_disconnected.emit()
-            return
+        # removes side buttos for nk3 (for now)          
+        for x in Nk3Button.get():
+            x.__del__
 
-        self.device.lock()
-        self.msg("Locked device!")
-        self.sig_lock.emit(self.device.status)
+        #if not self.device.connected:
+        #    self.msg({"connected": False})
+        #    self.sig_disconnected.emit()
+        #    return
+        #self.device.lock()
+        #self.msg("Locked device!")
+        #self.sig_lock.emit(self.device.status)
 
     @pyqtSlot()
     def unlock_pws_button_pressed(self):
