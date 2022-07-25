@@ -344,15 +344,15 @@ class Nk3Button(QtWidgets.QWidget):
     @classmethod
     def get(cls):
         return Nk3Button.list_nk3_keys
-    def __init__(self, device, nitrokeys_window, nk3_lineedit_1, nk3_lineedit_2, nk3_lineedit_3, tabs, update_nk3_btn, progressBarUpdate):
+    def __init__(self, device, nitrokeys_window, nk3_lineedit_uuid, nk3_lineedit_path, nk3_lineedit_version, tabs, update_nk3_btn, progressBarUpdate):
         super().__init__()
         self.device = device
         self.uuid = self.device.uuid
         self.nitrokeys_window = nitrokeys_window
         self.tabs = tabs
-        self.nk3_lineedit_1 = nk3_lineedit_1
-        self.nk3_lineedit_2 = nk3_lineedit_2
-        self.nk3_lineedit_3 = nk3_lineedit_3
+        self.nk3_lineedit_uuid = nk3_lineedit_uuid
+        self.nk3_lineedit_path = nk3_lineedit_path
+        self.nk3_lineedit_version = nk3_lineedit_version
         self.update_nk3_btn = update_nk3_btn
         self.progressBarUpdate = progressBarUpdate
         #########needs to create buttoGUIn in the vertical navigation with the nitrokey type and serial number as text
@@ -374,9 +374,9 @@ class Nk3Button(QtWidgets.QWidget):
         self.tabs.setTabVisible(3, False)
         self.tabs.setTabVisible(4, False)
         self.tabs.setTabVisible(5, False)
-        self.nk3_lineedit_1.setText(str(self.device.uuid()))
-        self.nk3_lineedit_2.setText(str(self.device.path))
-        self.nk3_lineedit_3.setText(str(self.device.version()))
+        self.nk3_lineedit_uuid.setText(str(self.device.uuid()))
+        self.nk3_lineedit_path.setText(str(self.device.path))
+        self.nk3_lineedit_version.setText(str(self.device.version()))
 
     def __del__(self):
         print ("deleted")
@@ -501,9 +501,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.nitrokeys_window = _get(_qt.QScrollArea, "Nitrokeys") 
         self.hidden_volume = _get(_qt.QPushButton, "btn_dial_HV")
         ### nk3
-        self.nk3_lineedit_1 = _get(_qt.QLineEdit, "nk3_lineedit_1")
-        self.nk3_lineedit_2 = _get(_qt.QLineEdit, "nk3_lineedit_2")
-        self.nk3_lineedit_3 = _get(_qt.QLineEdit, "nk3_lineedit_3")
+        self.nk3_lineedit_uuid = _get(_qt.QLineEdit, "nk3_lineedit_1")
+        self.nk3_lineedit_path = _get(_qt.QLineEdit, "nk3_lineedit_2")
+        self.nk3_lineedit_version = _get(_qt.QLineEdit, "nk3_lineedit_3")
         self.update_nk3_btn = _get(_qt.QPushButton, "update_nk3_btn")
 
         self.progressBarUpdate = _get(_qt.QProgressBar, "progressBar_Update")
@@ -665,7 +665,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.sig_ask_pin.connect(self.pin_dialog.invoke)
         self.sig_auth.connect(self.slot_auth)
         self.sig_confirm_auth.connect(self.slot_confirm_auth)
-
         self.sig_lock.connect(self.slot_lock)
 
     #nk3 stuff
@@ -753,7 +752,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 print(f"{self.device.path}: {self.device.name} {self.device.uuid():X}")
             else:
                 print(f"{self.device.path}: {self.device.name}")
-            self.one_nk3_btn = Nk3Button(self.device, self.nitrokeys_window, self.nk3_lineedit_1, self.nk3_lineedit_2, self.nk3_lineedit_3, self.tabs, self.update_nk3_btn, self.progressBarUpdate)
+            self.one_nk3_btn = Nk3Button(self.device, self.nitrokeys_window, self.nk3_lineedit_uuid, self.nk3_lineedit_path, self.nk3_lineedit_version, self.tabs, self.update_nk3_btn, self.progressBarUpdate)
             #self.sendmessage("Nitrokey 3 connected.")
             tray_connect = TrayNotification("Nitrokey 3", "Nitrokey 3 connected.","Nitrokey 3 connected.")
             self.device = None 
@@ -1455,9 +1454,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     @pyqtSlot()
     def slot_lock_button_pressed(self):
-        # removes side buttos for nk3 (for now)          
+        # removes side buttos for nk3 (for now)  
+        print("locked")        
         for x in Nk3Button.get():
-            x.__del__
+            x.__del__()
 
         #if not self.device.connected:
         #    self.msg({"connected": False})
