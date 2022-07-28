@@ -34,7 +34,8 @@ class Nk3Context:
 
     def list(self) -> List[Nitrokey3Base]:
         if self.path:
-            device = list_nk3()[0]
+            #device = list_nk3()[0]
+            device = open_nk3(self.path)
             if device:
                 print("funzt")
                 print(type(device))
@@ -249,6 +250,7 @@ def nk3_update(ctx: Nk3Context, progressBarUpdate, image: Optional[str]):
                         tray_successful_update = TrayNotification("Nitrokey 3", "Successfully updated your Nitrokey 3.","Successfully updated your Nitrokey 3.")
                         #self.sendmessage("Successfully updated your Nitrokey 3.")
                         progressBarUpdate.hide()
+                        progressBarUpdate.setValue(0)
                     break
                 except McuBootConnectionError as e:
                     #logger.debug("Received connection error", exc_info=True)
