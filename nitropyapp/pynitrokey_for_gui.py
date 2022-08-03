@@ -1,4 +1,5 @@
-from typing import List, Optional, Tuple, Type, TypeVar
+from contextlib import contextmanager
+from typing import List, Optional, Tuple, Type, TypeVar, Any, Callable, Iterator
 import platform
 # Nitrokey 3
 from pynitrokey.cli.exceptions import CliException
@@ -8,14 +9,15 @@ from pynitrokey.nk3.exceptions import TimeoutException
 from pynitrokey.nk3.device import BootMode, Nitrokey3Device
 from pynitrokey.nk3 import list as list_nk3
 from pynitrokey.nk3 import open as open_nk3
-from pynitrokey.nk3.updates import get_repo
+from pynitrokey.nk3.updates import Updater, UpdateUi, REPOSITORY, get_firmware_update
 from pynitrokey.nk3.utils import Version
 from pynitrokey.updates import OverwriteError
+from pynitrokey.nk3.bootloader import Variant
 from pynitrokey.nk3.bootloader import (
-    RKHT,
-    FirmwareMetadata,
     Nitrokey3Bootloader,
-    check_firmware_image,
+    Variant,
+    detect_variant,
+    parse_firmware_image,
 )
 from spsdk.mboot.exceptions import McuBootConnectionError
 # tray icon
@@ -185,103 +187,203 @@ def _download_latest_update(device: Nitrokey3Base):
         return (release_version, data)
     except Exception as e:
         raise CliException(f"Failed to download latest firmware update {update.tag}", e)
+def fetch_update(
+    path: str, force: bool, variant: Variant, version: Optional[str]) -> None:
+    """
+    Fetches a firmware update for the Nitrokey 3 and stores it at the given path.
+    If no path is given, the firmware image stored in the current working
+    directory.  If the given path is a directory, the image is stored under
+    that directory.  Otherwise it is written to the path.  Existing files are
+    only overwritten if --force is set.
+    Per default, the latest firmware release is fetched.  If you want to
+    download a specific version, use the --version option.
+    """
+    try:
+        release = REPOSITORY.get_release_or_latest(version)
+        update = get_firmware_update(release, variant)
+    except Exception as e:
+        if version:
+            raise CliException(f"Failed to find firmware update {version}", e)
+        else:
+            raise CliException("Failed to find latest firmware update", e)
 
-def nk3_update(ctx: Nk3Context, progressBarUpdate, image: Optional[str]):
+    bar = DownloadProgressBar(desc=update.tag)
+
+    try:
+        if os.path.isdir(path):
+            path = update.download_to_dir(path, overwrite=force, callback=bar.update)
+        else:
+            if not force and os.path.exists(path):
+                raise OverwriteError(path)
+            with open(path, "wb") as f:
+                update.download(f, callback=bar.update)
+
+        bar.close()
+
+        local_print(f"Successfully downloaded firmware release {update.tag} to {path}")
+    except OverwriteError as e:
+        raise CliException(
+            f"{e.path} already exists.  Use --force to overwrite the file.",
+            support_hint=False,
+        )
+    except Exception as e:
+        raise CliException(f"Failed to download firmware update {update.tag}", e)
+
+def validate_update(image: str, variant: Optional[Variant]) -> None:
+    """
+    Validates the given firmware image and prints the firmware version and the signer.
+    If the name of the firmware image name is changed so that the device variant can no longer be
+    detected from the filename, it has to be set explictly with --variant.
+    """
+    if not variant:
+        variant = detect_variant(image)
+    if not variant:
+        variant = Variant.from_str(
+            prompt("Firmware image variant", type=VARIANT_CHOICE)
+        )
+
+    with open(image, "rb") as f:
+        data = f.read()
+
+    try:
+        metadata = parse_firmware_image(variant, data)
+    except Exception as e:
+        raise CliException("Failed to parse and validate firmware image", e)
+
+    signed_by = metadata.signed_by or "unsigned"
+
+    print(f"version:    {metadata.version}")
+    print(f"signed by:  {signed_by}")
+
+def nk3_update(
+    ctx: Nk3Context, progressBarUpdate, image, variant) -> None:
     """
     Update the firmware of the device using the given image.
     This command requires that exactly one Nitrokey 3 in bootloader or firmware mode is connected.
     The user is asked to confirm the operation before the update is started.  The Nitrokey 3 may
     not be removed during the update.  Also, additional Nitrokey 3 devices may not be connected
     during the update.
-    If no firmware image is given, the latest firmware release is downloaded automatically.
+    If no firmware image is given, the latest firmware release is downloaded automatically.  If a
+    firmware image is given and its name is changed so that the device variant can no longer be
+    detected from the filename, it has to be set explictly with --variant.
     If the connected Nitrokey 3 device is in firmware mode, the user is prompted to touch the
     device’s button to confirm rebooting to bootloader mode.
     """
 
-    #if experimental:
-    "The --experimental switch is not required to run this command anymore and can be safely removed."
-    print ("HIEEEEEER!!!",ctx.path)
-    with ctx.connect() as device:
-        progressBarUpdate.show()
-        release_version = None
-        if image:
-            with open(image, "rb") as f:
-                data = f.read()
-        else:
-            release_version, data = _download_latest_update(device)
+    from update import update
 
-        metadata = check_firmware_image(data)
-        if release_version and release_version != metadata.version:
+    update_version = update(ctx, progressBarUpdate ,image, variant)
+
+    local_print("")
+    with ctx.await_device() as device:
+        version = device.version()
+        progressBarUpdate.show()
+        if version == update_version:
+            local_print(f"Successfully updated the firmware to version {version}.")
+        else:
             raise CliException(
-                f"The firmware image for the release {release_version} has the unexpected product "
-                f"version {metadata.version}."
+                f"The firmware update to {update_version} was successful, but the firmware "
+                f"is still reporting version {version}."
             )
 
-        if isinstance(device, Nitrokey3Device):
-            if not release_version:
-                current_version = device.version()
-                #_print_version_warning(metadata, current_version)
-            #_print_update_warning()
 
-            local_print("")
-            _reboot_to_bootloader(device)
-            local_print("")
 
-            if platform.system() == "Darwin":
-                # Currently there is an issue with device enumeration after reboot on macOS, see
-                # <https://github.com/Nitrokey/pynitrokey/issues/145>.  To avoid this issue, we
-                # cancel the command now and ask the user to run it again.
-                local_print(
-                    "Bootloader mode enabled. Please repeat this command to apply the update."
-                )
-                print("Darwin")
+# def update(ctx: Nk3Context, progressBarUpdate, image: Optional[str]):
+#     """
+#     Update the firmware of the device using the given image.
+#     This command requires that exactly one Nitrokey 3 in bootloader or firmware mode is connected.
+#     The user is asked to confirm the operation before the update is started.  The Nitrokey 3 may
+#     not be removed during the update.  Also, additional Nitrokey 3 devices may not be connected
+#     during the update.
+#     If no firmware image is given, the latest firmware release is downloaded automatically.
+#     If the connected Nitrokey 3 device is in firmware mode, the user is prompted to touch the
+#     device’s button to confirm rebooting to bootloader mode.
+#     """
 
-            exc = None
-            for t in Retries(3):
-                #logger.debug(f"Trying to connect to bootloader ({t})")
-                print(f"Trying to connect to bootloader ({t})")
-                try:
-                    #time.sleep(1)
-                    with ctx.await_bootloader() as bootloader:
-                        _perform_update(bootloader, data)
-                        print("worked")
-                        #### qprogressbar
-                        progressBarUpdate.setValue(100)
-                        tray_successful_update = TrayNotification("Nitrokey 3", "Successfully updated your Nitrokey 3.","Successfully updated your Nitrokey 3.")
-                        #self.sendmessage("Successfully updated your Nitrokey 3.")
-                        progressBarUpdate.hide()
-                        progressBarUpdate.setValue(0)
-                    break
-                except McuBootConnectionError as e:
-                    #logger.debug("Received connection error", exc_info=True)
-                    print("Received connection error", exc_info=True)
-                    exc = e
-            else:
-                msgs = ["Failed to connect to Nitrokey 3 bootloader"]
-                if platform.system() == "Linux":
-                    msgs += ["Are the Nitrokey udev rules installed and active?"]
-                raise CliException(*msgs, exc)
-                print((*msgs, exc))
-        elif isinstance(device, Nitrokey3Bootloader):
-            #_print_version_warning(metadata)
-            #_print_update_warning()
-            _perform_update(device, data)
-        else:
-            raise CliException(f"Unexpected Nitrokey 3 device: {device}")
-            print(f"Unexpected Nitrokey 3 device: {device}")
-        local_print("")
-        with ctx.await_device() as device:
-            version = device.version()
-            if version == metadata.version:
-                local_print(f"Successfully updated the firmware to version {version}.")
-                print(f"Successfully updated the firmware to version {version}.")
-            else:
-                raise CliException(
-                    f"The firmware update to {metadata.version} was successful, but the firmware "
-                    f"is still reporting version {version}."
-                )
-                print(f"The firmware update to {metadata.version} was successful, but the firmware "
-                    f"is still reporting version {version}.")
+#     #if experimental:
+#     "The --experimental switch is not required to run this command anymore and can be safely removed."
+#     print ("HIEEEEEER!!!",ctx.path)
+#     with ctx.connect() as device:
+#         progressBarUpdate.show()
+#         release_version = None
+#         if image:
+#             with open(image, "rb") as f:
+#                 data = f.read()
+#         else:
+#             release_version, data = _download_latest_update(device)
+
+#         metadata = check_firmware_image(data)
+#         if release_version and release_version != metadata.version:
+#             raise CliException(
+#                 f"The firmware image for the release {release_version} has the unexpected product "
+#                 f"version {metadata.version}."
+#             )
+
+#         if isinstance(device, Nitrokey3Device):
+#             if not release_version:
+#                 current_version = device.version()
+#                 #_print_version_warning(metadata, current_version)
+#             #_print_update_warning()
+
+#             local_print("")
+#             _reboot_to_bootloader(device)
+#             local_print("")
+
+#             if platform.system() == "Darwin":
+#                 # Currently there is an issue with device enumeration after reboot on macOS, see
+#                 # <https://github.com/Nitrokey/pynitrokey/issues/145>.  To avoid this issue, we
+#                 # cancel the command now and ask the user to run it again.
+#                 local_print(
+#                     "Bootloader mode enabled. Please repeat this command to apply the update."
+#                 )
+#                 print("Darwin")
+
+#             exc = None
+#             for t in Retries(3):
+#                 #logger.debug(f"Trying to connect to bootloader ({t})")
+#                 print(f"Trying to connect to bootloader ({t})")
+#                 try:
+#                     #time.sleep(1)
+#                     with ctx.await_bootloader() as bootloader:
+#                         _perform_update(bootloader, data)
+#                         print("worked")
+#                         #### qprogressbar
+#                         progressBarUpdate.setValue(100)
+#                         tray_successful_update = TrayNotification("Nitrokey 3", "Successfully updated your Nitrokey 3.","Successfully updated your Nitrokey 3.")
+#                         #self.sendmessage("Successfully updated your Nitrokey 3.")
+#                         progressBarUpdate.hide()
+#                         progressBarUpdate.setValue(0)
+#                     break
+#                 except McuBootConnectionError as e:
+#                     #logger.debug("Received connection error", exc_info=True)
+#                     print("Received connection error", exc_info=True)
+#                     exc = e
+#             else:
+#                 msgs = ["Failed to connect to Nitrokey 3 bootloader"]
+#                 if platform.system() == "Linux":
+#                     msgs += ["Are the Nitrokey udev rules installed and active?"]
+#                 raise CliException(*msgs, exc)
+#                 print((*msgs, exc))
+#         elif isinstance(device, Nitrokey3Bootloader):
+#             #_print_version_warning(metadata)
+#             #_print_update_warning()
+#             _perform_update(device, data)
+#         else:
+#             raise CliException(f"Unexpected Nitrokey 3 device: {device}")
+#             print(f"Unexpected Nitrokey 3 device: {device}")
+#         local_print("")
+#         with ctx.await_device() as device:
+#             version = device.version()
+#             if version == metadata.version:
+#                 local_print(f"Successfully updated the firmware to version {version}.")
+#                 print(f"Successfully updated the firmware to version {version}.")
+#             else:
+#                 raise CliException(
+#                     f"The firmware update to {metadata.version} was successful, but the firmware "
+#                     f"is still reporting version {version}."
+#                 )
+#                 print(f"The firmware update to {metadata.version} was successful, but the firmware "
+#                     f"is still reporting version {version}.")
 
 def reboot(ctx: Nk3Context, bootloader: bool) -> None:
     """
@@ -329,9 +431,4 @@ def _perform_update(device: Nitrokey3Bootloader, image: bytes) -> None:
     else:
         (code, message) = device.status
         raise CliException(f"Firmware update failed with status code {code}: {message}")
-def update_qbar(n: int, total: int) -> None:
-    global sum
-    if n > sum:
-        print(((sum)*100//total))    
-        #self.progressBarUpdate.setValue(((sum)*100//total))        
-        sum += n
+

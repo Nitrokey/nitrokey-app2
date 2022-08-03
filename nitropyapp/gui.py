@@ -375,7 +375,7 @@ class Nk3Button(QtWidgets.QWidget):
         #self.own_update_btn.setFixedSize(50, 20)
         self.own_update_btn.setGeometry(70,174,350,30)
         self.ctx = Nk3Context(self.device.path)
-        self.own_update_btn.clicked.connect(lambda:nk3_update(self.ctx, self.progressBarUpdate, 0))
+        self.own_update_btn.clicked.connect(lambda:nk3_update(self.ctx, self.progressBarUpdate, 0, 0))
         
         Nk3Button.list_nk3_keys.append(self)
         print(Nk3Button.list_nk3_keys)
