@@ -2,17 +2,16 @@
 
 Work in Progress !!
 
-To run:
+## To run (Linux):
 ```
-cd /tmp
-git clone https://github.com/daringer/nitropy-app.git
-cd nitropy-app
+cd git
+git clone https://github.com/nitrokey/nitropy-app2.git
+cd nitropy-app2
 make
-venv/bin/nitropy-app
+source venv/bin/activate
+python3.9 nitropyapp/gui.py
 ```
-
-* Once started, click on `Help` (don't ask why) to connect a device.
-* Currently HOTP/TOTP save, erase, get (just choose it from the dropdown) is (likely) working.
-* Due to a currently exisiting bug in libnitrokey make sure no FIDO2 key is plugged in, or connect will freeze the application
-
-
+## Notes:
+* the current version uses pynitrokey 
+* therefore python 3.9 must first be installed
+* the pynitrokey version in venv must also be replaced with (https://github.com/Nitrokey/pynitrokey/tree/nk3-updater)

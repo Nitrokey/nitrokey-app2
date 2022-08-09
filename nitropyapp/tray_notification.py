@@ -8,4 +8,4 @@ class TrayNotification(QtWidgets.QSystemTrayIcon):
         self.tray.setIcon(QIcon(":/images/new/down_arrow.png"))
         self.tray.show() 
         self.tray.setToolTip(str(tool_tip))
-        self.tray.showMessage(str(message),str(message2), msecs=2000)
+        self.tray.showMessage(str(message),str(message2), msecs=200)
