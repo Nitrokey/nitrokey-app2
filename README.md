@@ -4,7 +4,6 @@ Work in Progress !!
 
 ## To run (Linux):
 ```
-cd git
 git clone https://github.com/nitrokey/nitropy-app2.git
 cd nitropy-app2
 make
