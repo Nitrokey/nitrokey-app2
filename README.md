@@ -1,4 +1,4 @@
-# Alternative Nitrokey Application - nitropy-app
+# Alternative Nitrokey Application - nitropy-app2
 
 Work in Progress !!
 
