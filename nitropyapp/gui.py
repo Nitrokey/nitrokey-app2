@@ -29,7 +29,7 @@ from qt_utils_mix_in import QtUtilsMixIn
 from about_dialog import AboutDialog
 from key_generation import KeyGeneration
 from windows_notification import WindowsUSBNotification
-from pynitrokey_for_gui import Nk3Context, list, test, version, wink, _download_latest_update, nk3_update, reboot, _reboot_to_bootloader, _perform_update
+from pynitrokey_for_gui import Nk3Context, list, version, wink, nk3_update, nk3_update_helper
 from tray_notification import TrayNotification
 #import nitropyapp.libnk as nk_api
 import nitropyapp.ui.breeze_resources 
@@ -375,7 +375,7 @@ class Nk3Button(QtWidgets.QWidget):
         #self.own_update_btn.setFixedSize(50, 20)
         self.own_update_btn.setGeometry(70,174,350,30)
         self.ctx = Nk3Context(self.device.path)
-        self.own_update_btn.clicked.connect(lambda:nk3_update(self.ctx, self.progressBarUpdate, 0, 0))
+        self.own_update_btn.clicked.connect(lambda:nk3_update_helper(self.ctx, self.progressBarUpdate, 0, 0))
         
         Nk3Button.list_nk3_keys.append(self)
         print(Nk3Button.list_nk3_keys)
