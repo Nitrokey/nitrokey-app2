@@ -35,5 +35,7 @@
     <file>images/new/icon_warning.svg</file>
     <file>images/new/right_arrow.png</file>
     <file>images/new/down_arrow.png</file>
+    <file>images/icon/usb_new.png</file>
+    <file>images/icon/info_new.png</file>
   </qresource>
 </RCC>

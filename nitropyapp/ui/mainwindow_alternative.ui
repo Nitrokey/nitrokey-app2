@@ -18,9 +18,12 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>0</width>
-    <height>110</height>
+    <width>600</width>
+    <height>500</height>
    </size>
+  </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
    <string>Nitrokey App</string>
@@ -45,6 +48,10 @@
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralWidget">
+   <property name="styleSheet">
+    <string notr="true">QWidget#centralWidget{background-color: rgb(253, 253, 253); }
+</string>
+   </property>
    <layout class="QHBoxLayout" name="horizontalLayout_2">
     <property name="spacing">
      <number>0</number>
@@ -59,7 +66,7 @@
      <number>0</number>
     </property>
     <property name="bottomMargin">
-     <number>9</number>
+     <number>0</number>
     </property>
     <item alignment="Qt::AlignLeft">
      <widget class="QFrame" name="vertical_navigation">
@@ -76,7 +83,8 @@
        </size>
       </property>
       <property name="styleSheet">
-       <string notr="true"/>
+       <string notr="true">border: 0px;
+background-color:rgb(235, 235, 235)</string>
       </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -85,6 +93,21 @@
        <enum>QFrame::Raised</enum>
       </property>
       <layout class="QGridLayout" name="gridLayout_14">
+       <property name="leftMargin">
+        <number>6</number>
+       </property>
+       <property name="topMargin">
+        <number>9</number>
+       </property>
+       <property name="rightMargin">
+        <number>6</number>
+       </property>
+       <property name="bottomMargin">
+        <number>9</number>
+       </property>
+       <property name="spacing">
+        <number>6</number>
+       </property>
        <item row="2" column="0" colspan="4">
         <widget class="QPushButton" name="pushButton_pro">
          <property name="sizePolicy">
@@ -151,12 +174,12 @@
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/images/new/icon_about_nitrokey.svg</normaloff>:/images/new/icon_about_nitrokey.svg</iconset>
+           <normaloff>:/images/icon/info_new.png</normaloff>:/images/icon/info_new.png</iconset>
          </property>
          <property name="iconSize">
           <size>
-           <width>30</width>
-           <height>30</height>
+           <width>40</width>
+           <height>40</height>
           </size>
          </property>
          <property name="flat">
@@ -166,6 +189,21 @@
        </item>
        <item row="3" column="0" colspan="4">
         <widget class="QScrollArea" name="Nitrokeys">
+         <property name="styleSheet">
+          <string notr="true">border: 0px;</string>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Plain</enum>
+         </property>
+         <property name="lineWidth">
+          <number>0</number>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOff</enum>
+         </property>
          <property name="widgetResizable">
           <bool>true</bool>
          </property>
@@ -174,8 +212,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>178</width>
-            <height>376</height>
+            <width>188</width>
+            <height>423</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_9"/>
@@ -242,6 +280,9 @@
            <weight>75</weight>
            <bold>true</bold>
           </font>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
          </property>
          <property name="styleSheet">
           <string notr="true">QPushButton {
@@ -432,8 +473,25 @@
         <pointsize>14</pointsize>
        </font>
       </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
       <property name="styleSheet">
-       <string notr="true"/>
+       <string notr="true">QTabWidget::pane {             
+            border-width: 0px;   
+}  
+QTabBar::tab {
+  background-color: rgb(253, 253, 253); 
+  padding: 8px;
+  color: darkgrey;
+} 
+QTabBar::tab:selected{
+	border-bottom: 1px solid darkgrey; 
+	color: black;
+}</string>
       </property>
       <property name="inputMethodHints">
        <set>Qt::ImhNone</set>
@@ -450,6 +508,9 @@
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
       </property>
+      <property name="usesScrollButtons">
+       <bool>true</bool>
+      </property>
       <property name="documentMode">
        <bool>false</bool>
       </property>
@@ -463,6 +524,12 @@
        <bool>false</bool>
       </property>
       <widget class="QWidget" name="tab_5">
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
        <attribute name="title">
         <string>Overview</string>
        </attribute>
@@ -476,6 +543,25 @@
         </item>
         <item row="0" column="0">
          <widget class="QScrollArea" name="scrollArea_2">
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QScrollArea{ border-width: 0px ; 
+background-color: rgb(253, 253, 253); }</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <property name="midLineWidth">
+           <number>0</number>
+          </property>
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
@@ -484,9 +570,12 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1075</width>
-             <height>1366</height>
+             <width>1081</width>
+             <height>1340</height>
             </rect>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(253, 253, 253); </string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
             <item alignment="Qt::AlignLeft|Qt::AlignTop">
@@ -497,11 +586,17 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="styleSheet">
+               <string notr="true">border-width: 0px;</string>
+              </property>
               <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
+               <enum>QFrame::NoFrame</enum>
               </property>
               <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
+               <enum>QFrame::Plain</enum>
+              </property>
+              <property name="lineWidth">
+               <number>0</number>
               </property>
               <layout class="QGridLayout" name="gridLayout_8">
                <item row="2" column="0">
@@ -641,7 +736,7 @@ as you may damage data in the process!</string>
               </layout>
              </widget>
             </item>
-            <item alignment="Qt::AlignLeft|Qt::AlignTop">
+            <item alignment="Qt::AlignTop">
              <widget class="QFrame" name="Nitrokey3">
               <property name="enabled">
                <bool>true</bool>
@@ -654,13 +749,66 @@ as you may damage data in the process!</string>
               </property>
               <property name="minimumSize">
                <size>
-                <width>430</width>
-                <height>220</height>
+                <width>440</width>
+                <height>200</height>
                </size>
               </property>
-              <layout class="QGridLayout" name="gridLayout_13" rowstretch="0,0,0,0,0">
-               <item row="1" column="1" alignment="Qt::AlignTop">
-                <widget class="QLineEdit" name="nk3_lineedit_1">
+              <property name="styleSheet">
+               <string notr="true">QFrame { background-color: lightgrey; border: 3px solid lightgrey; border-radius: 10px ; } </string>
+              </property>
+              <layout class="QFormLayout" name="formLayout_6">
+               <item row="0" column="0" colspan="2">
+                <widget class="QLabel" name="label_nk3">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>400</width>
+                   <height>22</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Nitrokey 3</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_uuid">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>10</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>UUID:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QLineEdit" name="nk3_lineedit_uuid">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -681,56 +829,20 @@ as you may damage data in the process!</string>
                  </property>
                 </widget>
                </item>
-               <item row="0" column="0" colspan="2" alignment="Qt::AlignTop">
-                <widget class="QLabel" name="label_nk3">
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_path">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>400</width>
-                   <height>0</height>
+                   <width>0</width>
+                   <height>10</height>
                   </size>
                  </property>
-                 <property name="font">
-                  <font>
-                   <weight>75</weight>
-                   <bold>true</bold>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>Nitrokey 3</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1" alignment="Qt::AlignTop">
-                <widget class="QLineEdit" name="nk3_lineedit_2">
-                 <property name="alignment">
-                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="readOnly">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1" alignment="Qt::AlignTop">
-                <widget class="QLineEdit" name="nk3_lineedit_3">
-                 <property name="alignment">
-                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="readOnly">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0" alignment="Qt::AlignTop">
-                <widget class="QLabel" name="label_38">
                  <property name="text">
                   <string>Path:</string>
                  </property>
@@ -739,18 +851,30 @@ as you may damage data in the process!</string>
                  </property>
                 </widget>
                </item>
-               <item row="1" column="0" alignment="Qt::AlignTop">
-                <widget class="QLabel" name="label_35">
-                 <property name="text">
-                  <string>UUID:</string>
-                 </property>
+               <item row="2" column="1">
+                <widget class="QLineEdit" name="nk3_lineedit_path">
                  <property name="alignment">
                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                  </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
                 </widget>
                </item>
-               <item row="3" column="0" alignment="Qt::AlignTop">
-                <widget class="QLabel" name="label_39">
+               <item row="3" column="0">
+                <widget class="QLabel" name="label_version">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>10</height>
+                  </size>
+                 </property>
                  <property name="text">
                   <string>Version:</string>
                  </property>
@@ -759,10 +883,27 @@ as you may damage data in the process!</string>
                  </property>
                 </widget>
                </item>
-               <item row="4" column="1" alignment="Qt::AlignTop">
-                <widget class="QPushButton" name="update_nk3_btn">
+               <item row="3" column="1">
+                <widget class="QLineEdit" name="nk3_lineedit_version">
+                 <property name="alignment">
+                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0" colspan="2">
+                <widget class="QPushButton" name="pushButton_10">
                  <property name="text">
-                  <string>Update Firmware</string>
+                  <string>Placeholder_Update</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="0" colspan="2">
+                <widget class="QPushButton" name="pushButton_8">
+                 <property name="text">
+                  <string>Placeholder_reset_pin</string>
                  </property>
                 </widget>
                </item>
@@ -787,7 +928,7 @@ as you may damage data in the process!</string>
                </size>
               </property>
               <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
+               <enum>QFrame::NoFrame</enum>
               </property>
               <property name="frameShadow">
                <enum>QFrame::Raised</enum>
@@ -914,7 +1055,7 @@ as you may damage data in the process!</string>
                </sizepolicy>
               </property>
               <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
+               <enum>QFrame::NoFrame</enum>
               </property>
               <property name="frameShadow">
                <enum>QFrame::Raised</enum>
@@ -980,7 +1121,7 @@ as you may damage data in the process!</string>
                   </size>
                  </property>
                  <property name="autoFillBackground">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="text">
                   <string/>
@@ -3012,21 +3153,6 @@ Text-align:left;
      </widget>
     </item>
    </layout>
-  </widget>
-  <widget class="QStatusBar" name="statusBar">
-   <property name="sizeGripEnabled">
-    <bool>false</bool>
-   </property>
-  </widget>
-  <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1313</width>
-     <height>22</height>
-    </rect>
-   </property>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

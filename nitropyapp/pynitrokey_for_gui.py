@@ -19,6 +19,16 @@ from pynitrokey.nk3.bootloader import (
     detect_variant,
     parse_firmware_image,
 )
+# for fido2 (change pin)
+import pynitrokey.fido2 as nkfido2
+import pynitrokey.fido2.operations
+from fido2.cbor import dump_dict
+from fido2.client import ClientError as Fido2ClientError
+from fido2.ctap import CtapError
+from fido2.ctap1 import ApduError
+from fido2.ctap2 import Ctap2
+from fido2.ctap2.pin import ClientPin
+
 from spsdk.mboot.exceptions import McuBootConnectionError
 # tray icon
 from tray_notification import TrayNotification
@@ -116,6 +126,31 @@ def wink(ctx: Nk3Context) -> None:
     with ctx.connect_device() as device:
         device.wink()
 
+def change_pin(ctx: Nk3Context, old_pin, new_pin, confirm_pin):
+    """Change pin of current device"""
+    with ctx.connect_device() as device:
+
+        if new_pin != confirm_pin:
+            print(
+                "new pin does not match confirm-pin",
+                "please try again!"
+            )
+        try:
+            # @fixme: move this (function) into own fido2-client-class
+            #dev = nkfido2.find_all()[0]
+            dev = nkfido2.find(device.device.serial_number)
+            print(dev)
+            client = dev.client
+            client_pin = ClientPin(dev.ctap2)
+            client_pin.change_pin(old_pin, new_pin)
+            local_print("done - please use new pin to verify key")
+        except Exception as e:
+            print(
+                "failed changing to new pin!", "did you set one already? or is it wrong?", e
+            )
+
+
+
 def nk3_update_helper(ctx: Nk3Context, progressBarUpdate, image, variant):
     try:
         nk3_update(ctx, progressBarUpdate, image, variant)
@@ -124,18 +159,6 @@ def nk3_update_helper(ctx: Nk3Context, progressBarUpdate, image, variant):
 
 def nk3_update(
     ctx: Nk3Context, progressBarUpdate, image, variant) -> None:
-    """
-    Update the firmware of the device using the given image.
-    This command requires that exactly one Nitrokey 3 in bootloader or firmware mode is connected.
-    The user is asked to confirm the operation before the update is started.  The Nitrokey 3 may
-    not be removed during the update.  Also, additional Nitrokey 3 devices may not be connected
-    during the update.
-    If no firmware image is given, the latest firmware release is downloaded automatically.  If a
-    firmware image is given and its name is changed so that the device variant can no longer be
-    detected from the filename, it has to be set explictly with --variant.
-    If the connected Nitrokey 3 device is in firmware mode, the user is prompted to touch the
-    device’s button to confirm rebooting to bootloader mode.
-    """
 
     from update import update
 
