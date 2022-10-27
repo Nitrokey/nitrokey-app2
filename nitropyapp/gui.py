@@ -8,15 +8,14 @@ import functools
 import platform
 # windows
 import subprocess
-
-#tests
+# extras
 import datetime 
 import time
 from pathlib import Path
 from queue import Queue
 from typing import List, Optional, Tuple, Type, TypeVar
 import webbrowser
-
+# pyqt5
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTextStream, QTimer, QSortFilterProxyModel, QSize, QRect
 from PyQt5.Qt import QApplication, QClipboard, QLabel, QMovie, QIcon, QProgressBar,QProgressDialog, QMessageBox
@@ -30,9 +29,15 @@ from qt_utils_mix_in import QtUtilsMixIn
 from about_dialog import AboutDialog
 from key_generation import KeyGeneration
 from change_pin_dialog import ChangePinDialog
+from storage_wizard import Storage
+from loading_screen import LoadingScreen
+from edit_button_widget import EditButtonsWidget
+from pin_dialog import PINDialog
+from insert_nitrokey import InsertNitrokey
 from windows_notification import WindowsUSBNotification
 from pynitrokey_for_gui import Nk3Context, list, version, wink, nk3_update, nk3_update_helper, change_pin
 from tray_notification import TrayNotification
+from nk3_button import Nk3Button
 #import nitropyapp.libnk as nk_api
 import nitropyapp.ui.breeze_resources 
 #pyrcc5 -o gui_resources.py ui/resources.qrc
@@ -100,324 +105,8 @@ class BackendThread(QThread):
 #### nk3
 ################c++ code from cli.nk3.init
 #logger = logging.getLogger(__name__) 
+#### PWS related callbacks
 
-class Storage(QtUtilsMixIn, QtWidgets.QWizard):
-    def __init__(self, qt_app: QtWidgets.QApplication):
-        QtWidgets.QWizard.__init__(self)
-        QtUtilsMixIn.__init__(self)
-        self.ok_insert = None
-        self.app = qt_app
-        
-        
-    def init_storage(self):
-        self.wizardpage_hidden_volume_pw = self.get_widget(QtWidgets.QWizardPage, "wizardPage")
-        self.hidden_pw_1 = self.get_widget(QtWidgets.QLineEdit, "HVPasswordEdit") 
-        self.hidden_pw_2 = self.get_widget(QtWidgets.QLineEdit, "HVPasswordEdit_2") 
-        self.wizardpage_hidden_volume_pw.registerField("hidden_pw_1*", self.hidden_pw_1)
-        self.wizardpage_hidden_volume_pw.registerField("hidden_pw_2*", self.hidden_pw_2)
-        self.show_hidden_pw = self.get_widget(QtWidgets.QCheckBox, "ShowPasswordCheckBox")
-
-        self.storage_slider = self.get_widget(QtWidgets.QSlider, "horizontalSlider_storage")
-        self.storage_blockspin = self.get_widget(QtWidgets.QDoubleSpinBox, "StartBlockSpin_3")
-
-        self.radio_gb = self.get_widget(QtWidgets.QRadioButton, "rd_GB_3")
-        self.radio_mb = self.get_widget(QtWidgets.QRadioButton, "rd_MB_3")
-
-        self.confirm_creation = self.get_widget(QtWidgets.QCheckBox, "checkBox_confirm")
-
-        self.lastpage = self.get_widget(QtWidgets.QWizardPage, "wizardPage_3")
-
-        self.lastpage.registerField("confirm_creation*", self.confirm_creation)
-        
-
-        self.storage_blockspin.valueChanged.connect(self.change_value_2)
-        self.storage_slider.valueChanged.connect(self.change_value)
-
-        self.radio_gb.toggled.connect(self.swap_to_gb)
-        self.radio_mb.toggled.connect(self.swap_to_mb)
-        self.hidden_pw_2.textChanged.connect(self.same_storage)
-
-    def same_storage(self):
-        if self.hidden_pw_2.text() != self.hidden_pw_1.text():
-            self.button(QtWidgets.QWizard.NextButton).setEnabled(False)
-        else:
-            self.button(QtWidgets.QWizard.NextButton).setEnabled(True)
-    
-    @pyqtSlot(int)   
-    #### storage wizard
-    def change_value(self, value):
-        self.storage_blockspin.setValue(float(value))
-        print(self.storage_blockspin.value)
-        print(self.storage_slider.value)
-    def change_value_2(self, value):
-        self.storage_slider.setValue(float(value))
-    @pyqtSlot()
-    def swap_to_mb(self):
-        if self.radio_mb.isChecked():
-            self.storage_blockspin.setMaximum(30000)
-            self.storage_slider.setMaximum(30000)
-            self.storage_blockspin.setValue(float(self.storage_blockspin.value())*1000)
-            self.storage_slider.setValue(float(self.storage_blockspin.value()))
-            self.storage_slider.setSingleStep(300)
-            self.storage_blockspin.setSingleStep(300)
-            print(float(self.storage_slider.value()))
-        
-    def swap_to_gb(self):
-        if self.radio_gb.isChecked():
-            self.storage_blockspin.setValue(float(self.storage_blockspin.value())/1000)
-            self.storage_slider.setValue(float(self.storage_blockspin.value()))
-            
-            self.storage_blockspin.setMaximum(30)
-            self.storage_slider.setMaximum(30)
-            self.storage_slider.setSingleStep(1)
-            self.storage_blockspin.setSingleStep(1)
-
-# isnt used anymore!
-class InsertNitrokey(QtUtilsMixIn, QtWidgets.QDialog):
-    def __init__(self, qt_app: QtWidgets.QApplication):
-        QtWidgets.QDialog.__init__(self)
-        QtUtilsMixIn.__init__(self)
-        ui_dir = Path(__file__).parent.resolve().absolute() / "ui"
-        self.app = qt_app
-        self.ok_insert = None
-
-    def init_insertNitrokey(self):
-        ## dialogs
-        self.ok_insert = self.get_widget(QtWidgets.QPushButton, "pushButton_ok_insert")
-         ## insert Nitrokey
-        self.ok_insert.clicked.connect(self.ok_insert_btn)
-
-    @pyqtSlot()
-    def ok_insert_btn(self):
-        self.hide()
-        
-        self.setup_wizard.show()
-# loading screen
-class LoadingScreen(QtWidgets.QWidget):
-    # def __init__(self):
-    #     super().__init__()
-    #     self.setFixedSize(128,128)  #128 128
-    #     self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.CustomizeWindowHint)
-
-    #     self.label_animation = QLabel(self)
-    #     self.qprogressbar = QProgressBar(self)
-    #     self.setGeometry(QRect(650,300,0,0))
-        #self.movie = QMovie(":/images/ProgressWheel.GIF")
-        #self.label_animation.setMovie(self.movie)
-        
-        #timer = QTimer(self)
-        #self.startAnimation()
-        #timer.singleShot(1000, self.stopAnimation)
-
-    #    self.show()
-    
-    def startAnimation(self):
-        self.movie.start()
-
-    def stopAnimation(self):
-        #self.movie.stop()
-        self.close()
-        GUI.user_info("success","You now have a main key with the capability\n to sign and certify and a subkey for encryption.  ",title ="Key generation was successful", parent=self.label_animation)
-        
-    #### PWS related callbacks
-
-##### @fixme: PINDialog should be modal!
-class PINDialog(QtUtilsMixIn, QtWidgets.QDialog):
-    def __init__(self, qt_app: QtWidgets.QApplication):
-        QtWidgets.QDialog.__init__(self)
-        QtUtilsMixIn.__init__(self)
-        self.app = qt_app
-
-        self.checkbox, self.ok_btn, self.line_edit = None, None, None
-        self.status, self.title = None, None
-        self.ok_signal, self.tries_left = None, None
-
-        self.opts = {}
-
-    def init_gui(self):
-        self.checkbox = self.get_widget(QtWidgets.QCheckBox, "checkBox")
-        self.checkbox.stateChanged.connect(self.checkbox_toggled)
-
-        self.ok_btn = self.get_widget(QtWidgets.QPushButton, "okButton")
-        self.ok_btn.clicked.connect(self.ok_clicked)
-
-        self.line_edit = self.get_widget(QtWidgets.QLineEdit, "lineEdit")
-        self.status = self.get_widget(QtWidgets.QLabel, "status")
-        self.title = self.get_widget(QtWidgets.QLabel, "label")
-
-        self.reset()
-
-    @pyqtSlot()
-    def reset(self):
-        self.status.setText("")
-        self.title.setText("")
-        self.ok_signal, self.tries_left = None, None
-        self.line_edit.setText("")
-        self.checkbox.setCheckState(0)
-        self.opts = {}
-        self.hide()
-
-    @pyqtSlot(dict)
-    def invoke(self, opts):
-        self.opts = dct = opts
-
-        self.tries_left = dct.get("retries", 0)
-        who = dct.get("who")
-        if self.tries_left == 0:
-            self.user_warn(f"Please reset the {who} pin counter before continuing",
-                           "No attempts left")
-            self.reset()
-            return
-
-        self.status.setText(f"Attempts left: {self.tries_left}")
-        self.title.setText(dct.get("title", self.title.text()))
-        self.ok_signal = dct.get("sig")
-        self.show()
-
-    @pyqtSlot(int)
-    def checkbox_toggled(self, state):
-        if state == 0:
-            self.line_edit.setEchoMode(QtWidgets.QLineEdit.Password)
-        elif state == 2:
-            self.line_edit.setEchoMode(QtWidgets.QLineEdit.Normal)
-
-    @pyqtSlot()
-    def ok_clicked(self):
-        pin = self.line_edit.text()
-        def_pin = self.opts.get("default", "(?)")
-        # @fixme: get len-range from libnk.py
-        if len(pin) < 6 or len(pin) > 20:
-            self.line_edit.selectAll()
-            self.user_warn("The pin requires to be 6-20 chars in length\n"
-                f"default: {def_pin}", "Invalid PIN")
-        else:
-            self.ok_signal.emit(self.opts, pin)
-
-class EditButtonsWidget(QtWidgets.QWidget):
-    def __init__(self, table, pop_up_copy, res, parent=None):
-        super().__init__(parent)
-        self.table_pws = table
-        self.pop_up_copy = pop_up_copy
-        
-        # add your buttons
-        layout = QtWidgets.QHBoxLayout()
-        layout.setContentsMargins(0,0,0,0)
-        layout.setSpacing(0)
-
-        Copy = QtWidgets.QPushButton('Icon')
-        Copy.setFixedSize(65,65)
-        Copy.clicked.connect(self.copy_to_clipboard_function)
-        layout.addWidget(Copy)
-        layout.addWidget(QtWidgets.QLabel(str(res)))
-        
-        self.setLayout(layout)
-    @pyqtSlot()
-    def copy_to_clipboard_function(self):
-        buttons_index = self.table_pws.indexAt(self.pos())
-        item = self.table_pws.item(buttons_index.row(), buttons_index.column()+3)
-        QApplication.clipboard().setText(item.text())
-            # qtimer popup
-        self.time_to_wait = 5
-        self.pop_up_copy.setText("Data added to clipboard.") #{0} for time display
-        self.pop_up_copy.setStyleSheet("background-color: #2B5DD1; color: #FFFFFF ; border-style: outset;" 
-        "padding: 2px ; font: bold 20px ; border-width: 6px ; border-radius: 10px ; border-color: #2752B8;")
-        self.pop_up_copy.show()
-        self.timer = QTimer(self)
-        self.timer.setInterval(1000)
-        self.timer.timeout.connect(self.changeContent)
-        self.timer.start()  
-    def changeContent(self):
-        self.pop_up_copy.setText("Data added to clipboard.")
-        self.time_to_wait -= 1
-        if self.time_to_wait <= 0:
-            self.pop_up_copy.hide()
-            self.timer.stop()
-    def closeEvent(self, event):
-        self.timer.stop()
-        event.accept()
-
-# nk3 button mit nk3context verbinden???
-class Nk3Button(QtWidgets.QWidget):
-    list_nk3_keys = []
-    @classmethod
-    def get(cls):
-        return Nk3Button.list_nk3_keys
-    def __init__(self, device, nitrokeys_window, layout_nk_btns, nitrokey3_frame, nk3_lineedit_uuid, nk3_lineedit_path, nk3_lineedit_version, tabs, update_nk3_btn, progressBarUpdate, change_pin_open_dialog, change_pin_dialog):
-        super().__init__()
-        self.device = device
-        self.uuid = self.device.uuid()
-        self.path = self.device.path
-        self.version = self.device.version()
-        self.change_pin_open_dialog = change_pin_open_dialog
-        self.change_pin_dialog = change_pin_dialog
-        self.nitrokeys_window = nitrokeys_window
-        self.layout_nk_btns = layout_nk_btns
-        self.nitrokey3_frame = nitrokey3_frame
-        self.tabs = tabs
-        self.nk3_lineedit_uuid = nk3_lineedit_uuid
-        self.nk3_lineedit_path = nk3_lineedit_path
-        self.nk3_lineedit_version = nk3_lineedit_version
-        self.update_nk3_btn = update_nk3_btn
-        self.progressBarUpdate = progressBarUpdate
-        #########needs to create button in the vertical navigation with the nitrokey type and serial number as text
-        self.btn_nk3 = QtWidgets.QPushButton(QIcon(":/images/icon/usb_new.png"),"Nitrokey 3:"f"{self.device.uuid()%10000}") #todo: make icon work!
-        self.btn_nk3.setFixedSize(184,40)
-        self.btn_nk3.setIconSize(QSize(20, 20))
-        self.btn_nk3.clicked.connect(lambda:self.nk3_btn_pressed())  
-        self.btn_nk3.setStyleSheet("border :5px solid ;"
-                     "border-color : black;" 
-                     "border-width: 3px;"
-                     "border-radius: 5px;"
-                     "font-size: 14pt;"
-                     "font-color: black;"
-                     "font-weight: bold;")    
-        self.layout_nk_btns.addWidget(self.btn_nk3)
-        self.widget_nk_btns = QtWidgets.QWidget()
-        self.widget_nk_btns.setLayout(self.layout_nk_btns)
-        self.nitrokeys_window.setWidget(self.widget_nk_btns)  
-        #self.nitrokeys_window.setWidgetResizable(True)
-        self.own_update_btn = QtWidgets.QPushButton("Update Nitrokey 3"f"{self.device.uuid()%10000}", self.nitrokey3_frame)
-        self.own_change_pin = QtWidgets.QPushButton("Change Nitrokey 3 PIN "f"{self.device.uuid()%10000}", self.nitrokey3_frame)    
-        self.own_update_btn.setGeometry(12,134,413,27)
-        self.own_change_pin.setGeometry(12,166,413,27)
-        self.ctx = Nk3Context(self.device.path)
-        self.own_update_btn.clicked.connect(lambda:nk3_update_helper(self.ctx, self.progressBarUpdate, 0, 0))
-        self.own_change_pin.clicked.connect(self.change_pin_open_dialog)
-        self.change_pin_dialog.btn_ok.clicked.connect(lambda:change_pin(self.ctx, self.change_pin_dialog.current_pin.text(), self.change_pin_dialog.new_pin.text(), self.change_pin_dialog.confirm_new_pin.text()))
-        Nk3Button.list_nk3_keys.append(self)
-        print(Nk3Button.list_nk3_keys)
-        print("das wollen wir sehen!!!!",type(self.device.path),type(self.device))
-    @pyqtSlot()    
-    def nk3_btn_pressed(self):
-        print("geht bis hier!")
-        self.tabs.show()
-        self.tabs.setTabVisible(1, False)
-        self.tabs.setTabVisible(2, False)
-        self.tabs.setTabVisible(3, False)
-        self.tabs.setTabVisible(4, False)
-        self.tabs.setTabVisible(5, False)
-        self.nk3_lineedit_uuid.setText(str(self.uuid))
-        self.nk3_lineedit_path.setText(str(self.path))
-        self.nk3_lineedit_version.setText(str(self.version))
-        for i in Nk3Button.get():
-            i.own_update_btn.hide()
-        self.own_update_btn.show()
-
-    def __del__(self):
-        print ("deleted")
-        self.tabs.hide()
-        self.nitrokeys_window.update()
-        self.btn_nk3.hide()
-    
-    def update(self, device):
-        self.device = device
-        self.path = self.device.path
-        self.version = self.device.version()
-        self.nk3_lineedit_path.setText(str(self.path))
-        self.nk3_lineedit_version.setText(str(self.version))
-        self.ctx = Nk3Context(self.device.path)
-
-        #self.update_nk3_btn.clicked.connect(lambda:nk3_update(self.ctx, self.progressBarUpdate, 0))
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     sig_connected = pyqtSignal(dict)
@@ -898,9 +587,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         row = self.table_pws.rowCount()
         self.table_pws.insertRow(row)
-        # self.table_pws.setItem(row , 0, (QtWidgets.QTableWidgetItem("Name")))
-        # self.table_pws.setItem(row , 1, (QtWidgets.QTableWidgetItem("Username")))
-
         index = (self.table_pws.currentIndex())
         qline = self.pws_editslotname.text()
         qline2 = self.pws_editloginname.text()
