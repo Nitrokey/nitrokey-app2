@@ -14,3 +14,6 @@ python3.9 nitropyapp/gui.py
 * the current version uses pynitrokey 
 * therefore python 3.9 must first be installed
 * the pynitrokey version in venv must also be replaced with (https://github.com/Nitrokey/pynitrokey/tree/nk3-updater)
+
+## for Windows:
+- pip install nrfutil

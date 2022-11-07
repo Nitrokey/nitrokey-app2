@@ -147,7 +147,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         if platform.system() == "Windows":
             print("OS:Windows")
            
-            w = WindowsUSBNotification(self.detect_nk3)
+            w = WindowsUSBNotification(self.detect_nk3, self.remove_nk3)
             #win32gui.PumpMessages()
             print("not trapped")
         
@@ -409,19 +409,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     ### experimental idea to differ between removed and added
     def device_connect(self):
         for dvc in iter(functools.partial(self.monitor.poll, 3), None):
-            if dvc.action == "remove":              
-                list_of_removed = []
-                if len(list_nk3()):
-                    print("list nk3:", list_nk3())
-                    list_of_nk3s = [x.uuid() for x in list_nk3()]
-                    list_of_removed_help = [y for y in Nk3Button.get() if (y.uuid not in list_of_nk3s)]
-                    list_of_removed = list_of_removed + list_of_removed_help
-                else:
-                    list_of_removed = list_of_removed + Nk3Button.get()
-                for k in list_of_removed:
-                    k.__del__()
-                    Nk3Button.list_nk3_keys.remove(k)
+            if dvc.action == "remove":  
+                self.remove_nk3()            
             elif dvc.action == "bind":
+                # bind for old nks
                 func1 = lambda w: (w.setEnabled(False), w.setVisible(False))
                 self.apply_by_name(["pushButton_storage","pushButton_pro", "btn_dial_HV"], func1) # overview
                 ############## devs for the libraries
@@ -447,8 +438,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                         print("removed button(s)")
                         self.msg("Unknown device model detected")
                         return {"connected": False}
+                # bind for nk3
                 self.detect_nk3()
-                #block_time = 1
+
 
     def detect_nk3(self):
         if len(list_nk3()):
@@ -473,7 +465,19 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         else:
             print("no nk3 in list. no admin?")
             tray_not_connect = TrayNotification("Nitrokey 3", "Nitrokey 3 not connected.","Nitrokey 3 not connected.")
-        
+    def remove_nk3(self):
+        list_of_removed = []
+        if len(list_nk3()):
+            print("list nk3:", list_nk3())
+            list_of_nk3s = [x.uuid() for x in list_nk3()]
+            list_of_removed_help = [y for y in Nk3Button.get() if (y.uuid not in list_of_nk3s)]
+            list_of_removed = list_of_removed + list_of_removed_help
+        else:
+            list_of_removed = list_of_removed + Nk3Button.get()
+        for k in list_of_removed:
+            k.__del__()
+            Nk3Button.list_nk3_keys.remove(k)
+
     ### helper (not in use for now)
     def get_active_otp(self):
         who = "totp" if self.radio_totp_2.isChecked() else "hotp"
