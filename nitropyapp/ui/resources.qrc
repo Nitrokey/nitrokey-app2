@@ -37,5 +37,14 @@
     <file>images/new/down_arrow.png</file>
     <file>images/icon/usb_new.png</file>
     <file>images/icon/info_new.png</file>
+    <file>images/icon/info_material.svg</file>
+    <file>images/icon/settings_material.svg</file>
+    <file>images/icon/help_material.svg</file>
+    <file>images/icon/lock_material.svg</file>
+    <file>images/icon/help_darkgrey_material.svg</file>
+    <file>images/icon/info_darkgrey_material.svg</file>
+    <file>images/icon/settings_darkgrey_material.svg</file>
+    <file>images/icon/lock_darkgrey_material.svg</file>
+    <file>images/icon/nitrokey-app-icon-vector.svg</file>
   </qresource>
 </RCC>

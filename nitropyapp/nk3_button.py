@@ -34,17 +34,18 @@ class Nk3Button(QtWidgets.QWidget):
         self.btn_nk3.setFixedSize(184,40)
         self.btn_nk3.setIconSize(QSize(20, 20))
         self.btn_nk3.clicked.connect(lambda:self.nk3_btn_pressed())  
-        self.btn_nk3.setStyleSheet("border :5px solid ;"
-                     "border-color : black;" 
-                     "border-width: 3px;"
+        self.btn_nk3.setStyleSheet("border :4px solid ;"
+                     "border-color : #474642;" 
+                     "border-width: 2px;"
                      "border-radius: 5px;"
                      "font-size: 14pt;"
-                     "font-color: black;"
-                     "font-weight: bold;")    
+                     "font-color: #474642;")
+                     #"font-weight: bold;")    
         self.layout_nk_btns.addWidget(self.btn_nk3)
         self.widget_nk_btns = QtWidgets.QWidget()
         self.widget_nk_btns.setLayout(self.layout_nk_btns)
         self.nitrokeys_window.setWidget(self.widget_nk_btns)  
+        # buttons get placed over the place holder
         self.own_update_btn = QtWidgets.QPushButton("Update Nitrokey 3"f"{self.device.uuid()%10000}", self.nitrokey3_frame)
         self.own_change_pin = QtWidgets.QPushButton("Change Nitrokey 3 PIN "f"{self.device.uuid()%10000}", self.nitrokey3_frame)    
         self.own_update_btn.setGeometry(12,134,413,27)
@@ -56,19 +57,17 @@ class Nk3Button(QtWidgets.QWidget):
         Nk3Button.list_nk3_keys.append(self)
     @pyqtSlot()    
     def nk3_btn_pressed(self):
-        print("geht bis hier!")
         self.tabs.show()
-        self.tabs.setTabVisible(1, False)
-        self.tabs.setTabVisible(2, False)
-        self.tabs.setTabVisible(3, False)
-        self.tabs.setTabVisible(4, False)
-        self.tabs.setTabVisible(5, False)
+        for i in range(1,6):
+            self.tabs.setTabVisible(i, False)  
         self.nk3_lineedit_uuid.setText(str(self.uuid))
         self.nk3_lineedit_path.setText(str(self.path))
         self.nk3_lineedit_version.setText(str(self.version))
         for i in Nk3Button.get():
             i.own_update_btn.hide()
+            i.own_change_pin.hide()
         self.own_update_btn.show()
+        self.own_change_pin.show()
 
     def __del__(self):
         print ("deleted")

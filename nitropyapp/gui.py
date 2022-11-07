@@ -340,7 +340,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             #self.toggle_otp
             self.load_active_slot
             ], self.job_connect_device)
-        self.sig_status_upd.connect(self.update_status_bar)
+        #self.sig_status_upd.connect(self.update_status_bar)
         self.sig_disconnected.connect(self.init_gui)
         ## overview
 
@@ -354,27 +354,27 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         ## smart card
         self.pushButton_add_key.clicked.connect(self.add_key)
         self.key_generation.button(QtWidgets.QWizard.FinishButton).clicked.connect(self.loading)
-        ## pws stuff
-        self.table_pws.cellClicked.connect(self.table_pws_function)
-        self.add_pws_btn.clicked.connect(self.add_pws)
-        self.add_table_pws_btn.clicked.connect(self.add_table_pws)
-        self.cancel_pws_btn_2.clicked.connect(self.cancel_pws_2)
-        self.delete_pws_btn.clicked.connect(self.delete_pws)
-        self.ButtonChangeSlot.clicked.connect(self.change_pws)
 
-        self.copy_name.clicked.connect(self.copyname)
-        self.copy_username.clicked.connect(self.copyusername)
-        self.copy_pw.clicked.connect(self.copypw)
-        self.copy_otp.clicked.connect(self.copyotp)
+        ## pws stuff (now in passwordsafe.py) not in use yet
+        # self.table_pws.cellClicked.connect(self.table_pws_function)
+        # self.add_pws_btn.clicked.connect(self.add_pws)
+        # self.add_table_pws_btn.clicked.connect(self.add_table_pws)
+        # self.cancel_pws_btn_2.clicked.connect(self.cancel_pws_2)
+        # self.delete_pws_btn.clicked.connect(self.delete_pws)
+        # self.ButtonChangeSlot.clicked.connect(self.change_pws)
+        # self.copy_name.clicked.connect(self.copyname)
+        # self.copy_username.clicked.connect(self.copyusername)
+        # self.copy_pw.clicked.connect(self.copypw)
+        # self.copy_otp.clicked.connect(self.copyotp)
         ### groupboxes pws
-        self.expand_button_parameter.clicked.connect(self.groupbox_parameters_collapse)
-        self.expand_button_notes.clicked.connect(self.groupbox_manageslots_collapse)
-        self.expand_button_secretkey.clicked.connect(self.groupbox_secretkey_collapse)
-        ##self.groupbox_pws.clicked.connect(self.groupbox_pws_collapse)
-        self.searchbox.textChanged.connect(self.filter_the_table)
-        self.searchbox.setPlaceholderText("Search")
-        self.show_hide_btn.stateChanged.connect(self.slot_pws_hide)
-        self.show_hide_btn_2.stateChanged.connect(self.slot_otp_hide)
+        # self.expand_button_parameter.clicked.connect(self.groupbox_parameters_collapse)
+        # self.expand_button_notes.clicked.connect(self.groupbox_manageslots_collapse)
+        # self.expand_button_secretkey.clicked.connect(self.groupbox_secretkey_collapse)
+        # ##self.groupbox_pws.clicked.connect(self.groupbox_pws_collapse)
+        # self.searchbox.textChanged.connect(self.filter_the_table)
+        # self.searchbox.setPlaceholderText("Search")
+        # self.show_hide_btn.stateChanged.connect(self.slot_pws_hide)
+        # self.show_hide_btn_2.stateChanged.connect(self.slot_otp_hide)
 
         ## otp stuff
         self.radio_totp_2.clicked.connect(self.slot_toggle_otp_2)
@@ -408,12 +408,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     ### experimental idea to differ between removed and added
     def device_connect(self):
-        #global block_time_remove
-        #global block_time
         for dvc in iter(functools.partial(self.monitor.poll, 3), None):
             if dvc.action == "remove":              
                 list_of_removed = []
-                #time.sleep(1)
                 if len(list_nk3()):
                     print("list nk3:", list_nk3())
                     list_of_nk3s = [x.uuid() for x in list_nk3()]
@@ -421,17 +418,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                     list_of_removed = list_of_removed + list_of_removed_help
                 else:
                     list_of_removed = list_of_removed + Nk3Button.get()
-                print("list_of_removed", list_of_removed)
                 for k in list_of_removed:
-                    print(list_of_removed)
-                    print("removed", k)
                     k.__del__()
                     Nk3Button.list_nk3_keys.remove(k)
-                    #self.detect_nk3()
-                    #self.nitrokeys_window.findChild(QtWidgets.QPushButton,"Nitrokey 3:3743").hide()
             elif dvc.action == "bind":
-                print("bind")
-                #time.sleep(0.1)
                 func1 = lambda w: (w.setEnabled(False), w.setVisible(False))
                 self.apply_by_name(["pushButton_storage","pushButton_pro", "btn_dial_HV"], func1) # overview
                 ############## devs for the libraries
@@ -445,11 +435,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                     func = lambda w: (w.setEnabled(True), w.setVisible(True))
                     if _dev["model"] == 1:
                         dev = nk_api.NitrokeyPro()
-                        print("pro")
                         self.apply_by_name(["pushButton_pro", "btn_dial_HV"], func) # overview
                     elif _dev["model"] == 2:
                         dev = nk_api.NitrokeyStorage()
-                        print("storage")
                         self.apply_by_name(["pushButton_storage", "btn_dial_HV"], func) # overview 
                                 
                                     
@@ -464,9 +452,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     def detect_nk3(self):
         if len(list_nk3()):
-            print("list nk3:", list_nk3())
             list_of_added = [y.uuid for y in Nk3Button.get()]
-            print("Nk3Buttons:",Nk3Button.get())
             for x in list_nk3():
                 if  x.uuid() not in list_of_added:
                     self.device = x
@@ -476,7 +462,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                     else:
                         print(f"{self.device.path}: {self.device.name}")
                     Nk3Button(self.device, self.nitrokeys_window, self.layout_nk_btns, self.nitrokey3_frame, self.nk3_lineedit_uuid, self.nk3_lineedit_path, self.nk3_lineedit_version, self.tabs, self.update_nk3_btn, self.progressBarUpdate, self.change_pin_open_dialog, self. change_pin_dialog)
-                    #self.sendmessage("Nitrokey 3 connected.")
                     tray_connect = TrayNotification("Nitrokey 3", "Nitrokey 3 connected.","Nitrokey 3 connected.")
                     self.device = None
                     self.l_insert_Nitrokey.hide() 
@@ -507,8 +492,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             name = all_otp.get_name(index)
             if name:
                 self.add_table_pws_from_key(index)
-                
-                    
+                              
     def ask_pin(self, who):
         assert who in ["user", "admin"]
         who_cap = who.capitalize()
@@ -554,179 +538,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     @pyqtSlot()
     def add_key(self):
         self.key_generation.exec()
-    #### pws
-    @pyqtSlot()
-    def table_pws_function(self):
-        index=(self.table_pws.currentIndex())
-        item = self.table_pws.item(index.row(), index.column()+1)
-        item2 = self.table_pws.item(index.row(), index.column()+2)
-        item3 = self.table_pws.item(index.row(), index.column()+3)
-        item4  = self.table_pws.item(index.row(), index.column()+4)
-        item5  = self.table_pws.item(index.row(), index.column()+5)
-        
-        print(index.row(), index.column())
-        print(item.text())
-        self.scrollArea.show()
-        self.information_label.show()
-        self.pws_editslotname.setText(item.text())
-        self.pws_editloginname.setText(item2.text())
-        self.pws_editpassword.setText(item3.text())
-        self.pws_editOTP.setText(item4.text())
-        self.pws_editnotes.setText(item5.text())
-        self.PWS_ButtonSaveSlot.setVisible(False)
-        self.ButtonChangeSlot.setVisible(True)
-        self.PWS_ButtonDelete.setVisible(True)
-        ### hides the otp creation stuff
-        self.copy_current_otp.show()
-        self.qr_code.hide()
-        self.random_otp.hide()
-        self.copy_otp.hide()
-        self.pws_editOTP.setEchoMode(QtWidgets.QLineEdit.Password)
-        self.show_hide_btn_2.hide()
-    def add_table_pws(self):
-
-        row = self.table_pws.rowCount()
-        self.table_pws.insertRow(row)
-        index = (self.table_pws.currentIndex())
-        qline = self.pws_editslotname.text()
-        qline2 = self.pws_editloginname.text()
-        qline3 = self.pws_editpassword.text()
-        qline4 = self.pws_editOTP.text()
-        qline5 = self.pws_editnotes.toPlainText()
-        res = "{} {} {}".format(qline, "\n", qline2)
-
-        ##### creates otp on key
-
-        if not self.device.is_auth_admin:
-            self.ask_pin("admin")
-            return
-
-        name = qline
-        if len(name) == 0:
-            self.user_err("need non-empty name")
-            return
-
-        secret = qline4
-        idx = row
-        who = "totp"
-        print(type(secret))
-        print(type(idx))
-        print(type(name))
-        # @fixme: what are the secret allowed lengths/chars
-        #if len(secret)
-        print(row)
-
-        ret = self.device.TOTP.write(idx, name, qline4)
-        if not ret.ok:
-            self.msg(f"failed writing to {who.upper()} slot #{idx+1} err: {ret.name}")
-            print("ret not ok")
-        else:
-            self.msg(f"wrote {who.upper()} slot #{idx+1}")
-            self.otp_secret.clear()
-            self.slot_select_otp(idx)
-            print("ret ok")
-        
-        self.table_pws.setCellWidget(row , 0, (EditButtonsWidget(self.table_pws, self.pop_up_copy, res)))
-        self.table_pws.setItem(row , 1, (QtWidgets.QTableWidgetItem(qline)))
-        self.table_pws.setItem(row , 2, (QtWidgets.QTableWidgetItem(qline2)))
-        self.table_pws.setItem(row , 3, (QtWidgets.QTableWidgetItem(qline3)))
-        self.table_pws.setItem(row , 4, (QtWidgets.QTableWidgetItem(qline4)))
-        self.table_pws.setItem(row , 5, (QtWidgets.QTableWidgetItem(qline5)))
-        self.pws_editslotname.setText("")
-        self.pws_editloginname.setText("")
-        self.pws_editpassword.setText("")
-        self.pws_editOTP.setText("")
-        self.pws_editnotes.setText("")
-    ######################## adds the data existing of the key to the table
-    def add_table_pws_from_key(self, x):
-        row = self.table_pws.rowCount()
-        print(row)
-        self.table_pws.insertRow(row)
-        # self.table_pws.setItem(row , 0, (QtWidgets.QTableWidgetItem("Name")))
-        # self.table_pws.setItem(row , 1, (QtWidgets.QTableWidgetItem("Username")))
-
-        index = (self.table_pws.currentIndex())
-        qline = self.device.TOTP.get_name(x)
-        qline2 = ""
-        qline3 = ""
-        qline4 = self.device.TOTP.get_code(x)
-        qline5 = ""
-        res = "{} {} {}".format(qline, "\n", qline2)
-
-        
-
-            
-        self.table_pws.setCellWidget(row , 0, (EditButtonsWidget(self.table_pws, self.pop_up_copy, res)))
-        self.table_pws.setItem(row , 1, (QtWidgets.QTableWidgetItem(qline)))
-        self.table_pws.setItem(row , 2, (QtWidgets.QTableWidgetItem(qline2)))
-        self.table_pws.setItem(row , 3, (QtWidgets.QTableWidgetItem(qline3)))
-        self.table_pws.setItem(row , 4, (QtWidgets.QTableWidgetItem(qline4)))
-        self.table_pws.setItem(row , 5, (QtWidgets.QTableWidgetItem(qline5)))
-        self.pws_editslotname.setText("")
-        self.pws_editloginname.setText("")
-        self.pws_editpassword.setText("")
-        self.pws_editOTP.setText("")
-        self.pws_editnotes.setText("")
-
-    def add_pws(self):
-        self.scrollArea.show()
-        self.information_label.show()
-        self.PWS_ButtonSaveSlot.setVisible(True)
-        self.ButtonChangeSlot.setVisible(False)
-        self.PWS_ButtonDelete.setVisible(False)
-        #self.set_visible(QtWidgets.QFrame, ["groupbox_pw"], True)
-        #self.set_enabled(QtWidgets.QFrame, ["groupbox_pw"], True)
-        #self.set_enabled(QtWidgets.QPushButton, ["PWS_ButtonSaveSlot", "PWS_ButtonClose"], True)
-        self.pws_editslotname.setText("")
-        self.pws_editloginname.setText("")
-        self.pws_editpassword.setText("")
-        self.pws_editOTP.setText("")
-        self.pws_editnotes.setText("")
-        ### shows the otp creation stuff again
-        self.copy_current_otp.hide()
-        self.qr_code.show()
-        self.random_otp.show()
-        self.copy_otp.show()
-        self.pws_editOTP.setEchoMode(QtWidgets.QLineEdit.Normal)
-        self.show_hide_btn_2.show()
-
-    def delete_pws(self):
-        index=(self.table_pws.currentIndex())
-        self.table_pws.removeRow(index.row())
-        self.table_pws.setCurrentCell(0, 0)
-
-# you use show() and hide() function to make it visible or not where you want it
-    def change_pws(self):
-        row = (self.table_pws.currentIndex()).row()
-        self.table_pws.insertRow(row)
-
-        index = (self.table_pws.currentIndex())
-        qline = self.pws_editslotname.text()
-        qline2 = self.pws_editloginname.text()
-        qline3 = self.pws_editpassword.text()
-        qline4 = self.pws_editOTP.text()
-        qline5 = self.pws_editnotes.toPlainText()
-        res = "{} {} {}".format(qline, "\n", qline2)
-
-               
-        self.table_pws.setCellWidget(row , 0, (EditButtonsWidget(self.table_pws, self.pop_up_copy, res)))
-        self.table_pws.setItem(row , 1, (QtWidgets.QTableWidgetItem(qline)))
-        self.table_pws.setItem(row , 2, (QtWidgets.QTableWidgetItem(qline2)))
-        self.table_pws.setItem(row , 3, (QtWidgets.QTableWidgetItem(qline3)))
-        self.table_pws.setItem(row , 4, (QtWidgets.QTableWidgetItem(qline4)))
-        self.table_pws.setItem(row , 5, (QtWidgets.QTableWidgetItem(qline5)))
-
-
-        
-        self.table_pws.removeRow(index.row())
-        self.table_pws.setCurrentCell(index.row()-1, 0)
-    
-    def filter_the_table(self):
-        #searchbox
-        for iterator in range(self.table_pws.rowCount()):
-            self.table_pws.showRow(iterator)
-            if (self.searchbox.text() not in self.table_pws.item(iterator,1).text()):
-                self.table_pws.hideRow(iterator)
 
     def cancel_pws_2(self):
         self.set_visible(QtWidgets.QFrame, ["groupbox_pw"], True) #changed to true
@@ -1008,14 +819,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
             if _dev["model"] == 1:
                 dev = nk_api.NitrokeyPro()
-                print("pro")
-                #print(self.device.status)
-                #print(self.device.serial)
             elif _dev["model"] == 2:
                 dev = nk_api.NitrokeyStorage()
-                print("storage")
-                #print(self.device.status)
-                #print(self.device.serial)
             
             else:
                 self.msg("Unknown device model detected")
@@ -1037,31 +842,31 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.msg({"status": status, "connected": status["connected"]})
 
         return {"connected": status["connected"], "status": status, "device": dev}
+    # no status bar for now
+    #@pyqtSlot(dict)
+    # def update_status_bar(self, res_dct):
+    #     cur_msg = self.status_bar.currentMessage
+    #     append_msg = lambda s: self.status_bar.showMessage(
+    #         s + ((" || " + cur_msg().strip()) if cur_msg().strip() else ""))
 
-    @pyqtSlot(dict)
-    def update_status_bar(self, res_dct):
-        cur_msg = self.status_bar.currentMessage
-        append_msg = lambda s: self.status_bar.showMessage(
-            s + ((" || " + cur_msg().strip()) if cur_msg().strip() else ""))
+    #     # directly show passed 'msg'
+    #     if "msg" in res_dct:
+    #         append_msg(res_dct["msg"])
+    #         return
 
-        # directly show passed 'msg'
-        if "msg" in res_dct:
-            append_msg(res_dct["msg"])
-            return
+    #     # not connected, show default message
+    #     if not res_dct.get("connected"):
+    #         self.status_bar.showMessage("Not connected")
+    #         return
 
-        # not connected, show default message
-        if not res_dct.get("connected"):
-            self.status_bar.showMessage("Not connected")
-            return
-
-        # connected, show status information (if available)
-        info = res_dct.get("status")
-        if info:
-            append_msg(f"Device: {info['model'].friendly_name}")
-            append_msg(f"Serial: {info['card_serial_u32']}")
-            append_msg(f"FW Version: {info['fw_version'][0]}.{info['fw_version'][1]}")
-            append_msg(f"PIN Retries - (Admin/User): "
-                       f"{info['admin_pin_retries']}/{info['user_pin_retries']}")
+    #     # connected, show status information (if available)
+    #     info = res_dct.get("status")
+    #     if info:
+    #         append_msg(f"Device: {info['model'].friendly_name}")
+    #         append_msg(f"Serial: {info['card_serial_u32']}")
+    #         append_msg(f"FW Version: {info['fw_version'][0]}.{info['fw_version'][1]}")
+    #         append_msg(f"PIN Retries - (Admin/User): "
+    #                    f"{info['admin_pin_retries']}/{info['user_pin_retries']}")
 
     @pyqtSlot(dict)
     def job_nk_connected(self, res_dct):
@@ -1102,7 +907,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.tabs.setTabEnabled(4, False)
         self.tabs.setTabEnabled(5, False)
         # set stylesheet of tabwidget to QTabBar::tab:disabled { width: 0; height: 0; margin: 0; padding: 0; border: none; } if you want to make the tabs invisible.
-        #self.pro_btn.setStyleSheet(green)
         self.storage_btn.setChecked(False)
         self.fido2_btn.setChecked(False)
         self.frame_s.setVisible(False)
@@ -1117,7 +921,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.tabs.setTabEnabled(4, True)
         self.tabs.setTabEnabled(5, False)
         self.pro_btn.setChecked(False)
-        #self.storage_btn.setStyleSheet(green)
         self.fido2_btn.setChecked(False)
         self.frame_s.setVisible(True)
         self.frame_f.setVisible(False)
@@ -1133,13 +936,14 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.tabs.setTabEnabled(5, True)
         self.pro_btn.setChecked(False)
         self.storage_btn.setChecked(False)
-        #self.fido2_btn.setStyleSheet(green)
         self.frame_s.setVisible(False)
         self.frame_f.setVisible(True)
         self.frame_p.setVisible(False)
+
     @pyqtSlot()
     def about_button_pressed(self):
         self.about_dialog.show()
+
     def change_pin_open_dialog(self):
         self.change_pin_dialog.show()
         ##test
@@ -1164,9 +968,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.msg({"connected": False})
             self.sig_disconnected.emit()
             return
-
         self.ask_pin("user")
-
 
     #### init main windows
     @pyqtSlot()
@@ -1209,23 +1011,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         #self.groupbox_secretkey.hide()
         self.ButtonChangeSlot.setVisible(False)
         self.PWS_ButtonDelete.setVisible(False)
-        self.frame_pro.hide()
-        self.frame_fido2.hide()
-        self.frame_storage.hide()
-        self.frame_hotp.hide()
-        self.expand_button_secret.hide()
-        self.scrollArea.hide()
-        self.information_label.hide()
-        self.copy_current_otp.hide()
-        #self.loading_screen = LoadingScreen()
-
-        self.main_key.hide()
-        self.sub_key_key.hide()
-     
-        self.tabs.hide()
-        self.pro_btn.hide()
-        self.storage_btn.hide()
-        self.fido2_btn.hide()
+        hide_list = [self.frame_pro, self.frame_fido2, self.frame_storage, self.frame_hotp, self.expand_button_secret, self.scrollArea, self.information_label, self.copy_current_otp, self.main_key, self.sub_key_key, self.tabs, self.pro_btn, self.storage_btn, self.fido2_btn]
+        for x in hide_list:
+            x.hide()
         self.show()
 
 def main():

@@ -49,8 +49,7 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <property name="styleSheet">
-    <string notr="true">QWidget#centralWidget{background-color: rgb(253, 253, 253); }
-</string>
+    <string notr="true">QWidget{background-color: #faf8f5; }</string>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_2">
     <property name="spacing">
@@ -84,7 +83,7 @@
       </property>
       <property name="styleSheet">
        <string notr="true">border: 0px;
-background-color:rgb(235, 235, 235)</string>
+background-color:#bebab1</string>
       </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -174,12 +173,12 @@ background-color:rgb(235, 235, 235)</string>
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/images/icon/info_new.png</normaloff>:/images/icon/info_new.png</iconset>
+           <normaloff>:/images/icon/info_darkgrey_material.svg</normaloff>:/images/icon/info_darkgrey_material.svg</iconset>
          </property>
          <property name="iconSize">
           <size>
-           <width>40</width>
-           <height>40</height>
+           <width>30</width>
+           <height>30</height>
           </size>
          </property>
          <property name="flat">
@@ -213,7 +212,7 @@ background-color:rgb(235, 235, 235)</string>
             <x>0</x>
             <y>0</y>
             <width>188</width>
-            <height>423</height>
+            <height>433</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_9"/>
@@ -250,7 +249,7 @@ background-color:rgb(235, 235, 235)</string>
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="resources.qrc">:/images/new/icon_NK.svg</pixmap>
+          <pixmap resource="resources.qrc">:/images/icon/nitrokey-app-icon-vector.svg</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -321,7 +320,7 @@ background-color:rgb(235, 235, 235)</string>
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/images/new/icon_fragezeichen.svg</normaloff>:/images/new/icon_fragezeichen.svg</iconset>
+           <normaloff>:/images/icon/help_darkgrey_material.svg</normaloff>:/images/icon/help_darkgrey_material.svg</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -352,7 +351,7 @@ background-color:rgb(235, 235, 235)</string>
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/images/new/icon_unsafe.svg</normaloff>:/images/new/icon_unsafe.svg</iconset>
+           <normaloff>:/images/icon/lock_darkgrey_material.svg</normaloff>:/images/icon/lock_darkgrey_material.svg</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -411,6 +410,9 @@ background-color:rgb(235, 235, 235)</string>
            <bold>true</bold>
           </font>
          </property>
+         <property name="styleSheet">
+          <string notr="true">color:#474642</string>
+         </property>
          <property name="text">
           <string>Please insert
  your Nitrokey</string>
@@ -438,7 +440,7 @@ background-color:rgb(235, 235, 235)</string>
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/images/new/icon_settings.svg</normaloff>:/images/new/icon_settings.svg</iconset>
+           <normaloff>:/images/icon/settings_darkgrey_material.svg</normaloff>:/images/icon/settings_darkgrey_material.svg</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -484,13 +486,13 @@ background-color:rgb(235, 235, 235)</string>
             border-width: 0px;   
 }  
 QTabBar::tab {
-  background-color: rgb(253, 253, 253); 
+  background-color: #faf8f5; 
   padding: 8px;
   color: darkgrey;
 } 
 QTabBar::tab:selected{
 	border-bottom: 1px solid darkgrey; 
-	color: black;
+	color: #474642;
 }</string>
       </property>
       <property name="inputMethodHints">
@@ -528,7 +530,7 @@ QTabBar::tab:selected{
         <bool>false</bool>
        </property>
        <property name="styleSheet">
-        <string notr="true"/>
+        <string notr="true">QWidget{background-color:#faf8f5;}</string>
        </property>
        <attribute name="title">
         <string>Overview</string>
@@ -548,7 +550,7 @@ QTabBar::tab:selected{
           </property>
           <property name="styleSheet">
            <string notr="true">QScrollArea{ border-width: 0px ; 
-background-color: rgb(253, 253, 253); }</string>
+background-color: #faf8f5; }</string>
           </property>
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
@@ -575,7 +577,7 @@ background-color: rgb(253, 253, 253); }</string>
             </rect>
            </property>
            <property name="styleSheet">
-            <string notr="true">background-color: rgb(253, 253, 253); </string>
+            <string notr="true"/>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
             <item alignment="Qt::AlignLeft|Qt::AlignTop">
@@ -754,7 +756,7 @@ as you may damage data in the process!</string>
                </size>
               </property>
               <property name="styleSheet">
-               <string notr="true">QFrame { background-color: lightgrey; border: 3px solid lightgrey; border-radius: 10px ; } </string>
+               <string notr="true">QFrame { background-color: #d5d2c7; border: 3px solid #d5d2c7; border-radius: 10px ; } </string>
               </property>
               <layout class="QFormLayout" name="formLayout_6">
                <item row="0" column="0" colspan="2">
@@ -893,17 +895,17 @@ as you may damage data in the process!</string>
                  </property>
                 </widget>
                </item>
-               <item row="4" column="0" colspan="2">
-                <widget class="QPushButton" name="pushButton_10">
-                 <property name="text">
-                  <string>Placeholder_Update</string>
-                 </property>
-                </widget>
-               </item>
                <item row="5" column="0" colspan="2">
                 <widget class="QPushButton" name="pushButton_8">
                  <property name="text">
                   <string>Placeholder_reset_pin</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0" colspan="2">
+                <widget class="QPushButton" name="pushButton_10">
+                 <property name="text">
+                  <string>Placeholder_Update</string>
                  </property>
                 </widget>
                </item>
