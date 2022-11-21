@@ -144,6 +144,7 @@ def change_pin(ctx: Nk3Context, old_pin, new_pin, confirm_pin):
             client_pin = ClientPin(dev.ctap2)
             client_pin.change_pin(old_pin, new_pin)
             local_print("done - please use new pin to verify key")
+            TrayNotification("Nitrokey 3", f"Successfully changed the PIN.","Nitrokey 3 Change PIN")
         except Exception as e:
             print(
                 "failed changing to new pin!", "did you set one already? or is it wrong?", e

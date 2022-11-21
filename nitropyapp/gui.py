@@ -905,9 +905,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     @pyqtSlot()
     def pro_btn_pressed(self):
         self.tabs.show()
-        self.tabs.setTabEnabled(1, True)
-        self.tabs.setTabEnabled(2, True)
-        self.tabs.setTabEnabled(3, True)
+        for i in range(1, 4):
+            self.tabs.setTabEnabled(i, True)
         self.tabs.setTabEnabled(4, False)
         self.tabs.setTabEnabled(5, False)
         # set stylesheet of tabwidget to QTabBar::tab:disabled { width: 0; height: 0; margin: 0; padding: 0; border: none; } if you want to make the tabs invisible.
@@ -919,10 +918,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     @pyqtSlot()
     def storage_btn_pressed(self):
         self.tabs.show()
-        self.tabs.setTabEnabled(1, True)
-        self.tabs.setTabEnabled(2, True)
-        self.tabs.setTabEnabled(3, True)
-        self.tabs.setTabEnabled(4, True)
+        for i in range(1, 5):
+            self.tabs.setTabEnabled(i, True)
         self.tabs.setTabEnabled(5, False)
         self.pro_btn.setChecked(False)
         self.fido2_btn.setChecked(False)
@@ -933,10 +930,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     @pyqtSlot()
     def fido2_btn_pressed(self):
         self.tabs.show()
-        self.tabs.setTabEnabled(1, False)
-        self.tabs.setTabEnabled(2, False)
-        self.tabs.setTabEnabled(3, False)
-        self.tabs.setTabEnabled(4, False)
+        for i in range (1,5):
+            self.tabs.setTabEnabled(i, False)
         self.tabs.setTabEnabled(5, True)
         self.pro_btn.setChecked(False)
         self.storage_btn.setChecked(False)
