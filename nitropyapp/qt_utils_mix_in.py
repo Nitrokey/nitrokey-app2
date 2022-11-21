@@ -38,10 +38,6 @@ class QtUtilsMixIn:
         QtWidgets.QMessageBox.information(parent or self, title or msg, msg)
     def user_err(self, msg, title=None, parent=None):
         QtWidgets.QMessageBox.critical(parent or self, title or msg, msg)
-    # os notifications
-    def sendmessage(self, message):
-        subprocess.Popen(['notify-send', message])
-        return
 
     def get_widget(self, qt_cls, name=""):
         """while finding widgets, why not cache them into a map"""
