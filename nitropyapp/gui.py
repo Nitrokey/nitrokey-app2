@@ -410,41 +410,44 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def device_connect(self):
         for dvc in iter(functools.partial(self.monitor.poll, 3), None):
             if dvc.action == "remove":  
+                print("removed")
                 self.remove_nk3()            
             elif dvc.action == "bind":
-                # bind for old nks
-                func1 = lambda w: (w.setEnabled(False), w.setVisible(False))
-                self.apply_by_name(["pushButton_storage","pushButton_pro", "btn_dial_HV"], func1) # overview
-                ############## devs for the libraries
-                devs = nk_api.BaseLibNitrokey.list_devices()
-            
-                print(devs)
-                dev = None
-                if len(devs) > 0:
-                    _dev = devs[tuple(devs.keys())[0]]
-                    # enable and show needed widgets
-                    func = lambda w: (w.setEnabled(True), w.setVisible(True))
-                    if _dev["model"] == 1:
-                        dev = nk_api.NitrokeyPro()
-                        self.apply_by_name(["pushButton_pro", "btn_dial_HV"], func) # overview
-                    elif _dev["model"] == 2:
-                        dev = nk_api.NitrokeyStorage()
-                        self.apply_by_name(["pushButton_storage", "btn_dial_HV"], func) # overview 
-                                
-                                    
-                    else:
-                        #func = lambda w: (w.setEnabled(False), w.setVisible(False))
-                        #self.apply_by_name(["pushButton_storage","pushButton_pro", "btn_dial_HV"], func) # overview
-                        print("removed button(s)")
-                        self.msg("Unknown device model detected")
-                        return {"connected": False}
+                print("BIND")
                 # bind for nk3
                 self.detect_nk3()
-
+                # # bind for old nks
+                # func1 = lambda w: (w.setEnabled(False), w.setVisible(False))
+                # self.apply_by_name(["pushButton_storage","pushButton_pro", "btn_dial_HV"], func1) # overview
+                # ############## devs for the libraries
+                # devs = nk_api.BaseLibNitrokey.list_devices()
+            
+                # print(devs)
+                # dev = None
+                # if len(devs) > 0:
+                #     _dev = devs[tuple(devs.keys())[0]]
+                #     # enable and show needed widgets
+                #     func = lambda w: (w.setEnabled(True), w.setVisible(True))
+                #     if _dev["model"] == 1:
+                #         dev = nk_api.NitrokeyPro()
+                #         self.apply_by_name(["pushButton_pro", "btn_dial_HV"], func) # overview
+                #     elif _dev["model"] == 2:
+                #         dev = nk_api.NitrokeyStorage()
+                #         self.apply_by_name(["pushButton_storage", "btn_dial_HV"], func) # overview 
+                                
+                                    
+                #     else:
+                #         #func = lambda w: (w.setEnabled(False), w.setVisible(False))
+                #         #self.apply_by_name(["pushButton_storage","pushButton_pro", "btn_dial_HV"], func) # overview
+                #         print("removed button(s)")
+                #         self.msg("Unknown device model detected")
+                #         return {"connected": False}
+                
 
     def detect_nk3(self):
         if len(list_nk3()):
             list_of_added = [y.uuid for y in Nk3Button.get()]
+            print("list of added:", list_of_added)
             for x in list_nk3():
                 if  x.uuid() not in list_of_added:
                     self.device = x
@@ -453,9 +456,11 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                         print(f"{self.device.path}: {self.device.name} {self.device.uuid():X}")
                     else:
                         print(f"{self.device.path}: {self.device.name}")
+                        print("no uuid")
                     Nk3Button(self.device, self.nitrokeys_window, self.layout_nk_btns, self.nitrokey3_frame, self.nk3_lineedit_uuid, self.nk3_lineedit_path, self.nk3_lineedit_version, self.tabs, self.update_nk3_btn, self.progressBarUpdate, self.change_pin_open_dialog, self. change_pin_dialog)
                     tray_connect = TrayNotification("Nitrokey 3", "Nitrokey 3 connected.","Nitrokey 3 connected.")
                     self.device = None
+                    print("nk3 connected")
                     self.l_insert_Nitrokey.hide() 
                 else: 
                     nk3_btn_same_uuid = [y for y in Nk3Button.get() if (y.uuid == x.uuid())]
