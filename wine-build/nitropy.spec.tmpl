@@ -1,0 +1,41 @@
+# -*- mode: python ; coding: utf-8 -*-
+
+block_cipher = None
+
+
+a = Analysis(['nitropyapp/__main__.py'],
+             pathex=['C:\\build\\cache\\Nitrokey\\nitrokey-app2.git'],
+             binaries=[],
+             datas=[
+						  ("C:\\python%%PYTHON_VERSION%%\\lib\\site-packages\\pynitrokey\\VERSION", "pynitrokey"),
+							("C:\\python%%PYTHON_VERSION%%\\lib\\site-packages\\fido2\\public_suffix_list.dat", "fido2"),
+						 	("C:\\python%%PYTHON_VERSION%%\\lib\\site-packages\\libusb\\_platform\\_windows\\x86\\libusb-1.0.dll", "."),
+							("C:\\python%%PYTHON_VERSION%%\\lib\\site-packages\\libusbsio\\bin\\Win32\\libusbsio.dll", "libusbsio/bin/Win32"),
+							("C:\\python%%PYTHON_VERSION%%\\lib\\site-packages\\libusbsio\\bin\\x64\\libusbsio.dll", "libusbsio/bin/x64")
+
+						 ],
+             hiddenimports=[],
+             hookspath=[],
+             runtime_hooks=[],
+             excludes=[],
+             win_no_prefer_redirects=False,
+             win_private_assemblies=False,
+             cipher=block_cipher,
+             noarchive=False)
+
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+
+exe = EXE(pyz,
+          a.scripts,
+          a.binaries,
+          a.zipfiles,
+          a.datas,
+          [],
+          name='nitrokey-app2-%%NITROKEY_APP2_VERSION%%',
+          debug=False,
+          bootloader_ignore_signals=False,
+          strip=False,
+          upx=True,
+          upx_exclude=[],
+          runtime_tmpdir=None,
+          console=False )

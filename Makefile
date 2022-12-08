@@ -2,7 +2,7 @@
 
 PACKAGE_NAME=nitropy-app
 VENV=venv
-PYTHON3=python3
+PYTHON3=python3.9
 
 init: update-venv
 

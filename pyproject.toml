@@ -1,31 +1,54 @@
+
 [build-system]
-requires = ["flit"]
-build-backend = "flit.buildapi"
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
 
-[tool.flit.metadata]
-module = "nitropyapp"
-dist-name = "nitropyapp"
-author = "Nitrokey - Markus Meissner"
-author-email = "pypi@nitrokey.com"
-home-page = "https://github.com/daringer/nitropy-app"
-requires-python = ">=3.6"
-description-file = "README.md"
-requires = [
-  "pynitrokey",
+[project]
+name = "nitropyapp"
+authors = [
+  { name = "Nitrokey", email = "pypi@nitrokey.com" },
+]
+readme = "README.md"
+requires-python = ">=3.9"
+
+#dist-name = "nitrokey-app2"
+#author = "Nitrokey - Markus Meissner"
+#author-email = "pypi@nitrokey.com"
+#home-page = "https://github.com/daringer/nitropy-app"
+#requires-python = ">=3.9"
+#description-file = "README.md"
+
+
+dependencies = [
   "pyqt5",
-	"pyqt5-stubs",
+  "pyqt5-stubs",
+  "pyudev",
+  "pynitrokey @ git+https://github.com/Nitrokey/pynitrokey.git@nk3-updater#egg=pynitrokey",
+  "pywin32 == 305; sys_platform == 'win32'",
+  "charset-normalizer",
+  "chardet",
 ]
 
-classifiers=[
-    "License :: OSI Approved :: MIT License",
-    "License :: OSI Approved :: Apache Software License",
-    "Intended Audience :: Developers",
-    "Intended Audience :: End Users/Desktop",
-    "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
+dynamic = ["version", "description"]
+
+[project.optional-dependencies]
+dev = [
+  "black == 21.12b0",
+  "flake8",
+  "flit >=3.2,<4",
 ]
 
-[tool.flit.scripts]
-nitropy-app = "nitropyapp.gui:main"
+#classifiers=[
+#    "License :: OSI Approved :: MIT License",
+##    "License :: OSI Approved :: Apache Software License",
+#    "Intended Audience :: Developers",
+#    "Intended Audience :: End Users/Desktop",
+#    "Programming Language :: Python :: 3 :: Only",
+#    "Programming Language :: Python :: 3.9",
+#    "Programming Language :: Python :: 3.10",
+#    "Programming Language :: Python :: 3.11",
+#]
+
+[project.scripts]
+nitropy-app = "nitropyapp:main"
 
