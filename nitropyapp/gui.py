@@ -9,7 +9,7 @@ import platform
 # windows
 import subprocess
 # extras
-import datetime 
+import datetime
 import time
 from pathlib import Path
 from queue import Queue
@@ -24,22 +24,22 @@ from pynitrokey import libnk as nk_api
 # Nitrokey 3
 from pynitrokey.nk3 import list as list_nk3
 # import wizards and stuff
-from setup_wizard import SetupWizard
-from qt_utils_mix_in import QtUtilsMixIn
-from about_dialog import AboutDialog
-from key_generation import KeyGeneration
-from change_pin_dialog import ChangePinDialog
-from storage_wizard import Storage
-from loading_screen import LoadingScreen
-from edit_button_widget import EditButtonsWidget
-from pin_dialog import PINDialog
-from insert_nitrokey import InsertNitrokey
-from windows_notification import WindowsUSBNotification
-from pynitrokey_for_gui import Nk3Context, list, version, wink, nk3_update, nk3_update_helper, change_pin
-from tray_notification import TrayNotification
-from nk3_button import Nk3Button
+from nitropyapp.setup_wizard import SetupWizard
+from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
+from nitropyapp.about_dialog import AboutDialog
+from nitropyapp.key_generation import KeyGeneration
+from nitropyapp.change_pin_dialog import ChangePinDialog
+from nitropyapp.storage_wizard import Storage
+from nitropyapp.loading_screen import LoadingScreen
+from nitropyapp.edit_button_widget import EditButtonsWidget
+from nitropyapp.pin_dialog import PINDialog
+from nitropyapp.insert_nitrokey import InsertNitrokey
+from nitropyapp.windows_notification import WindowsUSBNotification
+from nitropyapp.pynitrokey_for_gui import Nk3Context, list, version, wink, nk3_update, nk3_update_helper, change_pin
+from nitropyapp.tray_notification import TrayNotification
+from nitropyapp.nk3_button import Nk3Button
 #import nitropyapp.libnk as nk_api
-import nitropyapp.ui.breeze_resources 
+import nitropyapp.ui.breeze_resources
 #pyrcc5 -o gui_resources.py ui/resources.qrc
 import nitropyapp.gui_resources
 
@@ -104,7 +104,7 @@ class BackendThread(QThread):
 ########################################################################################
 #### nk3
 ################c++ code from cli.nk3.init
-#logger = logging.getLogger(__name__) 
+#logger = logging.getLogger(__name__)
 #### PWS related callbacks
 
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
@@ -125,7 +125,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     change_value = pyqtSignal(int)
 
-    
+
     def __init__(self, qt_app: QtWidgets.QApplication):
         QtWidgets.QMainWindow.__init__(self)
         QtUtilsMixIn.__init__(self)
@@ -133,7 +133,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.backend_thread.start()
         # linux
         if  platform.system() == "Linux":
-            # pyudev stuff 
+            # pyudev stuff
             import pyudev
             from pyudev.pyqt5 import MonitorObserver
             # start monitoring usb
@@ -146,11 +146,11 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # windows
         if platform.system() == "Windows":
             print("OS:Windows")
-           
+
             w = WindowsUSBNotification(self.detect_nk3, self.remove_nk3)
             #win32gui.PumpMessages()
             print("not trapped")
-        
+
         ################################################################################
         # load UI-files and prepare them accordingly
         ui_dir = Path(__file__).parent.resolve().absolute() / "ui"
@@ -175,7 +175,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         self.about_dialog = AboutDialog(qt_app)
         self.about_dialog.load_ui(ui_dir / "aboutdialog.ui", self.about_dialog)
-        
+
         self.setup_wizard = SetupWizard(qt_app)
         self.setup_wizard.load_ui(ui_dir / "setup-wizard.ui", self.setup_wizard)
         self.setup_wizard.init_setup()
@@ -183,7 +183,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.storage = Storage(qt_app)
         self.storage.load_ui(ui_dir / "storage.ui", self.storage)
         self.storage.init_storage()
-        
+
         self.insert_Nitrokey = InsertNitrokey(qt_app)
         self.insert_Nitrokey.load_ui(ui_dir / "insert_Nitrokey.ui", self.insert_Nitrokey)
         self.insert_Nitrokey.init_insertNitrokey()
@@ -193,10 +193,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.change_pin_dialog.init_change_pin()
         ################################################################################
         #### get widget objects
-        
+
         ## wizard
- 
-        
+
+
         ## app wide widgets
         self.status_bar = _get(_qt.QStatusBar, "statusBar")
         self.menu_bar = _get(_qt.QMenuBar, "menuBar")
@@ -210,7 +210,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.tab_storage = _get(_qt.QWidget, "tab_7")
         self.about_button = _get(_qt.QPushButton, "btn_about")
         self.help_btn = _get(_qt.QPushButton, "btn_dial_help")
-        self.quit_button = _get(_qt.QPushButton, "btn_dial_quit") 
+        self.quit_button = _get(_qt.QPushButton, "btn_dial_quit")
         self.settings_btn = _get(_qt.QPushButton, "btn_settings")
         self.lock_btn = _get(_qt.QPushButton, "btn_dial_lock")
         self.pro_btn =  _get(_qt.QPushButton, "pushButton_pro")
@@ -218,13 +218,13 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.fido2_btn =  _get(_qt.QPushButton, "pushButton_fido2")
         self.others_btn = _get(_qt.QPushButton, "pushButton_others")
         self.l_insert_Nitrokey = _get(_qt.QFrame, "label_insert_Nitrokey")
-        ## overview 
+        ## overview
         self.unlock_pws_btn = _get(_qt.QPushButton, "PWS_ButtonEnable")
         self.frame_p = _get(_qt.QFrame, "frame_pro")
         self.frame_s = _get(_qt.QFrame, "frame_storage")
         self.frame_f = _get(_qt.QFrame, "frame_fido2")
         self.navigation_frame = _get(_qt.QFrame, "vertical_navigation")
-        self.nitrokeys_window = _get(_qt.QScrollArea, "Nitrokeys") 
+        self.nitrokeys_window = _get(_qt.QScrollArea, "Nitrokeys")
 
         self.layout_nk_btns = QtWidgets.QVBoxLayout()
         self.layout_nk_btns.setContentsMargins(0,0,0,0)
@@ -273,7 +273,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.copy_current_otp = _get(_qt.QPushButton, "pushButton_otp_copy")
         self.qr_code = _get(_qt.QPushButton, "pushButton_4")
         self.random_otp = _get(_qt.QPushButton, "pushButton_7")
-        
+
         ## smartcard
         self.pushButton_add_key = _get(_qt.QPushButton, "pushButton_add_keys")
         self.main_key = _get(_qt.QGroupBox, "groupBox_mainkey")
@@ -316,7 +316,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         ################################################################################
         ######nk3
-        self.help_btn.clicked.connect(lambda:webbrowser.open('https://docs.nitrokey.com/nitrokey3'))    
+        self.help_btn.clicked.connect(lambda:webbrowser.open('https://docs.nitrokey.com/nitrokey3'))
         #self.change_value.connect(self.setprogressbar)
         #self.update_nk3_btn.clicked.connect(lambda: nk3_update(self.ctx,0))
         #self.connect_signal_slots(lambda:self.update_nk3_btn.clicked, self.change_value, [GUI.setProgressVal], lambda:nk3_update(self.ctx,0))
@@ -324,7 +324,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         #self.firmware_started=lambda:self.user_info("Firmware Update started")
         #self.update_nk3_btn.clicked.connect(lambda:self.backend_thread.add_job(self.change_value,nk3_update(self.ctx, 0)))
         #self.update_nk3_btn.clicked.connect(lambda:nk3_update(self.ctx, self.progressBarUpdate, 0))
-        
+
         self.lock_btn.clicked.connect(self.slot_lock_button_pressed)
         self.unlock_pws_btn.clicked.connect(self.unlock_pws_button_pressed)
         self.about_button.clicked.connect(self.about_button_pressed)
@@ -335,7 +335,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         #### connections for functional signals
         ## generic / global
         self.connect_signal_slots(self.pro_btn.clicked, self.sig_connected,
-            [self.job_nk_connected, 
+            [self.job_nk_connected,
             ### otp_combo_box is missing
             #self.toggle_otp
             self.load_active_slot
@@ -393,25 +393,25 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         # self.otp_gen_secret_btn.clicked.connect(self.slot_random_secret)
         # self.otp_gen_secret_hide.stateChanged.connect(self.slot_secret_hide)
-        
+
         ## auth related
         self.sig_ask_pin.connect(self.pin_dialog.invoke)
         self.sig_auth.connect(self.slot_auth)
         self.sig_confirm_auth.connect(self.slot_confirm_auth)
         self.sig_lock.connect(self.slot_lock)
         # nk3 change pin
-        
+
     #nk3 stuff
-        
+
     def info_success(self):
         self.user_info(self, "success")
 
     ### experimental idea to differ between removed and added
     def device_connect(self):
         for dvc in iter(functools.partial(self.monitor.poll, 3), None):
-            if dvc.action == "remove":  
+            if dvc.action == "remove":
                 print("removed")
-                self.remove_nk3()            
+                self.remove_nk3()
             elif dvc.action == "bind":
                 print("BIND")
                 # bind for nk3
@@ -421,7 +421,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 # self.apply_by_name(["pushButton_storage","pushButton_pro", "btn_dial_HV"], func1) # overview
                 # ############## devs for the libraries
                 # devs = nk_api.BaseLibNitrokey.list_devices()
-            
+
                 # print(devs)
                 # dev = None
                 # if len(devs) > 0:
@@ -433,16 +433,16 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 #         self.apply_by_name(["pushButton_pro", "btn_dial_HV"], func) # overview
                 #     elif _dev["model"] == 2:
                 #         dev = nk_api.NitrokeyStorage()
-                #         self.apply_by_name(["pushButton_storage", "btn_dial_HV"], func) # overview 
-                                
-                                    
+                #         self.apply_by_name(["pushButton_storage", "btn_dial_HV"], func) # overview
+
+
                 #     else:
                 #         #func = lambda w: (w.setEnabled(False), w.setVisible(False))
                 #         #self.apply_by_name(["pushButton_storage","pushButton_pro", "btn_dial_HV"], func) # overview
                 #         print("removed button(s)")
                 #         self.msg("Unknown device model detected")
                 #         return {"connected": False}
-                
+
 
     def detect_nk3(self):
         if len(list_nk3()):
@@ -461,8 +461,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                     tray_connect = TrayNotification("Nitrokey 3", "Nitrokey 3 connected.","Nitrokey 3 connected.")
                     self.device = None
                     print("nk3 connected")
-                    self.l_insert_Nitrokey.hide() 
-                else: 
+                    self.l_insert_Nitrokey.hide()
+                else:
                     nk3_btn_same_uuid = [y for y in Nk3Button.get() if (y.uuid == x.uuid())]
                     for i in nk3_btn_same_uuid:
                         if x.path != i.path:
@@ -501,7 +501,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             name = all_otp.get_name(index)
             if name:
                 self.add_table_pws_from_key(index)
-                              
+
     def ask_pin(self, who):
         assert who in ["user", "admin"]
         who_cap = who.capitalize()
@@ -537,12 +537,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def init_pin_setup(self):
         self.tabs.setEnabled(True)
         self.user_info("You have successfully configured the User and Admin PIN.\n These can be changed at any time in the device settings.",title ="PIN configuration was successful")
- 
+
     #### storage setup
     @pyqtSlot()
     def init_storage_setup(self):
         print("it works")
-        self.user_info("You now have successfully created your hidden volume.  ",title ="Hidden Volume generation was successful")   
+        self.user_info("You now have successfully created your hidden volume.  ",title ="Hidden Volume generation was successful")
     #### smartcard
     @pyqtSlot()
     def add_key(self):
@@ -585,13 +585,13 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # qtimer popup
         self.time_to_wait = 5
         self.pop_up_copy.setText("Data added to clipboard.") #{0} for time display
-        self.pop_up_copy.setStyleSheet("background-color: #2B5DD1; color: #FFFFFF ; border-style: outset;" 
+        self.pop_up_copy.setStyleSheet("background-color: #2B5DD1; color: #FFFFFF ; border-style: outset;"
         "padding: 2px ; font: bold 20px ; border-width: 6px ; border-radius: 10px ; border-color: #2752B8;")
         self.pop_up_copy.show()
         self.timer = QTimer(self)
         self.timer.setInterval(1000)
         self.timer.timeout.connect(self.changeContent)
-        self.timer.start()  
+        self.timer.start()
     def changeContent(self):
         self.pop_up_copy.setText("Data added to clipboard.")
         self.time_to_wait -= 1
@@ -606,37 +606,37 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # qtimer popup
         self.time_to_wait = 5
         self.pop_up_copy.setText("Data added to clipboard.") #{0} for time display
-        self.pop_up_copy.setStyleSheet("background-color: #2B5DD1; color: #FFFFFF ; border-style: outset;" 
+        self.pop_up_copy.setStyleSheet("background-color: #2B5DD1; color: #FFFFFF ; border-style: outset;"
         "padding: 2px ; font: bold 20px ; border-width: 6px ; border-radius: 10px ; border-color: #2752B8;")
         self.pop_up_copy.show()
         self.timer = QTimer(self)
         self.timer.setInterval(1000)
         self.timer.timeout.connect(self.changeContent)
-        self.timer.start()  
+        self.timer.start()
     def copypw(self):
         QApplication.clipboard().setText(self.pws_editpassword.text())
         # qtimer popup
         self.time_to_wait = 5
         self.pop_up_copy.setText("Data added to clipboard.") #{0} for time display
-        self.pop_up_copy.setStyleSheet("background-color: #2B5DD1; color: #FFFFFF ; border-style: outset;" 
+        self.pop_up_copy.setStyleSheet("background-color: #2B5DD1; color: #FFFFFF ; border-style: outset;"
         "padding: 2px ; font: bold 20px ; border-width: 6px ; border-radius: 10px ; border-color: #2752B8;")
         self.pop_up_copy.show()
         self.timer = QTimer(self)
         self.timer.setInterval(1000)
         self.timer.timeout.connect(self.changeContent)
-        self.timer.start()  
+        self.timer.start()
     def copyotp(self):
         QApplication.clipboard().setText(self.pws_editOTP.text())
         # qtimer popup
         self.time_to_wait = 5
         self.pop_up_copy.setText("Data added to clipboard.") #{0} for time display
-        self.pop_up_copy.setStyleSheet("background-color: #2B5DD1; color: #FFFFFF ; border-style: outset;" 
+        self.pop_up_copy.setStyleSheet("background-color: #2B5DD1; color: #FFFFFF ; border-style: outset;"
         "padding: 2px ; font: bold 20px ; border-width: 6px ; border-radius: 10px ; border-color: #2752B8;")
         self.pop_up_copy.show()
         self.timer = QTimer(self)
         self.timer.setInterval(1000)
         self.timer.timeout.connect(self.changeContent)
-        self.timer.start()  
+        self.timer.start()
 
     #### FIDO2 related callbacks
     @pyqtSlot()
@@ -830,7 +830,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 dev = nk_api.NitrokeyPro()
             elif _dev["model"] == 2:
                 dev = nk_api.NitrokeyStorage()
-            
+
             else:
                 self.msg("Unknown device model detected")
                 return {"connected": False}
@@ -953,8 +953,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         ##test
     @pyqtSlot()
     def slot_lock_button_pressed(self):
-        # removes side buttos for nk3 (for now)  
-        print("locked")        
+        # removes side buttos for nk3 (for now)
+        print("locked")
         for x in Nk3Button.get():
             x.__del__()
 
@@ -1025,7 +1025,7 @@ def main():
     QtUtilsMixIn.backend_thread = BackendThread()
 
     app = QtWidgets.QApplication(sys.argv)
-  
+
     # set stylesheet
     file = QFile(":/light.qss")
     file.open(QFile.ReadOnly | QFile.Text)
@@ -1036,4 +1036,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
+

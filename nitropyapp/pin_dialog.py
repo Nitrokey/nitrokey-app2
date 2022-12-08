@@ -3,8 +3,8 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTex
 from PyQt5.Qt import QApplication, QClipboard, QLabel, QMovie, QIcon, QProgressBar,QProgressDialog, QMessageBox
 # Nitrokey 2
 from pynitrokey import libnk as nk_api
-from qt_utils_mix_in import QtUtilsMixIn
-import nitropyapp.ui.breeze_resources 
+from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
+import nitropyapp.ui.breeze_resources
 import nitropyapp.gui_resources
 
 ##### @fixme: PINDialog should be modal!

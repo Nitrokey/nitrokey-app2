@@ -4,11 +4,14 @@ Work in Progress !!
 
 ## To run on Linux:
 ```
-git clone https://github.com/nitrokey/nitropy-app2.git
-cd nitropy-app2
-make
-source venv/bin/activate
-python3 nitropyapp/gui.py
+git clone git@github.com:Nitrokey/nitrokey-app2.git
+cd nitrokey-app2
+make init
+venv/bin/nitropy-app
+
+#source venv/bin/activate
+#python3 nitropyapp/gui.py
+
 ```
 ## Notes:
 * the current version uses pynitrokey 

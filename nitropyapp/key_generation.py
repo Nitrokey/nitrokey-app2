@@ -3,7 +3,7 @@ from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTextStream, QTimer, QSortFilterProxyModel, QSize, QRect
 from PyQt5.Qt import QApplication, QClipboard, QLabel, QMovie, QIcon, QProgressBar,QProgressDialog, QMessageBox
 
-from qt_utils_mix_in import QtUtilsMixIn
+from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
 
 class KeyGeneration(QtUtilsMixIn, QtWidgets.QWizard):
     def __init__(self, qt_app: QtWidgets.QApplication):
@@ -75,5 +75,5 @@ class KeyGeneration(QtUtilsMixIn, QtWidgets.QWizard):
     @pyqtSlot()
     def ok_insert_btn(self):
         self.hide()
-        
+
         self.setup_wizard.show()

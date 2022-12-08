@@ -3,14 +3,14 @@ from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTextStream, QTimer, QSortFilterProxyModel, QSize, QRect
 from PyQt5.Qt import QApplication, QClipboard, QLabel, QMovie, QIcon, QProgressBar,QProgressDialog, QMessageBox
 
-from qt_utils_mix_in import QtUtilsMixIn
+from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
 
 class SetupWizard(QtUtilsMixIn, QtWidgets.QWizard):
     def __init__(self, qt_app: QtWidgets.QApplication):
         QtWidgets.QWizard.__init__(self)
         QtUtilsMixIn.__init__(self)
         self.app = qt_app
-    
+
     def init_setup(self):
         self.userpin_page = self.get_widget(QtWidgets.QWizardPage, "wizardPage")
         self.userpin_1 = self.get_widget(QtWidgets.QLineEdit, "lineEdit")
@@ -48,6 +48,6 @@ class SetupWizard(QtUtilsMixIn, QtWidgets.QWizard):
 
         if reply == QtWidgets.QMessageBox.Yes:
             event.accept()
-            
+
         else:
-            event.ignore() 
+            event.ignore()
