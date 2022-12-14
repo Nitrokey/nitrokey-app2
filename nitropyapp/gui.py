@@ -240,6 +240,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         #self.update_nk3_btn.hide()
 
         self.nitrokey3_frame = _get(_qt.QFrame, "Nitrokey3")
+        self.buttonLayout_nk3 = _get(_qt.QVBoxLayout, "buttonLayout_nk3")
         self.progressBarUpdate = _get(_qt.QProgressBar, "progressBar_Update")
         self.progressBarUpdate.hide()
         ## PWS
@@ -457,7 +458,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                     else:
                         print(f"{self.device.path}: {self.device.name}")
                         print("no uuid")
-                    Nk3Button(self.device, self.nitrokeys_window, self.layout_nk_btns, self.nitrokey3_frame, self.nk3_lineedit_uuid, self.nk3_lineedit_path, self.nk3_lineedit_version, self.tabs, self.update_nk3_btn, self.progressBarUpdate, self.change_pin_open_dialog, self. change_pin_dialog)
+                    Nk3Button(self.device, self.nitrokeys_window, self.layout_nk_btns, self.nitrokey3_frame, self.nk3_lineedit_uuid, self.nk3_lineedit_path, self.nk3_lineedit_version, self.tabs, self.update_nk3_btn, self.progressBarUpdate, self.change_pin_open_dialog, self.change_pin_dialog, self.buttonLayout_nk3)
                     tray_connect = TrayNotification("Nitrokey 3", "Nitrokey 3 connected.","Nitrokey 3 connected.")
                     self.device = None
                     print("nk3 connected")

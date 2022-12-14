@@ -12,7 +12,7 @@ class Nk3Button(QtWidgets.QWidget):
     @classmethod
     def get(cls):
         return Nk3Button.list_nk3_keys
-    def __init__(self, device, nitrokeys_window, layout_nk_btns, nitrokey3_frame, nk3_lineedit_uuid, nk3_lineedit_path, nk3_lineedit_version, tabs, update_nk3_btn, progressBarUpdate, change_pin_open_dialog, change_pin_dialog):
+    def __init__(self, device, nitrokeys_window, layout_nk_btns, nitrokey3_frame, nk3_lineedit_uuid, nk3_lineedit_path, nk3_lineedit_version, tabs, update_nk3_btn, progressBarUpdate, change_pin_open_dialog, change_pin_dialog, buttonLayout_nk3):
         super().__init__()
         self.device = device
         self.uuid = self.device.uuid()
@@ -23,6 +23,7 @@ class Nk3Button(QtWidgets.QWidget):
         self.nitrokeys_window = nitrokeys_window
         self.layout_nk_btns = layout_nk_btns
         self.nitrokey3_frame = nitrokey3_frame
+        self.buttonLayout_nk3 = buttonLayout_nk3
         self.tabs = tabs
         self.nk3_lineedit_uuid = nk3_lineedit_uuid
         self.nk3_lineedit_path = nk3_lineedit_path
@@ -46,10 +47,12 @@ class Nk3Button(QtWidgets.QWidget):
         self.widget_nk_btns.setLayout(self.layout_nk_btns)
         self.nitrokeys_window.setWidget(self.widget_nk_btns)  
         # buttons get placed over the place holder
-        self.own_update_btn = QtWidgets.QPushButton("Update Nitrokey 3"f"{self.device.uuid()%10000}", self.nitrokey3_frame)
-        self.own_change_pin = QtWidgets.QPushButton("Change Nitrokey 3 PIN "f"{self.device.uuid()%10000}", self.nitrokey3_frame)    
-        self.own_update_btn.setGeometry(12,134,413,27)
-        self.own_change_pin.setGeometry(12,166,413,27)
+        self.own_update_btn = QtWidgets.QPushButton("Update Nitrokey 3"f"{self.device.uuid()%10000}")
+        self.own_change_pin = QtWidgets.QPushButton("Change Nitrokey 3 PIN "f"{self.device.uuid()%10000}")  
+        self.buttonLayout_nk3.addWidget(self.own_update_btn)
+        self.buttonLayout_nk3.addWidget(self.own_change_pin)
+        self.own_update_btn.hide()
+        self.own_change_pin.hide()
         self.ctx = Nk3Context(self.device.path)
         self.own_update_btn.clicked.connect(lambda:nk3_update_helper(self.ctx, self.progressBarUpdate, 0, 0))
         self.own_change_pin.clicked.connect(self.change_pin_open_dialog)
