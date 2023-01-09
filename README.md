@@ -4,7 +4,7 @@ Work in Progress !!
 
 ## To run on Linux:
 ```
-git clone https://github.com/nitrokey/nitropy-app2.git
+git clone https://github.com/Nitrokey/nitropy-app2.git
 cd nitropy-app2
 make
 source venv/bin/activate
