@@ -895,19 +895,12 @@ as you may damage data in the process!</string>
                  </property>
                 </widget>
                </item>
-               <item row="5" column="0" colspan="2">
-                <widget class="QPushButton" name="pushButton_8">
-                 <property name="text">
-                  <string>Placeholder_reset_pin</string>
-                 </property>
-                </widget>
-               </item>
                <item row="4" column="0" colspan="2">
-                <widget class="QPushButton" name="pushButton_10">
-                 <property name="text">
-                  <string>Placeholder_Update</string>
+                <layout class="QVBoxLayout" name="buttonLayout_nk3">
+                 <property name="sizeConstraint">
+                  <enum>QLayout::SetFixedSize</enum>
                  </property>
-                </widget>
+                </layout>
                </item>
               </layout>
              </widget>
