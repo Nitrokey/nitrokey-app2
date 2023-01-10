@@ -2,6 +2,7 @@
 
 PACKAGE_NAME=nitropy-app
 VENV=venv
+PYTHON3=python3
 
 init: update-venv
 
@@ -21,5 +22,5 @@ update-venv: $(VENV)
 	$(VENV)/bin/python3 -m flit install --symlink
 
 $(VENV):
-	python3 -m venv $(VENV)
+	$(PYTHON3) -m venv $(VENV)
 	$(VENV)/bin/python3 -m pip install -U pip
