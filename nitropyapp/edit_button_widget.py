@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTextStream, QTimer, QSortFilterProxyModel, QSize, QRect
 from PyQt5.Qt import QApplication, QClipboard, QLabel, QMovie, QIcon, QProgressBar,QProgressDialog, QMessageBox
-import nitropyapp.ui.breeze_resources 
+import nitropyapp.ui.breeze_resources
 import nitropyapp.gui_resources
 
 class EditButtonsWidget(QtWidgets.QWidget):
@@ -9,7 +9,7 @@ class EditButtonsWidget(QtWidgets.QWidget):
         super().__init__(parent)
         self.table_pws = table
         self.pop_up_copy = pop_up_copy
-        
+
         # add your buttons
         layout = QtWidgets.QHBoxLayout()
         layout.setContentsMargins(0,0,0,0)
@@ -20,7 +20,7 @@ class EditButtonsWidget(QtWidgets.QWidget):
         Copy.clicked.connect(self.copy_to_clipboard_function)
         layout.addWidget(Copy)
         layout.addWidget(QtWidgets.QLabel(str(res)))
-        
+
         self.setLayout(layout)
     @pyqtSlot()
     def copy_to_clipboard_function(self):
@@ -30,13 +30,13 @@ class EditButtonsWidget(QtWidgets.QWidget):
             # qtimer popup
         self.time_to_wait = 5
         self.pop_up_copy.setText("Data added to clipboard.") #{0} for time display
-        self.pop_up_copy.setStyleSheet("background-color: #2B5DD1; color: #FFFFFF ; border-style: outset;" 
+        self.pop_up_copy.setStyleSheet("background-color: #2B5DD1; color: #FFFFFF ; border-style: outset;"
         "padding: 2px ; font: bold 20px ; border-width: 6px ; border-radius: 10px ; border-color: #2752B8;")
         self.pop_up_copy.show()
         self.timer = QTimer(self)
         self.timer.setInterval(1000)
         self.timer.timeout.connect(self.changeContent)
-        self.timer.start()  
+        self.timer.start()
     def changeContent(self):
         self.pop_up_copy.setText("Data added to clipboard.")
         self.time_to_wait -= 1

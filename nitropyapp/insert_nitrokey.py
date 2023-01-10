@@ -2,9 +2,9 @@ from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTextStream, QTimer, QSortFilterProxyModel, QSize, QRect
 from PyQt5.Qt import QApplication, QClipboard, QLabel, QMovie, QIcon, QProgressBar,QProgressDialog, QMessageBox
 # import wizards and stuff
-from setup_wizard import SetupWizard
-from qt_utils_mix_in import QtUtilsMixIn
-import nitropyapp.ui.breeze_resources 
+from nitropyapp.setup_wizard import SetupWizard
+from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
+import nitropyapp.ui.breeze_resources
 import nitropyapp.gui_resources
 from pathlib import Path
 
@@ -26,5 +26,5 @@ class InsertNitrokey(QtUtilsMixIn, QtWidgets.QDialog):
     @pyqtSlot()
     def ok_insert_btn(self):
         self.hide()
-        
+
         self.setup_wizard.show()

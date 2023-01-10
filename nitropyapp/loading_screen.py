@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTextStream, QTimer, QSortFilterProxyModel, QSize, QRect
 from PyQt5.Qt import QApplication, QClipboard, QLabel, QMovie, QIcon, QProgressBar,QProgressDialog, QMessageBox
-import nitropyapp.ui.breeze_resources 
+import nitropyapp.ui.breeze_resources
 #pyrcc5 -o gui_resources.py ui/resources.qrc
 import nitropyapp.gui_resources
 
@@ -16,13 +16,13 @@ class LoadingScreen(QtWidgets.QWidget):
     #     self.setGeometry(QRect(650,300,0,0))
         #self.movie = QMovie(":/images/ProgressWheel.GIF")
         #self.label_animation.setMovie(self.movie)
-        
+
         #timer = QTimer(self)
         #self.startAnimation()
         #timer.singleShot(1000, self.stopAnimation)
 
     #    self.show()
-    
+
     def startAnimation(self):
         self.movie.start()
 

@@ -3,19 +3,22 @@
 Work in Progress !!
 
 ## To run on Linux:
+
 ```
 git clone https://github.com/Nitrokey/nitropy-app2.git
 cd nitropy-app2
-make
+make init
 source venv/bin/activate
 python3 nitropyapp/gui.py
 ```
+
 ## Notes:
 * the current version uses pynitrokey 
 * therefore python >3.9 must first be installed
 * pynitrokey version used https://github.com/Nitrokey/pynitrokey/tree/nk3-updater
 
-## To run on Windows: 
+## To run on Windows:
+
 ```
 python3 -m venv venv
 venv/Scripts/python -m pip install -U pip

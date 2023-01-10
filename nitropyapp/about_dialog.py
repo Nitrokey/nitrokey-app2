@@ -3,7 +3,7 @@ from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTextStream, QTimer, QSortFilterProxyModel, QSize, QRect
 from PyQt5.Qt import QApplication, QClipboard, QLabel, QMovie, QIcon, QProgressBar,QProgressDialog, QMessageBox
 
-from qt_utils_mix_in import QtUtilsMixIn
+from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
 
 class AboutDialog(QtUtilsMixIn, QtWidgets.QDialog):
     def __init__(self, qt_app: QtWidgets.QApplication):
