@@ -19,9 +19,9 @@ from pynitrokey.nk3.updates import Updater, UpdateUi
 
 from PyQt5.Qt import QMessageBox
 
-from pynitrokey_for_gui import Nk3Context
+from nitropyapp.pynitrokey_for_gui import Nk3Context
 # tray icon
-from tray_notification import TrayNotification
+from nitropyapp.tray_notification import TrayNotification
 
 logger = logging.getLogger(__name__)
 
@@ -39,8 +39,8 @@ class UpdateGUI(UpdateUi):
     def update_qbar(self, n: int, total: int) -> None:
         value = self.bar.value()
         if (n*100//total) > value:
-            print((n*100//total))    
-            self.bar.setValue(((n)*100//total))        
+            print((n*100//total))
+            self.bar.setValue(((n)*100//total))
 
     def abort_downgrade(self, current: Version, image: Version) -> Exception:
         self._print_firmware_versions(current, image)

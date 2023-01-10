@@ -3,20 +3,20 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTex
 from PyQt5.Qt import QApplication, QClipboard, QLabel, QMovie, QIcon, QProgressBar,QProgressDialog, QMessageBox
 # Nitrokey 2
 from pynitrokey import libnk as nk_api
-import nitropyapp.ui.breeze_resources 
+import nitropyapp.ui.breeze_resources
 import nitropyapp.gui_resources
-from qt_utils_mix_in import QtUtilsMixIn
+from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
 class Storage(QtUtilsMixIn, QtWidgets.QWizard):
     def __init__(self, qt_app: QtWidgets.QApplication):
         QtWidgets.QWizard.__init__(self)
         QtUtilsMixIn.__init__(self)
         self.ok_insert = None
         self.app = qt_app
-        
+
     def init_storage(self):
         self.wizardpage_hidden_volume_pw = self.get_widget(QtWidgets.QWizardPage, "wizardPage")
-        self.hidden_pw_1 = self.get_widget(QtWidgets.QLineEdit, "HVPasswordEdit") 
-        self.hidden_pw_2 = self.get_widget(QtWidgets.QLineEdit, "HVPasswordEdit_2") 
+        self.hidden_pw_1 = self.get_widget(QtWidgets.QLineEdit, "HVPasswordEdit")
+        self.hidden_pw_2 = self.get_widget(QtWidgets.QLineEdit, "HVPasswordEdit_2")
         self.wizardpage_hidden_volume_pw.registerField("hidden_pw_1*", self.hidden_pw_1)
         self.wizardpage_hidden_volume_pw.registerField("hidden_pw_2*", self.hidden_pw_2)
         self.show_hidden_pw = self.get_widget(QtWidgets.QCheckBox, "ShowPasswordCheckBox")
@@ -32,7 +32,7 @@ class Storage(QtUtilsMixIn, QtWidgets.QWizard):
         self.lastpage = self.get_widget(QtWidgets.QWizardPage, "wizardPage_3")
 
         self.lastpage.registerField("confirm_creation*", self.confirm_creation)
-        
+
 
         self.storage_blockspin.valueChanged.connect(self.change_value_2)
         self.storage_slider.valueChanged.connect(self.change_value)
@@ -46,8 +46,8 @@ class Storage(QtUtilsMixIn, QtWidgets.QWizard):
             self.button(QtWidgets.QWizard.NextButton).setEnabled(False)
         else:
             self.button(QtWidgets.QWizard.NextButton).setEnabled(True)
-    
-    @pyqtSlot(int)   
+
+    @pyqtSlot(int)
     #### storage wizard
     def change_value(self, value):
         self.storage_blockspin.setValue(float(value))
@@ -65,12 +65,12 @@ class Storage(QtUtilsMixIn, QtWidgets.QWizard):
             self.storage_slider.setSingleStep(300)
             self.storage_blockspin.setSingleStep(300)
             print(float(self.storage_slider.value()))
-        
+
     def swap_to_gb(self):
         if self.radio_gb.isChecked():
             self.storage_blockspin.setValue(float(self.storage_blockspin.value())/1000)
             self.storage_slider.setValue(float(self.storage_blockspin.value()))
-            
+
             self.storage_blockspin.setMaximum(30)
             self.storage_slider.setMaximum(30)
             self.storage_slider.setSingleStep(1)

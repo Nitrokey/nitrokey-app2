@@ -76,7 +76,7 @@ class QtUtilsMixIn:
             gBox.setFixedHeight(15)
                 # Set window Height
             #self.setFixedHeight(self.sizeHint().height())
-			
+
         else:
             expand_button.setIcon(QIcon(":/images/new/down_arrow.png"))
             oSize = gBox.sizeHint()
@@ -98,4 +98,4 @@ class QtUtilsMixIn:
     #         else:
     #             widget.setVisible(visible)
     #         cur = to_hide.pop(0)
-      
+

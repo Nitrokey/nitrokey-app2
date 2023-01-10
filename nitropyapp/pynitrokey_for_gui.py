@@ -31,7 +31,7 @@ from fido2.ctap2.pin import ClientPin
 
 from spsdk.mboot.exceptions import McuBootConnectionError
 # tray icon
-from tray_notification import TrayNotification
+from nitropyapp.tray_notification import TrayNotification
 
 T = TypeVar("T", bound=Nitrokey3Base)
 
@@ -49,16 +49,16 @@ class Nk3Context:
                 print("funzt")
                 print(type(device))
                 return [device]
-                
+
             else:
                 print("funzt nicht")
                 return []
-                
+
         else:
             print("list_nk3")
             return list_nk3()
 
-    
+
     def _select_unique(self, name: str, devices: List[T]) -> T:
         if len(devices) == 0:
             msg = f"No {name} device found"
@@ -161,7 +161,7 @@ def nk3_update_helper(ctx: Nk3Context, progressBarUpdate, image, variant):
 def nk3_update(
     ctx: Nk3Context, progressBarUpdate, image, variant) -> None:
 
-    from update import update
+    from nitropyapp.update import update
 
     update_version = update(ctx, progressBarUpdate ,image, variant)
 

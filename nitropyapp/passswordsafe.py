@@ -7,7 +7,7 @@ def table_pws_function(self):
     item3 = self.table_pws.item(index.row(), index.column()+3)
     item4  = self.table_pws.item(index.row(), index.column()+4)
     item5  = self.table_pws.item(index.row(), index.column()+5)
-    
+
     print(index.row(), index.column())
     print(item.text())
     self.scrollArea.show()
@@ -69,7 +69,7 @@ def add_table_pws(self):
         self.otp_secret.clear()
         self.slot_select_otp(idx)
         print("ret ok")
-    
+
     self.table_pws.setCellWidget(row , 0, (EditButtonsWidget(self.table_pws, self.pop_up_copy, res)))
     self.table_pws.setItem(row , 1, (QtWidgets.QTableWidgetItem(qline)))
     self.table_pws.setItem(row , 2, (QtWidgets.QTableWidgetItem(qline2)))
@@ -97,9 +97,9 @@ def add_table_pws_from_key(self, x):
     qline5 = ""
     res = "{} {} {}".format(qline, "\n", qline2)
 
-    
 
-        
+
+
     self.table_pws.setCellWidget(row , 0, (EditButtonsWidget(self.table_pws, self.pop_up_copy, res)))
     qlines = [qline, qline2, qline3, qline4, qline5]
     for i in range(1,len(qlines)+1):
@@ -160,7 +160,7 @@ def change_pws(self):
     qline5 = self.pws_editnotes.toPlainText()
     res = "{} {} {}".format(qline, "\n", qline2)
 
-            
+
     self.table_pws.setCellWidget(row , 0, (EditButtonsWidget(self.table_pws, self.pop_up_copy, res)))
     self.table_pws.setItem(row , 1, (QtWidgets.QTableWidgetItem(qline)))
     self.table_pws.setItem(row , 2, (QtWidgets.QTableWidgetItem(qline2)))
@@ -169,10 +169,10 @@ def change_pws(self):
     self.table_pws.setItem(row , 5, (QtWidgets.QTableWidgetItem(qline5)))
 
 
-    
+
     self.table_pws.removeRow(index.row())
     self.table_pws.setCurrentCell(index.row()-1, 0)
-    
+
 # search function for the table
 def filter_the_table(self):
     #searchbox
