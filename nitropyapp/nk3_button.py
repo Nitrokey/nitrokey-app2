@@ -68,6 +68,7 @@ class Nk3Button(QtWidgets.QWidget):
         self.nk3_lineedit_uuid.setText(str(self.uuid))
         self.nk3_lineedit_path.setText(str(self.path))
         self.nk3_lineedit_version.setText(str(self.version))
+        self.nitrokey3_frame.show()
         for i in Nk3Button.get():
             i.own_update_btn.hide()
             i.own_change_pin.hide()
