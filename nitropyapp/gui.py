@@ -17,8 +17,8 @@ from typing import List, Optional, Tuple, Type, TypeVar
 import webbrowser
 # pyqt5
 from PyQt5 import QtWidgets, uic
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTextStream, QTimer, QSortFilterProxyModel, QSize, QRect
-from PyQt5.Qt import QApplication, QClipboard, QLabel, QMovie, QIcon, QProgressBar,QProgressDialog, QMessageBox
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
+from PyQt5.Qt import QApplication, QProgressBar
 # Nitrokey 2
 from pynitrokey import libnk as nk_api
 # Nitrokey 3
@@ -311,21 +311,3 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         print("locked")
         for x in Nk3Button.get():
             x.__del__()
-
-def main():
-    # backend thread init
-    QtUtilsMixIn.backend_thread = BackendThread()
-
-    app = QtWidgets.QApplication(sys.argv)
-
-    # set stylesheet
-    file = QFile(":/light.qss")
-    file.open(QFile.ReadOnly | QFile.Text)
-    stream = QTextStream(file)
-    #app.setStyleSheet(stream.readAll())
-    window = GUI(app)
-    app.exec()
-
-if __name__ == "__main__":
-    main()
-
