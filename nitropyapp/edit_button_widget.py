@@ -1,8 +1,6 @@
-from PyQt5 import QtWidgets, uic
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTextStream, QTimer, QSortFilterProxyModel, QSize, QRect
-from PyQt5.Qt import QApplication, QClipboard, QLabel, QMovie, QIcon, QProgressBar,QProgressDialog, QMessageBox
-import nitropyapp.ui.breeze_resources
-import nitropyapp.gui_resources
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import pyqtSlot, QTimer
+from PyQt5.Qt import QApplication
 
 class EditButtonsWidget(QtWidgets.QWidget):
     def __init__(self, table, pop_up_copy, res, parent=None):

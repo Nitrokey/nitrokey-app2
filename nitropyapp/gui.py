@@ -1,18 +1,14 @@
 # use "pbs" for packaging...
 # pip-run -> pyqt5
 # pip-dev -> pyqt5-stubs
-import sys
 import functools
 import platform
 from pathlib import Path
 from queue import Queue
 import webbrowser
 # pyqt5
-from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
-from PyQt5.Qt import QApplication, QProgressBar
-# Nitrokey 2
-from pynitrokey import libnk as nk_api
 # Nitrokey 3
 from pynitrokey.nk3 import list as list_nk3
 # import wizards and stuff

@@ -1,7 +1,6 @@
 import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QFile, QTextStream
-from PyQt5.Qt import QApplication
 from nitropyapp.gui import BackendThread, GUI
 from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
 
@@ -14,9 +13,9 @@ def main():
     # set stylesheet
     file = QFile(":/light.qss")
     file.open(QFile.ReadOnly | QFile.Text)
-    stream = QTextStream(file)
+    #stream = QTextStream(file)
     #app.setStyleSheet(stream.readAll())
-    window = GUI(app)
+    GUI(app)
     app.exec()
 
 main()

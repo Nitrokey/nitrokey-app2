@@ -1,11 +1,8 @@
-from PyQt5 import QtWidgets, uic
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTextStream, QTimer, QSortFilterProxyModel, QSize, QRect
-from PyQt5.Qt import QApplication, QClipboard, QLabel, QIcon, QProgressBar, QProgressDialog, QMessageBox
-from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
-from nitropyapp.change_pin_dialog import ChangePinDialog
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import pyqtSlot, QSize
+from PyQt5.Qt import QIcon
+#from nitropyapp.change_pin_dialog import ChangePinDialog
 from nitropyapp.pynitrokey_for_gui import Nk3Context, list, version, wink, nk3_update, nk3_update_helper, change_pin
-import nitropyapp.ui.breeze_resources
-import nitropyapp.gui_resources
 
 class Nk3Button(QtWidgets.QWidget):
     list_nk3_keys = []
