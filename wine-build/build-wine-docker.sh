@@ -89,8 +89,7 @@ WINEPATH="C:\\git\\bin\\" py -m flit install --deps production
 cp wine-build/nitropy.spec .
 
 # build single-exe
-#py -m PyInstaller --noconfirm --clean --name nitrokey-app2-${NITROKEY_APP2_VERSION} --onefile nitropy.spec
-py -m PyInstaller --noconfirm --clean --onefile nitropy.spec --collect-all charset-normalizer --collect-all charset_normalizer --collect-all chardet
+py -m PyInstaller --noconfirm --clean --name nitrokey-app2-${NITROKEY_APP2_VERSION} --onefile nitropy.spec
 
 #cp dist/pynitrokey-${PYNITROKEY_VERSION}-win32.msi /build/wine_base/drive_c/build
 #cp dist/pynitrokey-${PYNITROKEY_VERSION}-win32.msi /build/wine_base/drive_c/build/pynitrokey.msi

@@ -1,0 +1,4 @@
+pyqt5-stubs
+flit
+pyudev
+git+https://github.com/Nitrokey/pynitrokey.git@nk3-updater#egg=pynitrokey

@@ -24,16 +24,13 @@ dependencies = [
   "pyqt5-stubs",
   "pyudev",
   "pynitrokey @ git+https://github.com/Nitrokey/pynitrokey.git@nk3-updater#egg=pynitrokey",
-  "pywin32 == 305; sys_platform == 'win32'",
-  "charset-normalizer",
-  "chardet",
 ]
 
 dynamic = ["version", "description"]
 
 [project.optional-dependencies]
 dev = [
-  "black == 21.12b0",
+  "black >=22.1.0,<23",
   "flake8",
   "flit >=3.2,<4",
 ]
@@ -50,5 +47,5 @@ dev = [
 #]
 
 [project.scripts]
-nitropy-app = "nitropyapp:main"
+nitropy-app = "nitropyapp.gui:main"
 
