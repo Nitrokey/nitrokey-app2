@@ -24,6 +24,7 @@ dependencies = [
   "pyqt5-stubs",
   "pyudev",
   "pynitrokey @ git+https://github.com/Nitrokey/pynitrokey.git",
+  "pywin32 == 305; sys_platform == 'win32'",
 ]
 
 dynamic = ["version", "description"]
