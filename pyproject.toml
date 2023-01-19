@@ -23,7 +23,7 @@ dependencies = [
   "pyqt5",
   "pyqt5-stubs",
   "pyudev",
-  "pynitrokey @ git+https://github.com/Nitrokey/pynitrokey.git@nk3-updater#egg=pynitrokey",
+  "pynitrokey @ git+https://github.com/Nitrokey/pynitrokey.git",
 ]
 
 dynamic = ["version", "description"]
