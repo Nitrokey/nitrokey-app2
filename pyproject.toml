@@ -47,5 +47,4 @@ dev = [
 #]
 
 [project.scripts]
-nitropy-app = "nitropyapp.gui:main"
-
+nitropy-app = "nitropyapp:main"
