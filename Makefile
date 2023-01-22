@@ -18,7 +18,7 @@ clean: semi-clean
 
 update-venv: $(VENV)
 	$(VENV)/bin/python3 -m pip install -U pip
-	$(VENV)/bin/python3 -m pip install -U -r dev-requirements.txt
+	$(VENV)/bin/python3 -m pip install flit
 	$(VENV)/bin/python3 -m flit install --symlink
 
 $(VENV):
