@@ -2,7 +2,7 @@
 
 PACKAGE_NAME=nitropyapp
 VENV=venv
-PYTHON3=python3
+PYTHON=python3
 
 BLACK_FLAGS=-t py39
 ISORT_FLAGS=--py 39
@@ -11,13 +11,13 @@ ISORT_FLAGS=--py 39
 init: update-venv
 
 update-venv: $(VENV)
-	$(VENV)/bin/python3 -m pip install -U pip
-	$(VENV)/bin/python3 -m pip install flit
-	$(VENV)/bin/python3 -m flit install --symlink
+	$(VENV)/bin/$(PYTHON) -m pip install -U pip
+	$(VENV)/bin/$(PYTHON) -m pip install flit
+	$(VENV)/bin/$(PYTHON) -m flit install --symlink
 
 $(VENV):
-	$(PYTHON3) -m venv $(VENV)
-	$(VENV)/bin/python3 -m pip install -U pip
+	$(PYTHON) -m venv $(VENV)
+	$(VENV)/bin/$(PYTHON) -m pip install -U pip
 
 # clean environment
 semi-clean:
@@ -28,17 +28,17 @@ clean: semi-clean
 	rm -rf .mypy_cache
 
 build:
-	$(VENV)/bin/python3 -m flit build
+	$(VENV)/bin/$(PYTHON) -m flit build
 
 # code checks
 check-format:
-	python3 -m black $(BLACK_FLAGS) --check $(PACKAGE_NAME)/
+	$(PYTHON) -m black $(BLACK_FLAGS) --check $(PACKAGE_NAME)/
 
 check-import-sorting:
-	python3 -m isort $(ISORT_FLAGS) --check-only $(PACKAGE_NAME)/
+	$(PYTHON) -m isort $(ISORT_FLAGS) --check-only $(PACKAGE_NAME)/
 
 check-style:
-	python3 -m flake8 $(PACKAGE_NAME)/
+	$(PYTHON) -m flake8 $(PACKAGE_NAME)/
 
 check-typing:
-	python3 -m mypy $(PACKAGE_NAME)/
+	$(PYTHON) -m mypy $(PACKAGE_NAME)/
