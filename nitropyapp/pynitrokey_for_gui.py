@@ -111,7 +111,7 @@ def list():
     for device in list_nk3():
             uuid = device.uuid()
             if uuid:
-                print(f"{device.path}: {device.name} {device.uuid():X}")
+                print(f"{device.path}: {device.name} {device.uuid().value:X}")
             else:
                 print(f"{device.path}: {device.name}")
 

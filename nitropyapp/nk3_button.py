@@ -28,7 +28,7 @@ class Nk3Button(QtWidgets.QWidget):
         self.update_nk3_btn = update_nk3_btn
         self.progressBarUpdate = progressBarUpdate
         #########needs to create button in the vertical navigation with the nitrokey type and serial number as text
-        self.btn_nk3 = QtWidgets.QPushButton(QIcon(":/images/icon/usb_new.png"),"Nitrokey 3:"f"{self.device.uuid()%10000}")
+        self.btn_nk3 = QtWidgets.QPushButton(QIcon(":/images/icon/usb_new.png"),"Nitrokey 3:"f"{self.device.uuid().value%10000}")
         self.btn_nk3.setFixedSize(184,40)
         self.btn_nk3.setIconSize(QSize(20, 20))
         self.btn_nk3.clicked.connect(lambda:self.nk3_btn_pressed())
@@ -44,8 +44,8 @@ class Nk3Button(QtWidgets.QWidget):
         self.widget_nk_btns.setLayout(self.layout_nk_btns)
         self.nitrokeys_window.setWidget(self.widget_nk_btns)
         # buttons get placed over the place holder
-        self.own_update_btn = QtWidgets.QPushButton("Update Nitrokey 3"f"{self.device.uuid()%10000}", self.nitrokey3_frame)
-        self.own_change_pin = QtWidgets.QPushButton("Change Nitrokey 3 PIN "f"{self.device.uuid()%10000}", self.nitrokey3_frame)
+        self.own_update_btn = QtWidgets.QPushButton("Update Nitrokey 3"f"{self.device.uuid().value%10000}", self.nitrokey3_frame)
+        self.own_change_pin = QtWidgets.QPushButton("Change Nitrokey 3 PIN "f"{self.device.uuid().value%10000}", self.nitrokey3_frame)
         self.own_update_btn.setGeometry(12,134,413,27)
         self.own_change_pin.setGeometry(12,166,413,27)
         self.buttonLayout_nk3.addWidget(self.own_update_btn)

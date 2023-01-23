@@ -224,7 +224,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                     self.device = device
                     uuid = self.device.uuid()
                     if uuid:
-                        print(f"{self.device.path}: {self.device.name} {self.device.uuid():X}")
+                        print(f"{self.device.path}: {self.device.name} {self.device.uuid()}")
                     else:
                         print(f"{self.device.path}: {self.device.name}")
                         print("no uuid")
