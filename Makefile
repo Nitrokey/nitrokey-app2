@@ -39,3 +39,6 @@ check-import-sorting:
 
 check-style:
 	python3 -m flake8 $(PACKAGE_NAME)/
+
+check-typing:
+	python3 -m mypy $(PACKAGE_NAME)/
