@@ -1,0 +1,11 @@
+name: Continuous integration
+on:
+  push:
+    branches-ignore:
+      - "main"
+  pull_request:
+
+env:
+  FLIT_ROOT_INSTALL: 1
+
+jobs:
