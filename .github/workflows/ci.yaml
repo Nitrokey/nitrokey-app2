@@ -9,3 +9,20 @@ env:
   FLIT_ROOT_INSTALL: 1
 
 jobs:
+  format-code:
+    name: Check code format
+    runs-on: ubuntu-latest
+    container: python:3.9-slim
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install required packages
+        run: |
+          apt update
+          apt install make
+      - name: Create virtual environment
+        run: make init
+      - name: Check code format
+        run: |
+          . venv/bin/activate
+          make check-format

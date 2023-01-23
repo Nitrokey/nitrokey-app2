@@ -4,6 +4,8 @@ PACKAGE_NAME=nitropyapp
 VENV=venv
 PYTHON3=python3
 
+BLACK_FLAGS=-t py39
+
 # setup environment
 init: update-venv
 
@@ -26,3 +28,7 @@ clean: semi-clean
 
 build:
 	$(VENV)/bin/python3 -m flit build
+
+# code checks
+check-format:
+	python3 -m black $(BLACK_FLAGS) --check $(PACKAGE_NAME)/
