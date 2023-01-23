@@ -1,5 +1,0 @@
-pyqt5-stubs
-flit
-pyudev
-pynitrokey==0.4.32
-pywin32==305; sys_platform == 'win32'

@@ -1,31 +1,45 @@
 [build-system]
-requires = ["flit"]
-build-backend = "flit.buildapi"
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
 
-[tool.flit.metadata]
-module = "nitropyapp"
-dist-name = "nitropyapp"
-author = "Nitrokey - Markus Meissner"
-author-email = "pypi@nitrokey.com"
-home-page = "https://github.com/daringer/nitropy-app"
-requires-python = ">=3.6"
-description-file = "README.md"
-requires = [
-  "pynitrokey",
-  "pyqt5",
-	"pyqt5-stubs",
+[project]
+name = "nitropyapp"
+description = "Graphical application to manage Nitrokey devices"
+readme = "README.md"
+authors = [
+  { name = "Nitrokey", email = "pypi@nitrokey.com" },
 ]
-
+requires-python = ">=3.9"
 classifiers=[
-    "License :: OSI Approved :: MIT License",
-    "License :: OSI Approved :: Apache Software License",
-    "Intended Audience :: Developers",
-    "Intended Audience :: End Users/Desktop",
-    "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
+  "License :: OSI Approved :: Apache Software License",
+  "Intended Audience :: Developers",
+  "Intended Audience :: End Users/Desktop",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
 ]
 
-[tool.flit.scripts]
-nitropy-app = "nitropyapp.gui:main"
+dependencies = [
+  "pyqt5",
+  "pyqt5-stubs",
+  "pyudev",
+  "pynitrokey ==0.4.32",
+  "pywin32 ==305; sys_platform =='win32'",
+]
+dynamic = ["version"]
 
+[project.optional-dependencies]
+dev = [
+  "black >=22.1.0,<23",
+  "flake8",
+  "flit >= 3.2,<4",
+  "isort",
+  "mypy >=0.900,<0.990",
+]
+
+[project.urls]
+Source = "https://github.com/Nitrokey/nitrokey-app2"
+
+[project.scripts]
+nitropyapp = "nitropyapp:main"
