@@ -1,20 +1,11 @@
 .PHONY: clean 
 
-PACKAGE_NAME=nitropy-app
+PACKAGE_NAME=nitropyapp
 VENV=venv
 PYTHON3=python3
 
+# setup environment
 init: update-venv
-
-semi-clean:
-	rm -rf **/__pycache__
-
-build:
-	$(VENV)/bin/python3 -m flit build
-
-clean: semi-clean
-	rm -rf $(VENV)
-	rm -rf dist
 
 update-venv: $(VENV)
 	$(VENV)/bin/python3 -m pip install -U pip
@@ -24,3 +15,14 @@ update-venv: $(VENV)
 $(VENV):
 	$(PYTHON3) -m venv $(VENV)
 	$(VENV)/bin/python3 -m pip install -U pip
+
+# clean environment
+semi-clean:
+	rm -rf **/__pycache__
+
+clean: semi-clean
+	rm -rf $(VENV)
+	rm -rf .mypy_cache
+
+build:
+	$(VENV)/bin/python3 -m flit build
