@@ -36,3 +36,6 @@ check-format:
 
 check-import-sorting:
 	python3 -m isort $(ISORT_FLAGS) --check-only $(PACKAGE_NAME)/
+
+check-style:
+	python3 -m flake8 $(PACKAGE_NAME)/
