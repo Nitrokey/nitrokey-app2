@@ -5,6 +5,7 @@ VENV=venv
 PYTHON3=python3
 
 BLACK_FLAGS=-t py39
+ISORT_FLAGS=--py 39
 
 # setup environment
 init: update-venv
@@ -32,3 +33,6 @@ build:
 # code checks
 check-format:
 	python3 -m black $(BLACK_FLAGS) --check $(PACKAGE_NAME)/
+
+check-import-sorting:
+	python3 -m isort $(ISORT_FLAGS) --check-only $(PACKAGE_NAME)/
