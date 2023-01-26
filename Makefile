@@ -1,26 +1,44 @@
 .PHONY: clean 
 
-PACKAGE_NAME=nitropy-app
+PACKAGE_NAME=nitropyapp
 VENV=venv
-PYTHON3=python3
+PYTHON=python3
 
+BLACK_FLAGS=-t py39
+ISORT_FLAGS=--py 39
+
+# setup environment
 init: update-venv
 
+update-venv: $(VENV)
+	$(VENV)/bin/$(PYTHON) -m pip install -U pip
+	$(VENV)/bin/$(PYTHON) -m pip install flit
+	$(VENV)/bin/$(PYTHON) -m flit install --symlink
+
+$(VENV):
+	$(PYTHON) -m venv $(VENV)
+	$(VENV)/bin/$(PYTHON) -m pip install -U pip
+
+# clean environment
 semi-clean:
 	rm -rf **/__pycache__
 
-build:
-	$(VENV)/bin/python3 -m flit build
-
 clean: semi-clean
 	rm -rf $(VENV)
-	rm -rf dist
+	rm -rf .mypy_cache
 
-update-venv: $(VENV)
-	$(VENV)/bin/python3 -m pip install -U pip
-	$(VENV)/bin/python3 -m pip install flit
-	$(VENV)/bin/python3 -m flit install --symlink
+build:
+	$(VENV)/bin/$(PYTHON) -m flit build
 
-$(VENV):
-	$(PYTHON3) -m venv $(VENV)
-	$(VENV)/bin/python3 -m pip install -U pip
+# code checks
+check-format:
+	$(PYTHON) -m black $(BLACK_FLAGS) --check $(PACKAGE_NAME)/
+
+check-import-sorting:
+	$(PYTHON) -m isort $(ISORT_FLAGS) --check-only $(PACKAGE_NAME)/
+
+check-style:
+	$(PYTHON) -m flake8 $(PACKAGE_NAME)/
+
+check-typing:
+	$(PYTHON) -m mypy $(PACKAGE_NAME)/
