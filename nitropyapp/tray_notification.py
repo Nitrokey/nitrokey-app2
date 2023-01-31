@@ -1,6 +1,6 @@
 
 from PyQt5 import QtWidgets
-from PyQt5.Qt import QIcon
+from PyQt5.QtGui import QIcon
 class TrayNotification(QtWidgets.QSystemTrayIcon):
     def __init__(self, tool_tip, message, message2):
         ## os notification

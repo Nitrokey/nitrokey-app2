@@ -1,6 +1,5 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSlot, QTimer
-from PyQt5.Qt import QApplication
 
 class EditButtonsWidget(QtWidgets.QWidget):
     def __init__(self, table, pop_up_copy, res, parent=None):
@@ -24,7 +23,7 @@ class EditButtonsWidget(QtWidgets.QWidget):
     def copy_to_clipboard_function(self):
         buttons_index = self.table_pws.indexAt(self.pos())
         item = self.table_pws.item(buttons_index.row(), buttons_index.column()+3)
-        QApplication.clipboard().setText(item.text())
+        QtWidgets.QApplication.clipboard().setText(item.text())
             # qtimer popup
         self.time_to_wait = 5
         self.pop_up_copy.setText("Data added to clipboard.") #{0} for time display
