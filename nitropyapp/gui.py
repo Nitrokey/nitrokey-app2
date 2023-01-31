@@ -12,7 +12,7 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
 # Nitrokey 3
 from pynitrokey.nk3 import list as list_nk3
 # import wizards and stuff
-from setup_wizard import SetupWizard
+from nitropyapp.setup_wizard import SetupWizard
 from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitropyapp.about_dialog import AboutDialog
 from nitropyapp.key_generation import KeyGeneration
