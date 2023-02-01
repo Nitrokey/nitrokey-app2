@@ -1,8 +1,6 @@
-
 from typing import List, Optional, Tuple, Type, TypeVar
-from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets, uic, QtGui
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTextStream, QTimer, QSortFilterProxyModel, QSize, QRect
-from PyQt5.Qt import QApplication, QClipboard, QLabel, QMovie, QIcon, QProgressBar,QProgressDialog, QMessageBox
 
 class QtUtilsMixIn:
     # singleton backend-thread
@@ -27,8 +25,6 @@ class QtUtilsMixIn:
         """
         for res_slot in res_slots:
             signal.connect(res_slot)
-            print(signal)
-            print(res_slot)
         _func = lambda: cls.backend_thread.add_job(signal, func, *va, **kw)
         return slot.connect(_func)
 
@@ -72,13 +68,13 @@ class QtUtilsMixIn:
 	# Find out if the state is on or off
         gbState = expand_button.isChecked()
         if not gbState:
-            expand_button.setIcon(QIcon(":/images/new/right_arrow.png"))
+            expand_button.setIcon(QtGui.QIcon(":/images/new/right_arrow.png"))
             gBox.setFixedHeight(15)
                 # Set window Height
             #self.setFixedHeight(self.sizeHint().height())
 
         else:
-            expand_button.setIcon(QIcon(":/images/new/down_arrow.png"))
+            expand_button.setIcon(QtGui.QIcon(":/images/new/down_arrow.png"))
             oSize = gBox.sizeHint()
             gBox.setFixedHeight(oSize.height())
                 # Set window Height

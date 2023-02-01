@@ -11,11 +11,11 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
 
     # set stylesheet
-    file = QFile(":/light.qss")
-    file.open(QFile.ReadOnly | QFile.Text)
+    #file = QFile(":/light.qss")
+    #file.open(QFile.ReadOnly | QFile.Text)
     #stream = QTextStream(file)
     #app.setStyleSheet(stream.readAll())
-    GUI(app)
+    window=GUI(app)
     app.exec()
 
 main()

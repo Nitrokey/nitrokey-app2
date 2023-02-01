@@ -1,5 +1,8 @@
+import logging
 ##### windows usb monitoring 
 # https://stackoverflow.com/questions/62601721/usb-hotplugging-callbacks-with-python-on-windows
+
+logger = logging.getLogger(__name__)
 
 class WindowsUSBNotification():
     from ctypes import Structure, c_ulong, c_ushort
@@ -44,10 +47,10 @@ class WindowsUSBNotification():
         dev_broadcast_hdr = self.DEV_BROADCAST_HDR.from_address(lparam)
 
         if wparam == self.DBT_DEVICEARRIVAL:
-            print("Something's arrived")
+            logger.info("Something's arrived")
             self.detect_nk3()
         if wparam == self.DBT_DEVICEREMOVECOMPLETE:
-            print("Something's removed")
+            logger.info("Something's removed")
             self.remove_nk3()
             #self.tray.show() 
             #self.tray.setToolTip("Nitrokey 3")

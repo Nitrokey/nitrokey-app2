@@ -8,8 +8,6 @@ def table_pws_function(self):
     item4  = self.table_pws.item(index.row(), index.column()+4)
     item5  = self.table_pws.item(index.row(), index.column()+5)
 
-    print(index.row(), index.column())
-    print(item.text())
     self.scrollArea.show()
     self.information_label.show()
     self.pws_editslotname.setText(item.text())
@@ -53,22 +51,16 @@ def add_table_pws(self):
     secret = qline4
     idx = row
     who = "totp"
-    print(type(secret))
-    print(type(idx))
-    print(type(name))
     # @fixme: what are the secret allowed lengths/chars
     #if len(secret)
-    print(row)
 
     ret = self.device.TOTP.write(idx, name, qline4)
     if not ret.ok:
         self.msg(f"failed writing to {who.upper()} slot #{idx+1} err: {ret.name}")
-        print("ret not ok")
     else:
         self.msg(f"wrote {who.upper()} slot #{idx+1}")
         self.otp_secret.clear()
         self.slot_select_otp(idx)
-        print("ret ok")
 
     self.table_pws.setCellWidget(row , 0, (EditButtonsWidget(self.table_pws, self.pop_up_copy, res)))
     self.table_pws.setItem(row , 1, (QtWidgets.QTableWidgetItem(qline)))
@@ -84,7 +76,6 @@ def add_table_pws(self):
 ######################## adds the data existing of the key to the table
 def add_table_pws_from_key(self, x):
     row = self.table_pws.rowCount()
-    print(row)
     self.table_pws.insertRow(row)
     # self.table_pws.setItem(row , 0, (QtWidgets.QTableWidgetItem("Name")))
     # self.table_pws.setItem(row , 1, (QtWidgets.QTableWidgetItem("Username")))

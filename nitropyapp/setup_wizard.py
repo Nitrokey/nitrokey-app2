@@ -1,7 +1,6 @@
 from typing import List, Optional, Tuple, Type, TypeVar
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTextStream, QTimer, QSortFilterProxyModel, QSize, QRect
-from PyQt5.Qt import QApplication, QClipboard, QLabel, QMovie, QIcon, QProgressBar,QProgressDialog, QMessageBox
 
 from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
 
@@ -29,15 +28,11 @@ class SetupWizard(QtUtilsMixIn, QtWidgets.QWizard):
 
     def same_setup_wizard(self):
         if self.userpin_1.text() != self.userpin_2.text():
-            print(self.userpin_1.text())
-            print(self.userpin_2.text())
             self.button(QtWidgets.QWizard.NextButton).setEnabled(False)
         else:
             self.button(QtWidgets.QWizard.NextButton).setEnabled(True)
     def same_setup_wizard_2(self):
         if self.adminpin_1.text() != self.adminpin_2.text():
-            print(self.adminpin_1.text())
-            print(self.adminpin_2.text())
             self.button(QtWidgets.QWizard.FinishButton).setEnabled(False)
         else:
             self.button(QtWidgets.QWizard.FinishButton).setEnabled(True)

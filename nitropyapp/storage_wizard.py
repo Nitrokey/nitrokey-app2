@@ -1,6 +1,5 @@
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTextStream, QTimer, QSortFilterProxyModel, QSize, QRect
-from PyQt5.Qt import QApplication, QClipboard, QLabel, QMovie, QIcon, QProgressBar,QProgressDialog, QMessageBox
 # Nitrokey 2
 from pynitrokey import libnk as nk_api
 import nitropyapp.ui.breeze_resources
@@ -51,8 +50,6 @@ class Storage(QtUtilsMixIn, QtWidgets.QWizard):
     #### storage wizard
     def change_value(self, value):
         self.storage_blockspin.setValue(float(value))
-        print(self.storage_blockspin.value)
-        print(self.storage_slider.value)
     def change_value_2(self, value):
         self.storage_slider.setValue(float(value))
     @pyqtSlot()
@@ -64,7 +61,6 @@ class Storage(QtUtilsMixIn, QtWidgets.QWizard):
             self.storage_slider.setValue(float(self.storage_blockspin.value()))
             self.storage_slider.setSingleStep(300)
             self.storage_blockspin.setSingleStep(300)
-            print(float(self.storage_slider.value()))
 
     def swap_to_gb(self):
         if self.radio_gb.isChecked():
