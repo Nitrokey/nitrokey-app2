@@ -1,5 +1,5 @@
 from typing import List, Optional, Tuple, Type, TypeVar, Any, Iterator, Callable
-import platform
+from PyQt5 import QtWidgets
 import logging
 from contextlib import contextmanager
 
@@ -16,8 +16,6 @@ from pynitrokey.nk3.utils import Version
 from pynitrokey.updates import OverwriteError
 from pynitrokey.nk3.bootloader import Variant
 from pynitrokey.nk3.updates import Updater, UpdateUi
-
-from PyQt5.Qt import QMessageBox
 
 from nitropyapp.pynitrokey_for_gui import Nk3Context
 # tray icon
@@ -39,7 +37,6 @@ class UpdateGUI(UpdateUi):
     def update_qbar(self, n: int, total: int) -> None:
         value = self.bar.value()
         if (n*100//total) > value:
-            print((n*100//total))
             self.bar.setValue(((n)*100//total))
 
     def abort_downgrade(self, current: Version, image: Version) -> Exception:
@@ -49,61 +46,59 @@ class UpdateGUI(UpdateUi):
         )
 
     def confirm_download(self, current: Optional[Version], new: Version) -> None:
-        confirm_download_msgBox = QMessageBox()
-        confirm_download_msgBox.setIcon(QMessageBox.Information)
+        confirm_download_msgBox = QtWidgets.QMessageBox()
+        confirm_download_msgBox.setIcon(QtWidgets.QMessageBox.Information)
         confirm_download_msgBox.setText(f"Do you want to download the firmware version {new}?")
         confirm_download_msgBox.setWindowTitle("Nitrokey 3 Firmware Update")
-        confirm_download_msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        confirm_download_msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
         returnValue = confirm_download_msgBox.exec()
-        if returnValue == QMessageBox.Cancel:
-            print('Cancel clicked')
+        if returnValue == QtWidgets.QMessageBox.Cancel:
+            logger.info('Cancel clicked 1')
             logger.info("Firmware Download cancelled by user in the second dialog")
             raise self.abort("Update cancelled by user in the second dialog")
-        elif returnValue == QMessageBox.Ok:
-            print('OK clicked')
+        elif returnValue == QtWidgets.QMessageBox.Ok:
+            logger.info('OK clicked 1')
 
     def confirm_update(self, current: Optional[Version], new: Version) -> None:
-        confirm_update_msgBox = QMessageBox()
-        confirm_update_msgBox.setIcon(QMessageBox.Information)
+        confirm_update_msgBox = QtWidgets.QMessageBox()
+        confirm_update_msgBox.setIcon(QtWidgets.QMessageBox.Information)
         confirm_update_msgBox.setText("Please do not remove the Nitrokey 3 or insert any other Nitrokey 3 devices during the update. Doing so may damage the Nitrokey 3. Do you want to perform the firmware update now?")
         confirm_update_msgBox.setWindowTitle("Nitrokey 3 Firmware Update")
-        confirm_update_msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        confirm_update_msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
         returnValue = confirm_update_msgBox.exec()
-        if returnValue == QMessageBox.Cancel:
-            print('Cancel clicked')
+        if returnValue == QtWidgets.QMessageBox.Cancel:
+            logger.info('Cancel clicked 2')
             logger.info("Update cancelled by user in the third dialog")
             raise self.abort("Update cancelled by user in the third dialog")
-        elif returnValue == QMessageBox.Ok:
-            print('OK clicked')
+        elif returnValue == QtWidgets.QMessageBox.Ok:
+            logger.info('OK clicked 2')
             TrayNotification("Nitrokey 3", "Nitrokey 3 Firmware Update", "Please touch your Nitrokey 3 Device")
 
     def confirm_update_same_version(self, version: Version) -> None:
-        confirm_update_same_version_msgBox = QMessageBox()
-        confirm_update_same_version_msgBox.setIcon(QMessageBox.Information)
+        confirm_update_same_version_msgBox = QtWidgets.QMessageBox()
+        confirm_update_same_version_msgBox.setIcon(QtWidgets.QMessageBox.Information)
         confirm_update_same_version_msgBox.setText("The version of the firmware image is the same as on the device. Do you want to continue anyway?")
         confirm_update_same_version_msgBox.setWindowTitle("Nitrokey 3 Firmware Update")
-        confirm_update_same_version_msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        confirm_update_same_version_msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
         returnValue = confirm_update_same_version_msgBox.exec()
-        if returnValue == QMessageBox.Cancel:
-            print('Cancel clicked')
+        if returnValue == QtWidgets.QMessageBox.Cancel:
+            logger.info('Cancel clicked 3')
             logger.info("Update cancelled by user in the first dialog")
             #raise Abort()
             raise self.abort("Update cancelled by user in the first dialog")
-        elif returnValue == QMessageBox.Ok:
-            print('OK clicked')
+        elif returnValue == QtWidgets.QMessageBox.Ok:
+            logger.info('OK clicked 3')
 
     def request_repeated_update(self) -> Exception:
-        local_print(
+        logger.info(
             "Bootloader mode enabled. Please repeat this command to apply the update."
         )
         return Abort()
 
     def request_bootloader_confirmation(self) -> None:
-        local_print("")
-        local_print(
+        logger.info(
             "Please press the touch button to reboot the device into bootloader mode ..."
         )
-        local_print("")
 
     def prompt_variant(self) -> Variant:
         return Variant.from_str(prompt("Firmware image variant", type=VARIANT_CHOICE))
@@ -121,8 +116,8 @@ class UpdateGUI(UpdateUi):
     ) -> None:
         if not self._version_printed:
             current_str = str(current) if current else "[unknown]"
-            local_print(f"Current firmware version:  {current_str}")
-            local_print(f"Updated firmware version:  {new}")
+            logger.info(f"Current firmware version:  {current_str}")
+            logger.info(f"Updated firmware version:  {new}")
             self._version_printed = True
 
 

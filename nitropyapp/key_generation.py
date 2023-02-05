@@ -56,7 +56,6 @@ class KeyGeneration(QtUtilsMixIn, QtWidgets.QWizard):
             self.back_up_info.hide()
 
     def finish_show_hide_2(self):
-        print(self.confirm_path.text())
         if self.confirm_path.text():
             self.button(QtWidgets.QWizard.FinishButton).setEnabled(True)
 
