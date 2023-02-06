@@ -43,3 +43,10 @@ Source = "https://github.com/Nitrokey/nitrokey-app2"
 
 [project.scripts]
 nitropyapp = "nitropyapp:main"
+
+[tool.isort]
+py_version = "39"
+profile = "black"
+
+[tool.black]
+target-version = ["py39"]
