@@ -1,26 +1,7 @@
-from contextlib import contextmanager
-from typing import List, Optional, Tuple, Type, TypeVar, Any, Callable, Iterator
-import platform
 import logging
-
-# Nitrokey 3
-from pynitrokey.cli.exceptions import CliException
-from pynitrokey.helpers import Retries
-from pynitrokey.nk3.base import Nitrokey3Base
-from pynitrokey.nk3.exceptions import TimeoutException
-from pynitrokey.nk3.device import BootMode, Nitrokey3Device
-from pynitrokey.nk3 import list as list_nk3
-from pynitrokey.nk3 import open as open_nk3
-from pynitrokey.nk3.updates import Updater, UpdateUi, REPOSITORY, get_firmware_update
-from pynitrokey.nk3.utils import Version
-from pynitrokey.updates import OverwriteError
-from pynitrokey.nk3.bootloader import Variant
-from pynitrokey.nk3.bootloader import (
-    Nitrokey3Bootloader,
-    Variant,
-    detect_variant,
-    parse_firmware_image,
-)
+import platform
+from contextlib import contextmanager
+from typing import Any, Callable, Iterator, List, Optional, Tuple, Type, TypeVar
 
 # for fido2 (change pin)
 import pynitrokey.fido2 as nkfido2
@@ -32,6 +13,23 @@ from fido2.ctap1 import ApduError
 from fido2.ctap2 import Ctap2
 from fido2.ctap2.pin import ClientPin
 
+# Nitrokey 3
+from pynitrokey.cli.exceptions import CliException
+from pynitrokey.helpers import Retries
+from pynitrokey.nk3 import list as list_nk3
+from pynitrokey.nk3 import open as open_nk3
+from pynitrokey.nk3.base import Nitrokey3Base
+from pynitrokey.nk3.bootloader import (
+    Nitrokey3Bootloader,
+    Variant,
+    detect_variant,
+    parse_firmware_image,
+)
+from pynitrokey.nk3.device import BootMode, Nitrokey3Device
+from pynitrokey.nk3.exceptions import TimeoutException
+from pynitrokey.nk3.updates import REPOSITORY, Updater, UpdateUi, get_firmware_update
+from pynitrokey.nk3.utils import Version
+from pynitrokey.updates import OverwriteError
 from spsdk.mboot.exceptions import McuBootConnectionError
 
 # tray icon

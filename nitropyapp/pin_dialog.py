@@ -1,23 +1,24 @@
-from PyQt5 import QtWidgets, uic
-from PyQt5.QtCore import (
-    Qt,
-    QThread,
-    pyqtSignal,
-    pyqtSlot,
-    QObject,
-    QFile,
-    QTextStream,
-    QTimer,
-    QSortFilterProxyModel,
-    QSize,
-    QRect,
-)
-
 # Nitrokey 2
 from pynitrokey import libnk as nk_api
-from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
-import nitropyapp.ui.breeze_resources
+from PyQt5 import QtWidgets, uic
+from PyQt5.QtCore import (
+    QFile,
+    QObject,
+    QRect,
+    QSize,
+    QSortFilterProxyModel,
+    Qt,
+    QTextStream,
+    QThread,
+    QTimer,
+    pyqtSignal,
+    pyqtSlot,
+)
+
 import nitropyapp.gui_resources
+import nitropyapp.ui.breeze_resources
+from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
+
 
 ##### @fixme: PINDialog should be modal!
 class PINDialog(QtUtilsMixIn, QtWidgets.QDialog):

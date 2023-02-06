@@ -1,17 +1,18 @@
 from typing import List, Optional, Tuple, Type, TypeVar
+
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import (
+    QFile,
+    QObject,
+    QRect,
+    QSize,
+    QSortFilterProxyModel,
     Qt,
+    QTextStream,
     QThread,
+    QTimer,
     pyqtSignal,
     pyqtSlot,
-    QObject,
-    QFile,
-    QTextStream,
-    QTimer,
-    QSortFilterProxyModel,
-    QSize,
-    QRect,
 )
 
 from nitropyapp.qt_utils_mix_in import QtUtilsMixIn

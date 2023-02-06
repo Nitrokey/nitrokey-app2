@@ -1,21 +1,20 @@
-from typing import List, Optional, Tuple, Type, TypeVar, Any, Iterator, Callable
-from PyQt5 import QtWidgets
 import logging
 from contextlib import contextmanager
+from typing import Any, Callable, Iterator, List, Optional, Tuple, Type, TypeVar
 
 # Nitrokey 3
 from pynitrokey.cli.exceptions import CliException
-from pynitrokey.helpers import Retries, local_print, confirm
-from pynitrokey.nk3.base import Nitrokey3Base
-from pynitrokey.nk3.exceptions import TimeoutException
-from pynitrokey.nk3.device import BootMode, Nitrokey3Device
+from pynitrokey.helpers import Retries, confirm, local_print
 from pynitrokey.nk3 import list as list_nk3
 from pynitrokey.nk3 import open as open_nk3
+from pynitrokey.nk3.base import Nitrokey3Base
+from pynitrokey.nk3.bootloader import Variant
+from pynitrokey.nk3.device import BootMode, Nitrokey3Device
+from pynitrokey.nk3.exceptions import TimeoutException
 from pynitrokey.nk3.updates import Updater, UpdateUi
 from pynitrokey.nk3.utils import Version
 from pynitrokey.updates import OverwriteError
-from pynitrokey.nk3.bootloader import Variant
-from pynitrokey.nk3.updates import Updater, UpdateUi
+from PyQt5 import QtWidgets
 
 from nitropyapp.pynitrokey_for_gui import Nk3Context
 

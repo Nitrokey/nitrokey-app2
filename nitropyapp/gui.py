@@ -2,33 +2,34 @@
 # pip-run -> pyqt5
 # pip-dev -> pyqt5-stubs
 import functools
+import logging
 import platform
+import webbrowser
 from pathlib import Path
 from queue import Queue
-import webbrowser
-import logging
+
+# Nitrokey 3
+from pynitrokey.nk3 import list as list_nk3
 
 # pyqt5
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
 
-# Nitrokey 3
-from pynitrokey.nk3 import list as list_nk3
-
-# import wizards and stuff
-from nitropyapp.setup_wizard import SetupWizard
-from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitropyapp.about_dialog import AboutDialog
-from nitropyapp.key_generation import KeyGeneration
 from nitropyapp.change_pin_dialog import ChangePinDialog
-from nitropyapp.set_pin_dialog import SetPinDialog
+from nitropyapp.insert_nitrokey import InsertNitrokey
+from nitropyapp.key_generation import KeyGeneration
+from nitropyapp.nk3_button import Nk3Button
 
 # from nitropyapp.loading_screen import LoadingScreen
 from nitropyapp.pin_dialog import PINDialog
-from nitropyapp.insert_nitrokey import InsertNitrokey
-from nitropyapp.windows_notification import WindowsUSBNotification
+from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
+from nitropyapp.set_pin_dialog import SetPinDialog
+
+# import wizards and stuff
+from nitropyapp.setup_wizard import SetupWizard
 from nitropyapp.tray_notification import TrayNotification
-from nitropyapp.nk3_button import Nk3Button
+from nitropyapp.windows_notification import WindowsUSBNotification
 
 # import nitropyapp.ui.breeze_resources
 # pyrcc5 -o gui_resources.py ui/resourcces.qrc

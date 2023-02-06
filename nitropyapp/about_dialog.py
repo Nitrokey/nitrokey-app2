@@ -1,4 +1,5 @@
 from PyQt5 import QtWidgets
+
 from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
 
 

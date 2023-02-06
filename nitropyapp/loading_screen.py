@@ -1,21 +1,21 @@
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import (
+    QFile,
+    QObject,
+    QRect,
+    QSize,
+    QSortFilterProxyModel,
     Qt,
+    QTextStream,
     QThread,
+    QTimer,
     pyqtSignal,
     pyqtSlot,
-    QObject,
-    QFile,
-    QTextStream,
-    QTimer,
-    QSortFilterProxyModel,
-    QSize,
-    QRect,
 )
-import nitropyapp.ui.breeze_resources
 
 # pyrcc5 -o gui_resources.py ui/resources.qrc
 import nitropyapp.gui_resources
+import nitropyapp.ui.breeze_resources
 
 
 class LoadingScreen(QtWidgets.QWidget):

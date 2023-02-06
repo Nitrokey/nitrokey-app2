@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import pyqtSlot, QTimer
+from PyQt5.QtCore import QTimer, pyqtSlot
 
 
 class EditButtonsWidget(QtWidgets.QWidget):
