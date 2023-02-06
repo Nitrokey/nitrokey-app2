@@ -43,3 +43,6 @@ Source = "https://github.com/Nitrokey/nitrokey-app2"
 
 [project.scripts]
 nitropyapp = "nitropyapp:main"
+
+[tool.isort]
+profile = "black"
