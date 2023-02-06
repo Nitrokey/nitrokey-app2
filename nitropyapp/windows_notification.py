@@ -1,16 +1,19 @@
 import logging
-##### windows usb monitoring 
+
+##### windows usb monitoring
 # https://stackoverflow.com/questions/62601721/usb-hotplugging-callbacks-with-python-on-windows
 
 logger = logging.getLogger(__name__)
 
-class WindowsUSBNotification():
+
+class WindowsUSBNotification:
     from ctypes import Structure, c_ulong, c_ushort
+
     DBT_DEVICEARRIVAL = 0x8000
     DBT_DEVICEREMOVECOMPLETE = 0x8004
     WORD = c_ushort
     DWORD = c_ulong
-    
+
     def __init__(self, detect_nk3, remove_nk3):
         # https://stackoverflow.com/questions/62601721/usb-hotplugging-callbacks-with-python-on-windows
         # windows
@@ -18,11 +21,9 @@ class WindowsUSBNotification():
         import win32con
         import win32gui
 
-        self.detect_nk3 =detect_nk3
-        self.remove_nk3 =remove_nk3
-        message_map = {
-            win32con.WM_DEVICECHANGE: self.onDeviceChange
-        }
+        self.detect_nk3 = detect_nk3
+        self.remove_nk3 = remove_nk3
+        message_map = {win32con.WM_DEVICECHANGE: self.onDeviceChange}
 
         wc = win32gui.WNDCLASS()
         hinst = wc.hInstance = win32api.GetModuleHandle(None)
@@ -37,12 +38,16 @@ class WindowsUSBNotification():
             classAtom,
             "Device Change Demo",
             style,
-            0, 0,
-            win32con.CW_USEDEFAULT, win32con.CW_USEDEFAULT,
-            0, 0,
-            hinst, None
+            0,
+            0,
+            win32con.CW_USEDEFAULT,
+            win32con.CW_USEDEFAULT,
+            0,
+            0,
+            hinst,
+            None,
         )
-       
+
     def onDeviceChange(self, hwnd, msg, wparam, lparam):
         dev_broadcast_hdr = self.DEV_BROADCAST_HDR.from_address(lparam)
 
@@ -52,28 +57,30 @@ class WindowsUSBNotification():
         if wparam == self.DBT_DEVICEREMOVECOMPLETE:
             logger.info("Something's removed")
             self.remove_nk3()
-            #self.tray.show() 
-            #self.tray.setToolTip("Nitrokey 3")
-            #self.tray.showMessage("Nitrokey 3 connected!!!","Nitrokey 3 connected!!!!")
+            # self.tray.show()
+            # self.tray.setToolTip("Nitrokey 3")
+            # self.tray.showMessage("Nitrokey 3 connected!!!","Nitrokey 3 connected!!!!")
 
     class DEV_BROADCAST_HDR(Structure):
         from ctypes import c_ulong, c_ushort
+
         WORD = c_ushort
         DWORD = c_ulong
         _fields_ = [
             ("dbch_size", DWORD),
             ("dbch_devicetype", DWORD),
-            ("dbch_reserved", DWORD)
+            ("dbch_reserved", DWORD),
         ]
 
-    class DEV_BROADCAST_VOLUME(Structure):   
+    class DEV_BROADCAST_VOLUME(Structure):
         from ctypes import c_ulong, c_ushort
+
         WORD = c_ushort
-        DWORD = c_ulong   
+        DWORD = c_ulong
         _fields_ = [
             ("dbcv_size", DWORD),
             ("dbcv_devicetype", DWORD),
             ("dbcv_reserved", DWORD),
             ("dbcv_unitmask", DWORD),
-            ("dbcv_flags", WORD)
+            ("dbcv_flags", WORD),
         ]

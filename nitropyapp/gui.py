@@ -7,11 +7,14 @@ from pathlib import Path
 from queue import Queue
 import webbrowser
 import logging
+
 # pyqt5
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
+
 # Nitrokey 3
 from pynitrokey.nk3 import list as list_nk3
+
 # import wizards and stuff
 from nitropyapp.setup_wizard import SetupWizard
 from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
@@ -19,15 +22,18 @@ from nitropyapp.about_dialog import AboutDialog
 from nitropyapp.key_generation import KeyGeneration
 from nitropyapp.change_pin_dialog import ChangePinDialog
 from nitropyapp.set_pin_dialog import SetPinDialog
-#from nitropyapp.loading_screen import LoadingScreen
+
+# from nitropyapp.loading_screen import LoadingScreen
 from nitropyapp.pin_dialog import PINDialog
 from nitropyapp.insert_nitrokey import InsertNitrokey
 from nitropyapp.windows_notification import WindowsUSBNotification
 from nitropyapp.tray_notification import TrayNotification
 from nitropyapp.nk3_button import Nk3Button
-#import nitropyapp.ui.breeze_resources
-#pyrcc5 -o gui_resources.py ui/resourcces.qrc
-#import nitropyapp.gui_resources
+
+# import nitropyapp.ui.breeze_resources
+# pyrcc5 -o gui_resources.py ui/resourcces.qrc
+# import nitropyapp.gui_resources
+
 
 class BackendThread(QThread):
     hello = pyqtSignal()
@@ -60,6 +66,7 @@ class BackendThread(QThread):
             res = func(*vargs, **kwargs)
             signal.emit(res or {})
 
+
 ########################################################################################
 ########################################################################################
 ########################################################################################
@@ -77,10 +84,10 @@ class BackendThread(QThread):
 
 
 # Import .ui forms for the GUI using function resource_path()
-#securitySearchForm = resource_path("securitySearchForm.ui")
-#popboxForm = resource_path("popbox.ui")
+# securitySearchForm = resource_path("securitySearchForm.ui")
+# popboxForm = resource_path("popbox.ui")
 
-#pyrcc4 -py3 resources.qrc -o resources_rc.py
+# pyrcc4 -py3 resources.qrc -o resources_rc.py
 ########################################################################################
 ########################################################################################
 ########################################################################################
@@ -90,22 +97,23 @@ logger = logging.getLogger(__name__)
 
 #### PWS related callbacks
 
-class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
+class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def __init__(self, qt_app: QtWidgets.QApplication):
         QtWidgets.QMainWindow.__init__(self)
         QtUtilsMixIn.__init__(self)
         self.backend_thread.hello.connect(self.backend_cb_hello)
         self.backend_thread.start()
         # linux
-        if  platform.system() == "Linux":
+        if platform.system() == "Linux":
             # pyudev stuff
             import pyudev
             from pyudev.pyqt5 import MonitorObserver
+
             # start monitoring usb
             self.context = pyudev.Context()
             self.monitor = pyudev.Monitor.from_netlink(self.context)
-            self.monitor.filter_by(subsystem='usb')
+            self.monitor.filter_by(subsystem="usb")
             self.observer = MonitorObserver(self.monitor)
             self.observer.deviceEvent.connect(self.device_connect)
             self.monitor.start()
@@ -119,7 +127,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         ui_dir = Path(__file__).parent.resolve().absolute() / "ui"
         ui_files = {
             "main": (ui_dir / "mainwindow_alternative.ui").as_posix(),
-            "pin": (ui_dir / "pindialog.ui").as_posix()
+            "pin": (ui_dir / "pindialog.ui").as_posix(),
         }
 
         self.load_ui(ui_files["main"], self)
@@ -144,11 +152,15 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.setup_wizard.init_setup()
 
         self.insert_nitrokey = InsertNitrokey(qt_app)
-        self.insert_nitrokey.load_ui(ui_dir / "insert_Nitrokey.ui", self.insert_nitrokey)
+        self.insert_nitrokey.load_ui(
+            ui_dir / "insert_Nitrokey.ui", self.insert_nitrokey
+        )
         self.insert_nitrokey.init_insertNitrokey()
 
         self.change_pin_dialog = ChangePinDialog(qt_app)
-        self.change_pin_dialog.load_ui(ui_dir / "change_pin_dialog.ui", self.change_pin_dialog)
+        self.change_pin_dialog.load_ui(
+            ui_dir / "change_pin_dialog.ui", self.change_pin_dialog
+        )
         self.change_pin_dialog.init_change_pin()
 
         self.set_pin_dialog = SetPinDialog(qt_app)
@@ -178,7 +190,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.navigation_frame = _get(_qt.QFrame, "vertical_navigation")
         self.nitrokeys_window = _get(_qt.QScrollArea, "Nitrokeys")
         self.layout_nk_btns = QtWidgets.QVBoxLayout()
-        self.layout_nk_btns.setContentsMargins(0,0,0,0)
+        self.layout_nk_btns.setContentsMargins(0, 0, 0, 0)
         self.layout_nk_btns.setSpacing(0)
         self.layout_nk_btns.setAlignment(Qt.AlignTop)
         ### nk3 frame
@@ -202,14 +214,17 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         ################################################################################
         ######nk3
-        self.help_btn.clicked.connect(lambda:webbrowser.open('https://docs.nitrokey.com/nitrokey3'))
+        self.help_btn.clicked.connect(
+            lambda: webbrowser.open("https://docs.nitrokey.com/nitrokey3")
+        )
         self.lock_btn.clicked.connect(self.slot_lock_button_pressed)
         self.about_button.clicked.connect(self.about_button_pressed)
-        #self.settings_btn.clicked.connect()
+        # self.settings_btn.clicked.connect()
         ################################################################################
         #### connections for functional signals
         ## generic / global
         ## overview
+
     ### experimental idea to differ between removed and added
     def device_connect(self):
         for dvc in iter(functools.partial(self.monitor.poll, 3), None):
@@ -225,25 +240,43 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             list_of_added = [y.uuid for y in Nk3Button.get()]
             logger.info("list of added:", list_of_added)
             for device in list_nk3():
-                if  device.uuid() not in list_of_added:
+                if device.uuid() not in list_of_added:
                     self.device = device
                     uuid = self.device.uuid()
                     if uuid:
-                        logger.info(f"{self.device.path}: {self.device.name} {self.device.uuid()}")
+                        logger.info(
+                            f"{self.device.path}: {self.device.name} {self.device.uuid()}"
+                        )
                     else:
                         logger.info(f"{self.device.path}: {self.device.name}")
                         logger.info("no uuid")
-                    Nk3Button(self.device, self.nitrokeys_window, self.layout_nk_btns,
-                    self.nitrokey3_frame, self.nk3_lineedit_uuid, self.nk3_lineedit_path,
-                    self.nk3_lineedit_version, self.tabs, self.update_nk3_btn,
-                    self.progressbarupdate, self.change_pin_open_dialog, self.set_pin_open_dialog, 
-                    self.change_pin_dialog, self.set_pin_dialog, self.buttonlayout_nk3)
-                    TrayNotification("Nitrokey 3", "Nitrokey 3 connected.","Nitrokey 3 connected.")
+                    Nk3Button(
+                        self.device,
+                        self.nitrokeys_window,
+                        self.layout_nk_btns,
+                        self.nitrokey3_frame,
+                        self.nk3_lineedit_uuid,
+                        self.nk3_lineedit_path,
+                        self.nk3_lineedit_version,
+                        self.tabs,
+                        self.update_nk3_btn,
+                        self.progressbarupdate,
+                        self.change_pin_open_dialog,
+                        self.set_pin_open_dialog,
+                        self.change_pin_dialog,
+                        self.set_pin_dialog,
+                        self.buttonlayout_nk3,
+                    )
+                    TrayNotification(
+                        "Nitrokey 3", "Nitrokey 3 connected.", "Nitrokey 3 connected."
+                    )
                     self.device = None
                     logger.info("nk3 connected")
                     self.l_insert_nitrokey.hide()
                 else:
-                    nk3_btn_same_uuid = [y for y in Nk3Button.get() if y.uuid == device.uuid()]
+                    nk3_btn_same_uuid = [
+                        y for y in Nk3Button.get() if y.uuid == device.uuid()
+                    ]
                     for i in nk3_btn_same_uuid:
                         if device.path != i.path:
                             i.update(device)
@@ -255,16 +288,17 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         if len(list_nk3()):
             logger.info("list nk3:", list_nk3())
             list_of_nk3s = [x.uuid() for x in list_nk3()]
-            list_of_removed_help = [y for y in Nk3Button.get() if y.uuid not in list_of_nk3s]
+            list_of_removed_help = [
+                y for y in Nk3Button.get() if y.uuid not in list_of_nk3s
+            ]
             list_of_removed = list_of_removed + list_of_removed_help
         else:
             list_of_removed = list_of_removed + Nk3Button.get()
         for k in list_of_removed:
             k.__del__()
             logger.info("nk3 instance removed")
-            
 
-    def show_only_this_tab(self,tab):
+    def show_only_this_tab(self, tab):
         for idx in range(self.tabs.count()):
             self.tabs.setTabEnabled(idx, False)
             self.tabs.setTabVisible(idx, False)
@@ -296,10 +330,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     @pyqtSlot()
     def change_pin_open_dialog(self):
         self.change_pin_dialog.show()
+
     @pyqtSlot()
     def set_pin_open_dialog(self):
         self.set_pin_dialog.show()
-    
 
     @pyqtSlot()
     def slot_lock_button_pressed(self):
@@ -307,4 +341,3 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         logger.info("nk3 instance removed (lock button)")
         for x in Nk3Button.get():
             x.__del__()
-            

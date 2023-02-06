@@ -16,7 +16,9 @@ class Ui_ChangePinDialog(object):
         ChangePinDialog.setObjectName("ChangePinDialog")
         ChangePinDialog.setWindowModality(QtCore.Qt.WindowModal)
         ChangePinDialog.resize(388, 211)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(ChangePinDialog.sizePolicy().hasHeightForWidth())
@@ -42,14 +44,16 @@ class Ui_ChangePinDialog(object):
         self.verticalLayout.addLayout(self.gridLayout)
         self.buttonBox = QtWidgets.QDialogButtonBox(ChangePinDialog)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        self.buttonBox.setStandardButtons(
+            QtWidgets.QDialogButtonBox.Cancel | QtWidgets.QDialogButtonBox.Ok
+        )
         self.buttonBox.setObjectName("buttonBox")
         self.verticalLayout.addWidget(self.buttonBox)
         self.verticalLayout_2.addLayout(self.verticalLayout)
 
         self.retranslateUi(ChangePinDialog)
-        self.buttonBox.accepted.connect(ChangePinDialog.accept) # type: ignore
-        self.buttonBox.rejected.connect(ChangePinDialog.reject) # type: ignore
+        self.buttonBox.accepted.connect(ChangePinDialog.accept)  # type: ignore
+        self.buttonBox.rejected.connect(ChangePinDialog.reject)  # type: ignore
         QtCore.QMetaObject.connectSlotsByName(ChangePinDialog)
 
     def retranslateUi(self, ChangePinDialog):

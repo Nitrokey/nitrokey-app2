@@ -1,6 +1,19 @@
 from typing import List, Optional, Tuple, Type, TypeVar
 from PyQt5 import QtWidgets, uic, QtGui
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTextStream, QTimer, QSortFilterProxyModel, QSize, QRect
+from PyQt5.QtCore import (
+    Qt,
+    QThread,
+    pyqtSignal,
+    pyqtSlot,
+    QObject,
+    QFile,
+    QTextStream,
+    QTimer,
+    QSortFilterProxyModel,
+    QSize,
+    QRect,
+)
+
 
 class QtUtilsMixIn:
     # singleton backend-thread
@@ -30,8 +43,10 @@ class QtUtilsMixIn:
 
     def user_warn(self, msg, title=None, parent=None):
         QtWidgets.QMessageBox.warning(parent or self, title or msg, msg)
+
     def user_info(self, msg, title=None, parent=None):
         QtWidgets.QMessageBox.information(parent or self, title or msg, msg)
+
     def user_err(self, msg, title=None, parent=None):
         QtWidgets.QMessageBox.critical(parent or self, title or msg, msg)
 
@@ -65,20 +80,21 @@ class QtUtilsMixIn:
         return True
 
     def collapse(self, gBox, expand_button):
-	# Find out if the state is on or off
+        # Find out if the state is on or off
         gbState = expand_button.isChecked()
         if not gbState:
             expand_button.setIcon(QtGui.QIcon(":/images/new/right_arrow.png"))
             gBox.setFixedHeight(15)
-                # Set window Height
-            #self.setFixedHeight(self.sizeHint().height())
+            # Set window Height
+            # self.setFixedHeight(self.sizeHint().height())
 
         else:
             expand_button.setIcon(QtGui.QIcon(":/images/new/down_arrow.png"))
             oSize = gBox.sizeHint()
             gBox.setFixedHeight(oSize.height())
-                # Set window Height
-            #self.setFixedHeight(self.sizeHint().height())
+            # Set window Height
+            # self.setFixedHeight(self.sizeHint().height())
+
     # https://groups.google.com/g/python_inside_maya/c/Y6r8o9zpWfU
     # def set_layout_visible(self, cls, obj_name, visible=True):
     #     to_hide = [(cls, obj_name)]
@@ -94,4 +110,3 @@ class QtUtilsMixIn:
     #         else:
     #             widget.setVisible(visible)
     #         cur = to_hide.pop(0)
-

@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSlot
 from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
 
+
 class KeyGeneration(QtUtilsMixIn, QtWidgets.QWizard):
     def __init__(self, qt_app: QtWidgets.QApplication):
         QtWidgets.QWizard.__init__(self)
@@ -11,10 +12,14 @@ class KeyGeneration(QtUtilsMixIn, QtWidgets.QWizard):
 
     def init_keygen(self):
         ## dialogs
-        self.adsettings_button = self.get_widget(QtWidgets.QPushButton, "pushButton_wiz")
+        self.adsettings_button = self.get_widget(
+            QtWidgets.QPushButton, "pushButton_wiz"
+        )
         self.adsettings = self.get_widget(QtWidgets.QWidget, "adsettings_key")
 
-        self.wizard_page_userinfo = self.get_widget(QtWidgets.QWizardPage, "wizardPage1")
+        self.wizard_page_userinfo = self.get_widget(
+            QtWidgets.QWizardPage, "wizardPage1"
+        )
 
         self.placeholder_path = self.get_widget(QtWidgets.QLineEdit, "lineEdit")
         self.placeholder_path.setPlaceholderText("Path")
@@ -28,7 +33,9 @@ class KeyGeneration(QtUtilsMixIn, QtWidgets.QWizard):
         self.wizard_page_userinfo.registerField("real_name*", self.real_name)
 
         self.email = self.get_widget(QtWidgets.QLineEdit, "lineEdit_3")
-        self.wizard_page_userinfo.comment_line = self.get_widget(QtWidgets.QLineEdit, "lineEdit_4")
+        self.wizard_page_userinfo.comment_line = self.get_widget(
+            QtWidgets.QLineEdit, "lineEdit_4"
+        )
         self.wizard_page_userinfo.registerField("email*", self.email)
 
         self.comment_line = self.get_widget(QtWidgets.QLineEdit, "lineEdit_4")
@@ -36,12 +43,13 @@ class KeyGeneration(QtUtilsMixIn, QtWidgets.QWizard):
 
         self.back_up_info = self.get_widget(QtWidgets.QLabel, "label_2")
         self.back_up_info.hide()
-         ## insert Nitrokey
+        ## insert Nitrokey
         self.adsettings_button.clicked.connect(self.adsettings_func)
         self.collapse(self.adsettings, self.adsettings_button)
         self.with_backup.toggled.connect(self.finish_show_hide)
         self.confirm_path.textChanged.connect(self.finish_show_hide_2)
-            #### insert Nitrokey
+        #### insert Nitrokey
+
     @pyqtSlot()
     def finish_show_hide(self):
         if self.with_backup.isChecked():
@@ -65,9 +73,10 @@ class KeyGeneration(QtUtilsMixIn, QtWidgets.QWizard):
     def loading(self):
         ## dialogs
         self.ok_insert = self.get_widget(QtWidgets.QPushButton, "pushButton_ok_insert")
-         ## insert Nitrokey
+        ## insert Nitrokey
         self.ok_insert.clicked.connect(self.ok_insert_btn)
-            #### insert Nitrokey
+        #### insert Nitrokey
+
     @pyqtSlot()
     def ok_insert_btn(self):
         self.hide()

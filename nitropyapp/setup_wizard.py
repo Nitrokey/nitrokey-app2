@@ -1,8 +1,21 @@
 from typing import List, Optional, Tuple, Type, TypeVar
 from PyQt5 import QtWidgets, uic
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTextStream, QTimer, QSortFilterProxyModel, QSize, QRect
+from PyQt5.QtCore import (
+    Qt,
+    QThread,
+    pyqtSignal,
+    pyqtSlot,
+    QObject,
+    QFile,
+    QTextStream,
+    QTimer,
+    QSortFilterProxyModel,
+    QSize,
+    QRect,
+)
 
 from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
+
 
 class SetupWizard(QtUtilsMixIn, QtWidgets.QWizard):
     def __init__(self, qt_app: QtWidgets.QApplication):
@@ -31,15 +44,21 @@ class SetupWizard(QtUtilsMixIn, QtWidgets.QWizard):
             self.button(QtWidgets.QWizard.NextButton).setEnabled(False)
         else:
             self.button(QtWidgets.QWizard.NextButton).setEnabled(True)
+
     def same_setup_wizard_2(self):
         if self.adminpin_1.text() != self.adminpin_2.text():
             self.button(QtWidgets.QWizard.FinishButton).setEnabled(False)
         else:
             self.button(QtWidgets.QWizard.FinishButton).setEnabled(True)
+
     def closeEvent(self, event):
-        reply = QtWidgets.QMessageBox.question(self, 'Message',
-            "Are you sure to exit?", QtWidgets.QMessageBox.Yes |
-            QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No)
+        reply = QtWidgets.QMessageBox.question(
+            self,
+            "Message",
+            "Are you sure to exit?",
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+            QtWidgets.QMessageBox.No,
+        )
 
         if reply == QtWidgets.QMessageBox.Yes:
             event.accept()
