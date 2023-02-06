@@ -1,10 +1,24 @@
-from PyQt5 import QtWidgets, uic
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QObject, QFile, QTextStream, QTimer, QSortFilterProxyModel, QSize, QRect
 # Nitrokey 2
 from pynitrokey import libnk as nk_api
-from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
-import nitropyapp.ui.breeze_resources
+from PyQt5 import QtWidgets, uic
+from PyQt5.QtCore import (
+    QFile,
+    QObject,
+    QRect,
+    QSize,
+    QSortFilterProxyModel,
+    Qt,
+    QTextStream,
+    QThread,
+    QTimer,
+    pyqtSignal,
+    pyqtSlot,
+)
+
 import nitropyapp.gui_resources
+import nitropyapp.ui.breeze_resources
+from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
+
 
 ##### @fixme: PINDialog should be modal!
 class PINDialog(QtUtilsMixIn, QtWidgets.QDialog):
@@ -49,8 +63,10 @@ class PINDialog(QtUtilsMixIn, QtWidgets.QDialog):
         self.tries_left = dct.get("retries", 0)
         who = dct.get("who")
         if self.tries_left == 0:
-            self.user_warn(f"Please reset the {who} pin counter before continuing",
-                           "No attempts left")
+            self.user_warn(
+                f"Please reset the {who} pin counter before continuing",
+                "No attempts left",
+            )
             self.reset()
             return
 
@@ -73,7 +89,9 @@ class PINDialog(QtUtilsMixIn, QtWidgets.QDialog):
         # @fixme: get len-range from libnk.py
         if len(pin) < 6 or len(pin) > 20:
             self.line_edit.selectAll()
-            self.user_warn("The pin requires to be 6-20 chars in length\n"
-                f"default: {def_pin}", "Invalid PIN")
+            self.user_warn(
+                "The pin requires to be 6-20 chars in length\n" f"default: {def_pin}",
+                "Invalid PIN",
+            )
         else:
             self.ok_signal.emit(self.opts, pin)

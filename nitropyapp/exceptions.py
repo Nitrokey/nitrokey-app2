@@ -1,3 +1,2 @@
-
-
-class BasePyNKException(Exception): pass
+class BasePyNKException(Exception):
+    pass

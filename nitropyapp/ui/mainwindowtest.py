@@ -15,14 +15,21 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(932, 854)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.MinimumExpanding,
+            QtWidgets.QSizePolicy.MinimumExpanding,
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
         MainWindow.setSizePolicy(sizePolicy)
         MainWindow.setMinimumSize(QtCore.QSize(0, 110))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/images/new/icon_NK.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(
+            QtGui.QPixmap(":/images/new/icon_NK.svg"),
+            QtGui.QIcon.Normal,
+            QtGui.QIcon.Off,
+        )
         MainWindow.setWindowIcon(icon)
         MainWindow.setAutoFillBackground(True)
         self.centralWidget = QtWidgets.QWidget(MainWindow)
@@ -32,7 +39,9 @@ class Ui_MainWindow(object):
         self.verticalLayout.setSpacing(6)
         self.verticalLayout.setObjectName("verticalLayout")
         self.label_8 = QtWidgets.QLabel(self.centralWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_8.sizePolicy().hasHeightForWidth())
@@ -54,21 +63,35 @@ class Ui_MainWindow(object):
         self.horizontalLayout_10.setContentsMargins(11, 11, 11, 11)
         self.horizontalLayout_10.setSpacing(6)
         self.horizontalLayout_10.setObjectName("horizontalLayout_10")
-        spacerItem = QtWidgets.QSpacerItem(40, 1, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(
+            40, 1, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.horizontalLayout_10.addItem(spacerItem)
         self.btn_dial_quit = QtWidgets.QPushButton(self.formFrame)
-        self.btn_dial_quit.setStyleSheet("#upLeft { background-color: transparent; border-image: url(:/images/new/icon_safe.svg); background: none; border: none; background-repeat: none; }")
+        self.btn_dial_quit.setStyleSheet(
+            "#upLeft { background-color: transparent; border-image: url(:/images/new/icon_safe.svg); background: none; border: none; background-repeat: none; }"
+        )
         self.btn_dial_quit.setText("")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(":/images/new/icon_quit.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon1.addPixmap(
+            QtGui.QPixmap(":/images/new/icon_quit.svg"),
+            QtGui.QIcon.Normal,
+            QtGui.QIcon.Off,
+        )
         self.btn_dial_quit.setIcon(icon1)
         self.btn_dial_quit.setObjectName("btn_dial_quit")
         self.horizontalLayout_10.addWidget(self.btn_dial_quit)
         self.btn_dial_lock = QtWidgets.QPushButton(self.formFrame)
-        self.btn_dial_lock.setStyleSheet("#upLeft { background-color: transparent; border-image: url(:/images/new/icon_safe.svg); background: none; border: none; background-repeat: none; }")
+        self.btn_dial_lock.setStyleSheet(
+            "#upLeft { background-color: transparent; border-image: url(:/images/new/icon_safe.svg); background: none; border: none; background-repeat: none; }"
+        )
         self.btn_dial_lock.setText("")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(":/images/new/icon_unsafe.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon2.addPixmap(
+            QtGui.QPixmap(":/images/new/icon_unsafe.svg"),
+            QtGui.QIcon.Normal,
+            QtGui.QIcon.Off,
+        )
         self.btn_dial_lock.setIcon(icon2)
         self.btn_dial_lock.setObjectName("btn_dial_lock")
         self.horizontalLayout_10.addWidget(self.btn_dial_lock)
@@ -78,20 +101,31 @@ class Ui_MainWindow(object):
         self.btn_dial_help.setStyleSheet("")
         self.btn_dial_help.setText("")
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("images/new/icon_fragezeichen.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon3.addPixmap(
+            QtGui.QPixmap("images/new/icon_fragezeichen.svg"),
+            QtGui.QIcon.Normal,
+            QtGui.QIcon.Off,
+        )
         self.btn_dial_help.setIcon(icon3)
         self.btn_dial_help.setObjectName("btn_dial_help")
         self.horizontalLayout_10.addWidget(self.btn_dial_help)
         self.pushButton_2 = QtWidgets.QPushButton(self.formFrame)
         self.pushButton_2.setText("")
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap("images/new/icon_about_nitrokey.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon4.addPixmap(
+            QtGui.QPixmap("images/new/icon_about_nitrokey.svg"),
+            QtGui.QIcon.Normal,
+            QtGui.QIcon.Off,
+        )
         self.pushButton_2.setIcon(icon4)
         self.pushButton_2.setObjectName("pushButton_2")
         self.horizontalLayout_10.addWidget(self.pushButton_2)
         self.verticalLayout.addWidget(self.formFrame)
         self.tabWidget = QtWidgets.QTabWidget(self.centralWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.MinimumExpanding,
+            QtWidgets.QSizePolicy.MinimumExpanding,
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tabWidget.sizePolicy().hasHeightForWidth())
@@ -109,23 +143,37 @@ class Ui_MainWindow(object):
         self.gridLayout_5.setContentsMargins(11, 11, 11, 11)
         self.gridLayout_5.setSpacing(6)
         self.gridLayout_5.setObjectName("gridLayout_5")
-        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem1 = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.gridLayout_5.addItem(spacerItem1, 2, 0, 1, 1)
-        spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem2 = QtWidgets.QSpacerItem(
+            20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
+        )
         self.gridLayout_5.addItem(spacerItem2, 0, 1, 1, 1)
         self.btn_dial_PWS = QtWidgets.QPushButton(self.tab_5)
         self.btn_dial_PWS.setEnabled(True)
         self.btn_dial_PWS.setStyleSheet("")
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(":/images/new/icon_safe.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon5.addPixmap(
+            QtGui.QPixmap(":/images/new/icon_safe.svg"),
+            QtGui.QIcon.Normal,
+            QtGui.QIcon.Off,
+        )
         self.btn_dial_PWS.setIcon(icon5)
         self.btn_dial_PWS.setObjectName("btn_dial_PWS")
         self.gridLayout_5.addWidget(self.btn_dial_PWS, 2, 1, 1, 1)
-        spacerItem3 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem3 = QtWidgets.QSpacerItem(
+            20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
+        )
         self.gridLayout_5.addItem(spacerItem3, 3, 1, 1, 1)
-        spacerItem4 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem4 = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.gridLayout_5.addItem(spacerItem4, 2, 4, 1, 1)
-        spacerItem5 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem5 = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.gridLayout_5.addItem(spacerItem5, 2, 2, 1, 1)
         self.tabWidget.addTab(self.tab_5, "")
         self.tab = QtWidgets.QWidget()
@@ -170,7 +218,9 @@ class Ui_MainWindow(object):
         self.label_25.setFont(font)
         self.label_25.setObjectName("label_25")
         self.horizontalLayout_14.addWidget(self.label_25)
-        spacerItem6 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem6 = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.horizontalLayout_14.addItem(spacerItem6)
         self.verticalLayout_11.addLayout(self.horizontalLayout_14)
         self.horizontalLayout_9 = QtWidgets.QHBoxLayout()
@@ -216,7 +266,9 @@ class Ui_MainWindow(object):
         self.label_21.setObjectName("label_21")
         self.verticalLayout_7.addWidget(self.label_21)
         self.formLayout_4 = QtWidgets.QFormLayout()
-        self.formLayout_4.setFieldGrowthPolicy(QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
+        self.formLayout_4.setFieldGrowthPolicy(
+            QtWidgets.QFormLayout.AllNonFixedFieldsGrow
+        )
         self.formLayout_4.setSpacing(6)
         self.formLayout_4.setObjectName("formLayout_4")
         self.label_4 = QtWidgets.QLabel(self.frame)
@@ -234,7 +286,9 @@ class Ui_MainWindow(object):
         self.hexRadioButton.setChecked(False)
         self.hexRadioButton.setObjectName("hexRadioButton")
         self.horizontalLayout_6.addWidget(self.hexRadioButton)
-        spacerItem7 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem7 = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.horizontalLayout_6.addItem(spacerItem7)
         self.l_supportedLength = QtWidgets.QLabel(self.frame)
         font = QtGui.QFont()
@@ -242,7 +296,9 @@ class Ui_MainWindow(object):
         self.l_supportedLength.setFont(font)
         self.l_supportedLength.setObjectName("l_supportedLength")
         self.horizontalLayout_6.addWidget(self.l_supportedLength)
-        self.formLayout_4.setLayout(1, QtWidgets.QFormLayout.FieldRole, self.horizontalLayout_6)
+        self.formLayout_4.setLayout(
+            1, QtWidgets.QFormLayout.FieldRole, self.horizontalLayout_6
+        )
         self.label_3 = QtWidgets.QLabel(self.frame)
         self.label_3.setObjectName("label_3")
         self.formLayout_4.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_3)
@@ -274,7 +330,9 @@ class Ui_MainWindow(object):
         self.checkBox.setChecked(True)
         self.checkBox.setObjectName("checkBox")
         self.horizontalLayout_4.addWidget(self.checkBox)
-        spacerItem8 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem8 = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.horizontalLayout_4.addItem(spacerItem8)
         self.verticalLayout_6.addLayout(self.horizontalLayout_4)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
@@ -297,7 +355,9 @@ class Ui_MainWindow(object):
         self.btn_copyToClipboard.setObjectName("btn_copyToClipboard")
         self.horizontalLayout_3.addWidget(self.btn_copyToClipboard)
         self.verticalLayout_6.addLayout(self.horizontalLayout_3)
-        self.formLayout_4.setLayout(2, QtWidgets.QFormLayout.FieldRole, self.verticalLayout_6)
+        self.formLayout_4.setLayout(
+            2, QtWidgets.QFormLayout.FieldRole, self.verticalLayout_6
+        )
         self.verticalLayout_7.addLayout(self.formLayout_4)
         self.label_26 = QtWidgets.QLabel(self.frame)
         font = QtGui.QFont()
@@ -325,7 +385,9 @@ class Ui_MainWindow(object):
         self.label_22.setObjectName("label_22")
         self.verticalLayout_9.addWidget(self.label_22)
         self.formLayout_5 = QtWidgets.QFormLayout()
-        self.formLayout_5.setFieldGrowthPolicy(QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
+        self.formLayout_5.setFieldGrowthPolicy(
+            QtWidgets.QFormLayout.AllNonFixedFieldsGrow
+        )
         self.formLayout_5.setSpacing(6)
         self.formLayout_5.setObjectName("formLayout_5")
         self.verticalLayout_5 = QtWidgets.QVBoxLayout()
@@ -346,8 +408,12 @@ class Ui_MainWindow(object):
         self.setToRandomButton.setObjectName("setToRandomButton")
         self.horizontalLayout_7.addWidget(self.setToRandomButton)
         self.verticalLayout_5.addLayout(self.horizontalLayout_7)
-        self.formLayout_5.setLayout(4, QtWidgets.QFormLayout.FieldRole, self.verticalLayout_5)
-        spacerItem9 = QtWidgets.QSpacerItem(20, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.formLayout_5.setLayout(
+            4, QtWidgets.QFormLayout.FieldRole, self.verticalLayout_5
+        )
+        spacerItem9 = QtWidgets.QSpacerItem(
+            20, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
+        )
         self.formLayout_5.setItem(5, QtWidgets.QFormLayout.FieldRole, spacerItem9)
         self.horizontalLayout_8 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_8.setSpacing(6)
@@ -359,9 +425,13 @@ class Ui_MainWindow(object):
         self.digits8radioButton = QtWidgets.QRadioButton(self.frame_2)
         self.digits8radioButton.setObjectName("digits8radioButton")
         self.horizontalLayout_8.addWidget(self.digits8radioButton)
-        spacerItem10 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem10 = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.horizontalLayout_8.addItem(spacerItem10)
-        self.formLayout_5.setLayout(3, QtWidgets.QFormLayout.FieldRole, self.horizontalLayout_8)
+        self.formLayout_5.setLayout(
+            3, QtWidgets.QFormLayout.FieldRole, self.horizontalLayout_8
+        )
         self.horizontalLayout_15 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_15.setSpacing(6)
         self.horizontalLayout_15.setObjectName("horizontalLayout_15")
@@ -371,9 +441,13 @@ class Ui_MainWindow(object):
         self.intervalSpinBox.setProperty("value", 30)
         self.intervalSpinBox.setObjectName("intervalSpinBox")
         self.horizontalLayout_15.addWidget(self.intervalSpinBox)
-        spacerItem11 = QtWidgets.QSpacerItem(40, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem11 = QtWidgets.QSpacerItem(
+            40, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.horizontalLayout_15.addItem(spacerItem11)
-        self.formLayout_5.setLayout(2, QtWidgets.QFormLayout.FieldRole, self.horizontalLayout_15)
+        self.formLayout_5.setLayout(
+            2, QtWidgets.QFormLayout.FieldRole, self.horizontalLayout_15
+        )
         self.label_6 = QtWidgets.QLabel(self.frame_2)
         self.label_6.setObjectName("label_6")
         self.formLayout_5.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.label_6)
@@ -382,10 +456,14 @@ class Ui_MainWindow(object):
         self.formLayout_5.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label_5)
         self.intervalLabel = QtWidgets.QLabel(self.frame_2)
         self.intervalLabel.setObjectName("intervalLabel")
-        self.formLayout_5.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.intervalLabel)
+        self.formLayout_5.setWidget(
+            2, QtWidgets.QFormLayout.LabelRole, self.intervalLabel
+        )
         self.verticalLayout_9.addLayout(self.formLayout_5)
         self.verticalLayout_16.addWidget(self.frame_2)
-        spacerItem12 = QtWidgets.QSpacerItem(20, 1, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.MinimumExpanding)
+        spacerItem12 = QtWidgets.QSpacerItem(
+            20, 1, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.MinimumExpanding
+        )
         self.verticalLayout_16.addItem(spacerItem12)
         self.line = QtWidgets.QFrame(self.tab)
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
@@ -399,7 +477,9 @@ class Ui_MainWindow(object):
         self.progressBar.setProperty("value", 24)
         self.progressBar.setObjectName("progressBar")
         self.horizontalLayout.addWidget(self.progressBar)
-        spacerItem13 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem13 = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.horizontalLayout.addItem(spacerItem13)
         self.cancelButton = QtWidgets.QPushButton(self.tab)
         self.cancelButton.setToolTip("")
@@ -443,7 +523,9 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.deleteUserPasswordCheckBox)
         self.verticalLayout_12.addLayout(self.verticalLayout_2)
         self.verticalLayout_14.addWidget(self.frame_4)
-        spacerItem14 = QtWidgets.QSpacerItem(20, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.MinimumExpanding)
+        spacerItem14 = QtWidgets.QSpacerItem(
+            20, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.MinimumExpanding
+        )
         self.verticalLayout_14.addItem(spacerItem14)
         self.line_2 = QtWidgets.QFrame(self.tab_2)
         self.line_2.setFrameShape(QtWidgets.QFrame.HLine)
@@ -453,7 +535,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_5.setSpacing(6)
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
-        spacerItem15 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem15 = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.horizontalLayout_5.addItem(spacerItem15)
         self.generalCancelButton = QtWidgets.QPushButton(self.tab_2)
         self.generalCancelButton.setObjectName("generalCancelButton")
@@ -470,7 +554,9 @@ class Ui_MainWindow(object):
         self.verticalLayout_19.setSpacing(6)
         self.verticalLayout_19.setObjectName("verticalLayout_19")
         self.frame_7 = QtWidgets.QFrame(self.tab_3)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame_7.sizePolicy().hasHeightForWidth())
@@ -549,7 +635,9 @@ class Ui_MainWindow(object):
         self.l_utf8_info.setWordWrap(True)
         self.l_utf8_info.setObjectName("l_utf8_info")
         self.verticalLayout_19.addWidget(self.l_utf8_info)
-        spacerItem16 = QtWidgets.QSpacerItem(20, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.MinimumExpanding)
+        spacerItem16 = QtWidgets.QSpacerItem(
+            20, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.MinimumExpanding
+        )
         self.verticalLayout_19.addItem(spacerItem16)
         self.line_3 = QtWidgets.QFrame(self.tab_3)
         self.line_3.setFrameShape(QtWidgets.QFrame.HLine)
@@ -569,7 +657,9 @@ class Ui_MainWindow(object):
         self.PWS_progressBar.setProperty("value", 42)
         self.PWS_progressBar.setObjectName("PWS_progressBar")
         self.horizontalLayout_2.addWidget(self.PWS_progressBar)
-        spacerItem17 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem17 = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.horizontalLayout_2.addItem(spacerItem17)
         self.PWS_ButtonClose = QtWidgets.QPushButton(self.tab_3)
         self.PWS_ButtonClose.setObjectName("PWS_ButtonClose")
@@ -588,20 +678,32 @@ class Ui_MainWindow(object):
         self.gridLayout_7.setSpacing(6)
         self.gridLayout_7.setObjectName("gridLayout_7")
         self.btn_dial_EV = QtWidgets.QPushButton(self.tab_7)
-        self.btn_dial_EV.setStyleSheet("#upLeft { background-color: transparent; border-image: url(:/images/new/icon_safe.svg); background: none; border: none; background-repeat: none; }")
+        self.btn_dial_EV.setStyleSheet(
+            "#upLeft { background-color: transparent; border-image: url(:/images/new/icon_safe.svg); background: none; border: none; background-repeat: none; }"
+        )
         icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap(":/images/new/icon_harddrive.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon6.addPixmap(
+            QtGui.QPixmap(":/images/new/icon_harddrive.svg"),
+            QtGui.QIcon.Normal,
+            QtGui.QIcon.Off,
+        )
         self.btn_dial_EV.setIcon(icon6)
         self.btn_dial_EV.setObjectName("btn_dial_EV")
         self.gridLayout_7.addWidget(self.btn_dial_EV, 1, 0, 1, 1)
-        spacerItem18 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        spacerItem18 = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum
+        )
         self.gridLayout_7.addItem(spacerItem18, 1, 1, 1, 1)
         self.btn_dial_HV = QtWidgets.QPushButton(self.tab_7)
-        self.btn_dial_HV.setStyleSheet("#upLeft { background-color: transparent; border-image: url(:/images/new/icon_safe.svg); background: none; border: none; background-repeat: none; }")
+        self.btn_dial_HV.setStyleSheet(
+            "#upLeft { background-color: transparent; border-image: url(:/images/new/icon_safe.svg); background: none; border: none; background-repeat: none; }"
+        )
         self.btn_dial_HV.setIcon(icon6)
         self.btn_dial_HV.setObjectName("btn_dial_HV")
         self.gridLayout_7.addWidget(self.btn_dial_HV, 1, 2, 1, 1)
-        spacerItem19 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem19 = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.gridLayout_7.addItem(spacerItem19, 1, 3, 1, 1)
         self.tabWidget.addTab(self.tab_7, "")
         self.tab_6 = QtWidgets.QWidget()
@@ -676,12 +778,16 @@ class Ui_MainWindow(object):
         self.horizontalLayout_17.addWidget(self.cb_hide_main_window_on_close)
         self.cb_hide_main_window_on_connection = QtWidgets.QCheckBox(self.gr_general)
         self.cb_hide_main_window_on_connection.setChecked(True)
-        self.cb_hide_main_window_on_connection.setObjectName("cb_hide_main_window_on_connection")
+        self.cb_hide_main_window_on_connection.setObjectName(
+            "cb_hide_main_window_on_connection"
+        )
         self.horizontalLayout_17.addWidget(self.cb_hide_main_window_on_connection)
         self.verticalLayout_3.addLayout(self.horizontalLayout_17)
         self.cb_show_main_window_on_connection = QtWidgets.QCheckBox(self.gr_general)
         self.cb_show_main_window_on_connection.setChecked(True)
-        self.cb_show_main_window_on_connection.setObjectName("cb_show_main_window_on_connection")
+        self.cb_show_main_window_on_connection.setObjectName(
+            "cb_show_main_window_on_connection"
+        )
         self.verticalLayout_3.addWidget(self.cb_show_main_window_on_connection)
         self.cb_check_symlink = QtWidgets.QCheckBox(self.gr_general)
         self.cb_check_symlink.setChecked(True)
@@ -761,10 +867,14 @@ class Ui_MainWindow(object):
         self.label_31 = QtWidgets.QLabel(self.groupBox_2)
         self.label_31.setObjectName("label_31")
         self.gridLayout_4.addWidget(self.label_31, 3, 0, 1, 1)
-        spacerItem20 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem20 = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.gridLayout_4.addItem(spacerItem20, 1, 2, 1, 1)
         self.verticalLayout_71.addWidget(self.groupBox_2)
-        spacerItem21 = QtWidgets.QSpacerItem(20, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.MinimumExpanding)
+        spacerItem21 = QtWidgets.QSpacerItem(
+            20, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.MinimumExpanding
+        )
         self.verticalLayout_71.addItem(spacerItem21)
         self.line_10 = QtWidgets.QFrame(self.tab_4)
         self.line_10.setFrameShape(QtWidgets.QFrame.HLine)
@@ -775,7 +885,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_11 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_11.setSpacing(6)
         self.horizontalLayout_11.setObjectName("horizontalLayout_11")
-        spacerItem22 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem22 = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.horizontalLayout_11.addItem(spacerItem22)
         self.btn_cancelSettings = QtWidgets.QPushButton(self.tab_4)
         self.btn_cancelSettings.setObjectName("btn_cancelSettings")
@@ -807,11 +919,19 @@ class Ui_MainWindow(object):
         self.PWS_ComboBoxSelectSlot.setCurrentIndex(0)
         self.btn_cancelSettings.clicked.connect(MainWindow.hide)
         self.cancelButton.clicked.connect(MainWindow.hide)
-        self.cb_debug_enabled.toggled['bool'].connect(self.edit_debug_file_path.setEnabled)
-        self.cb_debug_enabled.toggled['bool'].connect(self.spin_debug_verbosity.setEnabled)
-        self.cb_debug_enabled.toggled['bool'].connect(self.btn_select_debug_file_path.setEnabled)
+        self.cb_debug_enabled.toggled["bool"].connect(
+            self.edit_debug_file_path.setEnabled
+        )
+        self.cb_debug_enabled.toggled["bool"].connect(
+            self.spin_debug_verbosity.setEnabled
+        )
+        self.cb_debug_enabled.toggled["bool"].connect(
+            self.btn_select_debug_file_path.setEnabled
+        )
         self.generalCancelButton.clicked.connect(MainWindow.hide)
-        self.cb_debug_enabled.toggled['bool'].connect(self.btn_select_debug_console.setEnabled)
+        self.cb_debug_enabled.toggled["bool"].connect(
+            self.btn_select_debug_console.setEnabled
+        )
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.radioButton_2, self.radioButton)
         MainWindow.setTabOrder(self.radioButton, self.slotComboBox)
@@ -830,8 +950,12 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.setToRandomButton, self.cancelButton)
         MainWindow.setTabOrder(self.cancelButton, self.writeButton)
         MainWindow.setTabOrder(self.writeButton, self.enableUserPasswordCheckBox)
-        MainWindow.setTabOrder(self.enableUserPasswordCheckBox, self.deleteUserPasswordCheckBox)
-        MainWindow.setTabOrder(self.deleteUserPasswordCheckBox, self.PWS_ComboBoxSelectSlot)
+        MainWindow.setTabOrder(
+            self.enableUserPasswordCheckBox, self.deleteUserPasswordCheckBox
+        )
+        MainWindow.setTabOrder(
+            self.deleteUserPasswordCheckBox, self.PWS_ComboBoxSelectSlot
+        )
         MainWindow.setTabOrder(self.PWS_ComboBoxSelectSlot, self.PWS_ButtonClearSlot)
         MainWindow.setTabOrder(self.PWS_ButtonClearSlot, self.PWS_EditSlotName)
         MainWindow.setTabOrder(self.PWS_EditSlotName, self.PWS_EditLoginName)
@@ -847,15 +971,26 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.cb_first_run_message, self.cb_show_window_on_start)
         MainWindow.setTabOrder(self.cb_show_window_on_start, self.cb_check_symlink)
         MainWindow.setTabOrder(self.cb_check_symlink, self.cb_device_connection_message)
-        MainWindow.setTabOrder(self.cb_device_connection_message, self.cb_show_main_window_on_connection)
-        MainWindow.setTabOrder(self.cb_show_main_window_on_connection, self.cb_hide_main_window_on_connection)
-        MainWindow.setTabOrder(self.cb_hide_main_window_on_connection, self.cb_hide_main_window_on_close)
+        MainWindow.setTabOrder(
+            self.cb_device_connection_message, self.cb_show_main_window_on_connection
+        )
+        MainWindow.setTabOrder(
+            self.cb_show_main_window_on_connection,
+            self.cb_hide_main_window_on_connection,
+        )
+        MainWindow.setTabOrder(
+            self.cb_hide_main_window_on_connection, self.cb_hide_main_window_on_close
+        )
         MainWindow.setTabOrder(self.cb_hide_main_window_on_close, self.combo_languages)
         MainWindow.setTabOrder(self.combo_languages, self.cb_debug_enabled)
         MainWindow.setTabOrder(self.cb_debug_enabled, self.edit_debug_file_path)
         MainWindow.setTabOrder(self.edit_debug_file_path, self.btn_select_debug_console)
-        MainWindow.setTabOrder(self.btn_select_debug_console, self.btn_select_debug_file_path)
-        MainWindow.setTabOrder(self.btn_select_debug_file_path, self.spin_debug_verbosity)
+        MainWindow.setTabOrder(
+            self.btn_select_debug_console, self.btn_select_debug_file_path
+        )
+        MainWindow.setTabOrder(
+            self.btn_select_debug_file_path, self.spin_debug_verbosity
+        )
         MainWindow.setTabOrder(self.spin_debug_verbosity, self.spin_PWS_time)
         MainWindow.setTabOrder(self.spin_PWS_time, self.spin_OTP_time)
         MainWindow.setTabOrder(self.spin_OTP_time, self.btn_cancelSettings)
@@ -870,96 +1005,226 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Nitrokey App"))
         self.btn_dial_PWS.setText(_translate("MainWindow", "Unlock Password Safe"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5), _translate("MainWindow", "Overview"))
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.tab_5), _translate("MainWindow", "Overview")
+        )
         self.checkBox_2.setText(_translate("MainWindow", "Advanced mode"))
         self.label_24.setText(_translate("MainWindow", "Manage slots"))
-        self.radioButton_2.setAccessibleName(_translate("MainWindow", "Select slot type: TOTP"))
-        self.radioButton_2.setAccessibleDescription(_translate("MainWindow", "(Recommendation: Use TOTP for web applications and HOTP for local applications)"))
+        self.radioButton_2.setAccessibleName(
+            _translate("MainWindow", "Select slot type: TOTP")
+        )
+        self.radioButton_2.setAccessibleDescription(
+            _translate(
+                "MainWindow",
+                "(Recommendation: Use TOTP for web applications and HOTP for local applications)",
+            )
+        )
         self.radioButton_2.setText(_translate("MainWindow", "TOTP"))
-        self.radioButton.setAccessibleName(_translate("MainWindow", "Select slot type: HOTP"))
-        self.radioButton.setAccessibleDescription(_translate("MainWindow", "(Recommendation: Use TOTP for web applications and HOTP for local applications)"))
+        self.radioButton.setAccessibleName(
+            _translate("MainWindow", "Select slot type: HOTP")
+        )
+        self.radioButton.setAccessibleDescription(
+            _translate(
+                "MainWindow",
+                "(Recommendation: Use TOTP for web applications and HOTP for local applications)",
+            )
+        )
         self.radioButton.setText(_translate("MainWindow", "HOTP"))
-        self.label_25.setText(_translate("MainWindow", "(Recommendation: Use TOTP for web applications and HOTP for local applications)"))
+        self.label_25.setText(
+            _translate(
+                "MainWindow",
+                "(Recommendation: Use TOTP for web applications and HOTP for local applications)",
+            )
+        )
         self.label.setText(_translate("MainWindow", "Slot:"))
-        self.slotComboBox.setAccessibleName(_translate("MainWindow", "Select OTP slot number"))
+        self.slotComboBox.setAccessibleName(
+            _translate("MainWindow", "Select OTP slot number")
+        )
         self.label_2.setText(_translate("MainWindow", "Name:"))
         self.nameEdit.setAccessibleName(_translate("MainWindow", "Slot name"))
         self.eraseButton.setText(_translate("MainWindow", "Erase Slot"))
         self.label_21.setText(_translate("MainWindow", "Secret key"))
         self.label_4.setText(_translate("MainWindow", "Input format:"))
-        self.base32RadioButton.setToolTip(_translate("MainWindow", "Example: \"ZR3M5I...\""))
-        self.base32RadioButton.setAccessibleName(_translate("MainWindow", "Secret input format: base32"))
+        self.base32RadioButton.setToolTip(
+            _translate("MainWindow", 'Example: "ZR3M5I..."')
+        )
+        self.base32RadioButton.setAccessibleName(
+            _translate("MainWindow", "Secret input format: base32")
+        )
         self.base32RadioButton.setText(_translate("MainWindow", "Base32"))
-        self.hexRadioButton.setToolTip(_translate("MainWindow", "Example: \"A3911C05...\" (remove any 0x prefix)"))
-        self.hexRadioButton.setAccessibleName(_translate("MainWindow", "Secret input format: hex"))
+        self.hexRadioButton.setToolTip(
+            _translate("MainWindow", 'Example: "A3911C05..." (remove any 0x prefix)')
+        )
+        self.hexRadioButton.setAccessibleName(
+            _translate("MainWindow", "Secret input format: hex")
+        )
         self.hexRadioButton.setText(_translate("MainWindow", "Hex"))
-        self.l_supportedLength.setAccessibleName(_translate("MainWindow", "Entered OTP \'Secret Key\' string is longer than supported by this device"))
-        self.l_supportedLength.setAccessibleDescription(_translate("MainWindow", "Label shown when the OTP secret key is too long"))
-        self.l_supportedLength.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-weight:600; color:#a40000;\">Entered OTP \'Secret Key\' string is longer than supported by this device</span></p></body></html>"))
-        self.label_3.setToolTip(_translate("MainWindow", "<html><head/><body><p>The secret is provided by your service provider you may want to login or can be configured in your local application which you may want to login to.</p></body></html>"))
+        self.l_supportedLength.setAccessibleName(
+            _translate(
+                "MainWindow",
+                "Entered OTP 'Secret Key' string is longer than supported by this device",
+            )
+        )
+        self.l_supportedLength.setAccessibleDescription(
+            _translate("MainWindow", "Label shown when the OTP secret key is too long")
+        )
+        self.l_supportedLength.setText(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p><span style=\" font-weight:600; color:#a40000;\">Entered OTP 'Secret Key' string is longer than supported by this device</span></p></body></html>",
+            )
+        )
+        self.label_3.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>The secret is provided by your service provider you may want to login or can be configured in your local application which you may want to login to.</p></body></html>",
+            )
+        )
         self.label_3.setText(_translate("MainWindow", "Secret Key:"))
-        self.secretEdit.setToolTip(_translate("MainWindow", "The secret is provided by your service provider you may want to login or can be configured in your local application which you may want to login to."))
+        self.secretEdit.setToolTip(
+            _translate(
+                "MainWindow",
+                "The secret is provided by your service provider you may want to login or can be configured in your local application which you may want to login to.",
+            )
+        )
         self.secretEdit.setAccessibleName(_translate("MainWindow", "OTP secret key"))
-        self.secretEdit.setAccessibleDescription(_translate("MainWindow", "Note: 2nd factors aren\'t protected against physical attacks. Change all OTP secrets in case you loose the Nitrokey."))
-        self.secretEdit.setPlaceholderText(_translate("MainWindow", "********************************"))
+        self.secretEdit.setAccessibleDescription(
+            _translate(
+                "MainWindow",
+                "Note: 2nd factors aren't protected against physical attacks. Change all OTP secrets in case you loose the Nitrokey.",
+            )
+        )
+        self.secretEdit.setPlaceholderText(
+            _translate("MainWindow", "********************************")
+        )
         self.labelNotify.setText(_translate("MainWindow", "Secret copied to clipboard"))
-        self.checkBox.setToolTip(_translate("MainWindow", "<html><head/><body><p>Hide or show the secret.</p></body></html>"))
+        self.checkBox.setToolTip(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Hide or show the secret.</p></body></html>",
+            )
+        )
         self.checkBox.setText(_translate("MainWindow", "Hide secret"))
-        self.label_7.setText(_translate("MainWindow", "Generated secret target length (bytes):"))
-        self.secret_key_generated_len.setAccessibleName(_translate("MainWindow", "TOTP interval value"))
-        self.randomSecretButton.setToolTip(_translate("MainWindow", "After generating a random secret, you would need to copy it into your application or service where you want to login to."))
-        self.randomSecretButton.setText(_translate("MainWindow", "Generate random secret"))
-        self.btn_copyToClipboard.setToolTip(_translate("MainWindow", "Copy secret to clipboard"))
+        self.label_7.setText(
+            _translate("MainWindow", "Generated secret target length (bytes):")
+        )
+        self.secret_key_generated_len.setAccessibleName(
+            _translate("MainWindow", "TOTP interval value")
+        )
+        self.randomSecretButton.setToolTip(
+            _translate(
+                "MainWindow",
+                "After generating a random secret, you would need to copy it into your application or service where you want to login to.",
+            )
+        )
+        self.randomSecretButton.setText(
+            _translate("MainWindow", "Generate random secret")
+        )
+        self.btn_copyToClipboard.setToolTip(
+            _translate("MainWindow", "Copy secret to clipboard")
+        )
         self.btn_copyToClipboard.setText(_translate("MainWindow", "Copy to clipboard"))
-        self.label_26.setText(_translate("MainWindow", "Note: 2<sup>nd</sup> factors aren\'t protected against physical attacks. Change all OTP secrets in case you loose the Nitrokey."))
+        self.label_26.setText(
+            _translate(
+                "MainWindow",
+                "Note: 2<sup>nd</sup> factors aren't protected against physical attacks. Change all OTP secrets in case you loose the Nitrokey.",
+            )
+        )
         self.label_22.setText(_translate("MainWindow", "Parameters"))
-        self.counterEdit.setAccessibleName(_translate("MainWindow", "HOTP moving factor seed"))
+        self.counterEdit.setAccessibleName(
+            _translate("MainWindow", "HOTP moving factor seed")
+        )
         self.counterEdit.setText(_translate("MainWindow", "00000000000000000000"))
-        self.setToZeroButton.setAccessibleName(_translate("MainWindow", "Set HOTP counter to zero"))
+        self.setToZeroButton.setAccessibleName(
+            _translate("MainWindow", "Set HOTP counter to zero")
+        )
         self.setToZeroButton.setText(_translate("MainWindow", "Set to zero"))
-        self.setToRandomButton.setAccessibleName(_translate("MainWindow", "Set HOTP counter to random value"))
+        self.setToRandomButton.setAccessibleName(
+            _translate("MainWindow", "Set HOTP counter to random value")
+        )
         self.setToRandomButton.setText(_translate("MainWindow", "Set to random"))
-        self.digits6radioButton.setAccessibleName(_translate("MainWindow", "OTP code length: 6 digits"))
+        self.digits6radioButton.setAccessibleName(
+            _translate("MainWindow", "OTP code length: 6 digits")
+        )
         self.digits6radioButton.setText(_translate("MainWindow", "6 digits"))
-        self.digits8radioButton.setAccessibleName(_translate("MainWindow", "OTP code length:  8 digits"))
+        self.digits8radioButton.setAccessibleName(
+            _translate("MainWindow", "OTP code length:  8 digits")
+        )
         self.digits8radioButton.setText(_translate("MainWindow", "8 digits"))
-        self.intervalSpinBox.setAccessibleName(_translate("MainWindow", "TOTP interval value"))
+        self.intervalSpinBox.setAccessibleName(
+            _translate("MainWindow", "TOTP interval value")
+        )
         self.label_6.setText(_translate("MainWindow", "Moving factor seed:"))
         self.label_5.setText(_translate("MainWindow", "HOTP length:"))
         self.intervalLabel.setText(_translate("MainWindow", "TOTP interval:"))
         self.cancelButton.setText(_translate("MainWindow", "Cancel"))
         self.writeButton.setText(_translate("MainWindow", "Save"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "OTP Slot Configuration"))
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.tab),
+            _translate("MainWindow", "OTP Slot Configuration"),
+        )
         self.label_11.setText(_translate("MainWindow", "OTP Password settings"))
-        self.enableUserPasswordCheckBox.setText(_translate("MainWindow", "Protect OTP by user PIN (will be requested on first use each session)"))
-        self.deleteUserPasswordCheckBox.setText(_translate("MainWindow", "Forget user PIN after 10 minutes (if unchecked user PIN will remain in memory until application exits)"))
+        self.enableUserPasswordCheckBox.setText(
+            _translate(
+                "MainWindow",
+                "Protect OTP by user PIN (will be requested on first use each session)",
+            )
+        )
+        self.deleteUserPasswordCheckBox.setText(
+            _translate(
+                "MainWindow",
+                "Forget user PIN after 10 minutes (if unchecked user PIN will remain in memory until application exits)",
+            )
+        )
         self.generalCancelButton.setText(_translate("MainWindow", "Cancel"))
         self.writeGeneralConfigButton.setText(_translate("MainWindow", "Save"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "OTP General"))
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "OTP General")
+        )
         self.PWS_EditPassword.setAccessibleName(_translate("MainWindow", "Password:"))
-        self.PWS_EditLoginName.setAccessibleName(_translate("MainWindow", "Login name:"))
+        self.PWS_EditLoginName.setAccessibleName(
+            _translate("MainWindow", "Login name:")
+        )
         self.label_19.setText(_translate("MainWindow", "Password:"))
         self.PWS_EditSlotName.setAccessibleName(_translate("MainWindow", "Slot name:"))
         self.label_18.setText(_translate("MainWindow", "Login name:"))
-        self.PWS_ButtonClearSlot.setAccessibleName(_translate("MainWindow", "Erase Password Safe slot"))
+        self.PWS_ButtonClearSlot.setAccessibleName(
+            _translate("MainWindow", "Erase Password Safe slot")
+        )
         self.PWS_ButtonClearSlot.setText(_translate("MainWindow", "Erase Slot"))
         self.label_17.setText(_translate("MainWindow", "Slot name:"))
-        self.PWS_ComboBoxSelectSlot.setAccessibleName(_translate("MainWindow", "Password Safe slot number"))
-        self.PWS_ComboBoxSelectSlot.setItemText(0, _translate("MainWindow", "Static password 0"))
-        self.PWS_ButtonCreatePW.setText(_translate("MainWindow", "Generate random password"))
+        self.PWS_ComboBoxSelectSlot.setAccessibleName(
+            _translate("MainWindow", "Password Safe slot number")
+        )
+        self.PWS_ComboBoxSelectSlot.setItemText(
+            0, _translate("MainWindow", "Static password 0")
+        )
+        self.PWS_ButtonCreatePW.setText(
+            _translate("MainWindow", "Generate random password")
+        )
         self.label_16.setText(_translate("MainWindow", "Slot:"))
         self.PWS_CheckBoxHideSecret.setText(_translate("MainWindow", "Hide secret"))
         self.l_chars_left_info.setText(_translate("MainWindow", "Characters left:"))
         self.l_c_password.setText(_translate("MainWindow", "..."))
-        self.l_utf8_info.setText(_translate("MainWindow", "<html><head/><body><p>Password Safe fields support UTF8 data. It means that you can use your national characters here. Please remember however that non-English characters could take more space (up to 4 characters). The counters next to each field are to inform how much more standard English characters can given field accept.</p></body></html>"))
+        self.l_utf8_info.setText(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Password Safe fields support UTF8 data. It means that you can use your national characters here. Please remember however that non-English characters could take more space (up to 4 characters). The counters next to each field are to inform how much more standard English characters can given field accept.</p></body></html>",
+            )
+        )
         self.PWS_ButtonEnable.setText(_translate("MainWindow", "Unlock Password Safe"))
         self.PWS_Lock.setText(_translate("MainWindow", "Lock Device"))
         self.PWS_ButtonClose.setText(_translate("MainWindow", "Cancel"))
         self.PWS_ButtonSaveSlot.setText(_translate("MainWindow", "Save"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Password Safe"))
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.tab_3),
+            _translate("MainWindow", "Password Safe"),
+        )
         self.btn_dial_EV.setText(_translate("MainWindow", "Unlock Encrypted Volume"))
         self.btn_dial_HV.setText(_translate("MainWindow", "Unlock Hidden Volume"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_7), _translate("MainWindow", "Storage"))
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.tab_7), _translate("MainWindow", "Storage")
+        )
         item = self.tableWidget.verticalHeaderItem(0)
         item.setText(_translate("MainWindow", "erstes Ding"))
         item = self.tableWidget.verticalHeaderItem(1)
@@ -977,31 +1242,87 @@ class Ui_MainWindow(object):
         __sortingEnabled = self.tableWidget.isSortingEnabled()
         self.tableWidget.setSortingEnabled(False)
         self.tableWidget.setSortingEnabled(__sortingEnabled)
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), _translate("MainWindow", "FIDO2"))
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.tab_6), _translate("MainWindow", "FIDO2")
+        )
         self.gr_general.setTitle(_translate("MainWindow", "General"))
-        self.cb_first_run_message.setText(_translate("MainWindow", "Show first-run message"))
-        self.cb_show_window_on_start.setText(_translate("MainWindow", "Show main window on start"))
-        self.cb_hide_main_window_on_close.setText(_translate("MainWindow", "Do not quit when the main window is closed"))
-        self.cb_hide_main_window_on_connection.setText(_translate("MainWindow", "Hide main window when device disconnects"))
-        self.cb_show_main_window_on_connection.setText(_translate("MainWindow", "Show main window when device connects"))
-        self.cb_check_symlink.setText(_translate("MainWindow", "Show warning when no partitions could be detected on Encrypted Volume (Linux only)"))
-        self.cb_device_connection_message.setText(_translate("MainWindow", "Show message about device\'s connection / disconnection"))
-        self.label_28.setText(_translate("MainWindow", "<html><head/><body><p>Translation file (needs restart)</p></body></html>"))
-        self.combo_languages.setAccessibleName(_translate("MainWindow", "Translation file (needs restart)"))
+        self.cb_first_run_message.setText(
+            _translate("MainWindow", "Show first-run message")
+        )
+        self.cb_show_window_on_start.setText(
+            _translate("MainWindow", "Show main window on start")
+        )
+        self.cb_hide_main_window_on_close.setText(
+            _translate("MainWindow", "Do not quit when the main window is closed")
+        )
+        self.cb_hide_main_window_on_connection.setText(
+            _translate("MainWindow", "Hide main window when device disconnects")
+        )
+        self.cb_show_main_window_on_connection.setText(
+            _translate("MainWindow", "Show main window when device connects")
+        )
+        self.cb_check_symlink.setText(
+            _translate(
+                "MainWindow",
+                "Show warning when no partitions could be detected on Encrypted Volume (Linux only)",
+            )
+        )
+        self.cb_device_connection_message.setText(
+            _translate(
+                "MainWindow", "Show message about device's connection / disconnection"
+            )
+        )
+        self.label_28.setText(
+            _translate(
+                "MainWindow",
+                "<html><head/><body><p>Translation file (needs restart)</p></body></html>",
+            )
+        )
+        self.combo_languages.setAccessibleName(
+            _translate("MainWindow", "Translation file (needs restart)")
+        )
         self.groupBox.setTitle(_translate("MainWindow", "Debug log settings"))
-        self.edit_debug_file_path.setAccessibleName(_translate("MainWindow", "Path for debug log file:"))
-        self.spin_debug_verbosity.setAccessibleName(_translate("MainWindow", "Verbosity level:"))
+        self.edit_debug_file_path.setAccessibleName(
+            _translate("MainWindow", "Path for debug log file:")
+        )
+        self.spin_debug_verbosity.setAccessibleName(
+            _translate("MainWindow", "Verbosity level:")
+        )
         self.label_10.setText(_translate("MainWindow", "Path for debug log file:"))
         self.label_20.setText(_translate("MainWindow", "Verbosity level:"))
         self.cb_debug_enabled.setText(_translate("MainWindow", "Logging enabled"))
-        self.btn_select_debug_console.setText(_translate("MainWindow", "Log to console"))
+        self.btn_select_debug_console.setText(
+            _translate("MainWindow", "Log to console")
+        )
         self.btn_select_debug_file_path.setText(_translate("MainWindow", "Select path"))
         self.groupBox_2.setTitle(_translate("MainWindow", "Clipboard settings"))
-        self.spin_OTP_time.setAccessibleName(_translate("MainWindow", "Time to store OTP secrets in clipboard (in seconds):"))
-        self.label_30.setText(_translate("MainWindow", "Time to store Password Safe secrets in clipboard (in seconds):"))
-        self.spin_PWS_time.setAccessibleName(_translate("MainWindow", "TIme to store Password Safe secrets in clipboard (in seconds):"))
-        self.label_31.setText(_translate("MainWindow", "Time to store OTP secrets in clipboard (in seconds):"))
+        self.spin_OTP_time.setAccessibleName(
+            _translate(
+                "MainWindow", "Time to store OTP secrets in clipboard (in seconds):"
+            )
+        )
+        self.label_30.setText(
+            _translate(
+                "MainWindow",
+                "Time to store Password Safe secrets in clipboard (in seconds):",
+            )
+        )
+        self.spin_PWS_time.setAccessibleName(
+            _translate(
+                "MainWindow",
+                "TIme to store Password Safe secrets in clipboard (in seconds):",
+            )
+        )
+        self.label_31.setText(
+            _translate(
+                "MainWindow", "Time to store OTP secrets in clipboard (in seconds):"
+            )
+        )
         self.btn_cancelSettings.setText(_translate("MainWindow", "Cancel"))
         self.btn_writeSettings.setText(_translate("MainWindow", "Save"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("MainWindow", "Settings"))
+        self.tabWidget.setTabText(
+            self.tabWidget.indexOf(self.tab_4), _translate("MainWindow", "Settings")
+        )
+
+
 import resources_rc
