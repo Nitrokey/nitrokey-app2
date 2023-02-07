@@ -17,9 +17,9 @@ class InsertNitrokey(QtUtilsMixIn, QtWidgets.QDialog):
         self.ok_insert = None
 
     def init_insertNitrokey(self):
-        ## dialogs
+        # dialogs
         self.ok_insert = self.get_widget(QtWidgets.QPushButton, "pushButton_ok_insert")
-        ## insert Nitrokey
+        # insert Nitrokey
         self.ok_insert.clicked.connect(self.ok_insert_btn)
 
     @pyqtSlot()

@@ -1,6 +1,6 @@
 import logging
 
-##### windows usb monitoring
+# windows usb monitoring
 # https://stackoverflow.com/questions/62601721/usb-hotplugging-callbacks-with-python-on-windows
 
 logger = logging.getLogger(__name__)

@@ -11,7 +11,7 @@ class ChangePinDialog(QtUtilsMixIn, QtWidgets.QDialog):
         self.app = qt_app
 
     def init_change_pin(self):
-        ## dialogs
+        # dialogs
         self.current_pin = self.get_widget(QtWidgets.QLineEdit, "lineEdit_current_pin")
         self.new_pin = self.get_widget(QtWidgets.QLineEdit, "lineEdit_new_pin")
         self.confirm_new_pin = self.get_widget(

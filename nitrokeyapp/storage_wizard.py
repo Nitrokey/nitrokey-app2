@@ -54,7 +54,7 @@ class Storage(QtUtilsMixIn, QtWidgets.QWizard):
             self.button(QtWidgets.QWizard.NextButton).setEnabled(True)
 
     @pyqtSlot(int)
-    #### storage wizard
+    # storage wizard
     def change_value(self, value):
         self.storage_blockspin.setValue(float(value))
 

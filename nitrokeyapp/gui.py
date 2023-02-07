@@ -67,11 +67,6 @@ class BackendThread(QThread):
             res = func(*vargs, **kwargs)
             signal.emit(res or {})
 
-
-########################################################################################
-########################################################################################
-########################################################################################
-########################################################################################
 # Define function to import external files when using PyInstaller.
 # def resource_path(relative_path):
 #     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -89,14 +84,10 @@ class BackendThread(QThread):
 # popboxForm = resource_path("popbox.ui")
 
 # pyrcc4 -py3 resources.qrc -o resources_rc.py
-########################################################################################
-########################################################################################
-########################################################################################
-########################################################################################
 
 logger = logging.getLogger(__name__)
 
-#### PWS related callbacks
+# PWS related callbacks
 
 
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
@@ -123,7 +114,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             logger.info("OS:Windows")
             WindowsUSBNotification(self.detect_nk3, self.remove_nk3)
 
-        ################################################################################
         # load UI-files and prepare them accordingly
         ui_dir = Path(__file__).parent.resolve().absolute() / "ui"
         ui_files = {
@@ -138,7 +128,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         _get = self.get_widget
         _qt = QtWidgets
 
-        ################################################################################
         # import other ui-files
 
         self.key_generation = KeyGeneration(qt_app)
@@ -167,9 +156,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.set_pin_dialog = SetPinDialog(qt_app)
         self.set_pin_dialog.load_ui(ui_dir / "set_pin_dialog.ui", self.set_pin_dialog)
         self.set_pin_dialog.init_set_pin()
-        ################################################################################
-        #### get widget objects
-        ## app wide widgets
+        # get widget objects
+        # app wide widgets
         self.status_bar = _get(_qt.QStatusBar, "statusBar")
         self.menu_bar = _get(_qt.QMenuBar, "menuBar")
         self.tabs = _get(_qt.QTabWidget, "tabWidget")
@@ -187,21 +175,20 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.lock_btn = _get(_qt.QPushButton, "btn_dial_lock")
         self.l_insert_nitrokey = _get(_qt.QFrame, "label_insert_Nitrokey")
         self.progressbarupdate = _get(_qt.QProgressBar, "progressBar_Update")
-        ## overview
+        # overview
         self.navigation_frame = _get(_qt.QFrame, "vertical_navigation")
         self.nitrokeys_window = _get(_qt.QScrollArea, "Nitrokeys")
         self.layout_nk_btns = QtWidgets.QVBoxLayout()
         self.layout_nk_btns.setContentsMargins(0, 0, 0, 0)
         self.layout_nk_btns.setSpacing(0)
         self.layout_nk_btns.setAlignment(Qt.AlignTop)
-        ### nk3 frame
+        # nk3 frame
         self.nk3_lineedit_uuid = _get(_qt.QLabel, "nk3_lineedit_uuid")
         self.nk3_lineedit_path = _get(_qt.QLabel, "nk3_lineedit_path")
         self.nk3_lineedit_version = _get(_qt.QLabel, "nk3_lineedit_version")
         self.update_nk3_btn = _get(_qt.QPushButton, "update_nk3_btn")
         self.nitrokey3_frame = _get(_qt.QFrame, "Nitrokey3")
         self.buttonlayout_nk3 = _get(_qt.QHBoxLayout, "buttonLayout_nk3")
-        ################################################################################
         # set some props, initial enabled/visible, finally show()
         self.setAttribute(Qt.WA_DeleteOnClose)
 
@@ -213,20 +200,18 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         self.device = None
 
-        ################################################################################
-        ######nk3
+        # nk3
         self.help_btn.clicked.connect(
             lambda: webbrowser.open("https://docs.nitrokey.com/nitrokey3")
         )
         self.lock_btn.clicked.connect(self.slot_lock_button_pressed)
         self.about_button.clicked.connect(self.about_button_pressed)
         # self.settings_btn.clicked.connect()
-        ################################################################################
-        #### connections for functional signals
-        ## generic / global
-        ## overview
+        # connections for functional signals
+        # generic / global
+        # overview
 
-    ### experimental idea to differ between removed and added
+    # experimental idea to differ between removed and added
     def device_connect(self):
         for dvc in iter(functools.partial(self.monitor.poll, 3), None):
             if dvc.action == "remove":
@@ -314,7 +299,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.settings_btn.setEnabled(False)
         self.detect_nk3()
 
-    #### backend callbacks
+    # backend callbacks
     @pyqtSlot()
     def backend_cb_hello(self):
         logger.info("hello signaled from worker, started successfully")
@@ -323,7 +308,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def slot_tab_changed(self, idx):
         pass
 
-    #### main-window callbacks
+    # main-window callbacks
     @pyqtSlot()
     def about_button_pressed(self):
         self.about_dialog.show()

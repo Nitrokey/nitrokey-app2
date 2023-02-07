@@ -4,7 +4,7 @@ from PyQt5.QtCore import pyqtSlot
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
 
-##### @fixme: PINDialog should be modal!
+# @fixme: PINDialog should be modal!
 class PINDialog(QtUtilsMixIn, QtWidgets.QDialog):
     def __init__(self, qt_app: QtWidgets.QApplication):
         QtWidgets.QDialog.__init__(self)
