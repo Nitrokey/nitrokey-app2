@@ -1,7 +1,6 @@
 import sys
 
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QFile, QTextStream
 
 from nitrokeyapp.gui import GUI, BackendThread
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn

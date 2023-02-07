@@ -5,12 +5,8 @@ from PyQt5.QtCore import QSize, pyqtSlot
 from nitrokeyapp.pynitrokey_for_gui import (
     Nk3Context,
     change_pin,
-    list,
-    nk3_update,
     nk3_update_helper,
     set_pin,
-    version,
-    wink,
 )
 
 

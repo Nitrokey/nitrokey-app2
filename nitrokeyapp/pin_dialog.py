@@ -1,22 +1,6 @@
-# Nitrokey 2
-from pynitrokey import libnk as nk_api
-from PyQt5 import QtWidgets, uic
-from PyQt5.QtCore import (
-    QFile,
-    QObject,
-    QRect,
-    QSize,
-    QSortFilterProxyModel,
-    Qt,
-    QTextStream,
-    QThread,
-    QTimer,
-    pyqtSignal,
-    pyqtSlot,
-)
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import pyqtSlot
 
-import nitrokeyapp.gui_resources
-import nitrokeyapp.ui.breeze_resources
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
 
