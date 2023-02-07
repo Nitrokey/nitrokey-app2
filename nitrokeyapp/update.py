@@ -16,10 +16,10 @@ from pynitrokey.nk3.utils import Version
 from pynitrokey.updates import OverwriteError
 from PyQt5 import QtWidgets
 
-from nitropyapp.pynitrokey_for_gui import Nk3Context
+from nitrokeyapp.pynitrokey_for_gui import Nk3Context
 
 # tray icon
-from nitropyapp.tray_notification import TrayNotification
+from nitrokeyapp.tray_notification import TrayNotification
 
 logger = logging.getLogger(__name__)
 

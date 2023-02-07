@@ -1,8 +1,8 @@
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import QSize, pyqtSlot
 
-# from nitropyapp.change_pin_dialog import ChangePinDialog
-from nitropyapp.pynitrokey_for_gui import (
+# from nitrokeyapp.change_pin_dialog import ChangePinDialog
+from nitrokeyapp.pynitrokey_for_gui import (
     Nk3Context,
     change_pin,
     list,

@@ -3,7 +3,7 @@ requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "nitropyapp"
+name = "nitrokeyapp"
 description = "Graphical application to manage Nitrokey devices"
 readme = "README.md"
 authors = [
@@ -42,7 +42,7 @@ dev = [
 Source = "https://github.com/Nitrokey/nitrokey-app2"
 
 [project.scripts]
-nitropyapp = "nitropyapp:main"
+nitrokeyapp = "nitrokeyapp:main"
 
 [tool.isort]
 py_version = "39"

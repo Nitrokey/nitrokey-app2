@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/niklas/git/nitrokey-app2_fork/nitrokey-app2/nitropyapp/ui/mainwindow_alternative.ui'
+# Form implementation generated from reading ui file 'mainwindow_alternative.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.8
 #
@@ -772,9 +772,7 @@ class Ui_MainWindow(object):
         )
         icon6 = QtGui.QIcon()
         icon6.addPixmap(
-            QtGui.QPixmap(
-                "/home/niklas/git/nitrokey-app2_fork/nitrokey-app2/nitropyapp/ui/../../../../../../../nitrokey-app2/nitropyapp/ui/images/new/down_arrow.png"
-            ),
+            QtGui.QPixmap("images/new/down_arrow.png"),
             QtGui.QIcon.Normal,
             QtGui.QIcon.Off,
         )

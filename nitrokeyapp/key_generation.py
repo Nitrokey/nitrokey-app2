@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSlot
 
-from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
+from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
 
 class KeyGeneration(QtUtilsMixIn, QtWidgets.QWizard):

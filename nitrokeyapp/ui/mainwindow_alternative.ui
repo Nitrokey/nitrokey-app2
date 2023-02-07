@@ -29,7 +29,7 @@
    <string>Nitrokey App</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../../nitrokey-app2/nitropyapp/ui/resources.qrc">
+   <iconset resource="../../../../nitrokey-app2/nitrokeyapp/ui/resources.qrc">
     <normaloff>:/images/new/icon_NK.svg</normaloff>:/images/new/icon_NK.svg</iconset>
   </property>
   <property name="autoFillBackground">
@@ -135,7 +135,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../../../../nitrokey-app2/nitropyapp/ui/resources.qrc">
+          <iconset resource="../../../../nitrokey-app2/nitrokeyapp/ui/resources.qrc">
            <normaloff>:/images/icon/help_darkgrey_material.svg</normaloff>:/images/icon/help_darkgrey_material.svg</iconset>
          </property>
          <property name="iconSize">
@@ -199,7 +199,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../../../../nitrokey-app2/nitropyapp/ui/resources.qrc">
+          <iconset resource="../../../../nitrokey-app2/nitrokeyapp/ui/resources.qrc">
            <normaloff>:/images/icon/settings_darkgrey_material.svg</normaloff>:/images/icon/settings_darkgrey_material.svg</iconset>
          </property>
          <property name="iconSize">
@@ -240,7 +240,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="../../../../nitrokey-app2/nitropyapp/ui/resources.qrc">:/images/icon/nitrokey-app-icon-vector.svg</pixmap>
+          <pixmap resource="../../../../nitrokey-app2/nitrokeyapp/ui/resources.qrc">:/images/icon/nitrokey-app-icon-vector.svg</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -294,7 +294,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../../../../nitrokey-app2/nitropyapp/ui/resources.qrc">
+          <iconset resource="../../../../nitrokey-app2/nitrokeyapp/ui/resources.qrc">
            <normaloff>:/images/icon/info_darkgrey_material.svg</normaloff>:/images/icon/info_darkgrey_material.svg</iconset>
          </property>
          <property name="iconSize">
@@ -325,7 +325,7 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../../../../nitrokey-app2/nitropyapp/ui/resources.qrc">
+          <iconset resource="../../../../nitrokey-app2/nitrokeyapp/ui/resources.qrc">
            <normaloff>:/images/icon/lock_darkgrey_material.svg</normaloff>:/images/icon/lock_darkgrey_material.svg</iconset>
          </property>
          <property name="iconSize">
@@ -880,7 +880,7 @@ border-radius: 5px;}</string>
               <string>Unlock Password Safe</string>
              </property>
              <property name="icon">
-              <iconset resource="../../../../nitrokey-app2/nitropyapp/ui/resources.qrc">
+              <iconset resource="../../../../nitrokey-app2/nitrokeyapp/ui/resources.qrc">
                <normaloff>:/images/new/icon_safe.svg</normaloff>:/images/new/icon_safe.svg</iconset>
              </property>
             </widget>
@@ -1291,7 +1291,7 @@ Text-align:left;
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>../../../../../../../nitrokey-app2/nitropyapp/ui/images/new/down_arrow.png</normaloff>../../../../../../../nitrokey-app2/nitropyapp/ui/images/new/down_arrow.png</iconset>
+                <normaloff>../../../../../../../nitrokey-app2/nitrokeyapp/ui/images/new/down_arrow.png</normaloff>../../../../../../../nitrokey-app2/nitrokeyapp/ui/images/new/down_arrow.png</iconset>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -1578,7 +1578,7 @@ Text-align:left;
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>../../../../../../../nitrokey-app2/nitropyapp/ui/images/new/down_arrow.png</normaloff>../../../../../../../nitrokey-app2/nitropyapp/ui/images/new/down_arrow.png</iconset>
+                <normaloff>../../../../../../../nitrokey-app2/nitrokeyapp/ui/images/new/down_arrow.png</normaloff>../../../../../../../nitrokey-app2/nitrokeyapp/ui/images/new/down_arrow.png</iconset>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -1657,7 +1657,7 @@ Text-align:left;
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>../../../../../../../nitrokey-app2/nitropyapp/ui/images/new/down_arrow.png</normaloff>../../../../../../../nitrokey-app2/nitropyapp/ui/images/new/down_arrow.png</iconset>
+                <normaloff>../../../../../../../nitrokey-app2/nitrokeyapp/ui/images/new/down_arrow.png</normaloff>../../../../../../../nitrokey-app2/nitrokeyapp/ui/images/new/down_arrow.png</iconset>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -2667,7 +2667,7 @@ Text-align:left;
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="../../../../nitrokey-app2/nitropyapp/ui/resources.qrc"/>
+  <include location="../../../../nitrokey-app2/nitrokeyapp/ui/resources.qrc"/>
   <include location="resources.qrc"/>
  </resources>
  <connections/>

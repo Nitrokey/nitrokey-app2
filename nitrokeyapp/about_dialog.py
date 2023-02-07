@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets
 
-from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
+from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
 
 class AboutDialog(QtUtilsMixIn, QtWidgets.QDialog):

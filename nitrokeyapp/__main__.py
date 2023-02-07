@@ -3,8 +3,8 @@ import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QFile, QTextStream
 
-from nitropyapp.gui import GUI, BackendThread
-from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
+from nitrokeyapp.gui import GUI, BackendThread
+from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
 
 def main():

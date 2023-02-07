@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/niklas/git/nitrokey-app2/nitropyapp/ui/set_pin_dialog.ui'
+# Form implementation generated from reading ui file 'set_pin_dialog.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.7
 #

@@ -9,7 +9,7 @@ git clone https://github.com/Nitrokey/nitropy-app2.git
 cd nitropy-app2
 make init
 source venv/bin/activate
-python3 nitropyapp/gui.py
+python3 nitrokeyapp/__main__.py
 ```
 
 ## Notes:
@@ -28,5 +28,5 @@ venv/Scripts/python -m flit install --symlink
 venv/Scripts/python -m pip install pywin32
 venv/Scripts/python venv/Scripts/pywin32_postinstall.py -install
 venv/Scripts/activate
-python nitropyapp/gui.py
+python nitrokeyapp/__main__.py
 ```
