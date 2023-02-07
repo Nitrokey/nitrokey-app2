@@ -15,7 +15,7 @@ from PyQt5.QtCore import (
     pyqtSlot,
 )
 
-from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
+from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
 
 class SetupWizard(QtUtilsMixIn, QtWidgets.QWizard):

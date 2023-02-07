@@ -14,8 +14,8 @@ from PyQt5.QtCore import (
 )
 
 # pyrcc5 -o gui_resources.py ui/resources.qrc
-import nitropyapp.gui_resources
-import nitropyapp.ui.breeze_resources
+import nitrokeyapp.gui_resources
+import nitrokeyapp.ui.breeze_resources
 
 
 class LoadingScreen(QtWidgets.QWidget):

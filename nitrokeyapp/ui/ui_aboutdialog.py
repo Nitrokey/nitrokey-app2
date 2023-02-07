@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/niklas/git/nitrokey-app2_fork/nitrokey-app2/nitropyapp/ui/aboutdialog.ui'
+# Form implementation generated from reading ui file 'aboutdialog.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.7
 #

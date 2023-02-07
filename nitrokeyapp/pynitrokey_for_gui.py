@@ -33,7 +33,7 @@ from pynitrokey.updates import OverwriteError
 from spsdk.mboot.exceptions import McuBootConnectionError
 
 # tray icon
-from nitropyapp.tray_notification import TrayNotification
+from nitrokeyapp.tray_notification import TrayNotification
 
 logger = logging.getLogger(__name__)
 
@@ -191,7 +191,7 @@ def nk3_update_helper(ctx: Nk3Context, progressBarUpdate, image, variant):
 
 def nk3_update(ctx: Nk3Context, progressBarUpdate, image, variant) -> None:
 
-    from nitropyapp.update import update
+    from nitrokeyapp.update import update
 
     update_version = update(ctx, progressBarUpdate, image, variant)
 

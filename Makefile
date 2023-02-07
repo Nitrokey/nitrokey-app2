@@ -1,6 +1,6 @@
 .PHONY: clean 
 
-PACKAGE_NAME=nitropyapp
+PACKAGE_NAME=nitrokeyapp
 VENV=venv
 PYTHON=python3
 

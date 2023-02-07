@@ -3,8 +3,8 @@ from pathlib import Path
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSlot
 
-# from nitropyapp.setup_wizard import SetupWizard
-from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
+# from nitrokeyapp.setup_wizard import SetupWizard
+from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
 
 # isnt used atm

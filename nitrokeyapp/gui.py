@@ -15,25 +15,25 @@ from pynitrokey.nk3 import list as list_nk3
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
 
-from nitropyapp.about_dialog import AboutDialog
-from nitropyapp.change_pin_dialog import ChangePinDialog
-from nitropyapp.insert_nitrokey import InsertNitrokey
-from nitropyapp.key_generation import KeyGeneration
-from nitropyapp.nk3_button import Nk3Button
+from nitrokeyapp.about_dialog import AboutDialog
+from nitrokeyapp.change_pin_dialog import ChangePinDialog
+from nitrokeyapp.insert_nitrokey import InsertNitrokey
+from nitrokeyapp.key_generation import KeyGeneration
+from nitrokeyapp.nk3_button import Nk3Button
 
-# from nitropyapp.loading_screen import LoadingScreen
-from nitropyapp.pin_dialog import PINDialog
-from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
-from nitropyapp.set_pin_dialog import SetPinDialog
+# from nitrokeyapp.loading_screen import LoadingScreen
+from nitrokeyapp.pin_dialog import PINDialog
+from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
+from nitrokeyapp.set_pin_dialog import SetPinDialog
 
 # import wizards and stuff
-from nitropyapp.setup_wizard import SetupWizard
-from nitropyapp.tray_notification import TrayNotification
-from nitropyapp.windows_notification import WindowsUSBNotification
+from nitrokeyapp.setup_wizard import SetupWizard
+from nitrokeyapp.tray_notification import TrayNotification
+from nitrokeyapp.windows_notification import WindowsUSBNotification
 
-# import nitropyapp.ui.breeze_resources
+# import nitrokeyapp.ui.breeze_resources
 # pyrcc5 -o gui_resources.py ui/resourcces.qrc
-# import nitropyapp.gui_resources
+# import nitrokeyapp.gui_resources
 
 
 class BackendThread(QThread):

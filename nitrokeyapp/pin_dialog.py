@@ -15,9 +15,9 @@ from PyQt5.QtCore import (
     pyqtSlot,
 )
 
-import nitropyapp.gui_resources
-import nitropyapp.ui.breeze_resources
-from nitropyapp.qt_utils_mix_in import QtUtilsMixIn
+import nitrokeyapp.gui_resources
+import nitrokeyapp.ui.breeze_resources
+from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
 
 ##### @fixme: PINDialog should be modal!
