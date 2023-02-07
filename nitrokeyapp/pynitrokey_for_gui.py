@@ -1,6 +1,6 @@
 import logging
 import platform
-from typing import List Type, TypeVar
+from typing import List, Type, TypeVar
 
 # for fido2 (change pin)
 import pynitrokey.fido2 as nkfido2
