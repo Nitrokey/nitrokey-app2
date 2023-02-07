@@ -49,7 +49,6 @@ class WindowsUSBNotification:
         )
 
     def onDeviceChange(self, hwnd, msg, wparam, lparam):
-        dev_broadcast_hdr = self.DEV_BROADCAST_HDR.from_address(lparam)
 
         if wparam == self.DBT_DEVICEARRIVAL:
             logger.info("Something's arrived")

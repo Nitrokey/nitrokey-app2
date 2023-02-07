@@ -17,7 +17,7 @@ def main():
     # file.open(QFile.ReadOnly | QFile.Text)
     # stream = QTextStream(file)
     # app.setStyleSheet(stream.readAll())
-    window = GUI(app)
+    GUI(app)
     app.exec()
 
 

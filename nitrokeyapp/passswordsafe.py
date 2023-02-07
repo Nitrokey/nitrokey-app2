@@ -31,7 +31,6 @@ def add_table_pws(self):
 
     row = self.table_pws.rowCount()
     self.table_pws.insertRow(row)
-    index = self.table_pws.currentIndex()
     qline = self.pws_editslotname.text()
     qline2 = self.pws_editloginname.text()
     qline3 = self.pws_editpassword.text()
@@ -50,7 +49,6 @@ def add_table_pws(self):
         self.user_err("need non-empty name")
         return
 
-    secret = qline4
     idx = row
     who = "totp"
     # @fixme: what are the secret allowed lengths/chars
@@ -86,7 +84,6 @@ def add_table_pws_from_key(self, x):
     # self.table_pws.setItem(row , 0, (QtWidgets.QTableWidgetItem("Name")))
     # self.table_pws.setItem(row , 1, (QtWidgets.QTableWidgetItem("Username")))
 
-    index = self.table_pws.currentIndex()
     qline = self.device.TOTP.get_name(x)
     qline2 = ""
     qline3 = ""
