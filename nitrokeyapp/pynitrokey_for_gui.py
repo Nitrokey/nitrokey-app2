@@ -1,11 +1,8 @@
 import logging
-import platform
 from typing import List, Type, TypeVar
 
 # for fido2 (change pin)
 import pynitrokey.fido2 as nkfido2
-import pynitrokey.fido2.operations
-from fido2.cbor import dump_dict
 from fido2.ctap2.pin import ClientPin
 
 # Nitrokey 3
@@ -16,7 +13,6 @@ from pynitrokey.nk3 import open as open_nk3
 from pynitrokey.nk3.base import Nitrokey3Base
 from pynitrokey.nk3.bootloader import Nitrokey3Bootloader
 from pynitrokey.nk3.device import Nitrokey3Device
-from pynitrokey.nk3.updates import get_firmware_update
 
 # tray icon
 from nitrokeyapp.tray_notification import TrayNotification
