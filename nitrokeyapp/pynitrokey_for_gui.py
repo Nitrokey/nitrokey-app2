@@ -125,7 +125,7 @@ def change_pin(ctx: Nk3Context, old_pin, new_pin, confirm_pin):
             # dev = nkfido2.find_all()[0]
             dev = nkfido2.find(device.device.serial_number)
             logger.info("fido2 device:", dev)
-            client = dev.client
+            # client = dev.client
             client_pin = ClientPin(dev.ctap2)
             client_pin.change_pin(old_pin, new_pin)
             logger.info("done - please use new pin to verify key")
@@ -151,7 +151,7 @@ def set_pin(ctx: Nk3Context, new_pin, confirm_pin):
             # dev = nkfido2.find_all()[0]
             dev = nkfido2.find(device.device.serial_number)
             logger.info("fido2 device:", dev)
-            client = dev.client
+            # client = dev.client
             client_pin = ClientPin(dev.ctap2)
             client_pin.set_pin(new_pin)
             logger.info("done - please use new pin to verify key")
