@@ -188,6 +188,3 @@ class Ui_AboutDialog(object):
         )
         self.ButtonStickStatus.setText(_translate("AboutDialog", "Detailed Status"))
         self.ButtonOK.setText(_translate("AboutDialog", "OK"))
-
-
-import resources_rc

@@ -1,6 +1,6 @@
 import logging
 
-##### windows usb monitoring
+# windows usb monitoring
 # https://stackoverflow.com/questions/62601721/usb-hotplugging-callbacks-with-python-on-windows
 
 logger = logging.getLogger(__name__)
@@ -49,7 +49,6 @@ class WindowsUSBNotification:
         )
 
     def onDeviceChange(self, hwnd, msg, wparam, lparam):
-        dev_broadcast_hdr = self.DEV_BROADCAST_HDR.from_address(lparam)
 
         if wparam == self.DBT_DEVICEARRIVAL:
             logger.info("Something's arrived")

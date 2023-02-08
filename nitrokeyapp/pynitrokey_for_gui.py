@@ -1,16 +1,8 @@
 import logging
-import platform
-from contextlib import contextmanager
-from typing import Any, Callable, Iterator, List, Optional, Tuple, Type, TypeVar
+from typing import List, Type, TypeVar
 
 # for fido2 (change pin)
 import pynitrokey.fido2 as nkfido2
-import pynitrokey.fido2.operations
-from fido2.cbor import dump_dict
-from fido2.client import ClientError as Fido2ClientError
-from fido2.ctap import CtapError
-from fido2.ctap1 import ApduError
-from fido2.ctap2 import Ctap2
 from fido2.ctap2.pin import ClientPin
 
 # Nitrokey 3
@@ -19,18 +11,8 @@ from pynitrokey.helpers import Retries
 from pynitrokey.nk3 import list as list_nk3
 from pynitrokey.nk3 import open as open_nk3
 from pynitrokey.nk3.base import Nitrokey3Base
-from pynitrokey.nk3.bootloader import (
-    Nitrokey3Bootloader,
-    Variant,
-    detect_variant,
-    parse_firmware_image,
-)
-from pynitrokey.nk3.device import BootMode, Nitrokey3Device
-from pynitrokey.nk3.exceptions import TimeoutException
-from pynitrokey.nk3.updates import REPOSITORY, Updater, UpdateUi, get_firmware_update
-from pynitrokey.nk3.utils import Version
-from pynitrokey.updates import OverwriteError
-from spsdk.mboot.exceptions import McuBootConnectionError
+from pynitrokey.nk3.bootloader import Nitrokey3Bootloader
+from pynitrokey.nk3.device import Nitrokey3Device
 
 # tray icon
 from nitrokeyapp.tray_notification import TrayNotification
@@ -143,12 +125,12 @@ def change_pin(ctx: Nk3Context, old_pin, new_pin, confirm_pin):
             # dev = nkfido2.find_all()[0]
             dev = nkfido2.find(device.device.serial_number)
             logger.info("fido2 device:", dev)
-            client = dev.client
+            # client = dev.client
             client_pin = ClientPin(dev.ctap2)
             client_pin.change_pin(old_pin, new_pin)
             logger.info("done - please use new pin to verify key")
             TrayNotification(
-                "Nitrokey 3", f"Successfully changed the PIN.", "Nitrokey 3 Change PIN"
+                "Nitrokey 3", "Successfully changed the PIN.", "Nitrokey 3 Change PIN"
             )
         except Exception as e:
             logger.info(
@@ -169,12 +151,12 @@ def set_pin(ctx: Nk3Context, new_pin, confirm_pin):
             # dev = nkfido2.find_all()[0]
             dev = nkfido2.find(device.device.serial_number)
             logger.info("fido2 device:", dev)
-            client = dev.client
+            # client = dev.client
             client_pin = ClientPin(dev.ctap2)
             client_pin.set_pin(new_pin)
             logger.info("done - please use new pin to verify key")
             TrayNotification(
-                "Nitrokey 3", f"Successfully set the PIN.", "Nitrokey 3 Set PIN"
+                "Nitrokey 3", "Successfully set the PIN.", "Nitrokey 3 Set PIN"
             )
         except Exception as e:
             logger.info(

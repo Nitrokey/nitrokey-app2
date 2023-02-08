@@ -12,7 +12,7 @@ class KeyGeneration(QtUtilsMixIn, QtWidgets.QWizard):
         self.app = qt_app
 
     def init_keygen(self):
-        ## dialogs
+        # dialogs
         self.adsettings_button = self.get_widget(
             QtWidgets.QPushButton, "pushButton_wiz"
         )
@@ -44,12 +44,12 @@ class KeyGeneration(QtUtilsMixIn, QtWidgets.QWizard):
 
         self.back_up_info = self.get_widget(QtWidgets.QLabel, "label_2")
         self.back_up_info.hide()
-        ## insert Nitrokey
+        # insert Nitrokey
         self.adsettings_button.clicked.connect(self.adsettings_func)
         self.collapse(self.adsettings, self.adsettings_button)
         self.with_backup.toggled.connect(self.finish_show_hide)
         self.confirm_path.textChanged.connect(self.finish_show_hide_2)
-        #### insert Nitrokey
+        # insert Nitrokey
 
     @pyqtSlot()
     def finish_show_hide(self):
@@ -72,11 +72,11 @@ class KeyGeneration(QtUtilsMixIn, QtWidgets.QWizard):
         self.collapse(self.adsettings, self.adsettings_button)
 
     def loading(self):
-        ## dialogs
+        # dialogs
         self.ok_insert = self.get_widget(QtWidgets.QPushButton, "pushButton_ok_insert")
-        ## insert Nitrokey
+        # insert Nitrokey
         self.ok_insert.clicked.connect(self.ok_insert_btn)
-        #### insert Nitrokey
+        # insert Nitrokey
 
     @pyqtSlot()
     def ok_insert_btn(self):

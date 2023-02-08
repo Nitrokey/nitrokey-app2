@@ -1,4 +1,10 @@
-#### pws not in use for now (was working for pro/storage)
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import pyqtSlot
+
+from nitrokeyapp.edit_button_widget import EditButtonsWidget
+
+
+# pws not in use for now (was working for pro/storage)
 @pyqtSlot()
 def table_pws_function(self):
     index = self.table_pws.currentIndex()
@@ -18,7 +24,7 @@ def table_pws_function(self):
     self.PWS_ButtonSaveSlot.setVisible(False)
     self.ButtonChangeSlot.setVisible(True)
     self.PWS_ButtonDelete.setVisible(True)
-    ### hides the otp creation stuff
+    # hides the otp creation stuff
     self.copy_current_otp.show()
     self.qr_code.hide()
     self.random_otp.hide()
@@ -31,7 +37,6 @@ def add_table_pws(self):
 
     row = self.table_pws.rowCount()
     self.table_pws.insertRow(row)
-    index = self.table_pws.currentIndex()
     qline = self.pws_editslotname.text()
     qline2 = self.pws_editloginname.text()
     qline3 = self.pws_editpassword.text()
@@ -39,7 +44,7 @@ def add_table_pws(self):
     qline5 = self.pws_editnotes.toPlainText()
     res = "{} {} {}".format(qline, "\n", qline2)
 
-    ##### creates otp on key
+    # creates otp on key
 
     if not self.device.is_auth_admin:
         self.ask_pin("admin")
@@ -50,7 +55,6 @@ def add_table_pws(self):
         self.user_err("need non-empty name")
         return
 
-    secret = qline4
     idx = row
     who = "totp"
     # @fixme: what are the secret allowed lengths/chars
@@ -79,14 +83,13 @@ def add_table_pws(self):
     self.pws_editnotes.setText("")
 
 
-######################## adds the data existing of the key to the table
+# adds the data existing of the key to the table
 def add_table_pws_from_key(self, x):
     row = self.table_pws.rowCount()
     self.table_pws.insertRow(row)
     # self.table_pws.setItem(row , 0, (QtWidgets.QTableWidgetItem("Name")))
     # self.table_pws.setItem(row , 1, (QtWidgets.QTableWidgetItem("Username")))
 
-    index = self.table_pws.currentIndex()
     qline = self.device.TOTP.get_name(x)
     qline2 = ""
     qline3 = ""
@@ -144,7 +147,7 @@ def add_pws(self):
     # self.pws_editpassword.setText("")
     # self.pws_editOTP.setText("")
     # self.pws_editnotes.setText("")
-    ### shows the otp creation stuff again
+    # shows the otp creation stuff again
     self.copy_current_otp.hide()
     self.qr_code.show()
     self.random_otp.show()

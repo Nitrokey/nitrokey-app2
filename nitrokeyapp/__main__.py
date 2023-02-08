@@ -1,7 +1,6 @@
 import sys
 
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QFile, QTextStream
 
 from nitrokeyapp.gui import GUI, BackendThread
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
@@ -18,7 +17,7 @@ def main():
     # file.open(QFile.ReadOnly | QFile.Text)
     # stream = QTextStream(file)
     # app.setStyleSheet(stream.readAll())
-    window = GUI(app)
+    GUI(app)
     app.exec()
 
 

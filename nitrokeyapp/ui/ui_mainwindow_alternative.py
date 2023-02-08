@@ -1822,6 +1822,3 @@ class Ui_MainWindow(object):
             self.tabWidget.indexOf(self.tab_4),
             _translate("MainWindow", "Device Settings"),
         )
-
-
-import resources_rc
