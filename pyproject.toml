@@ -47,6 +47,7 @@ nitrokeyapp = "nitrokeyapp:main"
 [tool.isort]
 py_version = "39"
 profile = "black"
+line_length = 80
 
 [tool.black]
 target-version = ["py39"]
