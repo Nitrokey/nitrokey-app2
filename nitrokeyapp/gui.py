@@ -67,6 +67,7 @@ class BackendThread(QThread):
             res = func(*vargs, **kwargs)
             signal.emit(res or {})
 
+
 # Define function to import external files when using PyInstaller.
 # def resource_path(relative_path):
 #     """ Get absolute path to resource, works for dev and for PyInstaller """
