@@ -103,7 +103,9 @@ class UpdateGUI(UpdateUi):
         logger.info(
             "Bootloader mode enabled. Please repeat this command to apply the update."
         )
-        return Abort()
+        return self.abort(
+            "Bootloader mode enabled. Please repeat this command to apply the update."
+        )
 
     def request_bootloader_confirmation(self) -> None:
         logger.info(

@@ -1,3 +1,9 @@
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import pyqtSlot
+
+from nitrokeyapp.edit_button_widget import EditButtonsWidget
+
+
 # pws not in use for now (was working for pro/storage)
 @pyqtSlot()
 def table_pws_function(self):

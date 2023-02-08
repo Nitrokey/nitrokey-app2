@@ -27,9 +27,9 @@ class LoadingScreen(QtWidgets.QWidget):
     def stopAnimation(self):
         # self.movie.stop()
         self.close()
-        GUI.user_info(
-            "success",
-            "You now have a main key with the capability\n to sign and certify and a subkey for encryption.  ",
-            title="Key generation was successful",
-            parent=self.label_animation,
-        )
+        # GUI.user_info(
+        #     "success",
+        #     "You now have a main key with the capability\n to sign and certify and a subkey for encryption.  ",
+        #     title="Key generation was successful",
+        #     parent=self.label_animation,
+        # )
