@@ -25,8 +25,7 @@ class QtUtilsMixIn:
         """
         for res_slot in res_slots:
             signal.connect(res_slot)
-        _func = lambda: cls.backend_thread.add_job(signal, func, *va, **kw)
-        return slot.connect(_func)
+        return slot.connect(cls.backend_thread.add_job(signal, func, *va, **kw))
 
     def user_warn(self, msg, title=None, parent=None):
         QtWidgets.QMessageBox.warning(parent or self, title or msg, msg)
