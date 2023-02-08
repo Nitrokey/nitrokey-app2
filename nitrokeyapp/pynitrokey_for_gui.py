@@ -130,7 +130,7 @@ def change_pin(ctx: Nk3Context, old_pin, new_pin, confirm_pin):
             client_pin.change_pin(old_pin, new_pin)
             logger.info("done - please use new pin to verify key")
             TrayNotification(
-                "Nitrokey 3", f"Successfully changed the PIN.", "Nitrokey 3 Change PIN"
+                "Nitrokey 3", "Successfully changed the PIN.", "Nitrokey 3 Change PIN"
             )
         except Exception as e:
             logger.info(
@@ -156,7 +156,7 @@ def set_pin(ctx: Nk3Context, new_pin, confirm_pin):
             client_pin.set_pin(new_pin)
             logger.info("done - please use new pin to verify key")
             TrayNotification(
-                "Nitrokey 3", f"Successfully set the PIN.", "Nitrokey 3 Set PIN"
+                "Nitrokey 3", "Successfully set the PIN.", "Nitrokey 3 Set PIN"
             )
         except Exception as e:
             logger.info(
