@@ -54,7 +54,7 @@ class Nk3Button(QtWidgets.QWidget):
         self.nk3_lineedit_version = nk3_lineedit_version
         self.update_nk3_btn = update_nk3_btn
         self.progressbarupdate = progressBarUpdate
-        #########needs to create button in the vertical navigation with the nitrokey type and serial number as text
+        # needs to create button in the vertical navigation with the nitrokey type and serial number as text
         self.btn_nk3 = QtWidgets.QPushButton(
             QtGui.QIcon(":/images/icon/usb_new.png"),
             "Nitrokey 3:" f"{self.device.uuid().value%10000}",
