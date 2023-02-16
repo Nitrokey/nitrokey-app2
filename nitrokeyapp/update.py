@@ -112,6 +112,9 @@ class UpdateGUI(UpdateUi):
             "Please press the touch button to reboot the device into bootloader mode ..."
         )
 
+    def prompt_variant(self) -> Variant:
+        return Variant.from_str(prompt("Firmware image variant", type=VARIANT_CHOICE))
+
     @contextmanager
     def update_progress_bar(self) -> Iterator[Callable[[int, int], None]]:
         yield self.update_qbar
