@@ -155,8 +155,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.change_pin_dialog.init_change_pin()
 
         self.set_pin_dialog = SetPinDialog(qt_app)
-        self.set_pin_dialog.load_ui(ui_dir / "set_pin_dialog.ui", self.set_pin_dialog)
-        self.set_pin_dialog.init_set_pin()
         # get widget objects
         # app wide widgets
         self.status_bar = _get(_qt.QStatusBar, "statusBar")

@@ -6,7 +6,6 @@ import nitrokeyapp.gui_resources  # noqa: F401
 from nitrokeyapp.gui import GUI, BackendThread
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
-
 def main():
     # backend thread init
     QtUtilsMixIn.backend_thread = BackendThread()
@@ -18,7 +17,7 @@ def main():
     # file.open(QFile.ReadOnly | QFile.Text)
     # stream = QTextStream(file)
     # app.setStyleSheet(stream.readAll())
-    GUI(app)
+    window = GUI(app)
     app.exec()
 
 
