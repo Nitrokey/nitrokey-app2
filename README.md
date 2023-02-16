@@ -15,7 +15,6 @@ python3 nitrokeyapp/__main__.py
 ## Notes:
 * the current version uses pynitrokey 
 * therefore python >3.9 must first be installed
-* pynitrokey version used https://github.com/Nitrokey/pynitrokey/tree/nk3-updater
 
 ## To run on Windows:
 
@@ -30,3 +29,6 @@ venv/Scripts/python venv/Scripts/pywin32_postinstall.py -install
 venv/Scripts/activate
 python nitrokeyapp/__main__.py
 ```
+## Update ui files (for Devs)
+
+python -m PyQt5.uic.pyuic -x "changed_file".ui -o "changed_file_ui".py
