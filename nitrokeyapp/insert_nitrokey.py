@@ -5,7 +5,7 @@ from PyQt5.QtCore import pyqtSlot
 
 # from nitrokeyapp.setup_wizard import SetupWizard
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
-
+from nitrokeyapp.ui.insert_Nitrokey_ui import Ui_Insert_Nitrokey
 
 # isnt used atm
 class InsertNitrokey(QtUtilsMixIn, QtWidgets.QDialog):
@@ -15,10 +15,11 @@ class InsertNitrokey(QtUtilsMixIn, QtWidgets.QDialog):
         Path(__file__).parent.resolve().absolute() / "ui"
         self.app = qt_app
         self.ok_insert = None
+        self.ui = Ui_Insert_Nitrokey()
+        self.ui.setupUi(self)
 
-    def init_insertNitrokey(self):
         # dialogs
-        self.ok_insert = self.get_widget(QtWidgets.QPushButton, "pushButton_ok_insert")
+        self.ok_insert = self.ui.pushButton_ok_insert
         # insert Nitrokey
         self.ok_insert.clicked.connect(self.ok_insert_btn)
 

@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSlot
 
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
-
+from nitrokeyapp.ui.key_generation_ui import Ui_Key_generation
 
 class KeyGeneration(QtUtilsMixIn, QtWidgets.QWizard):
     def __init__(self, qt_app: QtWidgets.QApplication):
@@ -10,39 +10,32 @@ class KeyGeneration(QtUtilsMixIn, QtWidgets.QWizard):
         QtUtilsMixIn.__init__(self)
 
         self.app = qt_app
-
-    def init_keygen(self):
+        self.ui = Ui_Key_generation()
+        self.ui.setupUi(self)
         # dialogs
-        self.adsettings_button = self.get_widget(
-            QtWidgets.QPushButton, "pushButton_wiz"
-        )
-        self.adsettings = self.get_widget(QtWidgets.QWidget, "adsettings_key")
+        self.adsettings_button = self.ui.pushButton_wiz
+        self.adsettings = self.ui.adsettings_key
+        self.wizard_page_userinfo = self.ui.wizardPage1
 
-        self.wizard_page_userinfo = self.get_widget(
-            QtWidgets.QWizardPage, "wizardPage1"
-        )
-
-        self.placeholder_path = self.get_widget(QtWidgets.QLineEdit, "lineEdit")
+        self.placeholder_path = self.ui.lineEdit
         self.placeholder_path.setPlaceholderText("Path")
 
-        self.with_backup = self.get_widget(QtWidgets.QRadioButton, "radioButton_3")
-        self.lastpage_keygen = self.get_widget(QtWidgets.QWizardPage, "wizardPage")
-        self.confirm_path = self.get_widget(QtWidgets.QLineEdit, "lineEdit")
+        self.with_backup = self.ui.radioButton_3
+        self.lastpage_keygen = self.ui.wizardPage
+        self.confirm_path = self.ui.lineEdit
         self.confirm_path.setEnabled(False)
 
-        self.real_name = self.get_widget(QtWidgets.QLineEdit, "lineEdit_2")
+        self.real_name = self.ui.lineEdit_2
         self.wizard_page_userinfo.registerField("real_name*", self.real_name)
 
-        self.email = self.get_widget(QtWidgets.QLineEdit, "lineEdit_3")
-        self.wizard_page_userinfo.comment_line = self.get_widget(
-            QtWidgets.QLineEdit, "lineEdit_4"
-        )
+        self.email = self.ui.lineEdit_3
+        self.wizard_page_userinfo.comment_line = self.ui.lineEdit_4
         self.wizard_page_userinfo.registerField("email*", self.email)
 
-        self.comment_line = self.get_widget(QtWidgets.QLineEdit, "lineEdit_4")
+        self.comment_line = self.ui.lineEdit_4
         self.comment_line.setPlaceholderText("Optional")
 
-        self.back_up_info = self.get_widget(QtWidgets.QLabel, "label_2")
+        self.back_up_info = self.ui.label_2
         self.back_up_info.hide()
         # insert Nitrokey
         self.adsettings_button.clicked.connect(self.adsettings_func)

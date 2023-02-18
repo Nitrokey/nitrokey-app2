@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets
 
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
-
+from nitrokeyapp.ui.aboutdialog_ui import Ui_AboutDialog
 
 class AboutDialog(QtUtilsMixIn, QtWidgets.QDialog):
     def __init__(self, qt_app: QtWidgets.QApplication):
@@ -9,3 +9,5 @@ class AboutDialog(QtUtilsMixIn, QtWidgets.QDialog):
         QtUtilsMixIn.__init__(self)
 
         self.app = qt_app
+        self.ui = Ui_AboutDialog()
+        self.ui.setupUi(self)

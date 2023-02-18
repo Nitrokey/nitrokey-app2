@@ -27,7 +27,6 @@ class Nk3Button(QtWidgets.QWidget):
         nk3_lineedit_path,
         nk3_lineedit_version,
         tabs,
-        update_nk3_btn,
         progressBarUpdate,
         change_pin_open_dialog,
         set_pin_open_dialog,
@@ -52,7 +51,6 @@ class Nk3Button(QtWidgets.QWidget):
         self.nk3_lineedit_uuid = nk3_lineedit_uuid
         self.nk3_lineedit_path = nk3_lineedit_path
         self.nk3_lineedit_version = nk3_lineedit_version
-        self.update_nk3_btn = update_nk3_btn
         self.progressbarupdate = progressBarUpdate
         # needs to create button in the vertical navigation with the nitrokey type and serial number as text
         self.btn_nk3 = QtWidgets.QPushButton(
