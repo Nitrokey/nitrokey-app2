@@ -1,12 +1,12 @@
-# Alternative Nitrokey Application - nitropy-app2
+# Alternative Nitrokey Application - nitrokey-app2
 
 Work in Progress !!
 
 ## To run on Linux:
 
 ```
-git clone https://github.com/Nitrokey/nitropy-app2.git
-cd nitropy-app2
+git clone https://github.com/Nitrokey/nitrokey-app2.git
+cd nitrokey-app2
 make init
 source venv/bin/activate
 python3 nitrokeyapp/__main__.py
