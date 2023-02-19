@@ -85,7 +85,7 @@ class Ui_MainWindow(object):
         self.Nitrokeys.setWidgetResizable(True)
         self.Nitrokeys.setObjectName("Nitrokeys")
         self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 201, 625))
+        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 186, 633))
         self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
         self.verticalLayout_9 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents_2)
         self.verticalLayout_9.setContentsMargins(11, 11, 11, 11)
@@ -128,7 +128,7 @@ class Ui_MainWindow(object):
         self.label_insert_Nitrokey = QtWidgets.QLabel(self.vertical_navigation)
         font = QtGui.QFont()
         font.setFamily("OpenSymbol")
-        font.setPointSize(18)
+        font.setPointSize(16)
         font.setBold(True)
         font.setWeight(75)
         self.label_insert_Nitrokey.setFont(font)
@@ -231,7 +231,7 @@ class Ui_MainWindow(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollArea_2.setObjectName("scrollArea_2")
         self.scrollAreaWidgetContents_3 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 1080, 765))
+        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 1095, 765))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -1414,6 +1414,7 @@ class Ui_MainWindow(object):
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_12), _translate("MainWindow", "Debug"))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_13), _translate("MainWindow", "Firmware"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("MainWindow", "Device Settings"))
+import resources_rc
 
 
 if __name__ == "__main__":

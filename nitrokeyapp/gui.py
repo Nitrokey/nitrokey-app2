@@ -15,7 +15,7 @@ from pynitrokey.nk3 import list as list_nk3
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
 
-from nitrokeyapp.ui.mainwindow_alternative_ui import Ui_MainWindow
+from nitrokeyapp.ui.mainwindow_ui import Ui_MainWindow
 from nitrokeyapp.about_dialog import AboutDialog
 from nitrokeyapp.change_pin_dialog import ChangePinDialog
 from nitrokeyapp.insert_nitrokey import InsertNitrokey
@@ -122,8 +122,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         # import other ui-files
         # used
-        self.change_pin_dialog = ChangePinDialog(qt_app)
-        self.set_pin_dialog = SetPinDialog(qt_app)
+        self.change_pin_dialog = ChangePinDialog(self)
+        self.set_pin_dialog = SetPinDialog(self)
         self.about_dialog = AboutDialog(qt_app)
         # unused (atm)
         self.key_generation = KeyGeneration(qt_app)
@@ -266,6 +266,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     def init_gui(self):
         self.show_only_this_tab(0)
+        self.tabs.hide()
         self.nitrokey3_frame.hide()
         self.progressbarupdate.hide()
         self.lock_btn.setEnabled(False)
@@ -284,15 +285,15 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     # main-window callbacks
     @pyqtSlot()
     def about_button_pressed(self):
-        self.about_dialog.show()
+        self.about_dialog.exec_()
 
     @pyqtSlot()
     def change_pin_open_dialog(self):
-        self.change_pin_dialog.show()
+        self.change_pin_dialog.exec_()
 
     @pyqtSlot()
     def set_pin_open_dialog(self):
-        self.set_pin_dialog.show()
+        self.set_pin_dialog.exec_()
 
     @pyqtSlot()
     def slot_lock_button_pressed(self):

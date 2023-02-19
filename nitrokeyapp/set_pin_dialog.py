@@ -4,11 +4,9 @@ from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.ui.set_pin_dialog_ui import Ui_ChangePinDialog
 
 class SetPinDialog(QtUtilsMixIn, QtWidgets.QDialog):
-    def __init__(self, qt_app: QtWidgets.QApplication):
-        QtWidgets.QDialog.__init__(self)
+    def __init__(self, parent=None):
+        QtWidgets.QDialog.__init__(self, parent)
         QtUtilsMixIn.__init__(self)
-
-        self.app = qt_app
 
         self.ui = Ui_ChangePinDialog()
         self.ui.setupUi(self)
