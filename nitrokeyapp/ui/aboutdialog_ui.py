@@ -113,13 +113,6 @@ class Ui_AboutDialog(object):
         self.horizontalLayout.setObjectName("horizontalLayout")
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
-        self.btn_3rdparty = QtWidgets.QPushButton(AboutDialog)
-        self.btn_3rdparty.setObjectName("btn_3rdparty")
-        self.horizontalLayout.addWidget(self.btn_3rdparty)
-        self.ButtonStickStatus = QtWidgets.QPushButton(AboutDialog)
-        self.ButtonStickStatus.setEnabled(True)
-        self.ButtonStickStatus.setObjectName("ButtonStickStatus")
-        self.horizontalLayout.addWidget(self.ButtonStickStatus)
         self.ButtonOK = QtWidgets.QPushButton(AboutDialog)
         self.ButtonOK.setFocusPolicy(QtCore.Qt.TabFocus)
         self.ButtonOK.setDefault(True)
@@ -133,21 +126,18 @@ class Ui_AboutDialog(object):
         AboutDialog.setTabOrder(self.label_6, self.label_3)
         AboutDialog.setTabOrder(self.label_3, self.VersionLabel)
         AboutDialog.setTabOrder(self.VersionLabel, self.AboutLabel_2)
-        AboutDialog.setTabOrder(self.AboutLabel_2, self.btn_3rdparty)
-        AboutDialog.setTabOrder(self.btn_3rdparty, self.ButtonStickStatus)
-        AboutDialog.setTabOrder(self.ButtonStickStatus, self.ButtonOK)
+        AboutDialog.setTabOrder(self.AboutLabel_2, self.ButtonOK)
 
     def retranslateUi(self, AboutDialog):
         _translate = QtCore.QCoreApplication.translate
         AboutDialog.setWindowTitle(_translate("AboutDialog", "About"))
         self.IconLabel.setAccessibleDescription(_translate("AboutDialog", "Logo"))
-        self.label_7.setText(_translate("AboutDialog", "<html><head/><body><p>This application allows you to configure the Nitrokey 3.</p></body></html>"))
+        self.label_7.setText(_translate("AboutDialog", "<html><head/><body><p>This application allows you to configure your Nitrokey 3.</p></body></html>"))
         self.label_6.setText(_translate("AboutDialog", "<html><head/><body><p><a href=\"https://www.nitrokey.com/start\"><span style=\" text-decoration: underline; color:#c80636;\">Instructions and help</span></a></p></body></html>"))
         self.label_3.setText(_translate("AboutDialog", "App version:"))
-        self.AboutLabel_2.setText(_translate("AboutDialog", "<html><head/><body><p><span style=\" font-size:10pt; font-style:italic;\">Copyright %1 by NitrokeyUG. </span></p><p><span style=\" font-size:10pt; font-style:italic;\">This software is licensed under the </span><a href=\"https://www.gnu.org/licenses/\"><span style=\" font-size:10pt; font-style:italic; text-decoration: underline; color:#c80636;\">GNU General Public License v3</span></a><span style=\" font-size:10pt; font-style:italic;\">.</span></p><p><a href=\"https://nitrokey.com\"><span style=\" text-decoration: underline; color:#c80636;\">www.nitrokey.com</span></a></p></body></html>"))
-        self.btn_3rdparty.setText(_translate("AboutDialog", "Licenses and 3rd-party components"))
-        self.ButtonStickStatus.setText(_translate("AboutDialog", "Detailed Status"))
+        self.AboutLabel_2.setText(_translate("AboutDialog", "<html><head/><body><p><span style=\" font-size:10pt; font-style:italic;\">This software is licensed under the </span><a href=\"http://www.apache.org/licenses/\"><span style=\" font-size:10pt; font-style:italic; text-decoration: underline; color:#c80636;\">Apache License 2.0</span></a><span style=\" font-size:10pt; font-style:italic;\">.</span></p><p><a href=\"https://nitrokey.com\"><span style=\" text-decoration: underline; color:#c80636;\">www.nitrokey.com</span></a></p></body></html>"))
         self.ButtonOK.setText(_translate("AboutDialog", "OK"))
+import resources_rc
 
 
 if __name__ == "__main__":
