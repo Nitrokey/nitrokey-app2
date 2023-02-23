@@ -39,3 +39,9 @@ check-style:
 
 check-typing:
 	$(PYTHON) -m mypy $(PACKAGE_NAME)/
+
+check: check-format check-import-sorting check-style check-typing
+
+fix:
+	$(PYTHON) -m black $(PACKAGE_NAME)/
+	$(PYTHON) -m isort $(PACKAGE_NAME)/
