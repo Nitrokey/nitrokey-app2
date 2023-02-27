@@ -55,7 +55,7 @@ class Nk3Button(QtWidgets.QWidget):
         # needs to create button in the vertical navigation with the nitrokey type and serial number as text
         self.btn_nk3 = QtWidgets.QPushButton(
             QtGui.QIcon(":/images/icon/usb_new.png"),
-            "Nitrokey 3:" f"{self.device.uuid().value%10000}",
+            "Nitrokey 3: " f"{str(self.uuid)[-5:]}",
         )
         self.btn_nk3.setFixedSize(184, 40)
         self.btn_nk3.setIconSize(QSize(20, 20))
