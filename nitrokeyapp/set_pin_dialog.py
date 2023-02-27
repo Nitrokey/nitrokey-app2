@@ -11,7 +11,9 @@ class SetPinDialog(QtUtilsMixIn, QtWidgets.QDialog):
         self.ui = Ui_ChangePinDialog()
         self.ui.setupUi(self)
         self.new_pin =self.ui.lineEdit_new_pin_set
+        self.new_pin.setEchoMode(QtWidgets.QLineEdit.Password)
         self.confirm_new_pin = self.ui.lineEdit_confirm_new_pin_set
+        self.confirm_new_pin.setEchoMode(QtWidgets.QLineEdit.Password)
         self.btn_ok = self.ui.buttonBox.button(QtWidgets.QDialogButtonBox.Ok)
         self.confirm_new_pin.textChanged.connect(self.same_pin)
         self.new_pin.textChanged.connect(self.same_pin)

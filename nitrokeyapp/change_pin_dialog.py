@@ -10,9 +10,12 @@ class ChangePinDialog(QtUtilsMixIn, QtWidgets.QDialog):
 
         self.ui = Ui_ChangePinDialog()
         self.ui.setupUi(self)
-        self.current_pin = self.ui.lineEdit_current_pin 
+        self.current_pin = self.ui.lineEdit_current_pin
+        self.current_pin.setEchoMode(QtWidgets.QLineEdit.Password)
         self.new_pin = self.ui.lineEdit_new_pin
+        self.new_pin.setEchoMode(QtWidgets.QLineEdit.Password)
         self.confirm_new_pin = self.ui.lineEdit_confirm_new_pin
+        self.confirm_new_pin.setEchoMode(QtWidgets.QLineEdit.Password)
         # self.buttons = self.get_widget(QtWidgets.QDialogButtonBox, "buttonBox")
         self.btn_ok = self.ui.buttonBox.button(QtWidgets.QDialogButtonBox.Ok)
         self.confirm_new_pin.textChanged.connect(self.same_pin)
