@@ -98,6 +98,7 @@ class Nk3Button(QtWidgets.QWidget):
                 self.change_pin_dialog.confirm_new_pin.text(),
             )
         )
+        self.change_pin_dialog.btn_ok.clicked.connect(self.clear_pins)
         self.set_pin_dialog.btn_ok.clicked.connect(
             lambda: set_pin(
                 self.ctx,
@@ -105,6 +106,7 @@ class Nk3Button(QtWidgets.QWidget):
                 self.set_pin_dialog.confirm_new_pin.text(),
             )
         )
+        self.set_pin_dialog.btn_ok.clicked.connect(self.clear_pins)
         Nk3Button.list_nk3_keys.append(self)
 
     @pyqtSlot()
@@ -140,3 +142,11 @@ class Nk3Button(QtWidgets.QWidget):
         self.nk3_lineedit_path.setText(str(self.path))
         self.nk3_lineedit_version.setText(str(self.version))
         self.ctx = Nk3Context(self.device.path)
+    
+    def clear_pins(self):
+        self.change_pin_dialog.current_pin.clear()
+        self.change_pin_dialog.new_pin.clear()
+        self.change_pin_dialog.confirm_new_pin.clear()
+        self.set_pin_dialog.new_pin.clear()
+        self.set_pin_dialog.confirm_new_pin.clear()
+        
