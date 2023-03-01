@@ -77,7 +77,9 @@ class Ui_Key_generation(object):
         self.gridLayout_3 = QtWidgets.QGridLayout(self.frame)
         self.gridLayout_3.setObjectName("gridLayout_3")
         self.label_32 = QtWidgets.QLabel(self.frame)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_32.sizePolicy().hasHeightForWidth())
@@ -85,7 +87,9 @@ class Ui_Key_generation(object):
         self.label_32.setObjectName("label_32")
         self.gridLayout_3.addWidget(self.label_32, 0, 0, 1, 1)
         self.comboBox_4 = QtWidgets.QComboBox(self.frame)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.comboBox_4.sizePolicy().hasHeightForWidth())
@@ -105,20 +109,28 @@ class Ui_Key_generation(object):
         self.label_5.setObjectName("label_5")
         self.gridLayout_2.addWidget(self.label_5, 0, 0, 1, 1)
         self.pushButton_wiz = QtWidgets.QPushButton(self.wizardPage2)
-        self.pushButton_wiz.setStyleSheet("QPushButton {\n"
-"Text-align:left;\n"
-"}")
+        self.pushButton_wiz.setStyleSheet("QPushButton {\n" "Text-align:left;\n" "}")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("images/new/down_arrow.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(
+            QtGui.QPixmap("images/new/down_arrow.png"),
+            QtGui.QIcon.Normal,
+            QtGui.QIcon.Off,
+        )
         self.pushButton_wiz.setIcon(icon)
         self.pushButton_wiz.setCheckable(True)
         self.pushButton_wiz.setObjectName("pushButton_wiz")
-        self.gridLayout_2.addWidget(self.pushButton_wiz, 4, 0, 1, 1, QtCore.Qt.AlignBottom)
+        self.gridLayout_2.addWidget(
+            self.pushButton_wiz, 4, 0, 1, 1, QtCore.Qt.AlignBottom
+        )
         self.adsettings_key = QtWidgets.QWidget(self.wizardPage2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.adsettings_key.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.adsettings_key.sizePolicy().hasHeightForWidth()
+        )
         self.adsettings_key.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setBold(True)
@@ -128,7 +140,9 @@ class Ui_Key_generation(object):
         self.gridLayout = QtWidgets.QGridLayout(self.adsettings_key)
         self.gridLayout.setObjectName("gridLayout")
         self.comboBox = QtWidgets.QComboBox(self.adsettings_key)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.comboBox.sizePolicy().hasHeightForWidth())
@@ -142,7 +156,9 @@ class Ui_Key_generation(object):
         self.label_16.setObjectName("label_16")
         self.gridLayout.addWidget(self.label_16, 1, 0, 1, 1)
         self.comboBox_2 = QtWidgets.QComboBox(self.adsettings_key)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.comboBox_2.sizePolicy().hasHeightForWidth())
@@ -153,7 +169,9 @@ class Ui_Key_generation(object):
         self.comboBox_2.addItem("")
         self.gridLayout.addWidget(self.comboBox_2, 1, 1, 1, 1)
         self.label_8 = QtWidgets.QLabel(self.adsettings_key)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_8.sizePolicy().hasHeightForWidth())
@@ -184,7 +202,9 @@ class Ui_Key_generation(object):
         self.line_3.setObjectName("line_3")
         self.verticalLayout_3.addWidget(self.line_3)
         self.frame_5 = QtWidgets.QFrame(self.wizardPage)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame_5.sizePolicy().hasHeightForWidth())
@@ -221,17 +241,27 @@ class Ui_Key_generation(object):
         _translate = QtCore.QCoreApplication.translate
         Key_generation.setWindowTitle(_translate("Key_generation", "Wizard"))
         self.label_4.setText(_translate("Key_generation", "User Information"))
-        self.label.setText(_translate("Key_generation", "The following instructions guide through the generation \n"
-"of OpenPGP keys directly on the Nitrokey.\n"
-"\n"
-" Please provide the needed information."))
+        self.label.setText(
+            _translate(
+                "Key_generation",
+                "The following instructions guide through the generation \n"
+                "of OpenPGP keys directly on the Nitrokey.\n"
+                "\n"
+                " Please provide the needed information.",
+            )
+        )
         self.groupBox_4.setTitle(_translate("Key_generation", "User ID"))
         self.label_33.setText(_translate("Key_generation", "Real name: "))
         self.label_34.setText(_translate("Key_generation", "Email address:"))
         self.label_35.setText(_translate("Key_generation", "Comment:"))
-        self.label_3.setText(_translate("Key_generation", "Here they can determine the expiration date. \n"
-"In \"Advanced Settings\", the key type and size \n"
-" can be changed."))
+        self.label_3.setText(
+            _translate(
+                "Key_generation",
+                "Here they can determine the expiration date. \n"
+                'In "Advanced Settings", the key type and size \n'
+                " can be changed.",
+            )
+        )
         self.label_32.setText(_translate("Key_generation", "Expires in:"))
         self.comboBox_4.setItemText(0, _translate("Key_generation", "never"))
         self.comboBox_4.setItemText(1, _translate("Key_generation", "1 year"))
@@ -239,7 +269,9 @@ class Ui_Key_generation(object):
         self.comboBox_4.setItemText(3, _translate("Key_generation", "5 years"))
         self.label_5.setText(_translate("Key_generation", "Key Settings"))
         self.pushButton_wiz.setText(_translate("Key_generation", "Advanced Settings"))
-        self.comboBox.setItemText(0, _translate("Key_generation", "RSA and RSA (default)"))
+        self.comboBox.setItemText(
+            0, _translate("Key_generation", "RSA and RSA (default)")
+        )
         self.comboBox.setItemText(1, _translate("Key_generation", "DSA"))
         self.comboBox.setItemText(2, _translate("Key_generation", "ECC"))
         self.label_16.setText(_translate("Key_generation", "Key size:"))
@@ -250,15 +282,21 @@ class Ui_Key_generation(object):
         self.label_6.setText(_translate("Key_generation", "Backup"))
         self.radioButton_3.setText(_translate("Key_generation", "with Backup:"))
         self.radioButton_4.setText(_translate("Key_generation", "without Backup"))
-        self.label_2.setText(_translate("Key_generation", "We recommend that you only create a backup, \n"
-"if you are sure that you can keep it very secure. \n"
-"It is best practice to never have this key on a \n"
-"regular computer which has connection to the \n"
-"internet, so that the key never gets compromised."))
+        self.label_2.setText(
+            _translate(
+                "Key_generation",
+                "We recommend that you only create a backup, \n"
+                "if you are sure that you can keep it very secure. \n"
+                "It is best practice to never have this key on a \n"
+                "regular computer which has connection to the \n"
+                "internet, so that the key never gets compromised.",
+            )
+        )
 
 
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     Key_generation = QtWidgets.QWizard()
     ui = Ui_Key_generation()

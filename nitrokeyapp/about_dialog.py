@@ -1,8 +1,10 @@
 from PyQt5 import QtWidgets
 
+from nitrokeyapp import __version__
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.ui.aboutdialog_ui import Ui_AboutDialog
-from nitrokeyapp import __version__
+
+
 class AboutDialog(QtUtilsMixIn, QtWidgets.QDialog):
     def __init__(self, qt_app: QtWidgets.QApplication):
         QtWidgets.QDialog.__init__(self)

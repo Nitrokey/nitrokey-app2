@@ -139,7 +139,9 @@ def change_pin(ctx: Nk3Context, old_pin, new_pin, confirm_pin):
                 e,
             )
             TrayNotification(
-                "Nitrokey 3", "Failed changing to new pin! Did you set one already or is it wrong?", "Nitrokey 3 Change PIN"
+                "Nitrokey 3",
+                "Failed changing to new pin! Did you set one already or is it wrong?",
+                "Nitrokey 3 Change PIN",
             )
 
 
@@ -166,8 +168,11 @@ def set_pin(ctx: Nk3Context, new_pin, confirm_pin):
                 "failed to set pin!", "did you set one already? or is it wrong?", e
             )
             TrayNotification(
-                "Nitrokey 3", "Failed setting a pin! Did you set one already or is it wrong?", "Nitrokey 3 Change PIN"
+                "Nitrokey 3",
+                "Failed setting a pin! Did you set one already or is it wrong?",
+                "Nitrokey 3 Change PIN",
             )
+
 
 def nk3_update_helper(ctx: Nk3Context, progressBarUpdate, image, variant):
     try:
@@ -175,8 +180,9 @@ def nk3_update_helper(ctx: Nk3Context, progressBarUpdate, image, variant):
     except Exception as e:
         logger.info("Failed to update Nitrokey 3", e)
         TrayNotification(
-                "Nitrokey 3", "Failed to update Nitrokey 3", "Nitrokey 3 Change PIN"
-            )
+            "Nitrokey 3", "Failed to update Nitrokey 3", "Nitrokey 3 Change PIN"
+        )
+
 
 def nk3_update(ctx: Nk3Context, progressBarUpdate, image, variant) -> None:
 
@@ -199,11 +205,10 @@ def nk3_update(ctx: Nk3Context, progressBarUpdate, image, variant) -> None:
         else:
             TrayNotification(
                 "Nitrokey 3",
-                 f"The firmware update to {update_version} was successful, but the firmware is still reporting version {version}.",
+                f"The firmware update to {update_version} was successful, but the firmware is still reporting version {version}.",
                 "Nitrokey 3 Firmware Update",
             )
             raise CliException(
                 f"The firmware update to {update_version} was successful, but the firmware "
                 f"is still reporting version {version}."
             )
-            

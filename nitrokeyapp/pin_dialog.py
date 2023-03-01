@@ -2,7 +2,8 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSlot
 
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
-from nitrokeyapp.ui.pindialog_ui import  Ui_PinDialog
+from nitrokeyapp.ui.pindialog_ui import Ui_PinDialog
+
 
 # @fixme: PINDialog should be modal!
 class PINDialog(QtUtilsMixIn, QtWidgets.QDialog):
@@ -10,7 +11,7 @@ class PINDialog(QtUtilsMixIn, QtWidgets.QDialog):
         QtWidgets.QDialog.__init__(self)
         QtUtilsMixIn.__init__(self)
         self.app = qt_app
-        self.ui =  Ui_PinDialog()
+        self.ui = Ui_PinDialog()
         self.ui.setupUi(self)
         self.checkbox, self.ok_btn, self.line_edit = None, None, None
         self.status, self.title = None, None

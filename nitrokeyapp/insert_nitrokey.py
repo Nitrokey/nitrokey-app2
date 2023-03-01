@@ -7,6 +7,7 @@ from PyQt5.QtCore import pyqtSlot
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.ui.insert_Nitrokey_ui import Ui_Insert_Nitrokey
 
+
 # isnt used atm
 class InsertNitrokey(QtUtilsMixIn, QtWidgets.QDialog):
     def __init__(self, qt_app: QtWidgets.QApplication):

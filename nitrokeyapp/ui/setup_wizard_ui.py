@@ -36,7 +36,9 @@ class Ui_PINSetup(object):
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line.setObjectName("line")
         self.gridLayout_2.addWidget(self.line, 1, 0, 1, 1)
-        spacerItem = QtWidgets.QSpacerItem(20, 150, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem = QtWidgets.QSpacerItem(
+            20, 150, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
+        )
         self.gridLayout_2.addItem(spacerItem, 3, 0, 1, 1)
         self.label_3 = QtWidgets.QLabel(self.wizardPage1)
         font = QtGui.QFont()
@@ -55,7 +57,9 @@ class Ui_PINSetup(object):
         self.line_2.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line_2.setObjectName("line_2")
         self.gridLayout.addWidget(self.line_2, 1, 0, 1, 1)
-        spacerItem1 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem1 = QtWidgets.QSpacerItem(
+            20, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
+        )
         self.gridLayout.addItem(spacerItem1, 2, 0, 1, 1)
         self.lineEdit = QtWidgets.QLineEdit(self.wizardPage)
         self.lineEdit.setObjectName("lineEdit")
@@ -82,7 +86,9 @@ class Ui_PINSetup(object):
         self.label_5.setFont(font)
         self.label_5.setObjectName("label_5")
         self.gridLayout.addWidget(self.label_5, 6, 0, 1, 2)
-        spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem2 = QtWidgets.QSpacerItem(
+            20, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
+        )
         self.gridLayout.addItem(spacerItem2, 5, 0, 1, 1)
         PINSetup.addPage(self.wizardPage)
         self.wizardPage2 = QtWidgets.QWizardPage()
@@ -92,7 +98,9 @@ class Ui_PINSetup(object):
         self.label_10 = QtWidgets.QLabel(self.wizardPage2)
         self.label_10.setObjectName("label_10")
         self.gridLayout_3.addWidget(self.label_10, 4, 0, 1, 2)
-        spacerItem3 = QtWidgets.QSpacerItem(20, 28, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem3 = QtWidgets.QSpacerItem(
+            20, 28, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
+        )
         self.gridLayout_3.addItem(spacerItem3, 2, 0, 1, 1)
         self.line_3 = QtWidgets.QFrame(self.wizardPage2)
         self.line_3.setFrameShape(QtWidgets.QFrame.HLine)
@@ -118,7 +126,9 @@ class Ui_PINSetup(object):
         self.label_11.setFont(font)
         self.label_11.setObjectName("label_11")
         self.gridLayout_3.addWidget(self.label_11, 6, 0, 1, 3)
-        spacerItem4 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem4 = QtWidgets.QSpacerItem(
+            20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
+        )
         self.gridLayout_3.addItem(spacerItem4, 5, 0, 1, 1)
         self.lineEdit_4 = QtWidgets.QLineEdit(self.wizardPage2)
         self.lineEdit_4.setObjectName("lineEdit_4")
@@ -131,26 +141,44 @@ class Ui_PINSetup(object):
     def retranslateUi(self, PINSetup):
         _translate = QtCore.QCoreApplication.translate
         PINSetup.setWindowTitle(_translate("PINSetup", "Wizard"))
-        self.label_2.setText(_translate("PINSetup", "This Guided Setup Wizard leads you through the process of setting up your PIN\'s, which are essential to use your Nitrokey device. "))
+        self.label_2.setText(
+            _translate(
+                "PINSetup",
+                "This Guided Setup Wizard leads you through the process of setting up your PIN's, which are essential to use your Nitrokey device. ",
+            )
+        )
         self.label.setText(_translate("PINSetup", "Nitrokey Setup"))
-        self.label_3.setText(_translate("PINSetup", "Your PINs can also be changed later again."))
+        self.label_3.setText(
+            _translate("PINSetup", "Your PINs can also be changed later again.")
+        )
         self.label_4.setText(_translate("PINSetup", "User PIN Setup"))
         self.label_6.setText(_translate("PINSetup", "new User PIN:"))
         self.label_7.setText(_translate("PINSetup", "confirm new User PIN:"))
-        self.label_5.setText(_translate("PINSetup", "The Nitrokey is protected by a User PIN, \n"
-"only 3 entries are possible until the device is locked. \n"
-"Choose a User PIN between 6-20 characters. \n"
-""))
+        self.label_5.setText(
+            _translate(
+                "PINSetup",
+                "The Nitrokey is protected by a User PIN, \n"
+                "only 3 entries are possible until the device is locked. \n"
+                "Choose a User PIN between 6-20 characters. \n"
+                "",
+            )
+        )
         self.label_10.setText(_translate("PINSetup", "confirm new Admin PIN:"))
         self.label_12.setText(_translate("PINSetup", "new Admin PIN:"))
         self.label_9.setText(_translate("PINSetup", "Admin PIN Setup"))
-        self.label_11.setText(_translate("PINSetup", "To unlock a blocked Nitrokey, you need an Admin PIN.\n"
-"choose a PIN between 6-20 characters. \n"
-""))
+        self.label_11.setText(
+            _translate(
+                "PINSetup",
+                "To unlock a blocked Nitrokey, you need an Admin PIN.\n"
+                "choose a PIN between 6-20 characters. \n"
+                "",
+            )
+        )
 
 
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     PINSetup = QtWidgets.QWizard()
     ui = Ui_PINSetup()

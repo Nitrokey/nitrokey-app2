@@ -4,6 +4,7 @@ from PyQt5.QtCore import pyqtSlot
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.ui.key_generation_ui import Ui_Key_generation
 
+
 class KeyGeneration(QtUtilsMixIn, QtWidgets.QWizard):
     def __init__(self, qt_app: QtWidgets.QApplication):
         QtWidgets.QWizard.__init__(self)

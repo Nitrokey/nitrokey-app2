@@ -3,6 +3,7 @@ from PyQt5 import QtWidgets
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.ui.set_pin_dialog_ui import Ui_ChangePinDialog
 
+
 class SetPinDialog(QtUtilsMixIn, QtWidgets.QDialog):
     def __init__(self, parent=None):
         QtWidgets.QDialog.__init__(self, parent)
@@ -10,7 +11,7 @@ class SetPinDialog(QtUtilsMixIn, QtWidgets.QDialog):
 
         self.ui = Ui_ChangePinDialog()
         self.ui.setupUi(self)
-        self.new_pin =self.ui.lineEdit_new_pin_set
+        self.new_pin = self.ui.lineEdit_new_pin_set
         self.new_pin.setEchoMode(QtWidgets.QLineEdit.Password)
         self.confirm_new_pin = self.ui.lineEdit_confirm_new_pin_set
         self.confirm_new_pin.setEchoMode(QtWidgets.QLineEdit.Password)
@@ -21,7 +22,10 @@ class SetPinDialog(QtUtilsMixIn, QtWidgets.QDialog):
 
     def same_pin(self):
 
-        if self.new_pin.text() != self.confirm_new_pin.text() or self.new_pin.text() == "":
+        if (
+            self.new_pin.text() != self.confirm_new_pin.text()
+            or self.new_pin.text() == ""
+        ):
             self.btn_ok.setEnabled(False)
         else:
             self.btn_ok.setEnabled(True)

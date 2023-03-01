@@ -39,6 +39,7 @@ class Ui_Insert_Nitrokey(object):
 
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     Insert_Nitrokey = QtWidgets.QDialog()
     ui = Ui_Insert_Nitrokey()

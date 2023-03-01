@@ -5,7 +5,6 @@ import functools
 import logging
 import platform
 import webbrowser
-from pathlib import Path
 from queue import Queue
 
 # Nitrokey 3
@@ -15,7 +14,6 @@ from pynitrokey.nk3 import list as list_nk3
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
 
-from nitrokeyapp.ui.mainwindow_ui import Ui_MainWindow
 from nitrokeyapp.about_dialog import AboutDialog
 from nitrokeyapp.change_pin_dialog import ChangePinDialog
 from nitrokeyapp.insert_nitrokey import InsertNitrokey
@@ -30,6 +28,7 @@ from nitrokeyapp.set_pin_dialog import SetPinDialog
 # import wizards and stuff
 from nitrokeyapp.setup_wizard import SetupWizard
 from nitrokeyapp.tray_notification import TrayNotification
+from nitrokeyapp.ui.mainwindow_ui import Ui_MainWindow
 from nitrokeyapp.windows_notification import WindowsUSBNotification
 
 # import nitrokeyapp.ui.breeze_resources
@@ -130,22 +129,22 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.setup_wizard = SetupWizard(qt_app)
         self.insert_nitrokey = InsertNitrokey(qt_app)
         self.pin_dialog = PINDialog(qt_app)
-        
+
         # get widget objects
         # app wide widgets
-        #self.status_bar = _get(_qt.QStatusBar, "statusBar")
-        #self.menu_bar = _get(_qt.QMenuBar, "menuBar")
+        # self.status_bar = _get(_qt.QStatusBar, "statusBar")
+        # self.menu_bar = _get(_qt.QMenuBar, "menuBar")
         self.tabs = self.ui.tabWidget
         self.tab_otp_conf = self.ui.tab
         self.tab_otp_gen = self.ui.tab_2
         self.tab_pws = self.ui.tab_3
         self.tab_settings = self.ui.tab_4
         self.tab_overview = self.ui.tab_5
-        #self.tab_fido2 = self.ui.tab_6
-        #self.tab_storage = self.ui.tab_7
+        # self.tab_fido2 = self.ui.tab_6
+        # self.tab_storage = self.ui.tab_7
         self.about_button = self.ui.btn_about
         self.help_btn = self.ui.btn_dial_help
-        #self.quit_button = self.ui.btn_dial_quit
+        # self.quit_button = self.ui.btn_dial_quit
         self.settings_btn = self.ui.btn_settings
         self.lock_btn = self.ui.btn_dial_lock
         self.l_insert_nitrokey = self.ui.label_insert_Nitrokey

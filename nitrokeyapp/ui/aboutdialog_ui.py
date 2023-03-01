@@ -15,20 +15,29 @@ class Ui_AboutDialog(object):
     def setupUi(self, AboutDialog):
         AboutDialog.setObjectName("AboutDialog")
         AboutDialog.resize(642, 777)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(AboutDialog.sizePolicy().hasHeightForWidth())
         AboutDialog.setSizePolicy(sizePolicy)
         AboutDialog.setFocusPolicy(QtCore.Qt.NoFocus)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/images/new/icon_NK.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(
+            QtGui.QPixmap(":/images/new/icon_NK.svg"),
+            QtGui.QIcon.Normal,
+            QtGui.QIcon.Off,
+        )
         AboutDialog.setWindowIcon(icon)
         AboutDialog.setAutoFillBackground(False)
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(AboutDialog)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.frame = QtWidgets.QFrame(AboutDialog)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.MinimumExpanding,
+            QtWidgets.QSizePolicy.MinimumExpanding,
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame.sizePolicy().hasHeightForWidth())
@@ -41,7 +50,9 @@ class Ui_AboutDialog(object):
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.IconLabel = QtWidgets.QLabel(self.frame)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.IconLabel.sizePolicy().hasHeightForWidth())
@@ -57,7 +68,9 @@ class Ui_AboutDialog(object):
         self.verticalLayout_7.setObjectName("verticalLayout_7")
         self.label_7 = QtWidgets.QLabel(self.frame)
         self.label_7.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.label_7.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
+        self.label_7.setAlignment(
+            QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop
+        )
         self.label_7.setWordWrap(True)
         self.label_7.setObjectName("label_7")
         self.verticalLayout_7.addWidget(self.label_7)
@@ -78,7 +91,9 @@ class Ui_AboutDialog(object):
         self.horizontalLayout_7 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_7.setObjectName("horizontalLayout_7")
         self.formLayout_2 = QtWidgets.QFormLayout()
-        self.formLayout_2.setFieldGrowthPolicy(QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
+        self.formLayout_2.setFieldGrowthPolicy(
+            QtWidgets.QFormLayout.AllNonFixedFieldsGrow
+        )
         self.formLayout_2.setObjectName("formLayout_2")
         self.label_3 = QtWidgets.QLabel(self.frame)
         self.label_3.setFocusPolicy(QtCore.Qt.StrongFocus)
@@ -92,7 +107,9 @@ class Ui_AboutDialog(object):
         self.VersionLabel.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.VersionLabel.setText("1.0")
         self.VersionLabel.setObjectName("VersionLabel")
-        self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.VersionLabel)
+        self.formLayout_2.setWidget(
+            0, QtWidgets.QFormLayout.FieldRole, self.VersionLabel
+        )
         self.horizontalLayout_7.addLayout(self.formLayout_2)
         self.verticalLayout_3.addLayout(self.horizontalLayout_7)
         self.line_3 = QtWidgets.QFrame(self.frame)
@@ -102,16 +119,22 @@ class Ui_AboutDialog(object):
         self.verticalLayout_3.addWidget(self.line_3)
         self.AboutLabel_2 = QtWidgets.QLabel(self.frame)
         self.AboutLabel_2.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.AboutLabel_2.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
+        self.AboutLabel_2.setAlignment(
+            QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop
+        )
         self.AboutLabel_2.setWordWrap(True)
         self.AboutLabel_2.setOpenExternalLinks(True)
-        self.AboutLabel_2.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByKeyboard|QtCore.Qt.LinksAccessibleByMouse)
+        self.AboutLabel_2.setTextInteractionFlags(
+            QtCore.Qt.LinksAccessibleByKeyboard | QtCore.Qt.LinksAccessibleByMouse
+        )
         self.AboutLabel_2.setObjectName("AboutLabel_2")
         self.verticalLayout_3.addWidget(self.AboutLabel_2)
         self.verticalLayout_2.addWidget(self.frame)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
-        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
+        )
         self.horizontalLayout.addItem(spacerItem)
         self.ButtonOK = QtWidgets.QPushButton(AboutDialog)
         self.ButtonOK.setFocusPolicy(QtCore.Qt.TabFocus)
@@ -132,16 +155,31 @@ class Ui_AboutDialog(object):
         _translate = QtCore.QCoreApplication.translate
         AboutDialog.setWindowTitle(_translate("AboutDialog", "About"))
         self.IconLabel.setAccessibleDescription(_translate("AboutDialog", "Logo"))
-        self.label_7.setText(_translate("AboutDialog", "<html><head/><body><p>This application allows you to configure your Nitrokey 3.</p></body></html>"))
-        self.label_6.setText(_translate("AboutDialog", "<html><head/><body><p><a href=\"https://www.nitrokey.com/start\"><span style=\" text-decoration: underline; color:#c80636;\">Instructions and help</span></a></p></body></html>"))
+        self.label_7.setText(
+            _translate(
+                "AboutDialog",
+                "<html><head/><body><p>This application allows you to configure your Nitrokey 3.</p></body></html>",
+            )
+        )
+        self.label_6.setText(
+            _translate(
+                "AboutDialog",
+                '<html><head/><body><p><a href="https://www.nitrokey.com/start"><span style=" text-decoration: underline; color:#c80636;">Instructions and help</span></a></p></body></html>',
+            )
+        )
         self.label_3.setText(_translate("AboutDialog", "App version:"))
-        self.AboutLabel_2.setText(_translate("AboutDialog", "<html><head/><body><p><span style=\" font-size:10pt; font-style:italic;\">This software is licensed under the </span><a href=\"http://www.apache.org/licenses/\"><span style=\" font-size:10pt; font-style:italic; text-decoration: underline; color:#c80636;\">Apache License 2.0</span></a><span style=\" font-size:10pt; font-style:italic;\">.</span></p><p><a href=\"https://nitrokey.com\"><span style=\" text-decoration: underline; color:#c80636;\">www.nitrokey.com</span></a></p></body></html>"))
+        self.AboutLabel_2.setText(
+            _translate(
+                "AboutDialog",
+                '<html><head/><body><p><span style=" font-size:10pt; font-style:italic;">This software is licensed under the </span><a href="http://www.apache.org/licenses/"><span style=" font-size:10pt; font-style:italic; text-decoration: underline; color:#c80636;">Apache License 2.0</span></a><span style=" font-size:10pt; font-style:italic;">.</span></p><p><a href="https://nitrokey.com"><span style=" text-decoration: underline; color:#c80636;">www.nitrokey.com</span></a></p></body></html>',
+            )
+        )
         self.ButtonOK.setText(_translate("AboutDialog", "OK"))
-import resources_rc
 
 
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     AboutDialog = QtWidgets.QDialog()
     ui = Ui_AboutDialog()
