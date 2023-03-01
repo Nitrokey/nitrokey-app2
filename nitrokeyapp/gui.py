@@ -29,7 +29,7 @@ from nitrokeyapp.set_pin_dialog import SetPinDialog
 from nitrokeyapp.setup_wizard import SetupWizard
 from nitrokeyapp.tray_notification import TrayNotification
 from nitrokeyapp.ui.mainwindow_ui import Ui_MainWindow
-from nitrokeyapp.windows_notification import WindowsUSBNotification
+from nitrokeyapp.windows_notification import WindowsUSBNotifi
 
 # import nitrokeyapp.ui.breeze_resources
 # pyrcc5 -o gui_resources.py ui/resourcces.qrc
@@ -113,7 +113,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # windows
         if platform.system() == "Windows":
             logger.info("OS:Windows")
-            WindowsUSBNotification(self.detect_nk3, self.remove_nk3)
+            WindowsUSBNotifi(self.detect_nk3, self.remove_nk3)
 
         # loads main ui
         self.ui = Ui_MainWindow()
