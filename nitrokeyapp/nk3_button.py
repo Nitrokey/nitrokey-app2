@@ -28,10 +28,10 @@ class Nk3Button(QtWidgets.QWidget):
         nk3_lineedit_version,
         tabs,
         progressBarUpdate,
-        change_pin_open_dialog,
-        set_pin_open_dialog,
-        change_pin_dialog,
-        set_pin_dialog,
+        #change_pin_open_dialog,
+        #set_pin_open_dialog,
+        #change_pin_dialog,
+        #set_pin_dialog,
         buttonLayout_nk3,
     ):
         super().__init__()
@@ -39,10 +39,10 @@ class Nk3Button(QtWidgets.QWidget):
         self.uuid = self.device.uuid()
         self.path = self.device.path
         self.version = self.device.version()
-        self.change_pin_open_dialog = change_pin_open_dialog
-        self.set_pin_open_dialog = set_pin_open_dialog
-        self.change_pin_dialog = change_pin_dialog
-        self.set_pin_dialog = set_pin_dialog
+        #self.change_pin_open_dialog = change_pin_open_dialog
+        #self.set_pin_open_dialog = set_pin_open_dialog
+        #self.change_pin_dialog = change_pin_dialog
+        #self.set_pin_dialog = set_pin_dialog
         self.nitrokeys_window = nitrokeys_window
         self.layout_nk_btns = layout_nk_btns
         self.nitrokey3_frame = nitrokey3_frame
@@ -55,7 +55,7 @@ class Nk3Button(QtWidgets.QWidget):
         # needs to create button in the vertical navigation with the nitrokey type and serial number as text
         self.btn_nk3 = QtWidgets.QPushButton(
             QtGui.QIcon(":/images/icon/usb_new.png"),
-            "Nitrokey 3: " f"{str(self.uuid)[-5:]}",
+            "Nitrokey 3: " f"{str(self.uuid)[:5]}",
         )
         self.btn_nk3.setFixedSize(184, 40)
         self.btn_nk3.setIconSize(QSize(20, 20))
@@ -73,40 +73,40 @@ class Nk3Button(QtWidgets.QWidget):
         self.widget_nk_btns.setLayout(self.layout_nk_btns)
         self.nitrokeys_window.setWidget(self.widget_nk_btns)
         self.own_update_btn = QtWidgets.QPushButton("Update", self.nitrokey3_frame)
-        self.own_change_pin = QtWidgets.QPushButton("Change PIN", self.nitrokey3_frame)
-        self.own_set_pin = QtWidgets.QPushButton("Set PIN", self.nitrokey3_frame)
+        #self.own_change_pin = QtWidgets.QPushButton("Change PIN", self.nitrokey3_frame)
+        #self.own_set_pin = QtWidgets.QPushButton("Set PIN", self.nitrokey3_frame)
         self.own_update_btn.setGeometry(12, 134, 413, 27)
-        self.own_change_pin.setGeometry(12, 166, 413, 27)
-        self.own_set_pin.setGeometry(12, 198, 413, 27)
+        #self.own_change_pin.setGeometry(12, 166, 413, 27)
+        #self.own_set_pin.setGeometry(12, 198, 413, 27)
         self.buttonlayout_nk3.addWidget(self.own_update_btn)
-        self.buttonlayout_nk3.addWidget(self.own_change_pin)
-        self.buttonlayout_nk3.addWidget(self.own_set_pin)
+        #self.buttonlayout_nk3.addWidget(self.own_change_pin)
+        #self.buttonlayout_nk3.addWidget(self.own_set_pin)
         self.own_update_btn.hide()
-        self.own_change_pin.hide()
-        self.own_set_pin.hide()
+        #self.own_change_pin.hide()
+        #self.own_set_pin.hide()
         self.ctx = Nk3Context(self.device.path)
         self.own_update_btn.clicked.connect(
             lambda: nk3_update_helper(self.ctx, self.progressbarupdate, 0, 0)
         )
-        self.own_change_pin.clicked.connect(self.change_pin_open_dialog)
-        self.own_set_pin.clicked.connect(self.set_pin_open_dialog)
-        self.change_pin_dialog.btn_ok.clicked.connect(
-            lambda: change_pin(
-                self.ctx,
-                self.change_pin_dialog.current_pin.text(),
-                self.change_pin_dialog.new_pin.text(),
-                self.change_pin_dialog.confirm_new_pin.text(),
-            )
-        )
-        self.change_pin_dialog.btn_ok.clicked.connect(self.clear_pins)
-        self.set_pin_dialog.btn_ok.clicked.connect(
-            lambda: set_pin(
-                self.ctx,
-                self.set_pin_dialog.new_pin.text(),
-                self.set_pin_dialog.confirm_new_pin.text(),
-            )
-        )
-        self.set_pin_dialog.btn_ok.clicked.connect(self.clear_pins)
+        #self.own_change_pin.clicked.connect(self.change_pin_open_dialog)
+        #self.own_set_pin.clicked.connect(self.set_pin_open_dialog)
+        #self.change_pin_dialog.btn_ok.clicked.connect(
+        #     lambda: change_pin(
+        #         self.ctx,
+        #         self.change_pin_dialog.current_pin.text(),
+        #         self.change_pin_dialog.new_pin.text(),
+        #         self.change_pin_dialog.confirm_new_pin.text(),
+        #     )
+        # )
+        # self.change_pin_dialog.btn_ok.clicked.connect(self.clear_pins)
+        # self.set_pin_dialog.btn_ok.clicked.connect(
+        #     lambda: set_pin(
+        #         self.ctx,
+        #         self.set_pin_dialog.new_pin.text(),
+        #         self.set_pin_dialog.confirm_new_pin.text(),
+        #     )
+        # )
+        # self.set_pin_dialog.btn_ok.clicked.connect(self.clear_pins)
         Nk3Button.list_nk3_keys.append(self)
 
     @pyqtSlot()
@@ -120,19 +120,19 @@ class Nk3Button(QtWidgets.QWidget):
         self.nitrokey3_frame.show()
         for i in Nk3Button.get():
             i.own_update_btn.hide()
-            i.own_change_pin.hide()
-            i.own_set_pin.hide()
+            #i.own_change_pin.hide()
+            #i.own_set_pin.hide()
         self.own_update_btn.show()
-        self.own_change_pin.show()
-        self.own_set_pin.show()
+        #self.own_change_pin.show()
+        #self.own_set_pin.show()
 
     def __del__(self):
         self.tabs.hide()
         self.nitrokeys_window.update()
         self.btn_nk3.close()
         self.own_update_btn.close()
-        self.own_change_pin.close()
-        self.own_set_pin.close()
+        #self.own_change_pin.close()
+        #self.own_set_pin.close()
         Nk3Button.list_nk3_keys.remove(self)
 
     def update(self, device):
@@ -143,9 +143,9 @@ class Nk3Button(QtWidgets.QWidget):
         self.nk3_lineedit_version.setText(str(self.version))
         self.ctx = Nk3Context(self.device.path)
 
-    def clear_pins(self):
-        self.change_pin_dialog.current_pin.clear()
-        self.change_pin_dialog.new_pin.clear()
-        self.change_pin_dialog.confirm_new_pin.clear()
-        self.set_pin_dialog.new_pin.clear()
-        self.set_pin_dialog.confirm_new_pin.clear()
+    # def clear_pins(self):
+    #     self.change_pin_dialog.current_pin.clear()
+    #     self.change_pin_dialog.new_pin.clear()
+    #     self.change_pin_dialog.confirm_new_pin.clear()
+    #     self.set_pin_dialog.new_pin.clear()
+    #     self.set_pin_dialog.confirm_new_pin.clear()

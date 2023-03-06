@@ -86,6 +86,7 @@ class BackendThread(QThread):
 
 # pyrcc4 -py3 resources.qrc -o resources_rc.py
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # PWS related callbacks
@@ -121,14 +122,14 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         # import other ui-files
         # used
-        self.change_pin_dialog = ChangePinDialog(self)
-        self.set_pin_dialog = SetPinDialog(self)
         self.about_dialog = AboutDialog(qt_app)
         # unused (atm)
         self.key_generation = KeyGeneration(qt_app)
         self.setup_wizard = SetupWizard(qt_app)
         self.insert_nitrokey = InsertNitrokey(qt_app)
         self.pin_dialog = PINDialog(qt_app)
+        self.change_pin_dialog = ChangePinDialog(self)
+        self.set_pin_dialog = SetPinDialog(self)
 
         # get widget objects
         # app wide widgets
@@ -219,10 +220,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                         self.nk3_lineedit_version,
                         self.tabs,
                         self.progressbarupdate,
-                        self.change_pin_open_dialog,
-                        self.set_pin_open_dialog,
-                        self.change_pin_dialog,
-                        self.set_pin_dialog,
+                        #self.change_pin_open_dialog,
+                        #self.set_pin_open_dialog,
+                        #self.change_pin_dialog,
+                        #self.set_pin_dialog,
                         self.buttonlayout_nk3,
                     )
                     TrayNotification(
@@ -285,14 +286,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     @pyqtSlot()
     def about_button_pressed(self):
         self.about_dialog.exec_()
-
-    @pyqtSlot()
-    def change_pin_open_dialog(self):
-        self.change_pin_dialog.exec_()
-
-    @pyqtSlot()
-    def set_pin_open_dialog(self):
-        self.set_pin_dialog.exec_()
 
     @pyqtSlot()
     def slot_lock_button_pressed(self):

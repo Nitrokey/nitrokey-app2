@@ -17,6 +17,7 @@ from pynitrokey.nk3.device import Nitrokey3Device
 # tray icon
 from nitrokeyapp.tray_notification import TrayNotification
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 T = TypeVar("T", bound=Nitrokey3Base)
@@ -180,7 +181,7 @@ def nk3_update_helper(ctx: Nk3Context, progressBarUpdate, image, variant):
     except Exception as e:
         logger.info("Failed to update Nitrokey 3", e)
         TrayNotification(
-            "Nitrokey 3", "Failed to update Nitrokey 3", "Nitrokey 3 Change PIN"
+            "Nitrokey 3", "Failed to update Nitrokey 3", "Nitrokey 3 Update"
         )
 
 
@@ -189,7 +190,7 @@ def nk3_update(ctx: Nk3Context, progressBarUpdate, image, variant) -> None:
     from nitrokeyapp.update import update
 
     update_version = update(ctx, progressBarUpdate, image, variant)
-
+    
     with ctx.await_device() as device:
         version = device.version()
         progressBarUpdate.show()
