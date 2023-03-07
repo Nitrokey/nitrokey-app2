@@ -198,7 +198,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def detect_nk3(self):
         if len(list_nk3()):
             list_of_added = [y.uuid for y in Nk3Button.get()]
-            logger.info("list of added:", list_of_added)
+            logger.info(f"list of added: {list_of_added}")
             for device in list_nk3():
                 if device.uuid() not in list_of_added:
                     self.device = device
@@ -245,7 +245,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def remove_nk3(self):
         list_of_removed = []
         if len(list_nk3()):
-            logger.info("list nk3:", list_nk3())
+            logger.info(f"list nk3: {list_nk3()}")
             list_of_nk3s = [x.uuid() for x in list_nk3()]
             list_of_removed_help = [
                 y for y in Nk3Button.get() if y.uuid not in list_of_nk3s
