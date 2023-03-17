@@ -12,7 +12,6 @@ def main():
     QtUtilsMixIn.backend_thread = BackendThread()
 
     app = QtWidgets.QApplication(sys.argv)
-
     window = GUI(app)  # noqa: F841
     app.exec()
 
