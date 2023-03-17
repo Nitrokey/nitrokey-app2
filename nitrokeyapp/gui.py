@@ -5,10 +5,13 @@ import functools
 import logging
 import platform
 import webbrowser
+from itertools import filterfalse
 from queue import Queue
 
 # Nitrokey 3
 from pynitrokey.nk3 import list as list_nk3
+from pynitrokey.nk3.bootloader.lpc55 import Nitrokey3BootloaderLpc55
+from pynitrokey.nk3.bootloader.nrf52 import Nitrokey3BootloaderNrf52
 
 # pyqt5
 from PyQt5 import QtWidgets
@@ -195,11 +198,21 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 logger.info("BIND")
                 self.detect_nk3()
 
+    def device_in_bootloader(self, device) -> bool:
+        return (
+            True
+            if isinstance(device, Nitrokey3BootloaderNrf52)
+            or isinstance(device, Nitrokey3BootloaderLpc55)
+            else False
+        )
+
     def detect_nk3(self):
-        if len(list_nk3()):
+        nk3_list = list_nk3()
+        nk3_list = list(filterfalse(self.device_in_bootloader, nk3_list))
+        if len(nk3_list):
             list_of_added = [y.uuid for y in Nk3Button.get()]
             logger.info(f"list of added: {list_of_added}")
-            for device in list_nk3():
+            for device in nk3_list:
                 if device.uuid() not in list_of_added:
                     self.device = device
                     uuid = self.device.uuid()
