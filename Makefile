@@ -3,6 +3,7 @@
 PACKAGE_NAME=nitrokeyapp
 VENV=venv
 PYTHON=python3
+UI_DIR = nitrokeyapp/ui
 
 # setup environment
 init: update-venv
@@ -23,6 +24,9 @@ semi-clean:
 clean: semi-clean
 	rm -rf $(VENV)
 	rm -rf .mypy_cache
+
+build-ui: $(UI_DIR)
+	$(shell for file in $(UI_DIR)/*.ui; do pyuic5 $$file -o $$(sed 's/ui$$/py/' <<< $$file); done)
 
 build:
 	$(VENV)/bin/$(PYTHON) -m flit build
