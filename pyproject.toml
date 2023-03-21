@@ -35,7 +35,7 @@ dev = [
   "flake8",
   "flit >= 3.2,<4",
   "isort",
-  "mypy >=0.900,<0.990",
+  "mypy >=1,<1.1",
 ]
 
 [project.urls]
