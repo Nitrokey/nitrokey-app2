@@ -220,10 +220,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                         self.nk3_lineedit_version,
                         self.tabs,
                         self.progressbarupdate,
-                        #self.change_pin_open_dialog,
-                        #self.set_pin_open_dialog,
-                        #self.change_pin_dialog,
-                        #self.set_pin_dialog,
+                        # self.change_pin_open_dialog,
+                        # self.set_pin_open_dialog,
+                        # self.change_pin_dialog,
+                        # self.set_pin_dialog,
                         self.buttonlayout_nk3,
                     )
                     TrayNotification(

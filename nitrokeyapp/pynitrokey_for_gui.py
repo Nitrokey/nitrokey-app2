@@ -136,7 +136,7 @@ def change_pin(ctx: Nk3Context, old_pin, new_pin, confirm_pin):
         except Exception as e:
             logger.info(
                 f"failed changing to new pin! did you set one already? or is it wrong? {e}"
-                )
+            )
             TrayNotification(
                 "Nitrokey 3",
                 "Failed changing to new pin! Did you set one already or is it wrong?",
