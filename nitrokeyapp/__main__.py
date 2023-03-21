@@ -2,7 +2,7 @@ import sys
 
 from PyQt5 import QtWidgets
 
-import nitrokeyapp.gui_resources  # noqa: F401
+import nitrokeyapp.resources_rc  # noqa: F401
 from nitrokeyapp.gui import GUI, BackendThread
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
@@ -13,12 +13,7 @@ def main():
 
     app = QtWidgets.QApplication(sys.argv)
 
-    # set stylesheet
-    # file = QFile(":/light.qss")
-    # file.open(QFile.ReadOnly | QFile.Text)
-    # stream = QTextStream(file)
-    # app.setStyleSheet(stream.readAll())
-    GUI(app)
+    window = GUI(app)  # noqa: F841
     app.exec()
 
 

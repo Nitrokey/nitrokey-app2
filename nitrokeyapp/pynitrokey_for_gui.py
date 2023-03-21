@@ -17,6 +17,7 @@ from pynitrokey.nk3.device import Nitrokey3Device
 # tray icon
 from nitrokeyapp.tray_notification import TrayNotification
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 T = TypeVar("T", bound=Nitrokey3Base)
@@ -25,14 +26,14 @@ T = TypeVar("T", bound=Nitrokey3Base)
 class Nk3Context:
     def __init__(self, nk3_context: Nitrokey3Base) -> None:
         self.path = nk3_context
-        logger.info("path:", self.path)
+        logger.info(f"path: {self.path}")
 
     def list(self) -> List[Nitrokey3Base]:
         if self.path:
             # device = list_nk3()[0]
             device = open_nk3(self.path)
             if device:
-                logger.info("device type:", type(device))
+                logger.info(f"device type: {type(device)}")
                 return [device]
 
             else:
@@ -62,7 +63,7 @@ class Nk3Context:
         devices = [
             device for device in self.list() if isinstance(device, Nitrokey3Device)
         ]
-        logger.info("devices:", devices)
+        logger.info(f"devices: {devices}")
         return self._select_unique("Nitrokey 3", devices)
 
     def _await(self, name, ty: Type[T]) -> T:
@@ -119,12 +120,12 @@ def change_pin(ctx: Nk3Context, old_pin, new_pin, confirm_pin):
     with ctx.connect_device() as device:
 
         if new_pin != confirm_pin:
-            logger.info("new pin does not match confirm-pin", "please try again!")
+            logger.info("new pin does not match confirm-pin. please try again!")
         try:
             # @fixme: move this (function) into own fido2-client-class
             # dev = nkfido2.find_all()[0]
             dev = nkfido2.find(device.device.serial_number)
-            logger.info("fido2 device:", dev)
+            logger.info(f"fido2 device: {dev}")
             # client = dev.client
             client_pin = ClientPin(dev.ctap2)
             client_pin.change_pin(old_pin, new_pin)
@@ -134,9 +135,12 @@ def change_pin(ctx: Nk3Context, old_pin, new_pin, confirm_pin):
             )
         except Exception as e:
             logger.info(
-                "failed changing to new pin!",
-                "did you set one already? or is it wrong?",
-                e,
+                f"failed changing to new pin! did you set one already? or is it wrong? {e}"
+            )
+            TrayNotification(
+                "Nitrokey 3",
+                "Failed changing to new pin! Did you set one already or is it wrong?",
+                "Nitrokey 3 Change PIN",
             )
 
 
@@ -145,12 +149,12 @@ def set_pin(ctx: Nk3Context, new_pin, confirm_pin):
     with ctx.connect_device() as device:
 
         if new_pin != confirm_pin:
-            logger.info("new pin does not match confirm-pin", "please try again!")
+            logger.info("new pin does not match confirm-pin please try again!")
         try:
             # @fixme: move this (function) into own fido2-client-class
             # dev = nkfido2.find_all()[0]
             dev = nkfido2.find(device.device.serial_number)
-            logger.info("fido2 device:", dev)
+            logger.info(f"fido2 device:  {dev}")
             # client = dev.client
             client_pin = ClientPin(dev.ctap2)
             client_pin.set_pin(new_pin)
@@ -160,7 +164,12 @@ def set_pin(ctx: Nk3Context, new_pin, confirm_pin):
             )
         except Exception as e:
             logger.info(
-                "failed to set pin!", "did you set one already? or is it wrong?", e
+                f"failed to set pin! did you set one already? or is it wrong? {e}"
+            )
+            TrayNotification(
+                "Nitrokey 3",
+                "Failed setting a pin! Did you set one already or is it wrong?",
+                "Nitrokey 3 Change PIN",
             )
 
 
@@ -168,7 +177,10 @@ def nk3_update_helper(ctx: Nk3Context, progressBarUpdate, image, variant):
     try:
         nk3_update(ctx, progressBarUpdate, image, variant)
     except Exception as e:
-        logger.info("Failed to update Nitrokey 3", e)
+        logger.info(f"Failed to update Nitrokey 3 {e}")
+        TrayNotification(
+            "Nitrokey 3", "Failed to update Nitrokey 3", "Nitrokey 3 Update"
+        )
 
 
 def nk3_update(ctx: Nk3Context, progressBarUpdate, image, variant) -> None:
@@ -190,6 +202,11 @@ def nk3_update(ctx: Nk3Context, progressBarUpdate, image, variant) -> None:
             progressBarUpdate.hide()
             progressBarUpdate.setValue(0)
         else:
+            TrayNotification(
+                "Nitrokey 3",
+                f"The firmware update to {update_version} was successful, but the firmware is still reporting version {version}.",
+                "Nitrokey 3 Firmware Update",
+            )
             raise CliException(
                 f"The firmware update to {update_version} was successful, but the firmware "
                 f"is still reporting version {version}."
