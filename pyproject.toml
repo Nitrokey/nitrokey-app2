@@ -51,3 +51,24 @@ line_length = 80
 
 [tool.black]
 target-version = ["py39"]
+
+[tool.mypy]
+show_error_codes = true
+python_version = "3.9"
+
+[[tool.mypy.overrides]]
+module = [
+  "nitrokeyapp.*",
+]
+disallow_untyped_defs = true
+
+# libraries without annotations
+[[tool.mypy.overrides]]
+module = [
+  "win32api.*",
+  "win32con.*",
+  "win32gui.*",
+  "pyudev.*",
+  "pynitrokey.*",
+]
+ignore_missing_imports = true
