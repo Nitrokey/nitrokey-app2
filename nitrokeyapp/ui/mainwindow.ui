@@ -429,6 +429,20 @@ QTabBar::tab:selected{
         <string>Overview</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_7">
+        <item row="2" column="0">
+         <widget class="QProgressBar" name="progressBar_Update">
+          <property name="value">
+           <number>0</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QProgressBar" name="progressBar_Download">
+          <property name="value">
+           <number>0</number>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="0">
          <widget class="QScrollArea" name="scrollArea_2">
           <property name="autoFillBackground">
@@ -459,7 +473,7 @@ background-color: #ffffff; }</string>
              <x>0</x>
              <y>0</y>
              <width>1095</width>
-             <height>765</height>
+             <height>703</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -644,8 +658,8 @@ border-radius: 5px;}</string>
           </widget>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QProgressBar" name="progressBar_Update">
+        <item row="3" column="0">
+         <widget class="QProgressBar" name="progressBar_Finalization">
           <property name="value">
            <number>0</number>
           </property>
@@ -2669,7 +2683,7 @@ Text-align:left;
  <resources>
   <include location="resources.qrc"/>
   <include location="resources.qrc"/>
-  <include location="../../../../nitrokey-app2/nitrokeyapp/ui/resources.qrc"/>
+  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>

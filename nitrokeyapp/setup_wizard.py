@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets
 
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
-from nitrokeyapp.ui.setup_wizard_ui import Ui_PINSetup
+from nitrokeyapp.ui.setup_wizard import Ui_PINSetup
 
 
 class SetupWizard(QtUtilsMixIn, QtWidgets.QWizard):

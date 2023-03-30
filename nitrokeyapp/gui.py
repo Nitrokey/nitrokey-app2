@@ -31,7 +31,7 @@ from nitrokeyapp.set_pin_dialog import SetPinDialog
 # import wizards and stuff
 from nitrokeyapp.setup_wizard import SetupWizard
 from nitrokeyapp.tray_notification import TrayNotification
-from nitrokeyapp.ui.mainwindow_ui import Ui_MainWindow
+from nitrokeyapp.ui.mainwindow import Ui_MainWindow
 from nitrokeyapp.windows_notification import WindowsUSBNotifi
 
 # import nitrokeyapp.ui.breeze_resources
@@ -41,6 +41,7 @@ from nitrokeyapp.windows_notification import WindowsUSBNotifi
 
 class BackendThread(QThread):
     hello = pyqtSignal()
+    finishedSignal = pyqtSignal()
 
     job_q = Queue()
 
@@ -153,6 +154,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.lock_btn = self.ui.btn_dial_lock
         self.l_insert_nitrokey = self.ui.label_insert_Nitrokey
         self.progressbarupdate = self.ui.progressBar_Update
+        self.progressbardownload = self.ui.progressBar_Download
+        self.progressbarfinalization = self.ui.progressBar_Finalization
         # overview
         self.navigation_frame = self.ui.vertical_navigation
         self.nitrokeys_window = self.ui.Nitrokeys
@@ -233,6 +236,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                         self.nk3_lineedit_version,
                         self.tabs,
                         self.progressbarupdate,
+                        self.progressbardownload,
+                        self.progressbarfinalization,
                         # self.change_pin_open_dialog,
                         # self.set_pin_open_dialog,
                         # self.change_pin_dialog,
@@ -282,6 +287,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.tabs.hide()
         self.nitrokey3_frame.hide()
         self.progressbarupdate.hide()
+        self.progressbardownload.hide()
+        self.progressbarfinalization.hide()
         self.lock_btn.setEnabled(False)
         self.settings_btn.setEnabled(False)
         self.detect_nk3()

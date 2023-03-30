@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets
 
 from nitrokeyapp import __version__
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
-from nitrokeyapp.ui.aboutdialog_ui import Ui_AboutDialog
+from nitrokeyapp.ui.aboutdialog import Ui_AboutDialog
 
 
 class AboutDialog(QtUtilsMixIn, QtWidgets.QDialog):

@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSlot
 
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
-from nitrokeyapp.ui.pindialog_ui import Ui_PinDialog
+from nitrokeyapp.ui.pindialog import Ui_PinDialog
 
 
 # @fixme: PINDialog should be modal!

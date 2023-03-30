@@ -23,6 +23,8 @@ class Nk3Button(QtWidgets.QWidget):
         nk3_lineedit_version,
         tabs,
         progressBarUpdate,
+        progressBarDownload,
+        progressBarFinalization,
         # change_pin_open_dialog,
         # set_pin_open_dialog,
         # change_pin_dialog,
@@ -47,6 +49,8 @@ class Nk3Button(QtWidgets.QWidget):
         self.nk3_lineedit_path = nk3_lineedit_path
         self.nk3_lineedit_version = nk3_lineedit_version
         self.progressbarupdate = progressBarUpdate
+        self.progressbardownload = progressBarDownload
+        self.progressbarfinalization = progressBarFinalization
         # needs to create button in the vertical navigation with the nitrokey type and serial number as text
         self.btn_nk3 = QtWidgets.QPushButton(
             QtGui.QIcon(":/images/icon/usb_new.png"),
@@ -81,7 +85,7 @@ class Nk3Button(QtWidgets.QWidget):
         # self.own_set_pin.hide()
         self.ctx = Nk3Context(self.device.path)
         self.own_update_btn.clicked.connect(
-            lambda: nk3_update_helper(self.ctx, self.progressbarupdate, 0, 0)
+            lambda: nk3_update_helper(self.ctx, self.progressbarupdate,self.progressbardownload, self.progressbarfinalization, 0, 0, 0)
         )
         # self.own_change_pin.clicked.connect(self.change_pin_open_dialog)
         # self.own_set_pin.clicked.connect(self.set_pin_open_dialog)
