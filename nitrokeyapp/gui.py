@@ -6,7 +6,6 @@ import logging
 import platform
 import webbrowser
 from itertools import filterfalse
-from queue import Queue
 
 # Nitrokey 3
 from pynitrokey.nk3 import list as list_nk3
@@ -15,7 +14,7 @@ from pynitrokey.nk3.bootloader.nrf52 import Nitrokey3BootloaderNrf52
 
 # pyqt5
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import Qt, pyqtSlot
 
 from nitrokeyapp.about_dialog import AboutDialog
 from nitrokeyapp.change_pin_dialog import ChangePinDialog
@@ -37,40 +36,6 @@ from nitrokeyapp.windows_notification import WindowsUSBNotifi
 # import nitrokeyapp.ui.breeze_resources
 # pyrcc5 -o gui_resources.py ui/resourcces.qrc
 # import nitrokeyapp.gui_resources
-
-
-class BackendThread(QThread):
-    hello = pyqtSignal()
-    finishedSignal = pyqtSignal()
-
-    job_q = Queue()
-
-    def __del__(self):
-        self.wait()
-
-    def add_job(self, signal, func, *f_va, **f_kw):
-        self.job_q.put((signal, func, f_va, f_kw))
-
-    def stop_loop(self):
-        self.add_job(None, None)
-
-    def run(self):
-        self.hello.emit()
-        while True:
-            # blocking job-wait-loop
-            job = self.job_q.get()
-            if job is None:
-                continue
-            signal, func, vargs, kwargs = job
-
-            # func == None means stop/end thread asap!
-            if func is None:
-                break
-
-            # eval `func`, emit signal with results
-            res = func(*vargs, **kwargs)
-            signal.emit(res or {})
-
 
 # Define function to import external files when using PyInstaller.
 # def resource_path(relative_path):
@@ -209,6 +174,25 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             else False
         )
 
+    def toggle_update_btn(self):
+        if len(Nk3Button.get()) == 0:
+            self.l_insert_nitrokey.show()
+        if len(Nk3Button.get()) > 1:
+            TrayNotification(
+                "Nitrokey 3",
+                "Nitrokey 3",
+                "Please remove all Nitrokey 3 devices except the one you want to update.",
+            )
+            for i in Nk3Button.get():
+                i.own_update_btn.setEnabled(False)
+                i.own_update_btn.setToolTip(
+                    "Please remove all Nitrokey 3 devices except the one you want to update."
+                )
+        else:
+            for i in Nk3Button.get():
+                i.own_update_btn.setEnabled(True)
+                i.own_update_btn.setToolTip("")
+
     def detect_nk3(self):
         nk3_list = list_nk3()
         nk3_list = list(filterfalse(self.device_in_bootloader, nk3_list))
@@ -250,6 +234,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                     self.device = None
                     logger.info("nk3 connected")
                     self.l_insert_nitrokey.hide()
+                    self.toggle_update_btn()
                 else:
                     nk3_btn_same_uuid = [
                         y for y in Nk3Button.get() if y.uuid == device.uuid()
@@ -262,18 +247,24 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     def remove_nk3(self):
         list_of_removed = []
-        if len(list_nk3()):
-            logger.info(f"list nk3: {list_nk3()}")
-            list_of_nk3s = [x.uuid() for x in list_nk3()]
-            list_of_removed_help = [
-                y for y in Nk3Button.get() if y.uuid not in list_of_nk3s
-            ]
-            list_of_removed = list_of_removed + list_of_removed_help
-        else:
-            list_of_removed = list_of_removed + Nk3Button.get()
-        for k in list_of_removed:
-            k.__del__()
-            logger.info("nk3 instance removed")
+        nk3_list_1 = list_nk3()
+        nk3_list_1 = list(filterfalse(self.device_in_bootloader, nk3_list_1))
+        if Nk3Button.get():
+            if len(nk3_list_1):
+                logger.info(f"list nk3: {nk3_list_1}")
+                list_of_nk3s = [x.uuid() for x in nk3_list_1]
+                list_of_removed_help = [
+                    y
+                    for y in Nk3Button.get()
+                    if ((y.uuid not in list_of_nk3s) and (y.ctx.updating is False))
+                ]
+                list_of_removed = list_of_removed + list_of_removed_help
+            elif Nk3Button.get()[0].ctx.updating is False:
+                list_of_removed = list_of_removed + Nk3Button.get()
+            for k in list_of_removed:
+                k.__del__()
+                logger.info("nk3 instance removed")
+        self.toggle_update_btn()
 
     def show_only_this_tab(self, tab):
         for idx in range(self.tabs.count()):

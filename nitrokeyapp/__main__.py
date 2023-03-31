@@ -3,7 +3,8 @@ import sys
 from PyQt5 import QtWidgets
 
 import nitrokeyapp.resources_rc  # noqa: F401
-from nitrokeyapp.gui import GUI, BackendThread
+from nitrokeyapp.backend_thread import BackendThread
+from nitrokeyapp.gui import GUI
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
 

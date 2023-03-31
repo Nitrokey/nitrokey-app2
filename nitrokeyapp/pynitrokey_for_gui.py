@@ -1,5 +1,5 @@
 import logging
-from typing import List, Type, TypeVar, Callable, Optional
+from typing import Callable, List, Optional, Type, TypeVar
 
 # for fido2 (change pin)
 import pynitrokey.fido2 as nkfido2
@@ -10,9 +10,8 @@ from pynitrokey.cli.exceptions import CliException
 from pynitrokey.helpers import Retries
 from pynitrokey.nk3 import list as list_nk3
 from pynitrokey.nk3 import open as open_nk3
-from pynitrokey.nk3.admin_app import AdminApp
 from pynitrokey.nk3.base import Nitrokey3Base
-from pynitrokey.nk3.bootloader import Nitrokey3Bootloader, parse_firmware_image, FirmwareContainer
+from pynitrokey.nk3.bootloader import Nitrokey3Bootloader
 from pynitrokey.nk3.device import Nitrokey3Device
 
 # tray icon
@@ -28,6 +27,7 @@ class Nk3Context:
     def __init__(self, nk3_context: Nitrokey3Base) -> None:
         self.path = nk3_context
         logger.info(f"path: {self.path}")
+        self.updating = False
 
     def list(self) -> List[Nitrokey3Base]:
         if self.path:
@@ -76,7 +76,7 @@ class Nk3Context:
     ) -> T:
         for t in Retries(retries):
             logger.debug(f"Searching {name} device ({t})")
-            devices = [device for device in list_nk3() if isinstance(device, ty)]    
+            devices = [device for device in list_nk3() if isinstance(device, ty)]
             if len(devices) == 0:
                 if callback:
                     callback(int((t.i / retries) * 100), 100)
@@ -89,7 +89,6 @@ class Nk3Context:
             return devices[0]
 
         raise CliException(f"No {name} device found")
-
 
     def await_device(
         self,
@@ -107,6 +106,7 @@ class Nk3Context:
         assert isinstance(retries, int)
         # mypy does not allow abstract types here, but this is still valid
         return self._await("Nitrokey 3 bootloader", Nitrokey3Bootloader, retries, callback)  # type: ignore
+
 
 def list():
     """List all Nitrokey 3 devices."""
@@ -160,6 +160,7 @@ def change_pin(ctx: Nk3Context, old_pin, new_pin, confirm_pin):
                 "Nitrokey 3 Change PIN",
             )
 
+
 def set_pin(ctx: Nk3Context, new_pin, confirm_pin):
     """Set pin of current device"""
     with ctx.connect_device() as device:
@@ -188,10 +189,27 @@ def set_pin(ctx: Nk3Context, new_pin, confirm_pin):
                     "Nitrokey 3 Change PIN",
                 )
 
-def nk3_update_helper(ctx: Nk3Context, progressBarUpdate, progressBarDownload, progressBarFinalization, image, version, ignore_pynitrokey_version):
+
+def nk3_update_helper(
+    ctx: Nk3Context,
+    progressBarUpdate,
+    progressBarDownload,
+    progressBarFinalization,
+    image,
+    version,
+    ignore_pynitrokey_version,
+):
     try:
-        nk3_update(ctx, progressBarUpdate, progressBarDownload, progressBarFinalization, image, version, ignore_pynitrokey_version)
-        logger.info(f"Successfully updated the Nitrokey 3")
+        nk3_update(
+            ctx,
+            progressBarUpdate,
+            progressBarDownload,
+            progressBarFinalization,
+            image,
+            version,
+            ignore_pynitrokey_version,
+        )
+        logger.info("Successfully updated the Nitrokey 3")
         TrayNotification(
             "Nitrokey 3", "Successfully updated the Nitrokey 3", "Nitrokey 3 Update"
         )
@@ -202,9 +220,26 @@ def nk3_update_helper(ctx: Nk3Context, progressBarUpdate, progressBarDownload, p
         )
 
 
-def nk3_update(ctx: Nk3Context, progressBarUpdate, progressBarDownload, progressBarFinalization, image, version, ignore_pynitrokey_version) -> None:
+def nk3_update(
+    ctx: Nk3Context,
+    progressBarUpdate,
+    progressBarDownload,
+    progressBarFinalization,
+    image,
+    version,
+    ignore_pynitrokey_version,
+) -> None:
 
     from nitrokeyapp.update import update
 
-    update(ctx, progressBarUpdate, progressBarDownload, progressBarFinalization, image, version, ignore_pynitrokey_version)
-   
+    ctx.updating = True
+    update(
+        ctx,
+        progressBarUpdate,
+        progressBarDownload,
+        progressBarFinalization,
+        image,
+        version,
+        ignore_pynitrokey_version,
+    )
+    ctx.updating = False

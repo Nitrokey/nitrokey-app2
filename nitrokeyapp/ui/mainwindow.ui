@@ -428,22 +428,8 @@ QTabBar::tab:selected{
        <attribute name="title">
         <string>Overview</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_7">
-        <item row="2" column="0">
-         <widget class="QProgressBar" name="progressBar_Update">
-          <property name="value">
-           <number>0</number>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QProgressBar" name="progressBar_Download">
-          <property name="value">
-           <number>0</number>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
+       <layout class="QFormLayout" name="formLayout_6">
+        <item row="0" column="0" colspan="2">
          <widget class="QScrollArea" name="scrollArea_2">
           <property name="autoFillBackground">
            <bool>false</bool>
@@ -658,10 +644,36 @@ border-radius: 5px;}</string>
           </widget>
          </widget>
         </item>
-        <item row="3" column="0">
+        <item row="1" column="1">
+         <widget class="QProgressBar" name="progressBar_Download">
+          <property name="value">
+           <number>0</number>
+          </property>
+          <property name="textVisible">
+           <bool>true</bool>
+          </property>
+          <property name="format">
+           <string>Download Firmware %p%</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QProgressBar" name="progressBar_Update">
+          <property name="value">
+           <number>0</number>
+          </property>
+          <property name="format">
+           <string>Update the Nitrokey %p%</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
          <widget class="QProgressBar" name="progressBar_Finalization">
           <property name="value">
            <number>0</number>
+          </property>
+          <property name="format">
+           <string>Finalization %p%</string>
           </property>
          </widget>
         </item>

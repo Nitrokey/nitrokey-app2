@@ -1,6 +1,6 @@
 import logging
 from contextlib import contextmanager
-from typing import Any, Callable, Iterator, Optional, List
+from typing import Any, List, Optional
 
 # Nitrokey 3
 from pynitrokey.cli.exceptions import CliException
@@ -8,6 +8,7 @@ from pynitrokey.nk3.bootloader import Variant
 from pynitrokey.nk3.updates import Updater, UpdateUi
 from pynitrokey.nk3.utils import Version
 from PyQt5 import QtWidgets
+from PyQt5.QtCore import QCoreApplication
 
 from nitrokeyapp.pynitrokey_for_gui import Nk3Context
 
@@ -17,6 +18,7 @@ from nitrokeyapp.tray_notification import TrayNotification
 logger = logging.getLogger(__name__)
 
 x = 0
+
 
 class UpdateGUI(UpdateUi):
     def __init__(self, progressBarUpdate, progressBarDownload, progressBarFinalization):
@@ -33,13 +35,13 @@ class UpdateGUI(UpdateUi):
 
     def update_qbar(self, n: int, total: int) -> None:
         value = self.bar_update.value()
-        if n == total:
+        if n >= total:
             self.bar_update.setValue(0)
             self.bar_update.hide()
-        if (n * 100 // total) > value:
+        elif (n * 100 // total) > value:
             self.bar_update.setValue(((n) * 100 // total))
+            QCoreApplication.processEvents()
 
-    
     def download_qbar(self, n: int, total: int) -> None:
         value = self.bar_download.value()
         global x
@@ -50,15 +52,16 @@ class UpdateGUI(UpdateUi):
             x = 0
         if (x * 100 // total) > value:
             self.bar_download.setValue(x * 100 // total)
+            QCoreApplication.processEvents()
 
-    def finalization_qbar(self, n: int, total: int) -> None:   
+    def finalization_qbar(self, n: int, total: int) -> None:
         value = self.bar_finalization.value()
-        if n == total:
+        if n >= total:
             self.bar_finalization.setValue(0)
             self.bar_finalization.hide()
-        if n > value:           
+        elif n > value:
             self.bar_finalization.setValue(n)
-
+            QCoreApplication.processEvents()
 
     def abort_downgrade(self, current: Version, image: Version) -> Exception:
         self._print_firmware_versions(current, image)
@@ -79,8 +82,12 @@ class UpdateGUI(UpdateUi):
         returnValue = confirm_download_msgBox.exec()
         if returnValue == QtWidgets.QMessageBox.Cancel:
             logger.info("Cancel clicked (confirm download)")
-            logger.info("Firmware Download cancelled by user in the (confirm download) dialog")
-            raise self.abort("Update cancelled by user in the (confirm download) dialog")
+            logger.info(
+                "Firmware Download cancelled by user in the (confirm download) dialog"
+            )
+            raise self.abort(
+                "Update cancelled by user in the (confirm download) dialog"
+            )
         elif returnValue == QtWidgets.QMessageBox.Ok:
             logger.info("OK clicked (confirm download)")
 
@@ -122,12 +129,14 @@ class UpdateGUI(UpdateUi):
             logger.info("Cancel clicked (confirm same version)")
             logger.info("Update cancelled by user in the (confirm same version) dialog")
             # raise Abort()
-            raise self.abort("Update cancelled by user in the (confirm same version) dialog")
+            raise self.abort(
+                "Update cancelled by user in the (confirm same version) dialog"
+            )
         elif returnValue == QtWidgets.QMessageBox.Ok:
             logger.info("OK clicked (confirm same version)")
-    
+
     def confirm_extra_information(self, txt: List[str]) -> None:
-        #if txt:
+        # if txt:
         # logger.info("\n".join(txt))
         # confirm_extra_information_msgBox = QtWidgets.QMessageBox()
         # confirm_extra_information_msgBox.setIcon(QtWidgets.QMessageBox.Information)
@@ -179,15 +188,15 @@ class UpdateGUI(UpdateUi):
         yield self.update_qbar
 
     @contextmanager
-    def download_progress_bar(self, desc:str):
+    def download_progress_bar(self, desc: str):
         self.bar_download.show()
         yield self.download_qbar
- 
+
     @contextmanager
     def finalization_progress_bar(self):
         self.bar_finalization.show()
         yield self.finalization_qbar
-        
+
     def _print_firmware_versions(
         self, current: Optional[Version], new: Optional[Version]
     ) -> None:
@@ -197,8 +206,21 @@ class UpdateGUI(UpdateUi):
             logger.info(f"Updated firmware version:  {new}")
             self._version_printed = True
 
+
 def update(
-    ctx: Nk3Context, progressBarUpdate, progressBarDownload, progressBarFinalization, image: Optional[str], version: Optional[str],ignore_pynitrokey_version: bool) -> None:
+    ctx: Nk3Context,
+    progressBarUpdate,
+    progressBarDownload,
+    progressBarFinalization,
+    image: Optional[str],
+    version: Optional[str],
+    ignore_pynitrokey_version: bool,
+) -> None:
     with ctx.connect() as device:
-        updater = Updater(UpdateGUI(progressBarUpdate, progressBarDownload, progressBarFinalization), ctx.await_bootloader, ctx.await_device)
+
+        updater = Updater(
+            UpdateGUI(progressBarUpdate, progressBarDownload, progressBarFinalization),
+            ctx.await_bootloader,
+            ctx.await_device,
+        )
         return updater.update(device, image, version, ignore_pynitrokey_version)
