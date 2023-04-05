@@ -5,6 +5,8 @@ VENV=venv
 PYTHON=python3
 UI_FILES = $(wildcard nitrokeyapp/ui/*.ui)
 
+ALL: update-venv build
+
 # setup environment
 init: update-venv
 
