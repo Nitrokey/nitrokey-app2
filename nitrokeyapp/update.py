@@ -21,11 +21,12 @@ x = 0
 
 
 class UpdateGUI(UpdateUi):
-    def __init__(self, progressBarUpdate, progressBarDownload, progressBarFinalization):
+    def __init__(self, progressBarUpdate, progressBarDownload, progressBarFinalization, TrayNotification):
         self._version_printed = False
         self.bar_update = progressBarUpdate
         self.bar_download = progressBarDownload
         self.bar_finalization = progressBarFinalization
+        self.TrayNotification = TrayNotification
 
     def error(self, *msgs: Any) -> Exception:
         return CliException(*msgs)
@@ -108,8 +109,7 @@ class UpdateGUI(UpdateUi):
             raise self.abort("Update cancelled by user in the (confirm update) dialog")
         elif returnValue == QtWidgets.QMessageBox.Ok:
             logger.info("OK clicked (confirm update)")
-            TrayNotification(
-                "Nitrokey 3",
+            self.TrayNotification.notify(
                 "Nitrokey 3 Firmware Update",
                 "Please touch your Nitrokey 3 Device",
             )
@@ -215,11 +215,12 @@ def update(
     image: Optional[str],
     version: Optional[str],
     ignore_pynitrokey_version: bool,
+    TrayNotification
 ) -> None:
     with ctx.connect() as device:
 
         updater = Updater(
-            UpdateGUI(progressBarUpdate, progressBarDownload, progressBarFinalization),
+            UpdateGUI(progressBarUpdate, progressBarDownload, progressBarFinalization, TrayNotification),
             ctx.await_bootloader,
             ctx.await_device,
         )

@@ -2,7 +2,7 @@ from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import QSize, pyqtSlot
 
 # from nitrokeyapp.change_pin_dialog import ChangePinDialog
-from nitrokeyapp.pynitrokey_for_gui import Nk3Context, nk3_update_helper
+from nitrokeyapp.pynitrokey_for_gui import Nk3Context, nk3_update
 
 
 class Nk3Button(QtWidgets.QWidget):
@@ -30,6 +30,7 @@ class Nk3Button(QtWidgets.QWidget):
         # change_pin_dialog,
         # set_pin_dialog,
         buttonLayout_nk3,
+        TrayNotification
     ):
         super().__init__()
         self.device = device
@@ -51,6 +52,7 @@ class Nk3Button(QtWidgets.QWidget):
         self.progressbarupdate = progressBarUpdate
         self.progressbardownload = progressBarDownload
         self.progressbarfinalization = progressBarFinalization
+        self.TrayNotification = TrayNotification
         # needs to create button in the vertical navigation with the nitrokey type and serial number as text
         self.btn_nk3 = QtWidgets.QPushButton(
             QtGui.QIcon(":/images/icon/usb_new.png"),
@@ -85,7 +87,7 @@ class Nk3Button(QtWidgets.QWidget):
         # self.own_set_pin.hide()
         self.ctx = Nk3Context(self.device.path)
         self.own_update_btn.clicked.connect(
-            lambda: nk3_update_helper(
+            lambda: nk3_update(
                 self.ctx,
                 self.progressbarupdate,
                 self.progressbardownload,
@@ -93,6 +95,7 @@ class Nk3Button(QtWidgets.QWidget):
                 0,
                 0,
                 0,
+                self.TrayNotification
             )
         )
         # self.own_change_pin.clicked.connect(self.change_pin_open_dialog)

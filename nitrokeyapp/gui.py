@@ -29,7 +29,7 @@ from nitrokeyapp.set_pin_dialog import SetPinDialog
 
 # import wizards and stuff
 from nitrokeyapp.setup_wizard import SetupWizard
-from nitrokeyapp.tray_notification import TrayNotification
+from nitrokeyapp.tray_notification import TrayNotification as TrayNotificationClass
 from nitrokeyapp.ui.mainwindow import Ui_MainWindow
 from nitrokeyapp.windows_notification import WindowsUSBNotifi
 
@@ -67,6 +67,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         QtUtilsMixIn.__init__(self)
         self.backend_thread.hello.connect(self.backend_cb_hello)
         self.backend_thread.start()
+        self.TrayNotification = TrayNotificationClass()
         # linux
         if platform.system() == "Linux":
             # pyudev stuff
@@ -178,8 +179,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         if len(Nk3Button.get()) == 0:
             self.l_insert_nitrokey.show()
         if len(Nk3Button.get()) > 1:
-            TrayNotification(
-                "Nitrokey 3",
+            self.TrayNotification.notify(
                 "Nitrokey 3",
                 "Please remove all Nitrokey 3 devices except the one you want to update.",
             )
@@ -227,9 +227,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                         # self.change_pin_dialog,
                         # self.set_pin_dialog,
                         self.buttonlayout_nk3,
+                        self.TrayNotification
                     )
-                    TrayNotification(
-                        "Nitrokey 3", "Nitrokey 3 connected.", "Nitrokey 3 connected."
+                    self.TrayNotification.notify(
+                        "Nitrokey 3 connected.", "Nitrokey 3 connected."
                     )
                     self.device = None
                     logger.info("nk3 connected")
