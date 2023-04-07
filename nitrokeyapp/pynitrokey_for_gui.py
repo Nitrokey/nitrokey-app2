@@ -1,10 +1,6 @@
 import logging
 from typing import Callable, List, Optional, Type, TypeVar
 
-# for fido2 (change pin)
-import pynitrokey.fido2 as nkfido2
-from fido2.ctap2.pin import ClientPin
-
 # Nitrokey 3
 from pynitrokey.cli.exceptions import CliException
 from pynitrokey.helpers import Retries
@@ -13,6 +9,11 @@ from pynitrokey.nk3 import open as open_nk3
 from pynitrokey.nk3.base import Nitrokey3Base
 from pynitrokey.nk3.bootloader import Nitrokey3Bootloader
 from pynitrokey.nk3.device import Nitrokey3Device
+
+# for fido2 (change pin)
+# import pynitrokey.fido2 as nkfido2
+# from fido2.ctap2.pin import ClientPin
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -186,6 +187,7 @@ def wink(ctx: Nk3Context) -> None:
 #                     "Nitrokey 3 Change PIN",
 #                 )
 
+
 def nk3_update(
     ctx: Nk3Context,
     progressBarUpdate,
@@ -194,7 +196,7 @@ def nk3_update(
     image,
     version,
     ignore_pynitrokey_version,
-    info_frame
+    info_frame,
 ) -> None:
 
     from nitrokeyapp.update import update
@@ -209,7 +211,7 @@ def nk3_update(
             image,
             version,
             ignore_pynitrokey_version,
-            info_frame
+            info_frame,
         )
         ctx.updating = False
         logger.info("Successfully updated the Nitrokey 3")

@@ -30,7 +30,7 @@ class Nk3Button(QtWidgets.QWidget):
         # change_pin_dialog,
         # set_pin_dialog,
         buttonLayout_nk3,
-        info_frame
+        info_frame,
     ):
         super().__init__()
         self.device = device
@@ -95,7 +95,7 @@ class Nk3Button(QtWidgets.QWidget):
                 0,
                 0,
                 0,
-                self.info_frame
+                self.info_frame,
             )
         )
         # self.own_change_pin.clicked.connect(self.change_pin_open_dialog)

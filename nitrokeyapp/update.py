@@ -12,14 +12,19 @@ from PyQt5.QtCore import QCoreApplication
 
 from nitrokeyapp.pynitrokey_for_gui import Nk3Context
 
-
 logger = logging.getLogger(__name__)
 
 x = 0
 
 
 class UpdateGUI(UpdateUi):
-    def __init__(self, progressBarUpdate, progressBarDownload, progressBarFinalization, info_frame):
+    def __init__(
+        self,
+        progressBarUpdate,
+        progressBarDownload,
+        progressBarFinalization,
+        info_frame,
+    ):
         self._version_printed = False
         self.bar_update = progressBarUpdate
         self.bar_download = progressBarDownload
@@ -107,9 +112,10 @@ class UpdateGUI(UpdateUi):
             raise self.abort("Update cancelled by user in the (confirm update) dialog")
         elif returnValue == QtWidgets.QMessageBox.Ok:
             logger.info("OK clicked (confirm update)")
-            self.info_frame.set_text("please touch the Nitrokey 3 until it stops flashing/glowing and then wait a few seconds..")
+            self.info_frame.set_text(
+                "please touch the Nitrokey 3 until it stops flashing/glowing and then wait a few seconds.."
+            )
             QCoreApplication.processEvents()
-
 
     def confirm_update_same_version(self, version: Version) -> None:
         confirm_update_same_version_msgBox = QtWidgets.QMessageBox()
@@ -212,12 +218,17 @@ def update(
     image: Optional[str],
     version: Optional[str],
     ignore_pynitrokey_version: bool,
-    info_frame
+    info_frame,
 ) -> None:
     with ctx.connect() as device:
 
         updater = Updater(
-            UpdateGUI(progressBarUpdate, progressBarDownload, progressBarFinalization, info_frame),
+            UpdateGUI(
+                progressBarUpdate,
+                progressBarDownload,
+                progressBarFinalization,
+                info_frame,
+            ),
             ctx.await_bootloader,
             ctx.await_device,
         )
