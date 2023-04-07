@@ -29,7 +29,7 @@ from nitrokeyapp.set_pin_dialog import SetPinDialog
 
 # import wizards and stuff
 from nitrokeyapp.setup_wizard import SetupWizard
-from nitrokeyapp.tray_notification import TrayNotification as TrayNotificationClass
+from nitrokeyapp.information_box import InfoBox
 from nitrokeyapp.ui.mainwindow import Ui_MainWindow
 from nitrokeyapp.windows_notification import WindowsUSBNotifi
 
@@ -67,7 +67,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         QtUtilsMixIn.__init__(self)
         self.backend_thread.hello.connect(self.backend_cb_hello)
         self.backend_thread.start()
-        self.TrayNotification = TrayNotificationClass()
         # linux
         if platform.system() == "Linux":
             # pyudev stuff
@@ -105,6 +104,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # app wide widgets
         # self.status_bar = _get(_qt.QStatusBar, "statusBar")
         # self.menu_bar = _get(_qt.QMenuBar, "menuBar")
+        self.information_frame = self.ui.information_frame
+        self.label_information_icon = self.ui.label_information_icon
+        self.label_information = self.ui.label_information
+        self.info_frame = InfoBox(self.information_frame, self.label_information_icon, self.label_information)
         self.tabs = self.ui.tabWidget
         self.tab_otp_conf = self.ui.tab
         self.tab_otp_gen = self.ui.tab_2
@@ -179,10 +182,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         if len(Nk3Button.get()) == 0:
             self.l_insert_nitrokey.show()
         if len(Nk3Button.get()) > 1:
-            self.TrayNotification.notify(
-                "Nitrokey 3",
-                "Please remove all Nitrokey 3 devices except the one you want to update.",
-            )
+            self.info_frame.set_text_durable("Please remove all Nitrokey 3 devices except the one you want to update.")
             for i in Nk3Button.get():
                 i.own_update_btn.setEnabled(False)
                 i.own_update_btn.setToolTip(
@@ -190,6 +190,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 )
         else:
             for i in Nk3Button.get():
+                self.info_frame.hide()
                 i.own_update_btn.setEnabled(True)
                 i.own_update_btn.setToolTip("")
 
@@ -227,10 +228,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                         # self.change_pin_dialog,
                         # self.set_pin_dialog,
                         self.buttonlayout_nk3,
-                        self.TrayNotification
-                    )
-                    self.TrayNotification.notify(
-                        "Nitrokey 3 connected.", "Nitrokey 3 connected."
+                        self.info_frame
                     )
                     self.device = None
                     logger.info("nk3 connected")
@@ -265,7 +263,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             for k in list_of_removed:
                 k.__del__()
                 logger.info("nk3 instance removed")
-        self.toggle_update_btn()
+                self.toggle_update_btn()
+                self.info_frame.set_text("Nitrokey 3 removed.")
 
     def show_only_this_tab(self, tab):
         for idx in range(self.tabs.count()):
@@ -277,6 +276,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def init_gui(self):
         self.show_only_this_tab(0)
         self.tabs.hide()
+        self.info_frame.hide()
         self.nitrokey3_frame.hide()
         self.progressbarupdate.hide()
         self.progressbardownload.hide()

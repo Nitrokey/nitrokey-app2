@@ -194,7 +194,7 @@ def nk3_update(
     image,
     version,
     ignore_pynitrokey_version,
-    TrayNotification
+    info_frame
 ) -> None:
 
     from nitrokeyapp.update import update
@@ -209,15 +209,11 @@ def nk3_update(
             image,
             version,
             ignore_pynitrokey_version,
-            TrayNotification
+            info_frame
         )
         ctx.updating = False
         logger.info("Successfully updated the Nitrokey 3")
-        TrayNotification.notify(
-            "Successfully updated the Nitrokey 3", "Nitrokey 3 Update"
-        )
+        info_frame.set_text("Successfully updated the Nitrokey 3.")
     except Exception as e:
         logger.info(f"Failed to update Nitrokey 3 {e}")
-        TrayNotification.notify(
-            "Failed to update Nitrokey 3", "Nitrokey 3 Update"
-        )
+        info_frame.set_text("Failed to update Nitrokey 3.")
