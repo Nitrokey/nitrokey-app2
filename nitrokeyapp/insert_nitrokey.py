@@ -5,7 +5,7 @@ from PyQt5.QtCore import pyqtSlot
 
 # from nitrokeyapp.setup_wizard import SetupWizard
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
-from nitrokeyapp.ui.insert_Nitrokey_ui import Ui_Insert_Nitrokey
+from nitrokeyapp.ui.insert_Nitrokey import Ui_Insert_Nitrokey
 
 
 # isnt used atm

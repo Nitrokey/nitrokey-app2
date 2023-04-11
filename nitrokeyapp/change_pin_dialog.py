@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets
 
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
-from nitrokeyapp.ui.change_pin_dialog_ui import Ui_ChangePinDialog
+from nitrokeyapp.ui.change_pin_dialog import Ui_ChangePinDialog
 
 
 class ChangePinDialog(QtUtilsMixIn, QtWidgets.QDialog):

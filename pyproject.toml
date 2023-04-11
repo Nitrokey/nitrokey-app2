@@ -24,7 +24,7 @@ dependencies = [
   "pyqt5",
   "pyqt5-stubs",
   "pyudev",
-  "pynitrokey ==0.4.32",
+  "pynitrokey ==0.4.35",
   "pywin32 ==305; sys_platform =='win32'",
 ]
 dynamic = ["version"]

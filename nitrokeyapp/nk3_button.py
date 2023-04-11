@@ -2,7 +2,7 @@ from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import QSize, pyqtSlot
 
 # from nitrokeyapp.change_pin_dialog import ChangePinDialog
-from nitrokeyapp.pynitrokey_for_gui import Nk3Context, nk3_update_helper
+from nitrokeyapp.pynitrokey_for_gui import Nk3Context, nk3_update
 
 
 class Nk3Button(QtWidgets.QWidget):
@@ -23,11 +23,14 @@ class Nk3Button(QtWidgets.QWidget):
         nk3_lineedit_version,
         tabs,
         progressBarUpdate,
+        progressBarDownload,
+        progressBarFinalization,
         # change_pin_open_dialog,
         # set_pin_open_dialog,
         # change_pin_dialog,
         # set_pin_dialog,
         buttonLayout_nk3,
+        info_frame,
     ):
         super().__init__()
         self.device = device
@@ -47,6 +50,9 @@ class Nk3Button(QtWidgets.QWidget):
         self.nk3_lineedit_path = nk3_lineedit_path
         self.nk3_lineedit_version = nk3_lineedit_version
         self.progressbarupdate = progressBarUpdate
+        self.progressbardownload = progressBarDownload
+        self.progressbarfinalization = progressBarFinalization
+        self.info_frame = info_frame
         # needs to create button in the vertical navigation with the nitrokey type and serial number as text
         self.btn_nk3 = QtWidgets.QPushButton(
             QtGui.QIcon(":/images/icon/usb_new.png"),
@@ -81,7 +87,16 @@ class Nk3Button(QtWidgets.QWidget):
         # self.own_set_pin.hide()
         self.ctx = Nk3Context(self.device.path)
         self.own_update_btn.clicked.connect(
-            lambda: nk3_update_helper(self.ctx, self.progressbarupdate, 0, 0)
+            lambda: nk3_update(
+                self.ctx,
+                self.progressbarupdate,
+                self.progressbardownload,
+                self.progressbarfinalization,
+                0,
+                0,
+                0,
+                self.info_frame,
+            )
         )
         # self.own_change_pin.clicked.connect(self.change_pin_open_dialog)
         # self.own_set_pin.clicked.connect(self.set_pin_open_dialog)

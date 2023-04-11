@@ -1,6 +1,6 @@
 import logging
 from contextlib import contextmanager
-from typing import Any, Callable, Iterator, Optional
+from typing import Any, List, Optional
 
 # Nitrokey 3
 from pynitrokey.cli.exceptions import CliException
@@ -8,19 +8,28 @@ from pynitrokey.nk3.bootloader import Variant
 from pynitrokey.nk3.updates import Updater, UpdateUi
 from pynitrokey.nk3.utils import Version
 from PyQt5 import QtWidgets
+from PyQt5.QtCore import QCoreApplication
 
 from nitrokeyapp.pynitrokey_for_gui import Nk3Context
 
-# tray icon
-from nitrokeyapp.tray_notification import TrayNotification
-
 logger = logging.getLogger(__name__)
+
+x = 0
 
 
 class UpdateGUI(UpdateUi):
-    def __init__(self, progressBarUpdate):
+    def __init__(
+        self,
+        progressBarUpdate,
+        progressBarDownload,
+        progressBarFinalization,
+        info_frame,
+    ):
         self._version_printed = False
-        self.bar = progressBarUpdate
+        self.bar_update = progressBarUpdate
+        self.bar_download = progressBarDownload
+        self.bar_finalization = progressBarFinalization
+        self.info_frame = info_frame
 
     def error(self, *msgs: Any) -> Exception:
         return CliException(*msgs)
@@ -29,9 +38,34 @@ class UpdateGUI(UpdateUi):
         return CliException(*msgs, support_hint=False)
 
     def update_qbar(self, n: int, total: int) -> None:
-        value = self.bar.value()
-        if (n * 100 // total) > value:
-            self.bar.setValue(((n) * 100 // total))
+        value = self.bar_update.value()
+        if n >= total:
+            self.bar_update.setValue(0)
+            self.bar_update.hide()
+        elif (n * 100 // total) > value:
+            self.bar_update.setValue(((n) * 100 // total))
+            QCoreApplication.processEvents()
+
+    def download_qbar(self, n: int, total: int) -> None:
+        value = self.bar_download.value()
+        global x
+        x += n
+        if x == total:
+            self.bar_download.setValue(0)
+            self.bar_download.hide()
+            x = 0
+        if (x * 100 // total) > value:
+            self.bar_download.setValue(x * 100 // total)
+            QCoreApplication.processEvents()
+
+    def finalization_qbar(self, n: int, total: int) -> None:
+        value = self.bar_finalization.value()
+        if n >= total:
+            self.bar_finalization.setValue(0)
+            self.bar_finalization.hide()
+        elif n > value:
+            self.bar_finalization.setValue(n)
+            QCoreApplication.processEvents()
 
     def abort_downgrade(self, current: Version, image: Version) -> Exception:
         self._print_firmware_versions(current, image)
@@ -51,11 +85,15 @@ class UpdateGUI(UpdateUi):
         )
         returnValue = confirm_download_msgBox.exec()
         if returnValue == QtWidgets.QMessageBox.Cancel:
-            logger.info("Cancel clicked 1")
-            logger.info("Firmware Download cancelled by user in the second dialog")
-            raise self.abort("Update cancelled by user in the second dialog")
+            logger.info("Cancel clicked (confirm download)")
+            logger.info(
+                "Firmware Download cancelled by user in the (confirm download) dialog"
+            )
+            raise self.abort(
+                "Update cancelled by user in the (confirm download) dialog"
+            )
         elif returnValue == QtWidgets.QMessageBox.Ok:
-            logger.info("OK clicked 1")
+            logger.info("OK clicked (confirm download)")
 
     def confirm_update(self, current: Optional[Version], new: Version) -> None:
         confirm_update_msgBox = QtWidgets.QMessageBox()
@@ -69,16 +107,15 @@ class UpdateGUI(UpdateUi):
         )
         returnValue = confirm_update_msgBox.exec()
         if returnValue == QtWidgets.QMessageBox.Cancel:
-            logger.info("Cancel clicked 2")
-            logger.info("Update cancelled by user in the third dialog")
-            raise self.abort("Update cancelled by user in the third dialog")
+            logger.info("Cancel clicked (confirm update)")
+            logger.info("Update cancelled by user in the (confirm update) dialog")
+            raise self.abort("Update cancelled by user in the (confirm update) dialog")
         elif returnValue == QtWidgets.QMessageBox.Ok:
-            logger.info("OK clicked 2")
-            TrayNotification(
-                "Nitrokey 3",
-                "Nitrokey 3 Firmware Update",
-                "Please touch your Nitrokey 3 Device",
+            logger.info("OK clicked (confirm update)")
+            self.info_frame.set_text(
+                "please touch the Nitrokey 3 until it stops flashing/glowing and then wait a few seconds.."
             )
+            QCoreApplication.processEvents()
 
     def confirm_update_same_version(self, version: Version) -> None:
         confirm_update_same_version_msgBox = QtWidgets.QMessageBox()
@@ -92,12 +129,44 @@ class UpdateGUI(UpdateUi):
         )
         returnValue = confirm_update_same_version_msgBox.exec()
         if returnValue == QtWidgets.QMessageBox.Cancel:
-            logger.info("Cancel clicked 3")
-            logger.info("Update cancelled by user in the first dialog")
+            logger.info("Cancel clicked (confirm same version)")
+            logger.info("Update cancelled by user in the (confirm same version) dialog")
             # raise Abort()
-            raise self.abort("Update cancelled by user in the first dialog")
+            raise self.abort(
+                "Update cancelled by user in the (confirm same version) dialog"
+            )
         elif returnValue == QtWidgets.QMessageBox.Ok:
-            logger.info("OK clicked 3")
+            logger.info("OK clicked (confirm same version)")
+
+    def confirm_extra_information(self, txt: List[str]) -> None:
+        # if txt:
+        # logger.info("\n".join(txt))
+        # confirm_extra_information_msgBox = QtWidgets.QMessageBox()
+        # confirm_extra_information_msgBox.setIcon(QtWidgets.QMessageBox.Information)
+        # confirm_extra_information_msgBox.setText(
+        #     "Have you read these information? Do you want to continue?"
+        # )
+        # confirm_extra_information_msgBox.setWindowTitle("Nitrokey 3 Firmware Update")
+        # confirm_extra_information_msgBox.setStandardButtons(
+        #     QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel
+        # )
+        # returnValue = confirm_extra_information_msgBox.exec()
+        # if returnValue == QtWidgets.QMessageBox.Cancel:
+        #     logger.info("Cancel clicked (confirm extra information)")
+        #     logger.info("Update cancelled by user in the (confirm extra information) dialog")
+        #     # raise Abort()
+        #     raise self.abort("Update cancelled by user in the (confirm extra information) dialog")
+        # elif returnValue == QtWidgets.QMessageBox.Ok:
+        #     logger.info("OK clicked (confirm extra information)")
+        return True
+
+    def abort_pynitrokey_version(
+        self, current: Version, required: Version
+    ) -> Exception:
+        True
+
+    def confirm_pynitrokey_version(self, current: Version, required: Version) -> None:
+        True
 
     def request_repeated_update(self) -> Exception:
         logger.info(
@@ -117,12 +186,19 @@ class UpdateGUI(UpdateUi):
         return 0
 
     @contextmanager
-    def update_progress_bar(self) -> Iterator[Callable[[int, int], None]]:
+    def update_progress_bar(self):
+        self.bar_update.show()
         yield self.update_qbar
 
     @contextmanager
     def download_progress_bar(self, desc: str):
-        yield self.bar.show() and self.update_qbar
+        self.bar_download.show()
+        yield self.download_qbar
+
+    @contextmanager
+    def finalization_progress_bar(self):
+        self.bar_finalization.show()
+        yield self.finalization_qbar
 
     def _print_firmware_versions(
         self, current: Optional[Version], new: Optional[Version]
@@ -135,8 +211,25 @@ class UpdateGUI(UpdateUi):
 
 
 def update(
-    ctx: Nk3Context, progressBarUpdate, image: Optional[str], variant: Optional[Variant]
-) -> Version:
+    ctx: Nk3Context,
+    progressBarUpdate,
+    progressBarDownload,
+    progressBarFinalization,
+    image: Optional[str],
+    version: Optional[str],
+    ignore_pynitrokey_version: bool,
+    info_frame,
+) -> None:
     with ctx.connect() as device:
-        updater = Updater(UpdateGUI(progressBarUpdate), ctx.await_bootloader)
-        return updater.update(device, image, variant)
+
+        updater = Updater(
+            UpdateGUI(
+                progressBarUpdate,
+                progressBarDownload,
+                progressBarFinalization,
+                info_frame,
+            ),
+            ctx.await_bootloader,
+            ctx.await_device,
+        )
+        return updater.update(device, image, version, ignore_pynitrokey_version)
