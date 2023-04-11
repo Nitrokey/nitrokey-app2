@@ -3,3 +3,5 @@ __pycache__/
 *.py[cod]
 *$py.class
 nitrokeyapp/ui/*.py
+build/
+dist/

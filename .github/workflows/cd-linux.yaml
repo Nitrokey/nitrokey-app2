@@ -1,0 +1,79 @@
+name: Continuous delivery - Linux
+
+on:
+  release:
+    types: [published, unpublished]
+
+env:
+  FLIT_ROOT_INSTALL: 1
+
+jobs:
+  version-check:
+    name: Check versioning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Check version tag format
+        run: |
+          TAG_VERSION="${{ github.event.release.tag_name }}"
+          if [[ $TAG_VERSION =~ ^v[0-9]+.[0-9]+.[0-9]+$ ]]; then exit 0; else exit 1; fi
+      - name: Check if version tag and package version are equal
+        run: |
+          TAG_VERSION="${{ github.event.release.tag_name }}"
+          if [ ${TAG_VERSION:1} == $(cat nitrokeyapp/VERSION) ]; then exit 0; else exit 1; fi
+  build-onefile:
+    name: Build onefile
+    runs-on: ubuntu-latest
+    container: python:3.9-slim
+    needs: version-check
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install required packages
+        run: |
+          apt update
+          apt install -y binutils gcc libpcsclite-dev libusb-1.0-0 make swig
+      - name: Create virtual environment
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          pip install flit
+          flit install --symlink
+      - name: Build
+        run: |
+          . venv/bin/activate
+          pyinstaller \
+            ci-scripts/linux/pyinstaller/nitrokey-app-onefile.spec
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: nitrokey-app-onefile
+          path: dist/nitrokey-app
+  publish-binary:
+    name: Publish binary
+    runs-on: ubuntu-latest
+    container: python:3.9-slim
+    needs: build-onefile
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: nitrokey-app-onefile
+      - name: Rename binary
+        run: |
+          mv \
+            nitrokey-app \
+            nitrokey-app-${{ github.event.release.tag_name }}-x64-linux-binary
+      - name: Create archive
+        run: |
+          tar \
+          -czvf \
+          nitrokey-app-${{ github.event.release.tag_name }}-x64-linux-binary.tar.gz \
+          nitrokey-app-${{ github.event.release.tag_name }}-x64-linux-binary
+      - name: Publish release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: nitrokey-app-${{ github.event.release.tag_name }}-x64-linux-binary.tar.gz

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product Id="*"
+        Name="Nitrokey-App"
+        Language="1033"
+        Version="!(bind.FileVersion.nitrokey_app.exe)"
+        Manufacturer="Nitrokey GmbH"
+        UpgradeCode="{F928EC81-A9D6-4022-BE9B-EC35EF33444F}">
+
+        <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Platform="x64" />
+    
+        <MajorUpgrade DowngradeErrorMessage="A newer version of Nitrokey-App is already installed." />
+
+        <MediaTemplate EmbedCab="yes"/>
+
+        <Feature Id="ProductFeature" Title="Nitrokey-App" Level="1">
+            <ComponentGroupRef Id="ApplicationFiles" />
+            <ComponentRef Id="ApplicationShortcut" />
+            <ComponentRef Id="DesktopShortcut" />
+        </Feature>
+    </Product>
+
+    <!-- Paths for installation -->
+    <Fragment>
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <!-- Application files -->
+            <Directory Id="ProgramFiles64Folder">
+                <Directory Id="MANUFACTURER" Name="Nitrokey">
+                    <Directory Id="INSTALLFOLDER" Name="Nitrokey-App" />
+                </Directory>
+            </Directory>
+
+            <!-- Start menu shortcut -->
+            <Directory Id="ProgramMenuFolder">
+                <Directory Id="ApplicationProgramsFolder" Name="Nitrokey">
+                </Directory>
+            </Directory>
+
+            <!-- Desktop shortcut -->
+            <Directory Id="DesktopFolder" Name="Desktop">
+            </Directory>
+        </Directory>
+    </Fragment>
+
+    <!-- Application files component -->
+    <Fragment>
+        <ComponentGroup Id="ApplicationFiles" Directory="INSTALLFOLDER">
+            <ComponentGroupRef Id="ApplicationFilesDynamic" />
+        </ComponentGroup>
+    </Fragment>
+
+    <!-- Start menu shortcut component -->
+    <Fragment>
+        <DirectoryRef Id="ApplicationProgramsFolder">
+            <Component Id="ApplicationShortcut" Guid="*">
+                <Shortcut
+                    Id="StartMenuShortcut"
+                    Name="Nitrokey-App"
+                    Target="[INSTALLFOLDER]nitrokey-app.exe"
+                    WorkingDirectory="INSTALLFOLDER" />
+                <RemoveFolder
+                    Id="CleanupShortcut"
+                    Directory="ApplicationProgramsFolder"
+                    On="uninstall" />
+                <RegistryValue
+                    Root="HKCU"
+                    Key="Software\Nitrokey\[ProductName]"
+                    Name="startmenushortcutinstalled"
+                    Type="integer"
+                    Value="1"
+                    KeyPath="yes" />
+            </Component>
+        </DirectoryRef>
+    </Fragment>
+
+    <!-- Desktop shortcut component -->
+    <Fragment>
+        <DirectoryRef Id="DesktopFolder">
+           <Component Id="DesktopShortcut" Guid="*">
+               <Shortcut
+                   Id="ApplicationDesktopShortcut"
+                   Name="Nitrokey-App"
+                   Target="[INSTALLFOLDER]nitrokey-app.exe"
+                   WorkingDirectory="INSTALLFOLDER" />
+               <RemoveFolder Id="DesktopFolder" On="uninstall"/>
+               <RegistryValue
+                   Root="HKCU"
+                   Key="Software\Nitrokey\[ProductName]"
+                   Name="desktopshortcutinstalled"
+                   Type="integer"
+                   Value="1"
+                   KeyPath="yes"/>
+           </Component>
+        </DirectoryRef>
+    </Fragment>
+</Wix>

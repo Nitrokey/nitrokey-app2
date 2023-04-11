@@ -36,6 +36,8 @@ dev = [
   "flit >= 3.2,<4",
   "isort",
   "mypy >=1,<1.1",
+  "pyinstaller ==5.9.0",
+  "pyinstaller-versionfile ==2.1.1; sys_platform=='win32'",
 ]
 
 [project.urls]
