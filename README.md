@@ -1,6 +1,6 @@
-# Alternative Nitrokey Application - nitrokey-app2
+# Nitrokey 3 Application - nitrokey-app2
 
-Work in Progress !!
+This application is not a replacement for the Nitrokey app. It is an application designed to manage Nitrokey 3 devices. Currently, the app only allows you to update the Nitrokey 3 devices.
 
 ## To run on Linux:
 
@@ -29,6 +29,5 @@ venv/Scripts/python venv/Scripts/pywin32_postinstall.py -install
 venv/Scripts/activate
 python nitrokeyapp/__main__.py
 ```
-## Update ui files (for Devs)
-
-python -m PyQt5.uic.pyuic -x "changed_file".ui -o "changed_file_ui".py
+## Update ui files
+make build-ui
