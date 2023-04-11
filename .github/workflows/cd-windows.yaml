@@ -47,6 +47,7 @@ jobs:
       - name: Build onedir
         run: |
           .\venv\Scripts\Activate.ps1
+          make build-ui
           pyinstaller ci-scripts/windows/pyinstaller/nitrokey-app-onedir.spec
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
@@ -77,6 +78,7 @@ jobs:
       - name: Build onefile
         run: |
           .\venv\Scripts\Activate.ps1
+          make build-ui
           pyinstaller ci-scripts/windows/pyinstaller/nitrokey-app-onefile.spec
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
