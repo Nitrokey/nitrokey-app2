@@ -3,7 +3,8 @@
 PACKAGE_NAME=nitrokeyapp
 VENV=venv
 PYTHON=python3
-UI_FILES = $(wildcard nitrokeyapp/ui/*.ui)
+UI_FILES_PATH=nitrokeyapp/ui
+UI_FILES = $(wildcard $(UI_FILES_PATH)/*.ui)
 
 ALL: update-venv build
 
