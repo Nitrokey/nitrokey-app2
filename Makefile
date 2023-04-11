@@ -29,7 +29,8 @@ clean: semi-clean
 	rm -rf .mypy_cache
 
 build-ui: $(UI_FILES)
-	$(foreach var,$(UI_FILES),$(VENV)/bin/pyuic5 $(var) -o $(subst .ui,.py,$(var));)
+	pyrcc5 $(UI_FILES_PATH)/resources.qrc -o $(UI_FILES_PATH)/resources_rc.py
+	$(foreach var,$(UI_FILES),pyuic5 --from-imports $(var) -o $(subst .ui,.py,$(var));)
 
 build: build-ui
 	$(VENV)/bin/$(PYTHON) -m flit build
