@@ -113,7 +113,7 @@ class UpdateGUI(UpdateUi):
         elif returnValue == QtWidgets.QMessageBox.Ok:
             logger.info("OK clicked (confirm update)")
             self.info_frame.set_text(
-                "please touch the Nitrokey 3 until it stops flashing/glowing and then wait a few seconds.."
+                "Please touch the Nitrokey 3 until it stops flashing/glowing and then wait a few seconds.."
             )
             QCoreApplication.processEvents()
 
