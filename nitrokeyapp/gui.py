@@ -202,10 +202,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         nk3_list = list_nk3()
         nk3_list = list(filterfalse(self.device_in_bootloader, nk3_list))
         if len(nk3_list):
-            list_of_added = [y.uuid for y in Nk3Button.get()]
+            list_of_added = [str(y.uuid)[:-4] for y in Nk3Button.get()]
             logger.info(f"list of added: {list_of_added}")
             for device in nk3_list:
-                if device.uuid() not in list_of_added:
+                if str(device.uuid())[:-4] not in list_of_added:
                     self.device = device
                     uuid = self.device.uuid()
                     if uuid:
@@ -240,7 +240,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                     self.toggle_update_btn()
                 else:
                     nk3_btn_same_uuid = [
-                        y for y in Nk3Button.get() if y.uuid == device.uuid()
+                        y for y in Nk3Button.get() if str(y.uuid)[:-4] == str(device.uuid())[:-4]
                     ]
                     for i in nk3_btn_same_uuid:
                         if device.path != i.path:
@@ -255,11 +255,11 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         if Nk3Button.get():
             if len(nk3_list_1):
                 logger.info(f"list nk3: {nk3_list_1}")
-                list_of_nk3s = [x.uuid() for x in nk3_list_1]
+                list_of_nk3s = [str(x.uuid())[:-4] for x in nk3_list_1]
                 list_of_removed_help = [
                     y
                     for y in Nk3Button.get()
-                    if ((y.uuid not in list_of_nk3s) and (y.ctx.updating is False))
+                    if ((str(y.uuid)[:-4] not in list_of_nk3s) and (y.ctx.updating is False))
                 ]
                 list_of_removed = list_of_removed + list_of_removed_help
             elif Nk3Button.get()[0].ctx.updating is False:
