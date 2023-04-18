@@ -147,8 +147,10 @@ class Nk3Button(QtWidgets.QWidget):
 
     def update(self, device):
         self.device = device
+        self.uuid = self.device.uuid()
         self.path = self.device.path
         self.version = self.device.version()
+        self.nk3_lineedit_uuid.setText(str(self.uuid))
         self.nk3_lineedit_path.setText(str(self.path))
         self.nk3_lineedit_version.setText(str(self.version))
         self.ctx = Nk3Context(self.device.path)
