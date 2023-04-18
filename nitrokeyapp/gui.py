@@ -240,7 +240,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                     self.toggle_update_btn()
                 else:
                     nk3_btn_same_uuid = [
-                        y for y in Nk3Button.get() if str(y.uuid)[:-4] == str(device.uuid())[:-4]
+                        y
+                        for y in Nk3Button.get()
+                        if str(y.uuid)[:-4] == str(device.uuid())[:-4]
                     ]
                     for i in nk3_btn_same_uuid:
                         if device.path != i.path:
@@ -259,7 +261,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 list_of_removed_help = [
                     y
                     for y in Nk3Button.get()
-                    if ((str(y.uuid)[:-4] not in list_of_nk3s) and (y.ctx.updating is False))
+                    if (
+                        (str(y.uuid)[:-4] not in list_of_nk3s)
+                        and (y.ctx.updating is False)
+                    )
                 ]
                 list_of_removed = list_of_removed + list_of_removed_help
             elif Nk3Button.get()[0].ctx.updating is False:
