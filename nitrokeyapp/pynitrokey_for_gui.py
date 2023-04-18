@@ -217,5 +217,6 @@ def nk3_update(
         logger.info("Successfully updated the Nitrokey 3")
         info_frame.set_text("Successfully updated the Nitrokey 3.")
     except Exception as e:
+        ctx.updating = False
         logger.info(f"Failed to update Nitrokey 3 {e}")
         info_frame.set_text("Failed to update Nitrokey 3.")
