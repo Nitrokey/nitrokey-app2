@@ -15,7 +15,6 @@ from pynitrokey.nk3.device import Nitrokey3Device
 # from fido2.ctap2.pin import ClientPin
 
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 T = TypeVar("T", bound=Nitrokey3Base)

@@ -55,7 +55,6 @@ from nitrokeyapp.windows_notification import WindowsUSBNotifi
 
 # pyrcc4 -py3 resources.qrc -o resources_rc.py
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # PWS related callbacks
