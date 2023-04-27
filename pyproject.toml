@@ -44,7 +44,7 @@ dev = [
 Source = "https://github.com/Nitrokey/nitrokey-app2"
 
 [project.scripts]
-nitrokeyapp = "nitrokeyapp:main"
+nitrokeyapp = "nitrokeyapp.__main__:main"
 
 [tool.isort]
 py_version = "39"

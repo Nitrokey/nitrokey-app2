@@ -15,7 +15,7 @@ git clone https://github.com/Nitrokey/nitrokey-app2.git
 cd nitrokey-app2
 make
 source venv/bin/activate
-python3 nitrokeyapp/__main__.py
+nitrokeyapp
 ```
 
 ## Dependencies
