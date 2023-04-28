@@ -1,0 +1,79 @@
+name: Continuous delivery - Pypi
+
+on:
+  release:
+    types: [published, unpublished]
+
+env:
+  FLIT_ROOT_INSTALL: 1
+
+jobs:
+  version-check:
+    name: Check versioning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Check version tag format
+        run: |
+          TAG_VERSION="${{ github.event.release.tag_name }}"
+          if [[ $TAG_VERSION =~ ^v[0-9]+.[0-9]+.[0-9]+$ ]]; then exit 0; else exit 1; fi
+      - name: Check if version tag and package version are equal
+        run: |
+          TAG_VERSION="${{ github.event.release.tag_name }}"
+          if [ ${TAG_VERSION:1} == $(cat nitrokeyapp/VERSION) ]; then exit 0; else exit 1; fi
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    container: python:3.9-slim
+    needs: version-check
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install required packages
+        run: |
+          apt update
+          apt install -y binutils gcc libpcsclite-dev libusb-1.0-0 make swig
+      - name: Create virtual environment
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          pip install flit
+          flit install --symlink
+      - name: Build
+        run: |
+          . venv/bin/activate
+          flit build
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: nitrokeyapp-pypi
+          path: dist
+  publish-binary:
+    name: Publish
+    runs-on: ubuntu-latest
+    container: python:3.9-slim
+    needs: build
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: nitrokeyapp-pypi
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install required packages
+        run: |
+          apt update
+          apt install -y binutils gcc libpcsclite-dev libusb-1.0-0 make swig
+      - name: Create virtual environment
+        run: |
+          python -m venv venv
+          . venv/bin/activate
+          pip install flit
+          flit install --symlink
+      - name: Prepare pypi configuration file
+        run: sed -e "s|\${passw}|${{ secrets.PYPI_TOKEN }}|" ci-scripts/pypi/.pypirc_template > ~/.pypirc
+      - name: Publish release
+        run: |
+          . venv/bin/activate
+          flit --repository pypi publish
