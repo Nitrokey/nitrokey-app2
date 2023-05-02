@@ -16,7 +16,7 @@ cd nitrokey-app2
 make update-venv
 source venv/bin/activate
 make build
-python3 nitrokeyapp/__main__.py
+nitrokeyapp
 ```
 
 ## Dependencies
