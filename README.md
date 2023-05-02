@@ -13,8 +13,9 @@ The application can be compiled by executing:
 ```
 git clone https://github.com/Nitrokey/nitrokey-app2.git
 cd nitrokey-app2
-make
+make update-venv
 source venv/bin/activate
+make build
 python3 nitrokeyapp/__main__.py
 ```
 
