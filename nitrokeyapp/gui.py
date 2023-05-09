@@ -261,16 +261,16 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 self.toggle_update_btn()
                 self.info_frame.set_text("Nitrokey 3 removed.")
 
-    def show_only_this_tab(self, tab: int) -> None:
+    def show_only_this_tabs(self, *args: int) -> None:
         for idx in range(self.tabs.count()):
             self.tabs.setTabEnabled(idx, False)
             self.tabs.setTabVisible(idx, False)
-        self.tabs.setTabEnabled(tab, True)
-        self.tabs.setTabVisible(tab, True)
+        for i in args:
+            self.tabs.setTabEnabled(i, True)
+            self.tabs.setTabVisible(i, True)
 
     def init_gui(self) -> None:
-        self.show_only_this_tab(0)
-        self.tabs.hide()
+        self.show_only_this_tabs(0, 1)
         self.info_frame.hide()
         self.nitrokey3_frame.hide()
         self.progressbarupdate.hide()
