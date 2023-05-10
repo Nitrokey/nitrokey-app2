@@ -64,6 +64,14 @@ module = [
 ]
 disallow_untyped_defs = true
 
+# generated and unused files
+[[tool.mypy.overrides]]
+module = [
+  "nitrokeyapp.bak.*",
+  "nitrokeyapp.ui.*",
+]
+ignore_errors = true
+
 # libraries without annotations
 [[tool.mypy.overrides]]
 module = [

@@ -6,7 +6,7 @@ from nitrokeyapp.ui.aboutdialog import Ui_AboutDialog
 
 
 class AboutDialog(QtUtilsMixIn, QtWidgets.QDialog):
-    def __init__(self, qt_app: QtWidgets.QApplication):
+    def __init__(self, qt_app: QtWidgets.QApplication) -> None:
         QtWidgets.QDialog.__init__(self)
         QtUtilsMixIn.__init__(self)
 

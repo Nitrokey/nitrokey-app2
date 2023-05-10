@@ -1,4 +1,5 @@
 import logging
+from typing import Any, Callable
 
 logger = logging.getLogger(__name__)
 
@@ -11,7 +12,9 @@ class WindowsUSBNotifi:
     WORD = c_ushort
     DWORD = c_ulong
 
-    def __init__(self, detect_nk3, remove_nk3):
+    def __init__(
+        self, detect_nk3: Callable[[], None], remove_nk3: Callable[[], None]
+    ) -> None:
 
         import win32api
         import win32con
@@ -42,7 +45,7 @@ class WindowsUSBNotifi:
         )
         win32gui.UpdateWindow(self.hwnd)
 
-    def onDeviceChange(self, hwnd, msg, wparam, lparam):
+    def onDeviceChange(self, hwnd: Any, msg: Any, wparam: int, lparam: Any) -> None:
 
         if wparam == self.DBT_DEVICEADDED:
             logger.info("Windows: USB added")

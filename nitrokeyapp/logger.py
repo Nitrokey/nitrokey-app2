@@ -5,8 +5,7 @@ from datetime import datetime
 from importlib.metadata import version as package_version
 
 
-def init_logging():
-
+def init_logging() -> None:
     logger = logging.getLogger(__name__)
     LOG_FN = tempfile.NamedTemporaryFile(prefix="nitrokey-app2.log.").name
     LOG_FORMAT = "%(relativeCreated)-8d %(levelname)6s %(name)10s %(message)s"

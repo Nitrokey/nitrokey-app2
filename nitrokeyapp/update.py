@@ -1,6 +1,6 @@
 import logging
 from contextlib import contextmanager
-from typing import Any, List, Optional
+from typing import Any, Callable, Iterator, List, Optional
 
 # Nitrokey 3
 from pynitrokey.cli.exceptions import CliException
@@ -10,6 +10,7 @@ from pynitrokey.nk3.utils import Version
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QCoreApplication
 
+from nitrokeyapp.information_box import InfoBox
 from nitrokeyapp.pynitrokey_for_gui import Nk3Context
 
 logger = logging.getLogger(__name__)
@@ -20,11 +21,11 @@ x = 0
 class UpdateGUI(UpdateUi):
     def __init__(
         self,
-        progressBarUpdate,
-        progressBarDownload,
-        progressBarFinalization,
-        info_frame,
-    ):
+        progressBarUpdate: QtWidgets.QProgressBar,
+        progressBarDownload: QtWidgets.QProgressBar,
+        progressBarFinalization: QtWidgets.QProgressBar,
+        info_frame: InfoBox,
+    ) -> None:
         self._version_printed = False
         self.bar_update = progressBarUpdate
         self.bar_download = progressBarDownload
@@ -158,15 +159,21 @@ class UpdateGUI(UpdateUi):
         #     raise self.abort("Update cancelled by user in the (confirm extra information) dialog")
         # elif returnValue == QtWidgets.QMessageBox.Ok:
         #     logger.info("OK clicked (confirm extra information)")
-        return True
+        # TODO: implement
+        pass
 
     def abort_pynitrokey_version(
         self, current: Version, required: Version
     ) -> Exception:
-        True
+        return self.abort(
+            f"This update required pynitrokey {required} but you are using {current}"
+        )
 
     def confirm_pynitrokey_version(self, current: Version, required: Version) -> None:
-        True
+        # TODO: implement
+        raise self.abort(
+            f"This update required pynitrokey {required} but you are using {current}"
+        )
 
     def request_repeated_update(self) -> Exception:
         logger.info(
@@ -186,17 +193,17 @@ class UpdateGUI(UpdateUi):
         return 0
 
     @contextmanager
-    def update_progress_bar(self):
+    def update_progress_bar(self) -> Iterator[Callable[[int, int], None]]:
         self.bar_update.show()
         yield self.update_qbar
 
     @contextmanager
-    def download_progress_bar(self, desc: str):
+    def download_progress_bar(self, desc: str) -> Iterator[Callable[[int, int], None]]:
         self.bar_download.show()
         yield self.download_qbar
 
     @contextmanager
-    def finalization_progress_bar(self):
+    def finalization_progress_bar(self) -> Iterator[Callable[[int, int], None]]:
         self.bar_finalization.show()
         yield self.finalization_qbar
 
@@ -212,13 +219,13 @@ class UpdateGUI(UpdateUi):
 
 def update(
     ctx: Nk3Context,
-    progressBarUpdate,
-    progressBarDownload,
-    progressBarFinalization,
+    progressBarUpdate: QtWidgets.QProgressBar,
+    progressBarDownload: QtWidgets.QProgressBar,
+    progressBarFinalization: QtWidgets.QProgressBar,
     image: Optional[str],
     version: Optional[str],
     ignore_pynitrokey_version: bool,
-    info_frame,
+    info_frame: InfoBox,
 ) -> None:
     with ctx.connect() as device:
 

@@ -70,10 +70,11 @@ jobs:
       - name: Install required packages
         run: |
           apt update
-          apt install make
+          apt install -y make libglib2.0-dev
       - name: Create virtual environment
         run: make init
       - name: Check code static typing
         run: |
           . venv/bin/activate
+          make build
           make check-typing

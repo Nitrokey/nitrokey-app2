@@ -9,6 +9,9 @@ from pynitrokey.nk3 import open as open_nk3
 from pynitrokey.nk3.base import Nitrokey3Base
 from pynitrokey.nk3.bootloader import Nitrokey3Bootloader
 from pynitrokey.nk3.device import Nitrokey3Device
+from PyQt5 import QtWidgets
+
+from nitrokeyapp.information_box import InfoBox
 
 # for fido2 (change pin)
 # import pynitrokey.fido2 as nkfido2
@@ -105,10 +108,9 @@ class Nk3Context:
         return self._await("Nitrokey 3 bootloader", Nitrokey3Bootloader, retries, callback)  # type: ignore
 
 
-def list():
+def list() -> None:
     """List all Nitrokey 3 devices."""
     logger.info(":: 'Nitrokey 3' keys")
-    # device = Nitrokey3Device.list
     for device in list_nk3():
         uuid = device.uuid()
         if uuid:
@@ -189,13 +191,13 @@ def wink(ctx: Nk3Context) -> None:
 
 def nk3_update(
     ctx: Nk3Context,
-    progressBarUpdate,
-    progressBarDownload,
-    progressBarFinalization,
-    image,
-    version,
-    ignore_pynitrokey_version,
-    info_frame,
+    progressBarUpdate: QtWidgets.QProgressBar,
+    progressBarDownload: QtWidgets.QProgressBar,
+    progressBarFinalization: QtWidgets.QProgressBar,
+    image: Optional[str],
+    version: Optional[str],
+    ignore_pynitrokey_version: bool,
+    info_frame: InfoBox,
 ) -> None:
 
     from nitrokeyapp.update import update
