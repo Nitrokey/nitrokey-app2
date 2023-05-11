@@ -3,6 +3,7 @@ from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import QSize, pyqtSlot
 
 from nitrokeyapp.information_box import InfoBox
+from nitrokeyapp.secrets_widget import SecretsWidget
 from nitrokeyapp.pynitrokey_for_gui import Nk3Context, nk3_update
 
 
@@ -32,6 +33,7 @@ class Nk3Button(QtWidgets.QWidget):
         # set_pin_dialog,
         buttonLayout_nk3: QtWidgets.QHBoxLayout,
         info_frame: InfoBox,
+        secrets: SecretsWidget,
     ) -> None:
         super().__init__()
         self.device = device
@@ -54,6 +56,7 @@ class Nk3Button(QtWidgets.QWidget):
         self.progressbardownload = progressBarDownload
         self.progressbarfinalization = progressBarFinalization
         self.info_frame = info_frame
+        self.secrets = secrets
         # needs to create button in the vertical navigation with the nitrokey type and serial number as text
         self.btn_nk3 = QtWidgets.QPushButton(
             QtGui.QIcon(":/images/icon/usb_new.png"),
@@ -125,6 +128,10 @@ class Nk3Button(QtWidgets.QWidget):
         self.tabs.show()
         for i in range(1, 6):
             self.tabs.setTabVisible(i, False)
+        # TODO: check version, don’t hardcode index
+        self.tabs.setTabEnabled(4, True)
+        self.tabs.setTabVisible(4, True)
+        self.secrets.device = self.device
         self.nk3_lineedit_uuid.setText(str(self.uuid))
         self.nk3_lineedit_path.setText(str(self.path))
         self.nk3_lineedit_version.setText(str(self.version))
@@ -138,6 +145,9 @@ class Nk3Button(QtWidgets.QWidget):
         # self.own_set_pin.show()
 
     def __del__(self) -> None:
+        self.secrets.device = None
+        self.secrets.reset()
+        self.tabs.setCurrentIndex(0)
         self.tabs.hide()
         self.nitrokeys_window.update()
         self.btn_nk3.close()

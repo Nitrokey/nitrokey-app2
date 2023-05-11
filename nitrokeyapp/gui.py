@@ -21,6 +21,7 @@ from PyQt5.QtCore import Qt, pyqtSlot
 from nitrokeyapp.about_dialog import AboutDialog
 from nitrokeyapp.information_box import InfoBox
 from nitrokeyapp.nk3_button import Nk3Button
+from nitrokeyapp.secrets_widget import SecretsWidget
 
 # from nitrokeyapp.loading_screen import LoadingScreen
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
@@ -83,8 +84,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.ui.setupUi(self)
 
         # import other ui-files
-        # used
         self.about_dialog = AboutDialog(qt_app)
+        self.secrets = SecretsWidget(self)
+        self.ui.tabWidget.addTab(self.secrets, "Secrets")
 
         # get widget objects
         # app wide widgets
@@ -219,6 +221,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                         # self.set_pin_dialog,
                         self.buttonlayout_nk3,
                         self.info_frame,
+                        self.secrets,
                     )
                     self.device = None
                     logger.info("nk3 connected")
@@ -261,16 +264,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 self.toggle_update_btn()
                 self.info_frame.set_text("Nitrokey 3 removed.")
 
-    def show_only_this_tabs(self, *args: int) -> None:
-        for idx in range(self.tabs.count()):
-            self.tabs.setTabEnabled(idx, False)
-            self.tabs.setTabVisible(idx, False)
-        for i in args:
-            self.tabs.setTabEnabled(i, True)
-            self.tabs.setTabVisible(i, True)
-
     def init_gui(self) -> None:
-        self.show_only_this_tabs(0, 1)
+        self.tabs.hide()
         self.info_frame.hide()
         self.nitrokey3_frame.hide()
         self.progressbarupdate.hide()
@@ -282,7 +277,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     @pyqtSlot(int)
     def slot_tab_changed(self, idx: int) -> None:
-        pass
+        # TODO: remove hardcoded value
+        if idx == 4:
+            self.secrets.update_data()
 
     # main-window callbacks
     @pyqtSlot()
