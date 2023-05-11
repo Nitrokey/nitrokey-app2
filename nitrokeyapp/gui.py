@@ -5,24 +5,28 @@ import functools
 import logging
 import platform
 import webbrowser
-from typing import Optional
+from types import TracebackType
+from typing import Optional, Type
 
 # Nitrokey 3
 from pynitrokey.nk3 import Nitrokey3Device
 
 # pyqt5
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt, pyqtSlot
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt5.QtGui import QCursor
 
 from nitrokeyapp.about_dialog import AboutDialog
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.device_view import DeviceView
+from nitrokeyapp.error_dialog import ErrorDialog
 from nitrokeyapp.information_box import InfoBox
 from nitrokeyapp.nk3_button import Nk3Button
 from nitrokeyapp.overview_tab import OverviewTab
 
 # from nitrokeyapp.loading_screen import LoadingScreen
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
+from nitrokeyapp.secrets_tab import SecretsTab
 
 # import wizards and stuff
 from nitrokeyapp.ui.mainwindow import Ui_MainWindow
@@ -52,10 +56,27 @@ from nitrokeyapp.windows_notification import WindowsUSBNotifi
 
 logger = logging.getLogger(__name__)
 
-# PWS related callbacks
+
+class TouchDialog(QtWidgets.QMessageBox):
+    def __init__(self, parent: QtWidgets.QWidget) -> None:
+        super().__init__(parent)
+
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.setWindowTitle("Touch Confirmation")
+        self.setText("Press the button on the Nitrokey 3 if the LED blinks.")
+
+    @pyqtSlot()
+    def start(self) -> None:
+        self.show()
+
+    @pyqtSlot()
+    def stop(self) -> None:
+        self.close()
 
 
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
+    trigger_handle_exception = pyqtSignal(object, BaseException, object)
+
     def __init__(self, qt_app: QtWidgets.QApplication):
         QtWidgets.QMainWindow.__init__(self)
         QtUtilsMixIn.__init__(self)
@@ -81,6 +102,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.device_buttons: list[Nk3Button] = []
         self.selected_device: Optional[DeviceData] = None
 
+        self.trigger_handle_exception.connect(self.handle_exception)
+
         # loads main ui
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -92,8 +115,15 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         )
 
         self.about_dialog = AboutDialog(qt_app)
+        self.touch_dialog = TouchDialog(self)
         self.overview_tab = OverviewTab(self.info_box, self)
-        self.views: list[DeviceView] = [self.overview_tab]
+        self.views: list[DeviceView] = [self.overview_tab, SecretsTab(self)]
+        for view in self.views:
+            if view.worker:
+                view.worker.busy_state_changed.connect(self.set_busy)
+                view.worker.error.connect(self.error)
+                view.worker.start_touch.connect(self.touch_dialog.start)
+                view.worker.stop_touch.connect(self.touch_dialog.stop)
 
         # get widget objects
         # app wide widgets
@@ -139,6 +169,17 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             elif dvc.action == "bind":
                 logger.info("BIND")
                 self.detect_added_devices()
+
+    @pyqtSlot(object, BaseException, object)
+    def handle_exception(
+        self,
+        ty: Type[BaseException],
+        e: BaseException,
+        tb: Optional[TracebackType],
+    ) -> None:
+        dialog = ErrorDialog(self)
+        dialog.set_exception(ty, e, tb)
+        dialog.show()
 
     def toggle_update_btn(self) -> None:
         device_count = len(self.devices)
@@ -253,3 +294,17 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         logger.info("nk3 instance removed (lock button)")
         for data in self.devices:
             self.remove_device(data)
+
+    @pyqtSlot(bool)
+    def set_busy(self, busy: bool) -> None:
+        if busy:
+            self.setCursor(QCursor(Qt.WaitCursor))
+        else:
+            self.unsetCursor()
+        # TODO: setEnabled?
+        # self.setEnabled(not busy)
+
+    @pyqtSlot(str)
+    def error(self, error: str) -> None:
+        # TODO: improve
+        self.user_err(error, "Error")

@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QWidget
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.information_box import InfoBox
 from nitrokeyapp.ui.overview_tab import Ui_OverviewTab
+from nitrokeyapp.worker import Worker
 
 
 class OverviewTab(QWidget):
@@ -29,6 +30,10 @@ class OverviewTab(QWidget):
     @property
     def widget(self) -> QWidget:
         return self
+
+    @property
+    def worker(self) -> Optional[Worker]:
+        return None
 
     def reset(self) -> None:
         self.data = None
