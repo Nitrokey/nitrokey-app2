@@ -19,4 +19,5 @@ def main():
     app.exec()
 
 
-main()
+if __name__ == "__main__":
+    main()
