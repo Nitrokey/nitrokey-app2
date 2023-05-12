@@ -1,3 +1,5 @@
+from typing import Optional
+
 from PyQt5 import QtWidgets
 
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
@@ -5,7 +7,7 @@ from nitrokeyapp.ui.change_pin_dialog import Ui_ChangePinDialog
 
 
 class ChangePinDialog(QtUtilsMixIn, QtWidgets.QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent: Optional[QtWidgets.QWidget] = None) -> None:
         QtWidgets.QDialog.__init__(self, parent)
         QtUtilsMixIn.__init__(self)
 
@@ -23,7 +25,7 @@ class ChangePinDialog(QtUtilsMixIn, QtWidgets.QDialog):
         self.new_pin.textChanged.connect(self.same_pin)
         self.btn_ok.setEnabled(False)
 
-    def same_pin(self):
+    def same_pin(self) -> None:
         if (
             self.new_pin.text() != self.confirm_new_pin.text()
             or self.new_pin.text() == ""

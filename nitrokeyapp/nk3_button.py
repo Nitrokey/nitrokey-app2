@@ -1,37 +1,38 @@
+from pynitrokey.nk3 import Nitrokey3Device
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import QSize, pyqtSlot
 
-# from nitrokeyapp.change_pin_dialog import ChangePinDialog
+from nitrokeyapp.information_box import InfoBox
 from nitrokeyapp.pynitrokey_for_gui import Nk3Context, nk3_update
 
 
 class Nk3Button(QtWidgets.QWidget):
-    list_nk3_keys = []
+    list_nk3_keys: list["Nk3Button"] = []
 
     @classmethod
-    def get(cls):
+    def get(cls) -> list["Nk3Button"]:
         return Nk3Button.list_nk3_keys
 
     def __init__(
         self,
-        device,
-        nitrokeys_window,
-        layout_nk_btns,
-        nitrokey3_frame,
-        nk3_lineedit_uuid,
-        nk3_lineedit_path,
-        nk3_lineedit_version,
-        tabs,
-        progressBarUpdate,
-        progressBarDownload,
-        progressBarFinalization,
+        device: Nitrokey3Device,
+        nitrokeys_window: QtWidgets.QScrollArea,
+        layout_nk_btns: QtWidgets.QVBoxLayout,
+        nitrokey3_frame: QtWidgets.QFrame,
+        nk3_lineedit_uuid: QtWidgets.QLineEdit,
+        nk3_lineedit_path: QtWidgets.QLineEdit,
+        nk3_lineedit_version: QtWidgets.QLineEdit,
+        tabs: QtWidgets.QTabWidget,
+        progressBarUpdate: QtWidgets.QProgressBar,
+        progressBarDownload: QtWidgets.QProgressBar,
+        progressBarFinalization: QtWidgets.QProgressBar,
         # change_pin_open_dialog,
         # set_pin_open_dialog,
         # change_pin_dialog,
         # set_pin_dialog,
-        buttonLayout_nk3,
-        info_frame,
-    ):
+        buttonLayout_nk3: QtWidgets.QHBoxLayout,
+        info_frame: InfoBox,
+    ) -> None:
         super().__init__()
         self.device = device
         self.uuid = self.device.uuid()
@@ -92,9 +93,9 @@ class Nk3Button(QtWidgets.QWidget):
                 self.progressbarupdate,
                 self.progressbardownload,
                 self.progressbarfinalization,
-                0,
-                0,
-                0,
+                None,
+                None,
+                False,
                 self.info_frame,
             )
         )
@@ -120,7 +121,7 @@ class Nk3Button(QtWidgets.QWidget):
         Nk3Button.list_nk3_keys.append(self)
 
     @pyqtSlot()
-    def nk3_btn_pressed(self):
+    def nk3_btn_pressed(self) -> None:
         self.tabs.show()
         for i in range(1, 6):
             self.tabs.setTabVisible(i, False)
@@ -128,15 +129,15 @@ class Nk3Button(QtWidgets.QWidget):
         self.nk3_lineedit_path.setText(str(self.path))
         self.nk3_lineedit_version.setText(str(self.version))
         self.nitrokey3_frame.show()
-        for i in Nk3Button.get():
-            i.own_update_btn.hide()
-            # i.own_change_pin.hide()
-            # i.own_set_pin.hide()
+        for button in Nk3Button.get():
+            button.own_update_btn.hide()
+            # button.own_change_pin.hide()
+            # button.own_set_pin.hide()
         self.own_update_btn.show()
         # self.own_change_pin.show()
         # self.own_set_pin.show()
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.tabs.hide()
         self.nitrokeys_window.update()
         self.btn_nk3.close()
@@ -145,7 +146,7 @@ class Nk3Button(QtWidgets.QWidget):
         # self.own_set_pin.close()
         Nk3Button.list_nk3_keys.remove(self)
 
-    def update(self, device):
+    def set_device(self, device: Nitrokey3Device) -> None:
         self.device = device
         self.uuid = self.device.uuid()
         self.path = self.device.path
