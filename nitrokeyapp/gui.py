@@ -83,20 +83,19 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        # import other ui-files
+        self.info_box = InfoBox(
+            self.ui.information_frame,
+            self.ui.label_information_icon,
+            self.ui.label_information,
+        )
+
         self.about_dialog = AboutDialog(qt_app)
-        self.overview_tab = OverviewTab(self)
+        self.overview_tab = OverviewTab(self.info_box, self)
 
         # get widget objects
         # app wide widgets
         # self.status_bar = _get(_qt.QStatusBar, "statusBar")
         # self.menu_bar = _get(_qt.QMenuBar, "menuBar")
-        self.information_frame = self.ui.information_frame
-        self.label_information_icon = self.ui.label_information_icon
-        self.label_information = self.ui.label_information
-        self.info_frame = InfoBox(
-            self.information_frame, self.label_information_icon, self.label_information
-        )
         self.tabs = self.ui.tabWidget
         self.about_button = self.ui.btn_about
         self.help_btn = self.ui.btn_dial_help
@@ -153,22 +152,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         )
 
     def toggle_update_btn(self) -> None:
-        if len(Nk3Button.get()) == 0:
+        buttons = Nk3Button.get()
+        if len(buttons) == 0:
             self.l_insert_nitrokey.show()
-        if len(Nk3Button.get()) > 1:
-            self.info_frame.set_text_durable(
-                "Please remove all Nitrokey 3 devices except the one you want to update."
-            )
-            for i in Nk3Button.get():
-                i.own_update_btn.setEnabled(False)
-                i.own_update_btn.setToolTip(
-                    "Please remove all Nitrokey 3 devices except the one you want to update."
-                )
-        else:
-            for i in Nk3Button.get():
-                self.info_frame.hide()
-                i.own_update_btn.setEnabled(True)
-                i.own_update_btn.setToolTip("")
+        self.overview_tab.set_update_enabled(len(buttons) == 1)
 
     def detect_nk3(self) -> None:
         nk3_list = list_nk3()
@@ -191,11 +178,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                         self.device,
                         self.nitrokeys_window,
                         self.layout_nk_btns,
-                        self.overview_tab.ui.Nitrokey3,
                         self.overview_tab,
                         self.tabs,
-                        self.overview_tab.ui.buttonLayout_nk3,
-                        self.info_frame,
                     )
                     self.device = None
                     logger.info("nk3 connected")
@@ -236,11 +220,11 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 k.__del__()
                 logger.info("nk3 instance removed")
                 self.toggle_update_btn()
-                self.info_frame.set_text("Nitrokey 3 removed.")
+                self.info_box.set_text("Nitrokey 3 removed.")
 
     def init_gui(self) -> None:
         self.tabs.hide()
-        self.info_frame.hide()
+        self.info_box.hide()
         self.lock_btn.setEnabled(False)
         self.settings_btn.setEnabled(False)
         self.detect_nk3()
