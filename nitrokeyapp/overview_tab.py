@@ -22,6 +22,14 @@ class OverviewTab(QWidget):
 
         self.reset()
 
+    @property
+    def title(self) -> str:
+        return "Overview"
+
+    @property
+    def widget(self) -> QWidget:
+        return self
+
     def reset(self) -> None:
         self.data = None
         self.set_device_data("?", "?", "?")

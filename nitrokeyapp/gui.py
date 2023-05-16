@@ -16,6 +16,7 @@ from PyQt5.QtCore import Qt, pyqtSlot
 
 from nitrokeyapp.about_dialog import AboutDialog
 from nitrokeyapp.device_data import DeviceData
+from nitrokeyapp.device_view import DeviceView
 from nitrokeyapp.information_box import InfoBox
 from nitrokeyapp.nk3_button import Nk3Button
 from nitrokeyapp.overview_tab import OverviewTab
@@ -92,6 +93,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         self.about_dialog = AboutDialog(qt_app)
         self.overview_tab = OverviewTab(self.info_box, self)
+        self.views: list[DeviceView] = [self.overview_tab]
 
         # get widget objects
         # app wide widgets
@@ -107,8 +109,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # set some props, initial enabled/visible, finally show()
         self.setAttribute(Qt.WA_DeleteOnClose)
 
-        self.tabs.addTab(self.overview_tab, "Overview")
-        self.tabs.setCurrentWidget(self.overview_tab)
+        for view in self.views:
+            self.tabs.addTab(view.widget, view.title)
         self.tabs.currentChanged.connect(self.slot_tab_changed)
 
         self.init_gui()
@@ -217,12 +219,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         """
         Should be called if the selected device or the selected tab is changed
         """
-        # TODO: only update selected tab
         if self.selected_device:
-            self.overview_tab.refresh(self.selected_device)
+            self.views[self.tabs.currentIndex()].refresh(self.selected_device)
             self.tabs.show()
         else:
-            self.overview_tab.reset()
+            for view in self.views:
+                view.reset()
             self.tabs.hide()
 
     def init_gui(self) -> None:
