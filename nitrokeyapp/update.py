@@ -208,7 +208,7 @@ class UpdateGUI(UpdateUi):
 
     # atm we dont need this
     def prompt_variant(self) -> Variant:
-        return 0
+        raise NotImplementedError()
 
     @contextmanager
     def update_progress_bar(self) -> Iterator[Callable[[int, int], None]]:
@@ -236,13 +236,17 @@ class UpdateGUI(UpdateUi):
 
 
 class Nk3Context:
-    def __init__(self, nk3_context: Nitrokey3Base) -> None:
-        self.path = nk3_context
-        logger.info(f"path: {self.path}")
+    def __init__(self, path: str) -> None:
+        self.path = path
+        logger.info(f"path: {path}")
         self.updating = False
 
     def connect(self) -> Nitrokey3Base:
-        return open_nk3(self.path)
+        device = open_nk3(self.path)
+        # TODO: improve error handling
+        if not device:
+            raise RuntimeError(f"Failed to open Nitrokey 3 device at {self.path}")
+        return device
 
     def _await(
         self,
@@ -298,4 +302,4 @@ class Nk3Context:
                 self.await_bootloader,
                 self.await_device,
             )
-            return updater.update(device, image, version, ignore_pynitrokey_version)
+            updater.update(device, image, version, ignore_pynitrokey_version)
