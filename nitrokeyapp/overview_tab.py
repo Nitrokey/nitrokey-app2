@@ -18,17 +18,29 @@ class OverviewTab(QWidget):
         self.ui = Ui_OverviewTab()
         self.ui.setupUi(self)
 
+        self.ui.pushButtonUpdate.clicked.connect(self.run_update)
+
+        self.reset()
+
+    def reset(self) -> None:
+        self.data = None
+        self.set_device_data("?", "?", "?")
         self.ui.progressBar_Update.hide()
         self.ui.progressBar_Download.hide()
         self.ui.progressBar_Finalization.hide()
 
-        self.ui.pushButtonUpdate.clicked.connect(self.run_update)
-
     def refresh(self, data: DeviceData) -> None:
+        if data == self.data:
+            return
+        self.reset()
         self.data = data
-        self.ui.nk3_lineedit_path.setText(str(data.path))
-        self.ui.nk3_lineedit_uuid.setText(str(data.uuid))
-        self.ui.nk3_lineedit_version.setText(str(data.version))
+
+        self.set_device_data(str(data.path), str(data.uuid), str(data.version))
+
+    def set_device_data(self, path: str, uuid: str, version: str) -> None:
+        self.ui.nk3_lineedit_path.setText(path)
+        self.ui.nk3_lineedit_uuid.setText(uuid)
+        self.ui.nk3_lineedit_version.setText(version)
 
     def set_update_enabled(self, enabled: bool) -> None:
         tooltip = ""
