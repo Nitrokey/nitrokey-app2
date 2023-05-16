@@ -174,7 +174,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         nk3_list = list_nk3()
         nk3_list = list(filterfalse(self.device_in_bootloader, nk3_list))
         if len(nk3_list):
-            list_of_added = [str(y.uuid)[:-4] for y in Nk3Button.get()]
+            list_of_added = [str(y.data.uuid)[:-4] for y in Nk3Button.get()]
             logger.info(f"list of added: {list_of_added}")
             for device in nk3_list:
                 if str(device.uuid())[:-4] not in list_of_added:
@@ -205,10 +205,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                     nk3_btn_same_uuid = [
                         y
                         for y in Nk3Button.get()
-                        if str(y.uuid)[:-4] == str(device.uuid())[:-4]
+                        if str(y.data.uuid)[:-4] == str(device.uuid())[:-4]
                     ]
                     for i in nk3_btn_same_uuid:
-                        if device.path != i.path:
+                        if device.path != i.data.path:
                             i.set_device(device)
         else:
             logger.info("no nk3 in list. no admin?")
@@ -225,12 +225,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                     y
                     for y in Nk3Button.get()
                     if (
-                        (str(y.uuid)[:-4] not in list_of_nk3s)
-                        and (y.ctx.updating is False)
+                        (str(y.data.uuid)[:-4] not in list_of_nk3s)
+                        and (y.data.updating is False)
                     )
                 ]
                 list_of_removed = list_of_removed + list_of_removed_help
-            elif Nk3Button.get()[0].ctx.updating is False:
+            elif Nk3Button.get()[0].data.updating is False:
                 list_of_removed = list_of_removed + Nk3Button.get()
             for k in list_of_removed:
                 k.__del__()

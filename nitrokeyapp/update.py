@@ -1,19 +1,38 @@
 import logging
 from contextlib import contextmanager
-from typing import Any, Callable, Iterator, List, Optional
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Iterator,
+    List,
+    Optional,
+    Type,
+    TypeVar,
+)
 
 # Nitrokey 3
 from pynitrokey.cli.exceptions import CliException
-from pynitrokey.nk3.bootloader import Variant
+from pynitrokey.helpers import Retries
+from pynitrokey.nk3 import list as list_nk3
+from pynitrokey.nk3 import open as open_nk3
+from pynitrokey.nk3.base import Nitrokey3Base
+from pynitrokey.nk3.bootloader import Nitrokey3Bootloader, Variant
+from pynitrokey.nk3.device import Nitrokey3Device
 from pynitrokey.nk3.updates import Updater, UpdateUi
 from pynitrokey.nk3.utils import Version
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QCoreApplication
 
 from nitrokeyapp.information_box import InfoBox
-from nitrokeyapp.pynitrokey_for_gui import Nk3Context
+
+# TODO: This fixes a circular dependency, but should be avoided if possible
+if TYPE_CHECKING:
+    from nitrokeyapp.overview_tab import OverviewTab
 
 logger = logging.getLogger(__name__)
+
+T = TypeVar("T", bound=Nitrokey3Base)
 
 x = 0
 
@@ -21,15 +40,14 @@ x = 0
 class UpdateGUI(UpdateUi):
     def __init__(
         self,
-        progressBarUpdate: QtWidgets.QProgressBar,
-        progressBarDownload: QtWidgets.QProgressBar,
-        progressBarFinalization: QtWidgets.QProgressBar,
+        overview_tab: "OverviewTab",
         info_frame: InfoBox,
     ) -> None:
         self._version_printed = False
-        self.bar_update = progressBarUpdate
-        self.bar_download = progressBarDownload
-        self.bar_finalization = progressBarFinalization
+        self.overview_tab = overview_tab
+        self.bar_update = overview_tab.ui.progressBar_Update
+        self.bar_download = overview_tab.ui.progressBar_Download
+        self.bar_finalization = overview_tab.ui.progressBar_Finalization
         self.info_frame = info_frame
 
     def error(self, *msgs: Any) -> Exception:
@@ -217,26 +235,67 @@ class UpdateGUI(UpdateUi):
             self._version_printed = True
 
 
-def update(
-    ctx: Nk3Context,
-    progressBarUpdate: QtWidgets.QProgressBar,
-    progressBarDownload: QtWidgets.QProgressBar,
-    progressBarFinalization: QtWidgets.QProgressBar,
-    image: Optional[str],
-    version: Optional[str],
-    ignore_pynitrokey_version: bool,
-    info_frame: InfoBox,
-) -> None:
-    with ctx.connect() as device:
+class Nk3Context:
+    def __init__(self, nk3_context: Nitrokey3Base) -> None:
+        self.path = nk3_context
+        logger.info(f"path: {self.path}")
+        self.updating = False
 
-        updater = Updater(
-            UpdateGUI(
-                progressBarUpdate,
-                progressBarDownload,
-                progressBarFinalization,
-                info_frame,
-            ),
-            ctx.await_bootloader,
-            ctx.await_device,
-        )
-        return updater.update(device, image, version, ignore_pynitrokey_version)
+    def connect(self) -> Nitrokey3Base:
+        return open_nk3(self.path)
+
+    def _await(
+        self,
+        name: str,
+        ty: Type[T],
+        retries: int,
+        callback: Optional[Callable[[int, int], None]] = None,
+    ) -> T:
+        for t in Retries(retries):
+            logger.debug(f"Searching {name} device ({t})")
+            devices = [device for device in list_nk3() if isinstance(device, ty)]
+            if len(devices) == 0:
+                if callback:
+                    callback(int((t.i / retries) * 100), 100)
+                logger.debug(f"No {name} device found, continuing")
+                continue
+            if len(devices) > 1:
+                raise CliException(f"Multiple {name} devices found")
+            if callback:
+                callback(100, 100)
+            return devices[0]
+
+        raise CliException(f"No {name} device found")
+
+    def await_device(
+        self,
+        retries: Optional[int] = 30,
+        callback: Optional[Callable[[int, int], None]] = None,
+    ) -> Nitrokey3Device:
+        assert isinstance(retries, int)
+        return self._await("Nitrokey 3", Nitrokey3Device, retries, callback)
+
+    def await_bootloader(
+        self,
+        retries: Optional[int] = 30,
+        callback: Optional[Callable[[int, int], None]] = None,
+    ) -> Nitrokey3Bootloader:
+        assert isinstance(retries, int)
+        # mypy does not allow abstract types here, but this is still valid
+        return self._await("Nitrokey 3 bootloader", Nitrokey3Bootloader, retries, callback)  # type: ignore
+
+    def update(
+        self,
+        overview_tab: "OverviewTab",
+        info_frame: InfoBox,
+        image: Optional[str] = None,
+        version: Optional[str] = None,
+        ignore_pynitrokey_version: bool = False,
+    ) -> None:
+        with self.connect() as device:
+            updater = Updater(
+                UpdateGUI(overview_tab, info_frame),
+                self.await_bootloader,
+                self.await_device,
+            )
+            return updater.update(device, image, version, ignore_pynitrokey_version)

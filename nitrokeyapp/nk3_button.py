@@ -2,9 +2,9 @@ from pynitrokey.nk3 import Nitrokey3Device
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import QSize, pyqtSlot
 
+from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.information_box import InfoBox
 from nitrokeyapp.overview_tab import OverviewTab
-from nitrokeyapp.pynitrokey_for_gui import Nk3Context, nk3_update
 
 
 class Nk3Button(QtWidgets.QWidget):
@@ -26,10 +26,9 @@ class Nk3Button(QtWidgets.QWidget):
         info_frame: InfoBox,
     ) -> None:
         super().__init__()
-        self.device = device
-        self.uuid = self.device.uuid()
-        self.path = self.device.path
-        self.version = self.device.version()
+
+        self.data = DeviceData(device)
+
         self.nitrokeys_window = nitrokeys_window
         self.layout_nk_btns = layout_nk_btns
         self.nitrokey3_frame = nitrokey3_frame
@@ -40,7 +39,7 @@ class Nk3Button(QtWidgets.QWidget):
         # needs to create button in the vertical navigation with the nitrokey type and serial number as text
         self.btn_nk3 = QtWidgets.QPushButton(
             QtGui.QIcon(":/images/icon/usb_new.png"),
-            "Nitrokey 3: " f"{str(self.uuid)[:5]}",
+            "Nitrokey 3: " f"{str(self.data.uuid)[:5]}",
         )
         self.btn_nk3.setFixedSize(184, 40)
         self.btn_nk3.setIconSize(QSize(20, 20))
@@ -61,25 +60,15 @@ class Nk3Button(QtWidgets.QWidget):
         self.own_update_btn.setGeometry(12, 134, 413, 27)
         self.buttonlayout_nk3.addWidget(self.own_update_btn)
         self.own_update_btn.hide()
-        self.ctx = Nk3Context(self.device.path)
         self.own_update_btn.clicked.connect(
-            lambda: nk3_update(
-                self.ctx,
-                self.overview_tab.ui.progressBar_Update,
-                self.overview_tab.ui.progressBar_Download,
-                self.overview_tab.ui.progressBar_Finalization,
-                None,
-                None,
-                False,
-                self.info_frame,
-            )
+            lambda: self.data.update(self.overview_tab, self.info_frame),
         )
         Nk3Button.list_nk3_keys.append(self)
 
     @pyqtSlot()
     def nk3_btn_pressed(self) -> None:
         self.tabs.show()
-        self.overview_tab.refresh(str(self.path), str(self.uuid), str(self.version))
+        self.overview_tab.refresh(self.data)
         for button in Nk3Button.get():
             button.own_update_btn.hide()
         self.own_update_btn.show()
@@ -92,9 +81,5 @@ class Nk3Button(QtWidgets.QWidget):
         Nk3Button.list_nk3_keys.remove(self)
 
     def set_device(self, device: Nitrokey3Device) -> None:
-        self.device = device
-        self.uuid = self.device.uuid()
-        self.path = self.device.path
-        self.version = self.device.version()
-        self.overview_tab.refresh(str(self.path), str(self.uuid), str(self.version))
-        self.ctx = Nk3Context(self.device.path)
+        self.data = DeviceData(device)
+        self.overview_tab.refresh(self.data)
