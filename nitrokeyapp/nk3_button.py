@@ -3,6 +3,7 @@ from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import QSize, pyqtSlot
 
 from nitrokeyapp.information_box import InfoBox
+from nitrokeyapp.overview_tab import OverviewTab
 from nitrokeyapp.pynitrokey_for_gui import Nk3Context, nk3_update
 
 
@@ -19,13 +20,8 @@ class Nk3Button(QtWidgets.QWidget):
         nitrokeys_window: QtWidgets.QScrollArea,
         layout_nk_btns: QtWidgets.QVBoxLayout,
         nitrokey3_frame: QtWidgets.QFrame,
-        nk3_lineedit_uuid: QtWidgets.QLineEdit,
-        nk3_lineedit_path: QtWidgets.QLineEdit,
-        nk3_lineedit_version: QtWidgets.QLineEdit,
+        overview_tab: OverviewTab,
         tabs: QtWidgets.QTabWidget,
-        progressBarUpdate: QtWidgets.QProgressBar,
-        progressBarDownload: QtWidgets.QProgressBar,
-        progressBarFinalization: QtWidgets.QProgressBar,
         buttonLayout_nk3: QtWidgets.QHBoxLayout,
         info_frame: InfoBox,
     ) -> None:
@@ -39,12 +35,7 @@ class Nk3Button(QtWidgets.QWidget):
         self.nitrokey3_frame = nitrokey3_frame
         self.buttonlayout_nk3 = buttonLayout_nk3
         self.tabs = tabs
-        self.nk3_lineedit_uuid = nk3_lineedit_uuid
-        self.nk3_lineedit_path = nk3_lineedit_path
-        self.nk3_lineedit_version = nk3_lineedit_version
-        self.progressbarupdate = progressBarUpdate
-        self.progressbardownload = progressBarDownload
-        self.progressbarfinalization = progressBarFinalization
+        self.overview_tab = overview_tab
         self.info_frame = info_frame
         # needs to create button in the vertical navigation with the nitrokey type and serial number as text
         self.btn_nk3 = QtWidgets.QPushButton(
@@ -74,9 +65,9 @@ class Nk3Button(QtWidgets.QWidget):
         self.own_update_btn.clicked.connect(
             lambda: nk3_update(
                 self.ctx,
-                self.progressbarupdate,
-                self.progressbardownload,
-                self.progressbarfinalization,
+                self.overview_tab.ui.progressBar_Update,
+                self.overview_tab.ui.progressBar_Download,
+                self.overview_tab.ui.progressBar_Finalization,
                 None,
                 None,
                 False,
@@ -88,10 +79,7 @@ class Nk3Button(QtWidgets.QWidget):
     @pyqtSlot()
     def nk3_btn_pressed(self) -> None:
         self.tabs.show()
-        self.nk3_lineedit_uuid.setText(str(self.uuid))
-        self.nk3_lineedit_path.setText(str(self.path))
-        self.nk3_lineedit_version.setText(str(self.version))
-        self.nitrokey3_frame.show()
+        self.overview_tab.refresh(str(self.path), str(self.uuid), str(self.version))
         for button in Nk3Button.get():
             button.own_update_btn.hide()
         self.own_update_btn.show()
@@ -108,7 +96,5 @@ class Nk3Button(QtWidgets.QWidget):
         self.uuid = self.device.uuid()
         self.path = self.device.path
         self.version = self.device.version()
-        self.nk3_lineedit_uuid.setText(str(self.uuid))
-        self.nk3_lineedit_path.setText(str(self.path))
-        self.nk3_lineedit_version.setText(str(self.version))
+        self.overview_tab.refresh(str(self.path), str(self.uuid), str(self.version))
         self.ctx = Nk3Context(self.device.path)

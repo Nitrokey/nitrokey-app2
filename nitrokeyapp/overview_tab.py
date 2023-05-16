@@ -12,7 +12,11 @@ class OverviewTab(QWidget):
         self.ui = Ui_OverviewTab()
         self.ui.setupUi(self)
 
-        self.ui.Nitrokey3.hide()
         self.ui.progressBar_Update.hide()
         self.ui.progressBar_Download.hide()
         self.ui.progressBar_Finalization.hide()
+
+    def refresh(self, path: str, uuid: str, version: str) -> None:
+        self.ui.nk3_lineedit_path.setText(path)
+        self.ui.nk3_lineedit_uuid.setText(uuid)
+        self.ui.nk3_lineedit_version.setText(version)
