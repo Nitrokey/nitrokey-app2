@@ -21,6 +21,14 @@ class DeviceData:
         self.version = device.version()
         self.updating = False
 
+    @property
+    def uuid_prefix(self) -> str:
+        """
+        The prefix of the UUID that is constant even when switching between
+        stable and test firmware.
+        """
+        return str(self.uuid)[:-4]
+
     def update(
         self,
         overview_tab: "OverviewTab",

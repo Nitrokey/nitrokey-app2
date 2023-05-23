@@ -147,11 +147,11 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def detect_added_devices(self) -> None:
         nk3_list = Nitrokey3Device.list()
         if len(nk3_list):
-            list_of_added = [device.uuid for device in self.devices]
+            list_of_added = [device.uuid_prefix for device in self.devices]
             logger.info(f"list of added: {list_of_added}")
             for device in nk3_list:
                 data = DeviceData(device)
-                if data.uuid not in list_of_added:
+                if data.uuid_prefix not in list_of_added:
                     if data.uuid:
                         logger.info(f"{data.path}: Nitrokey 3 {data.uuid}")
                     else:
@@ -163,7 +163,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 else:
                     if (
                         self.selected_device
-                        and self.selected_device.uuid == data.uuid
+                        and self.selected_device.uuid_prefix == data.uuid_prefix
                         and self.selected_device.path != data.path
                     ):
                         self.selected_device = data
@@ -174,12 +174,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def detect_removed_devices(self) -> None:
         list_of_removed: list[DeviceData] = []
         if self.devices:
-            nk3_list = [device.uuid() for device in Nitrokey3Device.list()]
+            nk3_list = [str(device.uuid())[:-4] for device in Nitrokey3Device.list()]
             logger.info(f"list nk3: {nk3_list}")
             list_of_removed = [
                 data
                 for data in self.devices
-                if ((data.uuid not in nk3_list) and not data.updating)
+                if ((data.uuid_prefix not in nk3_list) and not data.updating)
             ]
 
         for data in list_of_removed:
