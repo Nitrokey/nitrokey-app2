@@ -5,20 +5,17 @@ import functools
 import logging
 import platform
 import webbrowser
-from itertools import filterfalse
 from typing import Optional
 
 # Nitrokey 3
 from pynitrokey.nk3 import Nitrokey3Device
-from pynitrokey.nk3 import list as list_nk3
-from pynitrokey.nk3.bootloader.lpc55 import Nitrokey3BootloaderLpc55
-from pynitrokey.nk3.bootloader.nrf52 import Nitrokey3BootloaderNrf52
 
 # pyqt5
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt, pyqtSlot
 
 from nitrokeyapp.about_dialog import AboutDialog
+from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.information_box import InfoBox
 from nitrokeyapp.nk3_button import Nk3Button
 from nitrokeyapp.overview_tab import OverviewTab
@@ -77,26 +74,29 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # windows
         if platform.system() == "Windows":
             logger.info("OS:Windows")
-            WindowsUSBNotifi(self.detect_nk3, self.remove_nk3)
+            WindowsUSBNotifi(self.detect_added_devices, self.detect_removed_devices)
+
+        self.devices: list[DeviceData] = []
+        self.device_buttons: list[Nk3Button] = []
+        self.selected_device: Optional[DeviceData] = None
 
         # loads main ui
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        # import other ui-files
+        self.info_box = InfoBox(
+            self.ui.information_frame,
+            self.ui.label_information_icon,
+            self.ui.label_information,
+        )
+
         self.about_dialog = AboutDialog(qt_app)
-        self.overview_tab = OverviewTab(self)
+        self.overview_tab = OverviewTab(self.info_box, self)
 
         # get widget objects
         # app wide widgets
         # self.status_bar = _get(_qt.QStatusBar, "statusBar")
         # self.menu_bar = _get(_qt.QMenuBar, "menuBar")
-        self.information_frame = self.ui.information_frame
-        self.label_information_icon = self.ui.label_information_icon
-        self.label_information = self.ui.label_information
-        self.info_frame = InfoBox(
-            self.information_frame, self.label_information_icon, self.label_information
-        )
         self.tabs = self.ui.tabWidget
         self.about_button = self.ui.btn_about
         self.help_btn = self.ui.btn_dial_help
@@ -104,13 +104,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.settings_btn = self.ui.btn_settings
         self.lock_btn = self.ui.btn_dial_lock
         self.l_insert_nitrokey = self.ui.label_insert_Nitrokey
-        # overview
-        self.navigation_frame = self.ui.vertical_navigation
-        self.nitrokeys_window = self.ui.Nitrokeys
-        self.layout_nk_btns = QtWidgets.QVBoxLayout()
-        self.layout_nk_btns.setContentsMargins(0, 0, 0, 0)
-        self.layout_nk_btns.setSpacing(0)
-        self.layout_nk_btns.setAlignment(Qt.AlignTop)
         # set some props, initial enabled/visible, finally show()
         self.setAttribute(Qt.WA_DeleteOnClose)
 
@@ -120,8 +113,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         self.init_gui()
         self.show()
-
-        self.device: Optional[Nitrokey3Device] = None
 
         # nk3
         self.help_btn.clicked.connect(
@@ -142,117 +133,112 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         for dvc in iter(functools.partial(self.monitor.poll, 3), None):
             if dvc.action == "remove":
                 logger.info("removed")
-                self.remove_nk3()
+                self.detect_removed_devices()
             elif dvc.action == "bind":
                 logger.info("BIND")
-                self.detect_nk3()
-
-    def device_in_bootloader(self, device: object) -> bool:
-        return isinstance(device, Nitrokey3BootloaderNrf52) or isinstance(
-            device, Nitrokey3BootloaderLpc55
-        )
+                self.detect_added_devices()
 
     def toggle_update_btn(self) -> None:
-        if len(Nk3Button.get()) == 0:
+        device_count = len(self.devices)
+        if device_count == 0:
             self.l_insert_nitrokey.show()
-        if len(Nk3Button.get()) > 1:
-            self.info_frame.set_text_durable(
-                "Please remove all Nitrokey 3 devices except the one you want to update."
-            )
-            for i in Nk3Button.get():
-                i.own_update_btn.setEnabled(False)
-                i.own_update_btn.setToolTip(
-                    "Please remove all Nitrokey 3 devices except the one you want to update."
-                )
-        else:
-            for i in Nk3Button.get():
-                self.info_frame.hide()
-                i.own_update_btn.setEnabled(True)
-                i.own_update_btn.setToolTip("")
+        self.overview_tab.set_update_enabled(device_count == 1)
 
-    def detect_nk3(self) -> None:
-        nk3_list = list_nk3()
-        nk3_list = list(filterfalse(self.device_in_bootloader, nk3_list))
+    def detect_added_devices(self) -> None:
+        nk3_list = Nitrokey3Device.list()
         if len(nk3_list):
-            list_of_added = [str(y.uuid)[:-4] for y in Nk3Button.get()]
+            list_of_added = [device.uuid_prefix for device in self.devices]
             logger.info(f"list of added: {list_of_added}")
             for device in nk3_list:
-                if str(device.uuid())[:-4] not in list_of_added:
-                    self.device = device
-                    uuid = self.device.uuid()
-                    if uuid:
-                        logger.info(
-                            f"{self.device.path}: {self.device.name} {self.device.uuid()}"
-                        )
+                data = DeviceData(device)
+                if data.uuid_prefix not in list_of_added:
+                    if data.uuid:
+                        logger.info(f"{data.path}: Nitrokey 3 {data.uuid}")
                     else:
-                        logger.info(f"{self.device.path}: {self.device.name}")
-                        logger.info("no uuid")
-                    Nk3Button(
-                        self.device,
-                        self.nitrokeys_window,
-                        self.layout_nk_btns,
-                        self.overview_tab.ui.Nitrokey3,
-                        self.overview_tab.ui.nk3_lineedit_uuid,
-                        self.overview_tab.ui.nk3_lineedit_path,
-                        self.overview_tab.ui.nk3_lineedit_version,
-                        self.tabs,
-                        self.overview_tab.ui.progressBar_Update,
-                        self.overview_tab.ui.progressBar_Download,
-                        self.overview_tab.ui.progressBar_Finalization,
-                        self.overview_tab.ui.buttonLayout_nk3,
-                        self.info_frame,
-                    )
-                    self.device = None
+                        logger.info(f"{data.path}: Nitrokey 3 without UUID")
+                    self.add_device(data)
                     logger.info("nk3 connected")
                     self.l_insert_nitrokey.hide()
                     self.toggle_update_btn()
                 else:
-                    nk3_btn_same_uuid = [
-                        y
-                        for y in Nk3Button.get()
-                        if str(y.uuid)[:-4] == str(device.uuid())[:-4]
-                    ]
-                    for i in nk3_btn_same_uuid:
-                        if device.path != i.path:
-                            i.set_device(device)
+                    if (
+                        self.selected_device
+                        and self.selected_device.uuid_prefix == data.uuid_prefix
+                        and self.selected_device.path != data.path
+                    ):
+                        self.selected_device = data
+                        self.refresh()
         else:
             logger.info("no nk3 in list. no admin?")
 
-    def remove_nk3(self) -> None:
-        list_of_removed: list[Nk3Button] = []
-        nk3_list_1 = list_nk3()
-        nk3_list_1 = list(filterfalse(self.device_in_bootloader, nk3_list_1))
-        if Nk3Button.get():
-            if len(nk3_list_1):
-                logger.info(f"list nk3: {nk3_list_1}")
-                list_of_nk3s = [str(x.uuid())[:-4] for x in nk3_list_1]
-                list_of_removed_help = [
-                    y
-                    for y in Nk3Button.get()
-                    if (
-                        (str(y.uuid)[:-4] not in list_of_nk3s)
-                        and (y.ctx.updating is False)
-                    )
-                ]
-                list_of_removed = list_of_removed + list_of_removed_help
-            elif Nk3Button.get()[0].ctx.updating is False:
-                list_of_removed = list_of_removed + Nk3Button.get()
-            for k in list_of_removed:
-                k.__del__()
-                logger.info("nk3 instance removed")
-                self.toggle_update_btn()
-                self.info_frame.set_text("Nitrokey 3 removed.")
+    def detect_removed_devices(self) -> None:
+        list_of_removed: list[DeviceData] = []
+        if self.devices:
+            nk3_list = [str(device.uuid())[:-4] for device in Nitrokey3Device.list()]
+            logger.info(f"list nk3: {nk3_list}")
+            list_of_removed = [
+                data
+                for data in self.devices
+                if ((data.uuid_prefix not in nk3_list) and not data.updating)
+            ]
+
+        for data in list_of_removed:
+            self.remove_device(data)
+
+        if list_of_removed:
+            logger.info("nk3 instance removed")
+            self.toggle_update_btn()
+            self.info_box.set_text("Nitrokey 3 removed.")
+
+    def add_device(self, data: DeviceData) -> None:
+        button = Nk3Button(data)
+        button.clicked.connect(lambda: self.device_selected(data))
+        self.ui.nitrokeyButtonsLayout.addWidget(button)
+        self.devices.append(data)
+        self.device_buttons.append(button)
+
+    def remove_device(self, data: DeviceData) -> None:
+        if self.selected_device == data:
+            self.selected_device = None
+            self.refresh()
+
+        for button in self.device_buttons:
+            if button.data.uuid == data.uuid:
+                self.ui.nitrokeyButtonsLayout.removeWidget(button)
+                self.device_buttons.remove(button)
+                button.close()
+
+        # TODO: do we need this?
+        self.ui.Nitrokeys.update()
+
+        self.devices.remove(data)
+
+    def refresh(self) -> None:
+        """
+        Should be called if the selected device or the selected tab is changed
+        """
+        # TODO: only update selected tab
+        if self.selected_device:
+            self.overview_tab.refresh(self.selected_device)
+            self.tabs.show()
+        else:
+            self.overview_tab.reset()
+            self.tabs.hide()
 
     def init_gui(self) -> None:
         self.tabs.hide()
-        self.info_frame.hide()
+        self.info_box.hide()
         self.lock_btn.setEnabled(False)
         self.settings_btn.setEnabled(False)
-        self.detect_nk3()
+        self.detect_added_devices()
+
+    def device_selected(self, data: DeviceData) -> None:
+        self.selected_device = data
+        self.refresh()
 
     @pyqtSlot(int)
     def slot_tab_changed(self, idx: int) -> None:
-        pass
+        self.refresh()
 
     # main-window callbacks
     @pyqtSlot()
@@ -263,5 +249,5 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def slot_lock_button_pressed(self) -> None:
         # removes side buttos for nk3 (for now)
         logger.info("nk3 instance removed (lock button)")
-        for x in Nk3Button.get():
-            x.__del__()
+        for data in self.devices:
+            self.remove_device(data)

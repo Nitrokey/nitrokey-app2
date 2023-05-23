@@ -229,7 +229,15 @@ border-radius: 5px;}</string>
            </spacer>
           </item>
           <item row="5" column="0" colspan="2">
-           <layout class="QHBoxLayout" name="buttonLayout_nk3"/>
+           <layout class="QHBoxLayout" name="buttonLayout_nk3">
+            <item>
+             <widget class="QPushButton" name="pushButtonUpdate">
+              <property name="text">
+               <string>Update</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>

@@ -1,60 +1,23 @@
-from pynitrokey.nk3 import Nitrokey3Device
 from PyQt5 import QtGui, QtWidgets
-from PyQt5.QtCore import QSize, pyqtSlot
+from PyQt5.QtCore import QSize
 
-from nitrokeyapp.information_box import InfoBox
-from nitrokeyapp.pynitrokey_for_gui import Nk3Context, nk3_update
+from nitrokeyapp.device_data import DeviceData
 
 
-class Nk3Button(QtWidgets.QWidget):
-    list_nk3_keys: list["Nk3Button"] = []
-
-    @classmethod
-    def get(cls) -> list["Nk3Button"]:
-        return Nk3Button.list_nk3_keys
-
+class Nk3Button(QtWidgets.QPushButton):
     def __init__(
         self,
-        device: Nitrokey3Device,
-        nitrokeys_window: QtWidgets.QScrollArea,
-        layout_nk_btns: QtWidgets.QVBoxLayout,
-        nitrokey3_frame: QtWidgets.QFrame,
-        nk3_lineedit_uuid: QtWidgets.QLineEdit,
-        nk3_lineedit_path: QtWidgets.QLineEdit,
-        nk3_lineedit_version: QtWidgets.QLineEdit,
-        tabs: QtWidgets.QTabWidget,
-        progressBarUpdate: QtWidgets.QProgressBar,
-        progressBarDownload: QtWidgets.QProgressBar,
-        progressBarFinalization: QtWidgets.QProgressBar,
-        buttonLayout_nk3: QtWidgets.QHBoxLayout,
-        info_frame: InfoBox,
+        data: DeviceData,
     ) -> None:
-        super().__init__()
-        self.device = device
-        self.uuid = self.device.uuid()
-        self.path = self.device.path
-        self.version = self.device.version()
-        self.nitrokeys_window = nitrokeys_window
-        self.layout_nk_btns = layout_nk_btns
-        self.nitrokey3_frame = nitrokey3_frame
-        self.buttonlayout_nk3 = buttonLayout_nk3
-        self.tabs = tabs
-        self.nk3_lineedit_uuid = nk3_lineedit_uuid
-        self.nk3_lineedit_path = nk3_lineedit_path
-        self.nk3_lineedit_version = nk3_lineedit_version
-        self.progressbarupdate = progressBarUpdate
-        self.progressbardownload = progressBarDownload
-        self.progressbarfinalization = progressBarFinalization
-        self.info_frame = info_frame
-        # needs to create button in the vertical navigation with the nitrokey type and serial number as text
-        self.btn_nk3 = QtWidgets.QPushButton(
+        super().__init__(
             QtGui.QIcon(":/images/icon/usb_new.png"),
-            "Nitrokey 3: " f"{str(self.uuid)[:5]}",
+            "Nitrokey 3: " f"{str(data.uuid)[:5]}",
         )
-        self.btn_nk3.setFixedSize(184, 40)
-        self.btn_nk3.setIconSize(QSize(20, 20))
-        self.btn_nk3.clicked.connect(lambda: self.nk3_btn_pressed())
-        self.btn_nk3.setStyleSheet(
+        self.data = data
+        # needs to create button in the vertical navigation with the nitrokey type and serial number as text
+        self.setFixedSize(184, 40)
+        self.setIconSize(QSize(20, 20))
+        self.setStyleSheet(
             "border :4px solid ;"
             "border-color : #474642;"
             "border-width: 2px;"
@@ -62,53 +25,3 @@ class Nk3Button(QtWidgets.QWidget):
             "font-size: 14pt;"
         )
         # "font-weight: bold;")
-        self.layout_nk_btns.addWidget(self.btn_nk3)
-        self.widget_nk_btns = QtWidgets.QWidget()
-        self.widget_nk_btns.setLayout(self.layout_nk_btns)
-        self.nitrokeys_window.setWidget(self.widget_nk_btns)
-        self.own_update_btn = QtWidgets.QPushButton("Update", self.nitrokey3_frame)
-        self.own_update_btn.setGeometry(12, 134, 413, 27)
-        self.buttonlayout_nk3.addWidget(self.own_update_btn)
-        self.own_update_btn.hide()
-        self.ctx = Nk3Context(self.device.path)
-        self.own_update_btn.clicked.connect(
-            lambda: nk3_update(
-                self.ctx,
-                self.progressbarupdate,
-                self.progressbardownload,
-                self.progressbarfinalization,
-                None,
-                None,
-                False,
-                self.info_frame,
-            )
-        )
-        Nk3Button.list_nk3_keys.append(self)
-
-    @pyqtSlot()
-    def nk3_btn_pressed(self) -> None:
-        self.tabs.show()
-        self.nk3_lineedit_uuid.setText(str(self.uuid))
-        self.nk3_lineedit_path.setText(str(self.path))
-        self.nk3_lineedit_version.setText(str(self.version))
-        self.nitrokey3_frame.show()
-        for button in Nk3Button.get():
-            button.own_update_btn.hide()
-        self.own_update_btn.show()
-
-    def __del__(self) -> None:
-        self.tabs.hide()
-        self.nitrokeys_window.update()
-        self.btn_nk3.close()
-        self.own_update_btn.close()
-        Nk3Button.list_nk3_keys.remove(self)
-
-    def set_device(self, device: Nitrokey3Device) -> None:
-        self.device = device
-        self.uuid = self.device.uuid()
-        self.path = self.device.path
-        self.version = self.device.version()
-        self.nk3_lineedit_uuid.setText(str(self.uuid))
-        self.nk3_lineedit_path.setText(str(self.path))
-        self.nk3_lineedit_version.setText(str(self.version))
-        self.ctx = Nk3Context(self.device.path)
