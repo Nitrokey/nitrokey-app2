@@ -15,13 +15,11 @@ class Nk3Button(QtWidgets.QPushButton):
         )
         self.data = data
         # needs to create button in the vertical navigation with the nitrokey type and serial number as text
-        self.setFixedSize(184, 40)
+        self.setFixedHeight(40)
         self.setIconSize(QSize(20, 20))
         self.setStyleSheet(
             "border :4px solid ;"
-            "border-color : #474642;"
             "border-width: 2px;"
             "border-radius: 5px;"
             "font-size: 14pt;"
         )
-        # "font-weight: bold;")

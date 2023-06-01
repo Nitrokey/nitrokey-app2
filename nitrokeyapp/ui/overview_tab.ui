@@ -20,7 +20,7 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QWidget{background-color:#ffffff;}</string>
+   <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -29,14 +29,13 @@
       <bool>false</bool>
      </property>
      <property name="styleSheet">
-      <string notr="true">QScrollArea{ border-width: 0px ; 
-background-color: #ffffff; }</string>
+      <string notr="true">QScrollArea{ border-width: 0px ; }</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Plain</enum>
      </property>
      <property name="lineWidth">
       <number>0</number>
@@ -52,8 +51,8 @@ background-color: #ffffff; }</string>
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>482</width>
-        <height>372</height>
+        <width>492</width>
+        <height>388</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -63,7 +62,7 @@ background-color: #ffffff; }</string>
        </sizepolicy>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color: #ffffff;</string>
+       <string notr="true"/>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item alignment="Qt::AlignTop">
@@ -84,8 +83,19 @@ background-color: #ffffff; }</string>
           </size>
          </property>
          <property name="styleSheet">
-          <string notr="true">QFrame {background-color: #f8f8f8;
-border-radius: 5px;}</string>
+          <string notr="true"/>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <property name="lineWidth">
+          <number>5</number>
+         </property>
+         <property name="midLineWidth">
+          <number>5</number>
          </property>
          <layout class="QFormLayout" name="formLayout_3">
           <item row="0" column="0" colspan="2">

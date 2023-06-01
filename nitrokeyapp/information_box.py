@@ -11,7 +11,6 @@ class InfoBox:
         self.information_frame = information_frame
         self.icon = icon
         self.text_label = text_label
-        self.information_frame.setStyleSheet("background-color: #f2f2f2;")
         self.icon.setFixedSize(QtCore.QSize(22, 22))
 
     def set_text(self, text: str) -> None:

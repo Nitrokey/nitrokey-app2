@@ -15,7 +15,6 @@ class OverviewTab(QWidget):
 
         self.data: Optional[DeviceData] = None
         self.info_box = info_box
-
         self.ui = Ui_OverviewTab()
         self.ui.setupUi(self)
 
