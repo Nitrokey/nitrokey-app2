@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>700</width>
+    <width>800</width>
     <height>550</height>
    </rect>
   </property>
@@ -181,7 +181,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="resources.qrc">:/images/icon/info_new.png</pixmap>
+          <pixmap>images/icons_material/info_FILL0_wght500_GRAD0_opsz40.png</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -250,8 +250,8 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
-           <normaloff>:/images/icon/info_darkgrey_material.svg</normaloff>:/images/icon/info_darkgrey_material.svg</iconset>
+          <iconset>
+           <normaloff>images/icons_material/info_FILL0_wght500_GRAD0_opsz40.png</normaloff>images/icons_material/info_FILL0_wght500_GRAD0_opsz40.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -340,8 +340,8 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
-           <normaloff>:/images/icon/settings_darkgrey_material.svg</normaloff>:/images/icon/settings_darkgrey_material.svg</iconset>
+          <iconset>
+           <normaloff>images/icons_material/settings_FILL0_wght500_GRAD0_opsz40.png</normaloff>images/icons_material/settings_FILL0_wght500_GRAD0_opsz40.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -368,8 +368,8 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
-           <normaloff>:/images/icon/lock_darkgrey_material.svg</normaloff>:/images/icon/lock_darkgrey_material.svg</iconset>
+          <iconset>
+           <normaloff>images/icons_material/lock_FILL0_wght500_GRAD0_opsz40.png</normaloff>images/icons_material/lock_FILL0_wght500_GRAD0_opsz40.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -405,8 +405,8 @@
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
-           <normaloff>:/images/icon/help_darkgrey_material.svg</normaloff>:/images/icon/help_darkgrey_material.svg</iconset>
+          <iconset>
+           <normaloff>images/icons_material/help_FILL0_wght500_GRAD0_opsz40.png</normaloff>images/icons_material/help_FILL0_wght500_GRAD0_opsz40.png</iconset>
          </property>
          <property name="iconSize">
           <size>

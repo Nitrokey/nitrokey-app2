@@ -2,6 +2,8 @@ from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import QSize
 
 from nitrokeyapp.device_data import DeviceData
+from PyQt5 import QtWidgets
+from qt_material import apply_stylesheet
 
 
 class Nk3Button(QtWidgets.QPushButton):
@@ -15,11 +17,5 @@ class Nk3Button(QtWidgets.QPushButton):
         )
         self.data = data
         # needs to create button in the vertical navigation with the nitrokey type and serial number as text
-        self.setFixedHeight(40)
-        self.setIconSize(QSize(20, 20))
-        self.setStyleSheet(
-            "border :4px solid ;"
-            "border-width: 2px;"
-            "border-radius: 5px;"
-            "font-size: 14pt;"
-        )
+        apply_stylesheet(self, theme='light_red.xml')
+        
