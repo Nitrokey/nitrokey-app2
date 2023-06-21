@@ -77,7 +77,7 @@ class TouchDialog(QtWidgets.QMessageBox):
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     trigger_handle_exception = pyqtSignal(object, BaseException, object)
 
-    def __init__(self, qt_app: QtWidgets.QApplication):
+    def __init__(self, qt_app: QtWidgets.QApplication, log_file: str):
         QtWidgets.QMainWindow.__init__(self)
         QtUtilsMixIn.__init__(self)
         # linux
@@ -101,6 +101,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.devices: list[DeviceData] = []
         self.device_buttons: list[Nk3Button] = []
         self.selected_device: Optional[DeviceData] = None
+        self.log_file = log_file
 
         self.trigger_handle_exception.connect(self.handle_exception)
 
@@ -114,7 +115,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.ui.label_information,
         )
 
-        self.about_dialog = AboutDialog(qt_app)
+        self.about_dialog = AboutDialog(log_file, qt_app)
         self.touch_dialog = TouchDialog(self)
         self.overview_tab = OverviewTab(self.info_box, self)
         self.views: list[DeviceView] = [self.overview_tab, SecretsTab(self)]
@@ -177,7 +178,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         e: BaseException,
         tb: Optional[TracebackType],
     ) -> None:
-        dialog = ErrorDialog(self)
+        logger.error("Unhandled exception", exc_info=(ty, e, tb))
+
+        dialog = ErrorDialog(self.log_file, self)
         dialog.set_exception(ty, e, tb)
         dialog.show()
 
