@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 
 class DeviceData:
     def __init__(self, device: Nitrokey3Device) -> None:
-        self.device = device
         self.path = device.path
         self.uuid = device.uuid()
         self.version = device.version()
@@ -28,6 +27,14 @@ class DeviceData:
         stable and test firmware.
         """
         return str(self.uuid)[:-4]
+
+    def open(self) -> Nitrokey3Device:
+        device = Nitrokey3Device.open(self.path)
+        if device:
+            return device
+        else:
+            # TODO: improve error handling
+            raise RuntimeError(f"Failed to open device {self.uuid} at {self.path}")
 
     def update(
         self,
