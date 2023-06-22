@@ -1,21 +1,39 @@
 import logging
 import platform
-import tempfile
+import shutil
+from contextlib import contextmanager
 from datetime import datetime
 from importlib.metadata import version as package_version
+from tempfile import NamedTemporaryFile
+from typing import Generator
+
+from PyQt5.QtWidgets import QFileDialog, QWidget
+
+logger = logging.getLogger(__name__)
 
 
-def init_logging() -> None:
-    logger = logging.getLogger(__name__)
-    LOG_FN = tempfile.NamedTemporaryFile(prefix="nitrokey-app2.log.").name
-    LOG_FORMAT = "%(relativeCreated)-8d %(levelname)6s %(name)10s %(message)s"
-    handler = logging.FileHandler(filename=LOG_FN, delay=True, encoding="utf-8")
-    logging.basicConfig(format=LOG_FORMAT, level=logging.DEBUG, handlers=[handler])
+@contextmanager
+def init_logging() -> Generator[str, None, None]:
+    log_file = NamedTemporaryFile(prefix="nitrokey-app2.", suffix=".log")
+    log_format = "%(relativeCreated)-8d %(levelname)6s %(name)10s %(message)s"
 
+    try:
+        handler = logging.FileHandler(
+            filename=log_file.name, delay=True, encoding="utf-8"
+        )
+        logging.basicConfig(format=log_format, level=logging.DEBUG, handlers=[handler])
+
+        yield log_file.name
+    finally:
+        logging.shutdown()
+
+
+def log_environment() -> None:
     logger.info(f"Timestamp: {datetime.now()}")
     logger.info(f"OS: {platform.uname()}")
     logger.info(f"Python version: {platform.python_version()}")
     pymodules = [
+        "nitrokeyapp",
         "pynitrokey",
         "cryptography",
         "ecdsa",
@@ -25,3 +43,12 @@ def init_logging() -> None:
     ]
     for x in pymodules:
         logger.info(f"{x} version: {package_version(x)}")
+
+
+def save_log(log_file: str, parent: QWidget) -> None:
+    path, _ = QFileDialog.getSaveFileName(parent, "Save Log File")
+    if path:
+        logger = logging.getLogger()
+        for handler in logger.handlers:
+            handler.flush()
+        shutil.copyfile(log_file, path)
