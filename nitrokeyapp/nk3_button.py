@@ -17,5 +17,6 @@ class Nk3Button(QtWidgets.QPushButton):
         )
         self.data = data
         # needs to create button in the vertical navigation with the nitrokey type and serial number as text
-        apply_stylesheet(self, theme='light_red.xml')
-        
+        # set material stylesheet if no system theme is set
+        if not self.style().objectName() or self.style().objectName() == 'fusion':
+            apply_stylesheet(self, theme='nitrokeyapp/ui/nitrokey_theme.xml')

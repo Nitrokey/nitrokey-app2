@@ -24,8 +24,9 @@ def exception_handler(
 
 def main() -> None:
     app = QtWidgets.QApplication(sys.argv)
-    # setup stylesheet
-    apply_stylesheet(app, theme='light_red.xml')
+    # set default material stylesheet if no system theme is set
+    if not app.style().objectName() or app.style().objectName() == 'fusion':
+        apply_stylesheet(app, theme='nitrokeyapp/ui/nitrokey_theme.xml')
     with init_logging() as log_file:
         log_environment()
     
