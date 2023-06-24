@@ -1,9 +1,7 @@
 from PyQt5 import QtGui, QtWidgets
-from PyQt5.QtCore import QSize
+from qt_material import apply_stylesheet
 
 from nitrokeyapp.device_data import DeviceData
-from PyQt5 import QtWidgets
-from qt_material import apply_stylesheet
 
 
 class Nk3Button(QtWidgets.QPushButton):
@@ -18,5 +16,5 @@ class Nk3Button(QtWidgets.QPushButton):
         self.data = data
         # needs to create button in the vertical navigation with the nitrokey type and serial number as text
         # set material stylesheet if no system theme is set
-        if not self.style().objectName() or self.style().objectName() == 'fusion':
-            apply_stylesheet(self, theme='nitrokeyapp/ui/nitrokey_theme.xml')
+        if not self.style().objectName() or self.style().objectName() == "fusion":
+            apply_stylesheet(self, theme="nitrokeyapp/ui/nitrokey_theme.xml")

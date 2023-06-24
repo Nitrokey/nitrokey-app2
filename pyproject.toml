@@ -26,6 +26,7 @@ dependencies = [
   "pyudev",
   "pynitrokey ==0.4.38",
   "pywin32 ==305; sys_platform =='win32'",
+  "qt_material",
 ]
 dynamic = ["version"]
 

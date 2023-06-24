@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>850</width>
     <height>550</height>
    </rect>
   </property>
@@ -277,8 +277,14 @@
          </property>
         </spacer>
        </item>
-       <item row="1" column="0" colspan="4">
+       <item row="1" column="0" colspan="4" alignment="Qt::AlignHCenter">
         <widget class="QLabel" name="label_insert_Nitrokey">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <family>OpenSymbol</family>
