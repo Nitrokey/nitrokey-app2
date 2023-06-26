@@ -8,9 +8,10 @@ datas = [
     ('../../../nitrokeyapp/VERSION', 'nitrokeyapp'),
     ('../../../LICENSE', '.')
 ]
-datas += copy_metadata('pynitrokey')
 datas += copy_metadata('ecdsa')
 datas += copy_metadata('fido2')
+datas += copy_metadata('nitrokeyapp')
+datas += copy_metadata('pynitrokey')
 datas += copy_metadata('pyusb')
 datas += copy_metadata('spsdk')
 
