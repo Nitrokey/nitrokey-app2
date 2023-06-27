@@ -82,5 +82,6 @@ module = [
   "pyudev.*",
   "ruamel.*",
   "tlv8.*",
+  "qt_material.*",
 ]
 ignore_missing_imports = true
