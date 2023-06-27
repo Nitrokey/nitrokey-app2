@@ -49,11 +49,13 @@ class AddSecretDialog(QDialog):
 
         button = self.ui.buttonBox.button(QDialogButtonBox.StandardButton.Ok)
         button.setEnabled(is_ok)
+
+        tooltip = ""
         if not is_ok:
             tooltip = "Please fix the following errors:"
             for error in errors:
                 tooltip += f"\n- {error}"
-            button.setToolTip(tooltip)
+        button.setToolTip(tooltip)
 
     def credential(self) -> Credential:
         name = self.ui.lineEditName.text()
