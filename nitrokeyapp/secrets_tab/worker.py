@@ -229,7 +229,8 @@ class DeleteCredentialJob(Job):
     def run(self) -> None:
         with self.data.open() as device:
             secrets = SecretsApp(device)
-            secrets.delete(self.credential.id)
+            with self.touch_prompt():
+                secrets.delete(self.credential.id)
             self.credential_deleted.emit(self.credential)
 
 
