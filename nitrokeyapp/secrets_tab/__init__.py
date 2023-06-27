@@ -159,7 +159,7 @@ class SecretsTab(QWidget):
 
     @pyqtSlot(OtpData)
     def otp_generated(self, data: OtpData) -> None:
-        self.ui.labelOtp.setText(data.otp)
+        self.ui.lineEditOtp.setText(data.otp)
 
         if data.validity:
             start, end = data.validity
@@ -172,7 +172,8 @@ class SecretsTab(QWidget):
 
         self.ui.pushButtonOtpGenerate.setVisible(data.validity is None)
         self.ui.progressBarOtpTimeout.setVisible(data.validity is not None)
-        self.ui.widgetOtp.show()
+        self.ui.labelOtp.show()
+        self.ui.lineEditOtp.show()
 
     def add_credential(self, credential: Credential) -> QListWidgetItem:
         icon = (
@@ -204,7 +205,7 @@ class SecretsTab(QWidget):
             self.ui.groupBoxOtp.show()
             self.ui.lineEditName.setText(credential.name)
             self.ui.checkBoxPinProtection.setChecked(credential.protected)
-            self.ui.labelOtpAlgorithm.setText(str(credential.otp))
+            self.ui.lineEditOtpAlgorithm.setText(str(credential.otp))
         else:
             self.ui.groupBoxOtp.hide()
         self.update_otp_generation(credential)
@@ -222,7 +223,8 @@ class SecretsTab(QWidget):
         self.otp_timeout = None
         self.otp_timer.stop()
         self.ui.progressBarOtpTimeout.hide()
-        self.ui.widgetOtp.hide()
+        self.ui.labelOtp.hide()
+        self.ui.lineEditOtp.hide()
 
         credential = self.get_current_credential()
         self.update_otp_generation(credential)
