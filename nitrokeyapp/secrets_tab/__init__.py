@@ -175,9 +175,13 @@ class SecretsTab(QWidget):
         self.ui.widgetOtp.show()
 
     def add_credential(self, credential: Credential) -> QListWidgetItem:
-        icon = "unsafe" if credential.protected else "safe"
+        icon = (
+            "lock_FILL0_wght500_GRAD0_opsz40"
+            if credential.protected
+            else "lock_open_FILL0_wght500_GRAD0_opsz40"
+        )
         item = QListWidgetItem(credential.name)
-        item.setIcon(QIcon(f":/images/new/icon_{icon}.svg"))
+        item.setIcon(QIcon(f":/material_icons/images/icons_material/{icon}.svg"))
         item.setData(Qt.ItemDataRole.UserRole, credential)
         self.ui.secretsList.addItem(item)
         return item

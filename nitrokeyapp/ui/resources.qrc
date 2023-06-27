@@ -3,6 +3,11 @@
     <file alias="ProgressWheel.GIF">images/ProgressWheel.GIF</file>
     <file alias="progressWheel2.gif">images/progressWheel2.gif</file>
   </qresource>
+  <qresource prefix="/material_icons">
+    <file>images/icons_material/lock_FILL0_wght500_GRAD0_opsz40.svg</file>
+    <file>images/icons_material/lock_open_FILL0_wght500_GRAD0_opsz40.svg</file>
+  </qresource>
+  <qresource prefix="newPrefix"/>
   <qresource prefix="/i18n">
     <file alias="nitrokey_de_DE.qm">i18n/nitrokey_de_DE.qm</file>
     <file alias="nitrokey_en.qm">i18n/nitrokey_en.qm</file>

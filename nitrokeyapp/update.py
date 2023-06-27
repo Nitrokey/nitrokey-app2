@@ -93,7 +93,7 @@ class UpdateGUI(UpdateUi):
         )
 
     def confirm_download(self, current: Optional[Version], new: Version) -> None:
-        confirm_download_msgBox = QtWidgets.QMessageBox()
+        confirm_download_msgBox = QtWidgets.QMessageBox(self.overview_tab)
         confirm_download_msgBox.setIcon(QtWidgets.QMessageBox.Information)
         confirm_download_msgBox.setText(
             f"Do you want to download the firmware version {new}?"
@@ -115,7 +115,7 @@ class UpdateGUI(UpdateUi):
             logger.info("OK clicked (confirm download)")
 
     def confirm_update(self, current: Optional[Version], new: Version) -> None:
-        confirm_update_msgBox = QtWidgets.QMessageBox()
+        confirm_update_msgBox = QtWidgets.QMessageBox(self.overview_tab)
         confirm_update_msgBox.setIcon(QtWidgets.QMessageBox.Information)
         confirm_update_msgBox.setText(
             "Please do not remove the Nitrokey 3 or insert any other Nitrokey 3 devices during the update. Doing so may damage the Nitrokey 3. Do you want to perform the firmware update now?"
@@ -137,7 +137,7 @@ class UpdateGUI(UpdateUi):
             QCoreApplication.processEvents()
 
     def confirm_update_same_version(self, version: Version) -> None:
-        confirm_update_same_version_msgBox = QtWidgets.QMessageBox()
+        confirm_update_same_version_msgBox = QtWidgets.QMessageBox(self.overview_tab)
         confirm_update_same_version_msgBox.setIcon(QtWidgets.QMessageBox.Information)
         confirm_update_same_version_msgBox.setText(
             "The version of the firmware image is the same as on the device. Do you want to continue anyway?"
@@ -160,7 +160,7 @@ class UpdateGUI(UpdateUi):
     def confirm_extra_information(self, txt: List[str]) -> None:
         # if txt:
         # logger.info("\n".join(txt))
-        # confirm_extra_information_msgBox = QtWidgets.QMessageBox()
+        # confirm_extra_information_msgBox QMessageBox(= QtWidgets.QMessageBox()
         # confirm_extra_information_msgBox.setIcon(QtWidgets.QMessageBox.Information)
         # confirm_extra_information_msgBox.setText(
         #     "Have you read these information? Do you want to continue?"

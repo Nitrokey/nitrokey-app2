@@ -254,9 +254,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 self.device_buttons.remove(button)
                 button.close()
 
-        # TODO: do we need this?
-        self.ui.Nitrokeys.update()
-
         self.devices.remove(data)
 
     def refresh(self) -> None:
