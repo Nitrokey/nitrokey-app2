@@ -166,17 +166,40 @@ class AddCredentialJob(Job):
         self.credential_added.connect(lambda _: self.finished.emit())
 
     def run(self) -> None:
-        if self.credential.protected:
+        list_credentials_job = ListCredentialsJob(
+            self.pin_cache,
+            self.pin_ui,
+            self.data,
+            pin_protected=True,
+        )
+        list_credentials_job.credentials_listed.connect(self.check_credential)
+        self.spawn(list_credentials_job)
+
+    @pyqtSlot(list)
+    def check_credential(self, credentials: list[Credential]) -> None:
+        ids = set([credential.id for credential in credentials])
+        if self.credential.id in ids:
+            self.trigger_error(
+                f"A credential with the name {self.credential.name} already exists."
+            )
+        elif self.credential.protected:
             verify_pin_job = VerifyPinJob(
-                self.pin_cache, self.pin_ui, self.data, set_pin=True
+                self.pin_cache,
+                self.pin_ui,
+                self.data,
+                set_pin=self.credential.protected,
             )
             verify_pin_job.pin_verified.connect(self.add_credential)
             self.spawn(verify_pin_job)
         else:
             self.add_credential()
 
-    @pyqtSlot()
-    def add_credential(self) -> None:
+    @pyqtSlot(bool)
+    def add_credential(self, successful: bool = True) -> None:
+        if not successful:
+            self.finished.emit()
+            return
+
         assert self.credential.otp
         with self.data.open() as device:
             secrets = SecretsApp(device)
@@ -293,14 +316,14 @@ class ListCredentialsJob(Job):
     @pyqtSlot(bool)
     def list_protected_credentials(self, successful: bool) -> None:
         credentials = []
-        if successful:
-            with self.data.open() as device:
-                secrets = SecretsApp(device)
-                for credential in Credential.list(secrets):
-                    credentials.append(credential)
-        else:
+        if not successful:
             # TODO: un-check PIN protection check box
             pass
+
+        with self.data.open() as device:
+            secrets = SecretsApp(device)
+            for credential in Credential.list(secrets):
+                credentials.append(credential)
 
         self.credentials_listed.emit(credentials)
 
