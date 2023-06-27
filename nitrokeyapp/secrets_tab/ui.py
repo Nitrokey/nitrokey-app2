@@ -19,8 +19,8 @@ class PinUi(QObject):
     def query(self, attempts: int) -> None:
         pin, ok = QInputDialog.getText(
             self.parent_widget,
-            "Enter Secrets PIN",
-            "Please enter the Secrets PIN (remaining retries: " f"{attempts}):",
+            "Enter Passwords PIN",
+            "Please enter the Passwords PIN (remaining retries: " f"{attempts}):",
             QLineEdit.EchoMode.Password,
         )
         if ok and pin:
@@ -33,8 +33,8 @@ class PinUi(QObject):
         # TODO: confirm
         pin, ok = QInputDialog.getText(
             self.parent_widget,
-            "Set Secrets PIN",
-            "Please enter the new PIN for Secrets:",
+            "Set Passwords PIN",
+            "Please enter the new PIN for Passwords:",
             QLineEdit.EchoMode.Password,
         )
         if ok and pin:

@@ -79,7 +79,7 @@ class SecretsTab(QWidget):
 
     @property
     def title(self) -> str:
-        return "Secrets"
+        return "Passwords"
 
     @property
     def widget(self) -> QWidget:
