@@ -2,6 +2,15 @@
 
 This application allows to manage Nitrokey 3 devices. Currently, it only allows updating the firmware of Nitrokey 3 devices. More features will be added in the future. To manage Nitrokey Pro and Nitrokey Storage devices, use the older [Nitrokey App](https://github.com/Nitrokey/nitrokey-app).
 
+## Features
+
+The following features are currently implemented.
+
+- Firmware update
+- Passwords
+    - TOTP
+    - HOTP
+
 ## Download
 
 Executable binaries for Linux and Windows as well as a MSI installer for Windows can be downloaded from the [releases](https://github.com/Nitrokey/nitrokey-app2/releases).
