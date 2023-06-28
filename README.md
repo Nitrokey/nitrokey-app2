@@ -1,6 +1,6 @@
 # Nitrokey App 2
 
-This application allows to manage Nitrokey 3 devices. Currently, it only allows updating the firmware of Nitrokey 3 devices. More features will be added in the future. To manage Nitrokey Pro and Nitrokey Storage devices, use the older [Nitrokey App](https://github.com/Nitrokey/nitrokey-app).
+This application allows to manage Nitrokey 3 devices. To manage Nitrokey Pro and Nitrokey Storage devices, use the older [Nitrokey App](https://github.com/Nitrokey/nitrokey-app).
 
 ## Features
 
