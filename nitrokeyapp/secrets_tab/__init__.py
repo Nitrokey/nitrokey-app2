@@ -68,6 +68,15 @@ class SecretsTab(QWidget):
         self.ui = Ui_SecretsTab()
         self.ui.setupUi(self)
 
+        labels = [
+            self.ui.labelName,
+            self.ui.labelAlgorithm,
+            self.ui.labelOtp,
+        ]
+        max_width = max([label.width() for label in labels])
+        for label in labels:
+            label.setMinimumWidth(max_width)
+
         self.ui.buttonAdd.pressed.connect(self.add_new_credential)
         self.ui.buttonDelete.pressed.connect(self.delete_credential)
         self.ui.buttonRefresh.pressed.connect(self.refresh_credential_list)
