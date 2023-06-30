@@ -30,7 +30,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">
-    <normaloff>:/images/new/icon_NK.svg</normaloff>:/images/new/icon_NK.svg</iconset>
+    <normaloff>:/icons/icon_NK.svg</normaloff>:/icons/icon_NK.svg</iconset>
   </property>
   <property name="autoFillBackground">
    <bool>false</bool>
@@ -181,7 +181,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>images/icons_material/info_FILL0_wght500_GRAD0_opsz40.png</pixmap>
+          <pixmap>:/icons/info_FILL0_wght500_GRAD0_opsz40.png</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -251,7 +251,7 @@
          </property>
          <property name="icon">
           <iconset>
-           <normaloff>images/icons_material/info_FILL0_wght500_GRAD0_opsz40.png</normaloff>images/icons_material/info_FILL0_wght500_GRAD0_opsz40.png</iconset>
+           <normaloff>:/icons/info_FILL0_wght500_GRAD0_opsz40.png</normaloff>:/icons/info_FILL0_wght500_GRAD0_opsz40.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -347,7 +347,7 @@
          </property>
          <property name="icon">
           <iconset>
-           <normaloff>images/icons_material/settings_FILL0_wght500_GRAD0_opsz40.png</normaloff>images/icons_material/settings_FILL0_wght500_GRAD0_opsz40.png</iconset>
+           <normaloff>:/icons/settings_FILL0_wght500_GRAD0_opsz40.png</normaloff>:/icons/settings_FILL0_wght500_GRAD0_opsz40.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -375,7 +375,7 @@
          </property>
          <property name="icon">
           <iconset>
-           <normaloff>images/icons_material/lock_FILL0_wght500_GRAD0_opsz40.png</normaloff>images/icons_material/lock_FILL0_wght500_GRAD0_opsz40.png</iconset>
+           <normaloff>:/icons/lock_FILL0_wght500_GRAD0_opsz40.png</normaloff>:/icons/lock_FILL0_wght500_GRAD0_opsz40.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -412,7 +412,7 @@
          </property>
          <property name="icon">
           <iconset>
-           <normaloff>images/icons_material/help_FILL0_wght500_GRAD0_opsz40.png</normaloff>images/icons_material/help_FILL0_wght500_GRAD0_opsz40.png</iconset>
+           <normaloff>:/icons/help_FILL0_wght500_GRAD0_opsz40.png</normaloff>:/icons/help_FILL0_wght500_GRAD0_opsz40.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -455,7 +455,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="resources.qrc">:/images/icon/nitrokey-app-icon-vector.svg</pixmap>
+          <pixmap resource="resources.qrc">:/icons/nitrokey-app-icon-vector.svg</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>

@@ -12,7 +12,7 @@ class LoadingScreen(QtWidgets.QWidget):
     #     self.label_animation = QLabel(self)
     #     self.qprogressbar = QProgressBar(self)
     #     self.setGeometry(QRect(650,300,0,0))
-    # self.movie = QMovie(":/images/ProgressWheel.GIF")
+    # self.movie = QMovie(":/icons/ProgressWheel.GIF")
     # self.label_animation.setMovie(self.movie)
 
     # timer = QTimer(self)
