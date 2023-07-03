@@ -5,6 +5,7 @@ from typing import Any, Callable, Generator, Optional, Type
 
 from PyQt5 import QtWidgets
 from qt_material import apply_stylesheet
+
 from nitrokeyapp import get_theme_path
 from nitrokeyapp.gui import GUI
 from nitrokeyapp.logger import init_logging, log_environment
