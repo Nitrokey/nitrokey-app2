@@ -23,6 +23,8 @@ $(VENV):
 # clean environment
 semi-clean:
 	rm -rf **/__pycache__
+	rm -rf build/
+	rm -rf dist/
 
 clean: semi-clean
 	rm -rf $(VENV)
