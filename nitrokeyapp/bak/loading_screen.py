@@ -1,8 +1,5 @@
 from PyQt5 import QtWidgets
 
-# pyrcc5 -o gui_resources.py ui/resources.qrc
-
-
 class LoadingScreen(QtWidgets.QWidget):
     # def __init__(self):
     #     super().__init__()

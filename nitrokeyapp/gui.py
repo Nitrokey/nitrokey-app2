@@ -32,28 +32,6 @@ from nitrokeyapp.secrets_tab import SecretsTab
 from nitrokeyapp.ui.mainwindow import Ui_MainWindow
 from nitrokeyapp.windows_notification import WindowsUSBNotifi
 
-# import nitrokeyapp.ui.breeze_resources
-# pyrcc5 -o gui_resources.py ui/resourcces.qrc
-# import nitrokeyapp.gui_resources
-
-# Define function to import external files when using PyInstaller.
-# def resource_path(relative_path):
-#     """ Get absolute path to resource, works for dev and for PyInstaller """
-#     try:
-#         # PyInstaller creates a temp folder and stores path in _MEIPASS
-#         base_path = sys._MEIPASS
-#     except Exception:
-#         base_path = os.path.abspath(".")
-#
-#     return os.path.join(base_path, relative_path)
-
-
-# Import .ui forms for the GUI using function resource_path()
-# securitySearchForm = resource_path("securitySearchForm.ui")
-# popboxForm = resource_path("popbox.ui")
-
-# pyrcc4 -py3 resources.qrc -o resources_rc.py
-
 logger = logging.getLogger(__name__)
 
 
