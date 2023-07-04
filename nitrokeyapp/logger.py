@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 @contextmanager
 def init_logging() -> Generator[str, None, None]:
-    log_file = NamedTemporaryFile(prefix="nitrokey-app2.", suffix=".log")
+    log_file = NamedTemporaryFile(prefix="nitrokey-app2.", suffix=".log", delete=False)
     log_format = "%(relativeCreated)-8d %(levelname)6s %(name)10s %(message)s"
 
     try:
