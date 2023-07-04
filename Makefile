@@ -23,11 +23,14 @@ $(VENV):
 # clean environment
 semi-clean:
 	rm -rf **/__pycache__
+	rm -rf build/
+	rm -rf dist/
 
 clean: semi-clean
 	rm -rf $(VENV)
 	rm -rf .mypy_cache
 
+# build
 build-ui: $(UI_FILES)
 	pyrcc5 $(UI_FILES_PATH)/resources.qrc -o $(UI_FILES_PATH)/resources_rc.py
 	$(foreach var,$(UI_FILES),pyuic5 --from-imports $(var) -o $(subst .ui,.py,$(var));)
