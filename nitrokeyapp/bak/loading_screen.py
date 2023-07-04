@@ -1,7 +1,5 @@
 from PyQt5 import QtWidgets
 
-# pyrcc5 -o gui_resources.py ui/resources.qrc
-
 
 class LoadingScreen(QtWidgets.QWidget):
     # def __init__(self):
@@ -12,7 +10,7 @@ class LoadingScreen(QtWidgets.QWidget):
     #     self.label_animation = QLabel(self)
     #     self.qprogressbar = QProgressBar(self)
     #     self.setGeometry(QRect(650,300,0,0))
-    # self.movie = QMovie(":/images/ProgressWheel.GIF")
+    # self.movie = QMovie(":/icons/ProgressWheel.GIF")
     # self.label_animation.setMovie(self.movie)
 
     # timer = QTimer(self)

@@ -66,12 +66,12 @@ class QtUtilsMixIn:
         # Find out if the state is on or off
         gbState = expand_button.isChecked()
         if not gbState:
-            expand_button.setIcon(QtGui.QIcon(":/images/new/right_arrow.png"))
+            expand_button.setIcon(QtGui.QIcon(":/icons/right_arrow.png"))
             gBox.setFixedHeight(15)
             # Set window Height
             # self.setFixedHeight(self.sizeHint().height())
         else:
-            expand_button.setIcon(QtGui.QIcon(":/images/new/down_arrow.png"))
+            expand_button.setIcon(QtGui.QIcon(":/icons/down_arrow.png"))
             oSize = gBox.sizeHint()
             gBox.setFixedHeight(oSize.height())
             # Set window Height

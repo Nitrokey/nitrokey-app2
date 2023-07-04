@@ -191,7 +191,7 @@ class SecretsTab(QWidget):
             else "lock_open_FILL0_wght500_GRAD0_opsz40"
         )
         item = QListWidgetItem(credential.name)
-        item.setIcon(QIcon(f":/material_icons/images/icons_material/{icon}.svg"))
+        item.setIcon(QIcon(f":/icons/{icon}.svg"))
         item.setData(Qt.ItemDataRole.UserRole, credential)
         self.ui.secretsList.addItem(item)
         return item

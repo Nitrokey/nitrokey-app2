@@ -24,7 +24,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">
-    <normaloff>:/images/new/icon_NK.svg</normaloff>:/images/new/icon_NK.svg</iconset>
+    <normaloff>:/icons/icon_NK.svg</normaloff>:/icons/icon_NK.svg</iconset>
   </property>
   <property name="autoFillBackground">
    <bool>false</bool>
@@ -74,7 +74,7 @@
            <string notr="true"/>
           </property>
           <property name="pixmap">
-           <pixmap resource="resources.qrc">:/images/new/icon_Logo_App.svg</pixmap>
+           <pixmap resource="resources.qrc">:/icons/icon_Logo_App.svg</pixmap>
           </property>
          </widget>
         </item>
