@@ -7,8 +7,6 @@ logger = logging.getLogger(__name__)
 class WindowsUSBNotifi:
     from ctypes import Structure, c_ulong, c_ushort
 
-    DBT_DEVICEADDED = 0x8000
-    DBT_DEVICEREMOVED = 0x8004
     WORD = c_ushort
     DWORD = c_ulong
 
@@ -47,10 +45,12 @@ class WindowsUSBNotifi:
 
     def onDeviceChange(self, hwnd: Any, msg: Any, wparam: int, lparam: Any) -> None:
 
-        if wparam == self.DBT_DEVICEADDED:
+        import win32con
+
+        if wparam == win32con.DBT_DEVICEARRIVAL:
             logger.info("Windows: USB added")
             self.detect_nk3()
-        if wparam == self.DBT_DEVICEREMOVED:
+        if wparam == win32con.DBT_DEVICEREMOVECOMPLETE:
             logger.info("Windows: USB removed")
             self.remove_nk3()
 
