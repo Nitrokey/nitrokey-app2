@@ -43,7 +43,7 @@ class WindowsUSBNotifi:
         )
         win32gui.UpdateWindow(self.hwnd)
 
-    def onDeviceChange(self, hwnd: Any, msg: Any, wparam: int, lparam: Any) -> None:
+    def onDeviceChange(self, hwnd: Any, msg: Any, wparam: int, lparam: Any) -> int:
 
         import win32con
 
@@ -53,6 +53,7 @@ class WindowsUSBNotifi:
         if wparam == win32con.DBT_DEVICEREMOVECOMPLETE:
             logger.info("Windows: USB removed")
             self.remove_nk3()
+        return 0
 
     class DEV_BROADCAST_HDR(Structure):
         from ctypes import c_ulong, c_ushort
