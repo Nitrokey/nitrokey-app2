@@ -2,7 +2,7 @@ name: Continuous delivery - Windows
 
 on:
   release:
-    types: [published, unpublished]
+    types: [prereleased, released]
 
 env:
   FLIT_ROOT_INSTALL: 1

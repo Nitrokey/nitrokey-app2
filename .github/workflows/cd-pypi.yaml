@@ -2,7 +2,7 @@ name: Continuous delivery - Pypi
 
 on:
   release:
-    types: [published, unpublished]
+    types: [released]
 
 env:
   FLIT_ROOT_INSTALL: 1
