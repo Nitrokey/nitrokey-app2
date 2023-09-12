@@ -61,18 +61,18 @@ class QtUtilsMixIn:
         return True
 
     def collapse(
-        self, gBox: QtWidgets.QWidget, expand_button: QtWidgets.QPushButton
+        self, frame: QtWidgets.QWidget, expand_button: QtWidgets.QPushButton
     ) -> None:
         # Find out if the state is on or off
-        gbState = expand_button.isChecked()
-        if not gbState:
+        state = expand_button.isChecked()
+        if not state:
             expand_button.setIcon(QtGui.QIcon(":/icons/right_arrow.png"))
-            gBox.setFixedHeight(15)
+            frame.setFixedHeight(0)
             # Set window Height
             # self.setFixedHeight(self.sizeHint().height())
         else:
             expand_button.setIcon(QtGui.QIcon(":/icons/down_arrow.png"))
-            oSize = gBox.sizeHint()
-            gBox.setFixedHeight(oSize.height())
+            oSize = frame.sizeHint()
+            frame.setFixedHeight(oSize.height())
             # Set window Height
             # self.setFixedHeight(self.sizeHint().height())
