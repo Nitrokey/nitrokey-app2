@@ -1,23 +1,28 @@
 from typing import Optional
 
 from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QFileDialog, QWidget
 
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.information_box import InfoBox
+from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.ui.overview_tab import Ui_OverviewTab
 from nitrokeyapp.worker import Worker
 
 
-class OverviewTab(QWidget):
+class OverviewTab(QtUtilsMixIn, QWidget):
     def __init__(self, info_box: InfoBox, parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent)
+        QWidget.__init__(self, parent)
+        QtUtilsMixIn.__init__(self)
 
         self.data: Optional[DeviceData] = None
         self.info_box = info_box
         self.ui = Ui_OverviewTab()
         self.ui.setupUi(self)
 
+        self.collapse(self.ui.more_options_frame, self.ui.more_options_btn)
+        self.ui.update_with_file_btn.clicked.connect(self.update_with_file)
+        self.ui.more_options_btn.clicked.connect(self.show_more_options)
         self.ui.pushButtonUpdate.clicked.connect(self.run_update)
 
         self.reset()
@@ -67,7 +72,21 @@ class OverviewTab(QWidget):
         self.ui.pushButtonUpdate.setEnabled(enabled)
         self.ui.pushButtonUpdate.setToolTip(tooltip)
 
+    def show_more_options(self) -> None:
+        self.collapse(self.ui.more_options_frame, self.ui.more_options_btn)
+
     @pyqtSlot()
     def run_update(self) -> None:
         assert self.data
         self.data.update(self, self.info_box)
+
+    @pyqtSlot()
+    def update_with_file(self) -> None:
+        assert self.data
+        fdialog = QFileDialog()
+        fdialog.setFileMode(QFileDialog.AnyFile)
+
+        if fdialog.exec_():
+            filenames = fdialog.selectedFiles()
+            file = filenames[0]
+            self.data.update(self, self.info_box, image=file)
