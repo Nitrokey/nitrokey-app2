@@ -1,5 +1,5 @@
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from pynitrokey.nk3 import Nitrokey3Device
 
@@ -40,14 +40,16 @@ class DeviceData:
         self,
         overview_tab: "OverviewTab",
         info_frame: InfoBox,
+        image: Optional[str] = None,
     ) -> None:
+        self.updating = True
+        overview_tab.update_btns_during_update(False)
         try:
-            self.updating = True
-            Nk3Context(self.path).update(overview_tab, info_frame)
-            self.updating = False
+            Nk3Context(self.path).update(overview_tab, info_frame, image)
             logger.info("Successfully updated the Nitrokey 3")
             info_frame.set_text("Successfully updated the Nitrokey 3.")
         except Exception as e:
-            self.updating = False
             logger.info(f"Failed to update Nitrokey 3 {e}")
             info_frame.set_text("Failed to update Nitrokey 3.")
+        self.updating = False
+        overview_tab.update_btns_during_update(True)
