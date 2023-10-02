@@ -30,6 +30,7 @@ from nitrokeyapp.secrets_tab import SecretsTab
 
 # import wizards and stuff
 from nitrokeyapp.ui.mainwindow import Ui_MainWindow
+from nitrokeyapp.welcome_tab import WelcomeTab
 from nitrokeyapp.windows_notification import WindowsUSBNotifi
 
 logger = logging.getLogger(__name__)
@@ -92,7 +93,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.ui.label_information_icon,
             self.ui.label_information,
         )
-
+        self.widgetTab = self.ui.widgetTab
+        self.widgetTab = WelcomeTab(self.widgetTab)
         self.about_dialog = AboutDialog(log_file, qt_app)
         self.touch_dialog = TouchDialog(self)
         self.overview_tab = OverviewTab(self.info_box, self)
@@ -239,12 +241,14 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         Should be called if the selected device or the selected tab is changed
         """
         if self.selected_device:
+            self.widgetTab.hide()
             self.views[self.tabs.currentIndex()].refresh(self.selected_device)
             self.tabs.show()
         else:
             for view in self.views:
                 view.reset()
             self.tabs.hide()
+            self.widgetTab.show()
 
     def init_gui(self) -> None:
         self.tabs.hide()
