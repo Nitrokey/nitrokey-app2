@@ -151,7 +151,7 @@
       </property>
       <layout class="QGridLayout" name="gridLayout">
        <item row="4" column="0">
-        <widget class="QPushButton" name="btn_about">
+        <widget class="QPushButton" name="btn_home">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -176,7 +176,7 @@
          </property>
          <property name="icon">
           <iconset resource="resources.qrc">
-           <normaloff>:/icons/info_FILL0_wght500_GRAD0_opsz40.png</normaloff>:/icons/info_FILL0_wght500_GRAD0_opsz40.png</iconset>
+           <normaloff>:/icons/home_FILL0_wght500_GRAD0_opsz40 (1).png</normaloff>:/icons/home_FILL0_wght500_GRAD0_opsz40 (1).png</iconset>
          </property>
          <property name="iconSize">
           <size>
