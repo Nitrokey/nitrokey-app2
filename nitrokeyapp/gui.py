@@ -16,7 +16,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QCursor
 
-from nitrokeyapp.about_dialog import AboutDialog
+# from nitrokeyapp.about_dialog import AboutDialog
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.device_view import DeviceView
 from nitrokeyapp.error_dialog import ErrorDialog
@@ -30,6 +30,7 @@ from nitrokeyapp.secrets_tab import SecretsTab
 
 # import wizards and stuff
 from nitrokeyapp.ui.mainwindow import Ui_MainWindow
+from nitrokeyapp.welcome_tab import WelcomeTab
 from nitrokeyapp.windows_notification import WindowsUSBNotifi
 
 logger = logging.getLogger(__name__)
@@ -92,8 +93,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.ui.label_information_icon,
             self.ui.label_information,
         )
-
-        self.about_dialog = AboutDialog(log_file, qt_app)
+        self.widgetTab = self.ui.widgetTab
+        self.widgetTab = WelcomeTab(self.widgetTab, self.log_file)
+        # self.about_dialog = AboutDialog(log_file, qt_app)
         self.touch_dialog = TouchDialog(self)
         self.overview_tab = OverviewTab(self.info_box, self)
         self.views: list[DeviceView] = [self.overview_tab, SecretsTab(self)]
@@ -109,7 +111,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # self.status_bar = _get(_qt.QStatusBar, "statusBar")
         # self.menu_bar = _get(_qt.QMenuBar, "menuBar")
         self.tabs = self.ui.tabWidget
-        self.about_button = self.ui.btn_about
+        self.home_button = self.ui.btn_home
         self.help_btn = self.ui.btn_dial_help
         # self.quit_button = self.ui.btn_dial_quit
         self.settings_btn = self.ui.btn_settings
@@ -130,7 +132,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             lambda: webbrowser.open("https://docs.nitrokey.com/nitrokey3")
         )
         self.lock_btn.clicked.connect(self.slot_lock_button_pressed)
-        self.about_button.clicked.connect(self.about_button_pressed)
+        self.home_button.clicked.connect(self.home_button_pressed)
         # self.settings_btn.clicked.connect()
         # connections for functional signals
         # generic / global
@@ -220,6 +222,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.ui.nitrokeyButtonsLayout.addWidget(button)
         self.devices.append(data)
         self.device_buttons.append(button)
+        self.widget_show()
 
     def remove_device(self, data: DeviceData) -> None:
         if self.selected_device == data:
@@ -233,12 +236,14 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 button.close()
 
         self.devices.remove(data)
+        self.widget_show()
 
     def refresh(self) -> None:
         """
         Should be called if the selected device or the selected tab is changed
         """
         if self.selected_device:
+            self.widgetTab.hide()
             self.views[self.tabs.currentIndex()].refresh(self.selected_device)
             self.tabs.show()
         else:
@@ -257,14 +262,24 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.selected_device = data
         self.refresh()
 
+    def widget_show(self) -> None:
+        device_count = len(self.devices)
+        if device_count == 1:
+            data = self.devices[0]
+            self.device_selected(data)
+        else:
+            self.tabs.hide()
+            self.widgetTab.show()
+
     @pyqtSlot(int)
     def slot_tab_changed(self, idx: int) -> None:
         self.refresh()
 
     # main-window callbacks
     @pyqtSlot()
-    def about_button_pressed(self) -> None:
-        self.about_dialog.exec_()
+    def home_button_pressed(self) -> None:
+        self.widgetTab.show()
+        self.tabs.hide()
 
     @pyqtSlot()
     def slot_lock_button_pressed(self) -> None:
