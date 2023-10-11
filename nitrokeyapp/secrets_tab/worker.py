@@ -221,7 +221,7 @@ class DeleteCredentialJob(Job):
     def __init__(
         self,
         pin_cache: PinCache,
-        pin_ui: PinUi,        
+        pin_ui: PinUi,
         data: DeviceData,
         credential: Credential,
     ) -> None:
@@ -235,15 +235,13 @@ class DeleteCredentialJob(Job):
         self.credential_deleted.connect(lambda _: self.finished.emit())
 
     def run(self) -> None:
-        with self.data.open() as device:
-            secrets = SecretsApp(device)
-            with self.touch_prompt():
-                if self.credential.protected:
-                    verify_pin_job = VerifyPinJob(self.pin_cache, self.pin_ui, self.data)
-                    verify_pin_job.pin_verified.connect(self.delete_credential)
-                    self.spawn(verify_pin_job)
-                else:
-                    self.delete_credential()
+        with self.touch_prompt():
+            if self.credential.protected:
+                verify_pin_job = VerifyPinJob(self.pin_cache, self.pin_ui, self.data)
+                verify_pin_job.pin_verified.connect(self.delete_credential)
+                self.spawn(verify_pin_job)
+            else:
+                self.delete_credential()
 
     @pyqtSlot()
     def delete_credential(self) -> None:
