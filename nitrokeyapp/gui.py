@@ -114,8 +114,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.home_button = self.ui.btn_home
         self.help_btn = self.ui.btn_dial_help
         # self.quit_button = self.ui.btn_dial_quit
-        # self.settings_btn = self.ui.btn_settings
-        # self.lock_btn = self.ui.btn_dial_lock
+        self.settings_btn = self.ui.btn_settings
+        self.lock_btn = self.ui.btn_dial_lock
         self.l_insert_nitrokey = self.ui.label_insert_Nitrokey
         # set some props, initial enabled/visible, finally show()
         self.setAttribute(Qt.WA_DeleteOnClose)
@@ -131,8 +131,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.help_btn.clicked.connect(
             lambda: webbrowser.open("https://docs.nitrokey.com/nitrokey3")
         )
-        # self.lock_btn.clicked.connect(self.slot_lock_button_pressed)
-        # self.about_button.clicked.connect(self.about_button_pressed)
+        self.lock_btn.clicked.connect(self.slot_lock_button_pressed)
+        self.home_button.clicked.connect(self.home_button_pressed)
         # self.settings_btn.clicked.connect()
         # connections for functional signals
         # generic / global
@@ -254,8 +254,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def init_gui(self) -> None:
         self.tabs.hide()
         self.info_box.hide()
-        # self.lock_btn.setEnabled(False)
-        # self.settings_btn.setEnabled(False)
+        self.lock_btn.setEnabled(False)
+        self.settings_btn.setEnabled(False)
         self.detect_added_devices()
 
     def device_selected(self, data: DeviceData) -> None:
