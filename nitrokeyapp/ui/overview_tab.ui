@@ -51,8 +51,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>492</width>
-        <height>388</height>
+        <width>482</width>
+        <height>366</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -65,7 +65,7 @@
        <string notr="true"/>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
-       <item alignment="Qt::AlignTop">
+       <item>
         <widget class="QFrame" name="Nitrokey3">
          <property name="enabled">
           <bool>true</bool>
@@ -97,7 +97,7 @@
          <property name="midLineWidth">
           <number>5</number>
          </property>
-         <layout class="QFormLayout" name="formLayout_3">
+         <layout class="QFormLayout" name="formLayout">
           <item row="0" column="0" colspan="2">
            <widget class="QLabel" name="label_nk3">
             <property name="sizePolicy">
@@ -248,6 +248,59 @@
              </widget>
             </item>
            </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignLeft">
+        <widget class="QPushButton" name="more_options_btn">
+         <property name="text">
+          <string>More Options</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignTop">
+        <widget class="QFrame" name="more_options_frame">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>440</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <property name="lineWidth">
+          <number>5</number>
+         </property>
+         <property name="midLineWidth">
+          <number>5</number>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QPushButton" name="update_with_file_btn">
+            <property name="text">
+             <string>Update with local Firmware</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
