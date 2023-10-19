@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QGuiApplication, QIcon
 from PyQt5.QtWidgets import QDialog, QListWidgetItem, QWidget
 
 from nitrokeyapp.add_secret_dialog import AddSecretDialog
@@ -65,6 +65,9 @@ class SecretsTab(QWidget):
         self.otp_timer.timeout.connect(self.update_otp_timeout)
         self.otp_timer.setInterval(1000)
 
+        self.clipboard = QGuiApplication.clipboard()
+        self.originalText = self.clipboard.text()
+
         self.ui = Ui_SecretsTab()
         self.ui.setupUi(self)
 
@@ -81,6 +84,7 @@ class SecretsTab(QWidget):
         self.ui.buttonDelete.pressed.connect(self.delete_credential)
         self.ui.buttonRefresh.pressed.connect(self.refresh_credential_list)
         self.ui.checkBoxProtected.stateChanged.connect(self.refresh_credential_list)
+        self.ui.pushButtonOtpCopyToClipbord.pressed.connect(self.copy_to_clipboard)
         self.ui.pushButtonOtpGenerate.pressed.connect(self.generate_otp)
         self.ui.secretsList.currentItemChanged.connect(self.credential_changed)
 
@@ -169,6 +173,7 @@ class SecretsTab(QWidget):
     @pyqtSlot(OtpData)
     def otp_generated(self, data: OtpData) -> None:
         self.ui.lineEditOtp.setText(data.otp)
+        self.data_otp = data.otp
 
         if data.validity:
             start, end = data.validity
@@ -183,6 +188,9 @@ class SecretsTab(QWidget):
         self.ui.progressBarOtpTimeout.setVisible(data.validity is not None)
         self.ui.labelOtp.show()
         self.ui.lineEditOtp.show()
+
+    def copy_to_clipboard(self) -> None:
+        self.clipboard.setText(self.data_otp)
 
     def add_credential(self, credential: Credential) -> QListWidgetItem:
         icon = (
@@ -234,6 +242,7 @@ class SecretsTab(QWidget):
         self.ui.progressBarOtpTimeout.hide()
         self.ui.labelOtp.hide()
         self.ui.lineEditOtp.hide()
+        self.ui.pushButtonOtpCopyToClipbord.hide()
 
         credential = self.get_current_credential()
         self.update_otp_generation(credential)
@@ -249,6 +258,7 @@ class SecretsTab(QWidget):
         timeout = int((self.otp_timeout - datetime.now()).total_seconds())
         if timeout >= 0:
             self.ui.progressBarOtpTimeout.setValue(timeout)
+            self.ui.pushButtonOtpCopyToClipbord.show()
         else:
             self.hide_otp()
 
