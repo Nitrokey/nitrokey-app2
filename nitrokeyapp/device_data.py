@@ -19,6 +19,7 @@ class DeviceData:
         self.uuid = device.uuid()
         self.version = device.version()
         self.updating = False
+        self.status = device.admin.status()
 
     @property
     def uuid_prefix(self) -> str:

@@ -1,5 +1,6 @@
 from typing import Optional
 
+from pynitrokey.nk3.admin_app import InitStatus
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QFileDialog, QWidget
 
@@ -41,7 +42,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
 
     def reset(self) -> None:
         self.data = None
-        self.set_device_data("?", "?", "?")
+        self.set_device_data("?", "?", "?", "?", "?")
         self.ui.progressBar_Update.hide()
         self.ui.progressBar_Download.hide()
         self.ui.progressBar_Finalization.hide()
@@ -51,13 +52,39 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             return
         self.reset()
         self.data = data
+        if data.status.variant is None:
+            return
 
-        self.set_device_data(str(data.path), str(data.uuid), str(data.version))
+        self.set_device_data(
+            str(data.path),
+            str(data.uuid),
+            str(data.version),
+            str(data.status.variant.name),
+            str(data.status.init_status),
+        )
 
-    def set_device_data(self, path: str, uuid: str, version: str) -> None:
+        if data.status.init_status is None:
+            self.ui.label_init_status.hide()
+            self.ui.nk3_lineedit_init_status.hide()
+        else:
+            self.status_error(InitStatus(data.status.init_status))
+
+    def set_device_data(
+        self, path: str, uuid: str, version: str, variant: str, init_status: str
+    ) -> None:
         self.ui.nk3_lineedit_path.setText(path)
         self.ui.nk3_lineedit_uuid.setText(uuid)
         self.ui.nk3_lineedit_version.setText(version)
+        self.ui.nk3_lineedit_variant.setText(variant)
+        self.ui.nk3_lineedit_init_status.setText(init_status)
+
+    def status_error(self, init: InitStatus) -> None:
+        if init.is_error():
+            self.ui.warnNoticeIcon.show()
+            self.ui.moreInfo.show()
+        else:
+            self.ui.warnNoticeIcon.hide()
+            self.ui.moreInfo.hide()
 
     def set_update_enabled(self, enabled: bool) -> None:
         tooltip = ""
