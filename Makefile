@@ -36,7 +36,7 @@ build-ui: $(UI_FILES)
 	$(foreach var,$(UI_FILES),pyuic5 --from-imports $(var) -o $(subst .ui,.py,$(var));)
 
 build: build-ui
-	$(VENV)/bin/$(PYTHON) -m flit build
+	$(VENV)/bin/$(PYTHON) -m flit build --no-use-vcs
 
 # code checks
 check-format:

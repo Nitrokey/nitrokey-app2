@@ -43,7 +43,7 @@ jobs:
       - name: Build
         run: |
           . venv/bin/activate
-          flit build
+          make build
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
