@@ -84,7 +84,7 @@ class SecretsTab(QWidget):
         self.ui.buttonDelete.pressed.connect(self.delete_credential)
         self.ui.buttonRefresh.pressed.connect(self.refresh_credential_list)
         self.ui.checkBoxProtected.stateChanged.connect(self.refresh_credential_list)
-        self.ui.pushButtonOtpCopyToClipbord.pressed.connect(self.copy_to_clipboard)
+        self.ui.pushButtonOtpCopyToClipboard.pressed.connect(self.copy_to_clipboard)
         self.ui.pushButtonOtpGenerate.pressed.connect(self.generate_otp)
         self.ui.secretsList.currentItemChanged.connect(self.credential_changed)
 
@@ -242,7 +242,7 @@ class SecretsTab(QWidget):
         self.ui.progressBarOtpTimeout.hide()
         self.ui.labelOtp.hide()
         self.ui.lineEditOtp.hide()
-        self.ui.pushButtonOtpCopyToClipbord.hide()
+        self.ui.pushButtonOtpCopyToClipboard.hide()
 
         credential = self.get_current_credential()
         self.update_otp_generation(credential)
@@ -258,7 +258,7 @@ class SecretsTab(QWidget):
         timeout = int((self.otp_timeout - datetime.now()).total_seconds())
         if timeout >= 0:
             self.ui.progressBarOtpTimeout.setValue(timeout)
-            self.ui.pushButtonOtpCopyToClipbord.show()
+            self.ui.pushButtonOtpCopyToClipboard.show()
         else:
             self.hide_otp()
 
