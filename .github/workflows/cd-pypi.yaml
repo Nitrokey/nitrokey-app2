@@ -33,7 +33,7 @@ jobs:
       - name: Install required packages
         run: |
           apt update
-          apt install -y binutils gcc libpcsclite-dev libusb-1.0-0 make swig
+          apt install -y binutils gcc libglib2.0-0 libpcsclite-dev libusb-1.0-0 make swig
       - name: Create virtual environment
         run: |
           python -m venv venv
