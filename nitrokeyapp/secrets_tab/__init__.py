@@ -180,7 +180,7 @@ class SecretsTab(QWidget):
             period = int((end - start).total_seconds())
             self.ui.progressBarOtpTimeout.setMaximum(period)
 
-            self.otp_timeout = end
+            self.otp_timeout = datetime.now() + (end - start)
             self.otp_timer.start()
             self.update_otp_timeout()
 
