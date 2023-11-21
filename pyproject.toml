@@ -1,15 +1,18 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
-[project]
+[tool.poetry]
 name = "nitrokeyapp"
+version = "2.1.4"
 description = "Graphical application to manage Nitrokey devices"
-readme = "README.md"
 authors = [
-  { name = "Nitrokey", email = "pypi@nitrokey.com" },
+  "Nitrokey <pypi@nitrokey.com>",
 ]
-requires-python = ">=3.9"
+license = "Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/nitrokey/nitrokey-app2"
+documentation = "https://docs.nitrokey.com/software/nk-app2/"
 classifiers=[
   "License :: OSI Approved :: Apache Software License",
   "Intended Audience :: Developers",
@@ -19,33 +22,33 @@ classifiers=[
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
 ]
-
-dependencies = [
-  "pyqt5",
-  "pyqt5-stubs",
-  "pyudev",
-  "pynitrokey ==0.4.40",
-  "pywin32 ==305; sys_platform =='win32'",
-  "qt_material",
-]
-dynamic = ["version"]
-
-[project.optional-dependencies]
-dev = [
-  "black >=22.1.0,<23",
-  "flake8",
-  "flit >= 3.2,<4",
-  "isort",
-  "mypy >=1.4,<1.5",
-  "pyinstaller ==5.9.0",
-  "pyinstaller-versionfile ==2.1.1; sys_platform=='win32'",
+packages = [
+  {include = "nitrokeyapp"}
 ]
 
-[project.urls]
-Source = "https://github.com/Nitrokey/nitrokey-app2"
-
-[project.scripts]
+[tool.poetry.scripts]
 nitrokeyapp = "nitrokeyapp.__main__:main"
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.12"
+pyqt5 = "^5.15.10"
+pyqt5-qt5 = "<=5.15.2"
+pyudev = "^0.24.1"
+pynitrokey = "0.4.40"
+pywin32 = { version = "305", markers = "sys_platform =='win32'" }
+qt_material = "^2.14"
+
+[tool.poetry.group.dev.dependencies]
+pyqt5-stubs = "^5.15.6.0"
+black = ">=22.1.0,<23"
+flake8 = "^6.1.0"
+flit = ">=3.2,<4"
+isort = "^5.12.0"
+mypy = ">=1.4,<1.5"
+
+[tool.poetry.group.deploy.dependencies]
+pyinstaller = "5.9.0"
+pyinstaller-versionfile = { version = "2.1.1", markers = "sys_platform=='win32'" }
 
 [tool.isort]
 py_version = "39"
