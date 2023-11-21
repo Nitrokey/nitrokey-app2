@@ -178,9 +178,9 @@ class SecretsTab(QWidget):
         if data.validity:
             start, end = data.validity
             period = int((end - start).total_seconds())
-            self.ui.progressBarOtpTimeout.setMaximum(period)
+            self.ui.progressBarOtpTimeout.setMaximum(period + period)
 
-            self.otp_timeout = end
+            self.otp_timeout = end + (end - start)
             self.otp_timer.start()
             self.update_otp_timeout()
 
