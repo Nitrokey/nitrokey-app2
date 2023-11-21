@@ -1,10 +1,10 @@
 """Experimental Nitrokey GUI Application - based on pynitrokey"""
 
+import importlib.metadata
 import pathlib
 import sys
 
-__version_path__ = pathlib.Path(__file__).parent.resolve().absolute() / "VERSION"
-__version__ = open(__version_path__).read().strip()
+__version__ = importlib.metadata.version(__name__)
 
 
 def get_theme_path() -> str:
