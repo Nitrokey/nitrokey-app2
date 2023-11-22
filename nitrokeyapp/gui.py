@@ -243,6 +243,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         """
         Should be called if the selected device or the selected tab is changed
         """
+        self.overview_tab.busy_state_changed.connect(self.set_busy)
+
         if self.selected_device:
             self.widgetTab.hide()
             self.views[self.tabs.currentIndex()].refresh(self.selected_device)
