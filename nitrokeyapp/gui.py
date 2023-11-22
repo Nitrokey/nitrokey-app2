@@ -239,6 +239,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.widget_show()
 
     def refresh(self) -> None:
+        self.overview_tab.busy_state_changed.connect(self.set_busy)
         """
         Should be called if the selected device or the selected tab is changed
         """
@@ -292,8 +293,13 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def set_busy(self, busy: bool) -> None:
         if busy:
             self.setCursor(QCursor(Qt.WaitCursor))
+            self.home_button.setEnabled(False)
+            self.tabs.setEnabled(False)
         else:
             self.unsetCursor()
+            self.home_button.setEnabled(True)
+            self.tabs.setEnabled(True)
+
         # TODO: setEnabled?
         # self.setEnabled(not busy)
 
