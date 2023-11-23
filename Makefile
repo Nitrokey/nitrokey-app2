@@ -33,7 +33,7 @@ clean: semi-clean
 # build
 build-ui: $(UI_FILES)
 	$(VENV_BIN)/pyrcc5 $(UI_FILES_PATH)/resources.qrc -o $(UI_FILES_PATH)/resources_rc.py
-	$(foreach var,$(UI_FILES),pyuic5 --from-imports $(var) -o $(subst .ui,.py,$(var));)
+	$(foreach var,$(UI_FILES),$(VENV_BIN)/pyuic5 --from-imports $(var) -o $(subst .ui,.py,$(var));)
 
 build: build-ui
 	$(VENV_PYTHON)/bin/$(PYTHON) -m flit build --no-use-vcs
