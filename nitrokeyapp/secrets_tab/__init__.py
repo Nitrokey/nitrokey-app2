@@ -55,6 +55,7 @@ class SecretsTab(QWidget):
         self._worker.credentials_listed.connect(self.credentials_listed)
         self._worker.device_checked.connect(self.device_checked)
         self._worker.otp_generated.connect(self.otp_generated)
+        self._worker.uncheck_checkbox.connect(self.uncheck_checkbox)
 
         self.data: Optional[DeviceData] = None
         self.pin: Optional[str] = None
@@ -302,3 +303,8 @@ class SecretsTab(QWidget):
         assert credential
 
         self.trigger_generate_otp.emit(self.data, credential)
+
+    @pyqtSlot(bool)
+    def uncheck_checkbox(self, uncheck: bool) -> None:
+        if uncheck:
+            self.ui.checkBoxProtected.setChecked(False)
