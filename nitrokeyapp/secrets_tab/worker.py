@@ -308,6 +308,7 @@ class GenerateOtpJob(Job):
 
 class ListCredentialsJob(Job):
     credentials_listed = pyqtSignal(list)
+    uncheck_checkbox = pyqtSignal(bool)
 
     def __init__(
         self, pin_cache: PinCache, pin_ui: PinUi, data: DeviceData, pin_protected: bool
@@ -336,8 +337,7 @@ class ListCredentialsJob(Job):
     def list_protected_credentials(self, successful: bool) -> None:
         credentials = []
         if not successful:
-            # TODO: un-check PIN protection check box
-            pass
+            self.uncheck_checkbox.emit(True)
 
         with self.data.open() as device:
             secrets = SecretsApp(device)
@@ -353,6 +353,7 @@ class SecretsWorker(Worker):
     credential_added = pyqtSignal(Credential)
     credential_deleted = pyqtSignal(Credential)
     credentials_listed = pyqtSignal(list)
+    uncheck_checkbox = pyqtSignal(bool)
     device_checked = pyqtSignal(bool)
     otp_generated = pyqtSignal(OtpData)
 
@@ -392,4 +393,5 @@ class SecretsWorker(Worker):
     def refresh_credentials(self, data: DeviceData, pin_protected: bool) -> None:
         job = ListCredentialsJob(self.pin_cache, self.pin_ui, data, pin_protected)
         job.credentials_listed.connect(self.credentials_listed)
+        job.uncheck_checkbox.connect(self.uncheck_checkbox)
         self.run(job)
