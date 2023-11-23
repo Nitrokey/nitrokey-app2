@@ -48,7 +48,7 @@ check-import-sorting:
 check-style:
 	$(VENV_PYTHON) -m flake8 $(PACKAGE_NAME)/
 
-check-typing:
+check-typing: build-ui
 	$(VENV_PYTHON) -m mypy $(PACKAGE_NAME)/
 
 check: check-format check-import-sorting check-style check-typing
