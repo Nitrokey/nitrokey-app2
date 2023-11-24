@@ -1,7 +1,7 @@
 from typing import Optional
 
 from pynitrokey.nk3.admin_app import InitStatus
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QFileDialog, QWidget
 
 from nitrokeyapp.device_data import DeviceData
@@ -12,6 +12,8 @@ from nitrokeyapp.worker import Worker
 
 
 class OverviewTab(QtUtilsMixIn, QWidget):
+    busy_state_changed = pyqtSignal(bool)
+
     def __init__(self, info_box: InfoBox, parent: Optional[QWidget] = None) -> None:
         QWidget.__init__(self, parent)
         QtUtilsMixIn.__init__(self)
@@ -98,18 +100,26 @@ class OverviewTab(QtUtilsMixIn, QWidget):
 
         self.ui.pushButtonUpdate.setEnabled(enabled)
         self.ui.pushButtonUpdate.setToolTip(tooltip)
+        self.ui.more_options_btn.setEnabled(enabled)
+        self.ui.more_options_btn.setToolTip(tooltip)
 
     def update_btns_during_update(self, enabled: bool) -> None:
         tooltip = ""
         if enabled:
+            self.busy_state_changed.emit(False)
             self.ui.pushButtonUpdate.setEnabled(enabled)
             self.ui.pushButtonUpdate.setToolTip(tooltip)
+            self.ui.more_options_btn.setEnabled(enabled)
+            self.ui.more_options_btn.setToolTip(tooltip)
             self.ui.update_with_file_btn.setEnabled(enabled)
             self.ui.update_with_file_btn.setToolTip(tooltip)
         else:
             tooltip = "Update is already running. Please wait."
+            self.busy_state_changed.emit(True)
             self.ui.pushButtonUpdate.setEnabled(enabled)
             self.ui.pushButtonUpdate.setToolTip(tooltip)
+            self.ui.more_options_btn.setEnabled(enabled)
+            self.ui.more_options_btn.setToolTip(tooltip)
             self.ui.update_with_file_btn.setEnabled(enabled)
             self.ui.update_with_file_btn.setToolTip(tooltip)
 
