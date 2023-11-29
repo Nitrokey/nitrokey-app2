@@ -1,27 +1,34 @@
-name: Continuous delivery - Pypi
+name: Continuous delivery - PyPI
 
 on:
   release:
     types: [released]
 
-env:
-  FLIT_ROOT_INSTALL: 1
-
 jobs:
   version-check:
     name: Check versioning
     runs-on: ubuntu-latest
+    container: python:3.9-slim
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+      - name: Install required packages
+        run: |
+          apt update
+          apt install -y python3-poetry
+      - name: Create virtual envrionment
+        run: make init
       - name: Check version tag format
+        shell: bash
         run: |
-          TAG_VERSION="${{ github.event.release.tag_name }}"
-          if [[ $TAG_VERSION =~ ^v[0-9]+.[0-9]+.[0-9]+$ ]]; then exit 0; else exit 1; fi
+          VERSION_TAG="${{ github.event.release.tag_name }}"
+          if [[ $VERSION_TAG =~ ^v[0-9]+.[0-9]+.[0-9]+$ ]]; then exit 0; else exit 1; fi
       - name: Check if version tag and package version are equal
+        shell: bash
         run: |
-          TAG_VERSION="${{ github.event.release.tag_name }}"
-          if [ ${TAG_VERSION:1} == $(cat nitrokeyapp/VERSION) ]; then exit 0; else exit 1; fi
+          VERSION_TAG="${{ github.event.release.tag_name }}"
+          PACKAGE_VERSION="v"$($(poetry env info --path)/bin/python -c "from nitrokeyapp import __version__; print(__version__)")
+          if [ $VERSION_TAG == $PACKAGE_VERSION ]; then exit 0; else exit 1; fi
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -33,17 +40,11 @@ jobs:
       - name: Install required packages
         run: |
           apt update
-          apt install -y binutils gcc libglib2.0-0 libpcsclite-dev libusb-1.0-0 make swig
+          apt install -y binutils gcc libglib2.0-dev libpcsclite-dev libusb-1.0-0 make python3-poetry swig
       - name: Create virtual environment
-        run: |
-          python -m venv venv
-          . venv/bin/activate
-          pip install flit
-          flit install --symlink
+        run: make init
       - name: Build
-        run: |
-          . venv/bin/activate
-          make build
+        run: make build
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -54,26 +55,21 @@ jobs:
     runs-on: ubuntu-latest
     container: python:3.9-slim
     needs: build
+    env:
+      POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
       - name: Download artifact
         uses: actions/download-artifact@v3
         with:
           name: nitrokeyapp-pypi
-      - name: Checkout repository
-        uses: actions/checkout@v3
+          path: dist
       - name: Install required packages
         run: |
           apt update
-          apt install -y binutils gcc libpcsclite-dev libusb-1.0-0 make swig
-      - name: Create virtual environment
-        run: |
-          python -m venv venv
-          . venv/bin/activate
-          pip install flit
-          flit install --symlink
-      - name: Prepare pypi configuration file
-        run: sed -e "s|\${passw}|${{ secrets.PYPI_TOKEN }}|" ci-scripts/pypi/.pypirc_template > ~/.pypirc
+          apt install -y python3-poetry
+      - name: Configure PyPI repository
+        run: poetry config repositories.pypi https://pypi.org/legacy/
       - name: Publish release
-        run: |
-          . venv/bin/activate
-          flit --repository pypi publish
+        run: poetry publish -r pypi
