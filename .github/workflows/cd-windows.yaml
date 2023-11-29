@@ -4,9 +4,6 @@ on:
   release:
     types: [prereleased, released]
 
-env:
-  FLIT_ROOT_INSTALL: 1
-
 jobs:
   version-check:
     name: Check versioning
@@ -14,15 +11,20 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+      - name: Install required packages
+        run: choco install poetry --source python
+      - name: Create virtual envrionment
+        run: make init
       - name: Check version tag format
         run: |
           $VERSION_TAG="${{ github.event.release.tag_name }}"
           if ($VERSION_TAG -match "^v[0-9]+.[0-9]+.[0-9]+$") {exit 0} else {exit 1}
       - name: Check if version tag and package version are equal
         run: |
+          Invoke-Expression "$(poetry env info --path)\Scripts\Activate.ps1"
           $VERSION_TAG="${{ github.event.release.tag_name }}"
-          $VERSION_FILE=Get-Content .\nitrokeyapp\VERSION
-          if ($VERSION_TAG.Substring(1) -eq $VERSION_FILE) {exit 0} else {exit 1}
+          $VERSION_PACKAGE=python -c "from nitrokeyapp import __version__; print(__version__)"
+          if ($VERSION_TAG.Substring(1) -eq $VERSION_PACKAGE) {exit 0} else {exit 1}
   build-onedir:
     name: Build onedir
     runs-on: windows-latest
@@ -30,23 +32,20 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+      - name: Install required packages
+        run: choco install poetry --source python
       - name: Create virtual environment
-        run: |
-          python -m venv venv
-          .\venv\Scripts\Activate.ps1
-          .\venv\Scripts\pip install pip
-          .\venv\Scripts\pip install flit
-          .\venv\Scripts\flit install --symlink
+        run: poetry install
       - name: Create Windows version info file
         run: |
-          .\venv\Scripts\Activate.ps1
+          Invoke-Expression "$(poetry env info --path)\Scripts\Activate.ps1"
           create-version-file `
             --outfile .\ci-scripts\windows\pyinstaller\file_version_info.txt `
-            --version "$(Get-Content .\nitrokeyapp\VERSION)" `
+            --version "$(python -c 'from nitrokeyapp import __version__; print(__version__)')" `
             .\ci-scripts\windows\pyinstaller\file_version_info_metadata.yaml
       - name: Build onedir
         run: |
-          .\venv\Scripts\Activate.ps1
+          Invoke-Expression "$(poetry env info --path)\Scripts\Activate.ps1"
           make build-ui
           pyinstaller ci-scripts/windows/pyinstaller/nitrokey-app-onedir.spec
       - name: Upload artifacts
@@ -61,23 +60,20 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+      - name: Install required packages
+        run: choco install poetry --source python
       - name: Create virtual environment
-        run: |
-          python -m venv venv
-          .\venv\Scripts\Activate.ps1
-          .\venv\Scripts\pip install pip
-          .\venv\Scripts\pip install flit
-          .\venv\Scripts\flit install --symlink
+        run: poetry install
       - name: Create Windows version info file
         run: |
-          .\venv\Scripts\Activate.ps1
+          Invoke-Expression "$(poetry env info --path)\Scripts\Activate.ps1"
           create-version-file `
             --outfile .\ci-scripts\windows\pyinstaller\file_version_info.txt `
-            --version "$(Get-Content .\nitrokeyapp\VERSION)" `
+            --version "$(python -c 'from nitrokeyapp import __version__; print(__version__)')" `
             .\ci-scripts\windows\pyinstaller\file_version_info_metadata.yaml
       - name: Build onefile
         run: |
-          .\venv\Scripts\Activate.ps1
+          Invoke-Expression "$(poetry env info --path)\Scripts\Activate.ps1"
           make build-ui
           pyinstaller ci-scripts/windows/pyinstaller/nitrokey-app-onefile.spec
       - name: Upload artifacts
