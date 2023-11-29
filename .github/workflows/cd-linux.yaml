@@ -4,24 +4,31 @@ on:
   release:
     types: [prereleased, released]
 
-env:
-  FLIT_ROOT_INSTALL: 1
-
 jobs:
   version-check:
     name: Check versioning
     runs-on: ubuntu-latest
+    container: python:3.9-slim
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+      - name: Install required packages
+        run: |
+          apt update
+          apt install -y python3-poetry
+      - name: Create virtual environment
+        run: make init
       - name: Check version tag format
+        shell: bash
         run: |
-          TAG_VERSION="${{ github.event.release.tag_name }}"
-          if [[ $TAG_VERSION =~ ^v[0-9]+.[0-9]+.[0-9]+$ ]]; then exit 0; else exit 1; fi
+          VERSION_TAG="${{ github.event.release.tag_name }}"
+          if [[ $VERSION_TAG =~ ^v[0-9]+.[0-9]+.[0-9]+$ ]]; then exit 0; else exit 1; fi
       - name: Check if version tag and package version are equal
+        shell: bash
         run: |
-          TAG_VERSION="${{ github.event.release.tag_name }}"
-          if [ ${TAG_VERSION:1} == $(cat nitrokeyapp/VERSION) ]; then exit 0; else exit 1; fi
+          VERSION_TAG="${{ github.event.release.tag_name }}"
+          PACKAGE_VERSION="v"$($(poetry env info --path)/bin/python -c "from nitrokeyapp import __version__; print(__version__)")
+          if [ $VERSION_TAG == $PACKAGE_VERSION ]; then exit 0; else exit 1; fi
   build-onefile:
     name: Build onefile
     runs-on: ubuntu-latest
@@ -33,19 +40,11 @@ jobs:
       - name: Install required packages
         run: |
           apt update
-          apt install -y binutils gcc libglib2.0-dev libpcsclite-dev libusb-1.0-0 make swig
+          apt install -y binutils gcc libglib2.0-dev libpcsclite-dev libusb-1.0-0 make python3-poetry swig
       - name: Create virtual environment
-        run: |
-          python -m venv venv
-          . venv/bin/activate
-          pip install flit
-          flit install --symlink
+        run: poetry install
       - name: Build
-        run: |
-          . venv/bin/activate
-          make build-ui
-          pyinstaller \
-            ci-scripts/linux/pyinstaller/nitrokey-app-onefile.spec
+        run: make build-pyinstaller-onefile
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:

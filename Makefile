@@ -38,6 +38,9 @@ build-ui: $(UI_FILES)
 build: build-ui
 	poetry build
 
+build-pyinstaller-onefile: build-ui
+	$(VENV_BIN)/pyinstaller ci-scripts/linux/pyinstaller/nitrokey-app-onefile.spec
+
 # code checks
 check-format:
 	$(VENV_PYTHON) -m black --check $(PACKAGE_NAME)/
