@@ -5,9 +5,6 @@ on:
       - "main"
   pull_request:
 
-env:
-  FLIT_ROOT_INSTALL: 1
-
 jobs:
   format-code:
     name: Check code format
@@ -19,13 +16,11 @@ jobs:
       - name: Install required packages
         run: |
           apt update
-          apt install make
+          apt install -y python3-poetry make
       - name: Create virtual environment
         run: make init
       - name: Check code format
-        run: |
-          . venv/bin/activate
-          make check-format
+        run: make check-format
   format-import:
     name: Check imports format
     runs-on: ubuntu-latest
@@ -36,13 +31,11 @@ jobs:
       - name: Install required packages
         run: |
           apt update
-          apt install make
+          apt install -y python3-poetry make
       - name: Create virtual environment
         run: make init
       - name: Check code import format
-        run: |
-          . venv/bin/activate
-          make check-import-sorting
+        run: make check-import-sorting
   lint-style:
     name: Check code style
     runs-on: ubuntu-latest
@@ -53,13 +46,11 @@ jobs:
       - name: Install required packages
         run: |
           apt update
-          apt install make
+          apt install -y python3-poetry make
       - name: Create virtual environment
         run: make init
       - name: Check code style
-        run: |
-          . venv/bin/activate
-          make check-style
+        run: make check-style
   lint-typing:
     name: Check static typing
     runs-on: ubuntu-latest
@@ -70,11 +61,8 @@ jobs:
       - name: Install required packages
         run: |
           apt update
-          apt install -y make libglib2.0-dev
+          apt install -y python3-poetry make libglib2.0-dev
       - name: Create virtual environment
         run: make init
       - name: Check code static typing
-        run: |
-          . venv/bin/activate
-          make build
-          make check-typing
+        run: make check-typing
