@@ -21,6 +21,7 @@ classifiers=[
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
 ]
 packages = [
   {include = "nitrokeyapp"}
@@ -30,7 +31,7 @@ packages = [
 nitrokeyapp = "nitrokeyapp.__main__:main"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.12"
+python = ">=3.9,<3.13"
 pySide6 = ">=6.6.0"
 pyudev = "^0.24.1"
 pynitrokey = "0.4.43"
