@@ -60,6 +60,7 @@ exe = EXE(
     icon=['nitrokey-app.ico'],
     version='file_version_info.txt',
     uac_admin=True,
+    contents_directory='.',
 )
 coll = COLLECT(
     exe,
