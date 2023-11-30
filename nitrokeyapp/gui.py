@@ -4,8 +4,8 @@
 import functools
 import logging
 import platform
-import webbrowser
 import time
+import webbrowser
 from types import TracebackType
 from typing import Optional, Type
 

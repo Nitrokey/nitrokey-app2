@@ -21,7 +21,6 @@ class SetPinDialog(QtUtilsMixIn, QtWidgets.QDialog):
         self.btn_ok.setEnabled(False)
 
     def same_pin(self):
-
         if (
             self.new_pin.text() != self.confirm_new_pin.text()
             or self.new_pin.text() == ""

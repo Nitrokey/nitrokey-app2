@@ -13,7 +13,6 @@ class WindowsUSBNotifi:
     def __init__(
         self, detect_nk3: Callable[[], None], remove_nk3: Callable[[], None]
     ) -> None:
-
         import win32api
         import win32con
         import win32gui
@@ -44,7 +43,6 @@ class WindowsUSBNotifi:
         win32gui.UpdateWindow(self.hwnd)
 
     def onDeviceChange(self, hwnd: Any, msg: Any, wparam: int, lparam: Any) -> int:
-
         import win32con
 
         if wparam == win32con.DBT_DEVICEARRIVAL:
