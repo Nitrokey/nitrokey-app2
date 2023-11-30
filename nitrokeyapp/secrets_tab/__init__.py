@@ -1,9 +1,9 @@
 from datetime import datetime
 from typing import Optional
 
-from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QGuiApplication, QIcon
-from PyQt5.QtWidgets import QDialog, QListWidgetItem, QWidget
+from PySide6.QtCore import Qt, QThread, QTimer, pyqtSignal, pyqtSlot
+from PySide6.QtGui import QGuiApplication, QIcon
+from PySide6.QtWidgets import QDialog, QListWidgetItem, QWidget
 
 from nitrokeyapp.add_secret_dialog import AddSecretDialog
 from nitrokeyapp.device_data import DeviceData

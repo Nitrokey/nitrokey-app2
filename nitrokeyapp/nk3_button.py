@@ -1,4 +1,4 @@
-from PyQt5 import QtGui, QtWidgets
+from PySide6 import QtGui, QtWidgets
 from qt_material import apply_stylesheet
 
 from nitrokeyapp import get_theme_path

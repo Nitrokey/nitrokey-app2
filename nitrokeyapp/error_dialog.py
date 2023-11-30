@@ -2,8 +2,8 @@ from traceback import format_exception
 from types import TracebackType
 from typing import Optional, Type
 
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QPushButton, QWidget
+from PySide6.QtCore import pyqtSlot
+from PySide6.QtWidgets import QDialog, QDialogButtonBox, QPushButton, QWidget
 
 from nitrokeyapp.logger import save_log
 from nitrokeyapp.ui.error_dialog import Ui_ErrorDialog

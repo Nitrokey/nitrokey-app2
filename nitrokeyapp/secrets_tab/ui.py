@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-from PyQt5.QtCore import QMetaObject, QObject, pyqtSignal, pyqtSlot
-from PyQt5.QtWidgets import QInputDialog, QLineEdit, QWidget
+from PySide6.QtCore import QMetaObject, QObject, pyqtSignal, pyqtSlot
+from PySide6.QtWidgets import QInputDialog, QLineEdit, QWidget
 
 
 class PinUi(QObject):

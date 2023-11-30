@@ -4,8 +4,8 @@ from typing import Optional
 
 from pynitrokey.nk3.secrets_app import SecretsApp, SecretsAppException
 from pynitrokey.nk3.utils import Uuid
-from PyQt5.QtCore import pyqtSignal, pyqtSlot
-from PyQt5.QtWidgets import QWidget
+from PySide6.QtCore import pyqtSignal, pyqtSlot
+from PySide6.QtWidgets import QWidget
 
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.worker import Job, Worker

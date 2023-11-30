@@ -13,9 +13,9 @@ from typing import Optional, Type
 from pynitrokey.nk3 import Nitrokey3Device
 
 # pyqt5
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QCursor
+from PySide6 import QtWidgets
+from PySide6.QtCore import Qt, pyqtSignal, pyqtSlot
+from PySide6.QtGui import QCursor
 
 # from nitrokeyapp.about_dialog import AboutDialog
 from nitrokeyapp.device_data import DeviceData

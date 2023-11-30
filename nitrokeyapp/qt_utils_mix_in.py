@@ -1,7 +1,7 @@
 from typing import Optional, Type, TypeVar
 
-from PyQt5 import QtGui, QtWidgets, uic
-from PyQt5.QtCore import QObject, QSize
+from PySide6 import QtGui, QtWidgets, uic
+from PySide6.QtCore import QObject, QSize
 
 Q = TypeVar("Q", bound=QObject)
 

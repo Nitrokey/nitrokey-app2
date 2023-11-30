@@ -3,7 +3,7 @@ from contextlib import contextmanager
 from types import TracebackType
 from typing import Any, Callable, Generator, Optional, Type
 
-from PyQt5 import QtWidgets
+from PySide6 import QtWidgets
 from qt_material import apply_stylesheet
 
 from nitrokeyapp import get_theme_path

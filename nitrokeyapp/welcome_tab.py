@@ -3,8 +3,8 @@ from typing import Optional
 from urllib.request import urlopen
 
 from pynitrokey.nk3.utils import Version
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QWidget
+from PySide6.QtCore import pyqtSlot
+from PySide6.QtWidgets import QWidget
 
 from nitrokeyapp import __version__
 from nitrokeyapp.logger import save_log

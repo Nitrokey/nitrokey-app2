@@ -21,8 +21,8 @@ from pynitrokey.nk3.bootloader import Nitrokey3Bootloader, Variant
 from pynitrokey.nk3.device import Nitrokey3Device
 from pynitrokey.nk3.updates import Updater, UpdateUi
 from pynitrokey.nk3.utils import Version
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import QCoreApplication
+from PySide6 import QtWidgets
+from PySide6.QtCore import QCoreApplication
 
 from nitrokeyapp.information_box import InfoBox
 

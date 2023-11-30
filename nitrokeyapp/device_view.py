@@ -1,6 +1,6 @@
 from typing import Optional, Protocol
 
-from PyQt5.QtWidgets import QWidget
+from PySide6.QtWidgets import QWidget
 
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.worker import Worker

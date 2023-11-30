@@ -1,8 +1,8 @@
 from typing import Optional
 
 from pynitrokey.nk3.admin_app import InitStatus
-from PyQt5.QtCore import pyqtSignal, pyqtSlot
-from PyQt5.QtWidgets import QFileDialog, QWidget
+from PySide6.QtCore import pyqtSignal, pyqtSlot
+from PySide6.QtWidgets import QFileDialog, QWidget
 
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.information_box import InfoBox

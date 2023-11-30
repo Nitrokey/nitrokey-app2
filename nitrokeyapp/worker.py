@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from typing import Generator
 
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
+from PySide6.QtCore import QObject, pyqtSignal, pyqtSlot
 
 # TODO: DeviceJob
 # - connection management
