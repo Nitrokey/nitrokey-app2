@@ -13,9 +13,9 @@ from typing import Optional, Type
 from pynitrokey.nk3 import Nitrokey3Device
 
 # pyqt5
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QCursor
+from PySide6 import QtWidgets
+from PySide6.QtCore import Qt, Signal, Slot
+from PySide6.QtGui import QCursor
 
 # from nitrokeyapp.about_dialog import AboutDialog
 from nitrokeyapp.device_data import DeviceData
@@ -45,17 +45,17 @@ class TouchDialog(QtWidgets.QMessageBox):
         self.setWindowTitle("Touch Confirmation")
         self.setText("Press the button on the Nitrokey 3 if the LED blinks.")
 
-    @pyqtSlot()
+    @Slot()
     def start(self) -> None:
         self.show()
 
-    @pyqtSlot()
+    @Slot()
     def stop(self) -> None:
         self.close()
 
 
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
-    trigger_handle_exception = pyqtSignal(object, BaseException, object)
+    trigger_handle_exception = Signal(object, BaseException, object)
 
     def __init__(self, qt_app: QtWidgets.QApplication, log_file: str):
         QtWidgets.QMainWindow.__init__(self)
@@ -119,7 +119,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.lock_btn = self.ui.btn_dial_lock
         self.l_insert_nitrokey = self.ui.label_insert_Nitrokey
         # set some props, initial enabled/visible, finally show()
-        self.setAttribute(Qt.WA_DeleteOnClose)
+        self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
 
         for view in self.views:
             self.tabs.addTab(view.widget, view.title)
@@ -155,7 +155,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 logger.info("BIND")
                 self.detect_added_devices()
 
-    @pyqtSlot(object, BaseException, object)
+    @Slot(object, BaseException, object)
     def handle_exception(
         self,
         ty: Type[BaseException],
@@ -285,27 +285,27 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.tabs.hide()
             self.widgetTab.show()
 
-    @pyqtSlot(int)
+    @Slot(int)
     def slot_tab_changed(self, idx: int) -> None:
         self.refresh()
 
     # main-window callbacks
-    @pyqtSlot()
+    @Slot()
     def home_button_pressed(self) -> None:
         self.widgetTab.show()
         self.tabs.hide()
 
-    @pyqtSlot()
+    @Slot()
     def slot_lock_button_pressed(self) -> None:
         # removes side buttos for nk3 (for now)
         logger.info("nk3 instance removed (lock button)")
         for data in self.devices:
             self.remove_device(data)
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def set_busy(self, busy: bool) -> None:
         if busy:
-            self.setCursor(QCursor(Qt.WaitCursor))
+            self.setCursor(QCursor(Qt.CursorShape.WaitCursor))
             self.home_button.setEnabled(False)
             self.tabs.setEnabled(False)
         else:
@@ -316,7 +316,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # TODO: setEnabled?
         # self.setEnabled(not busy)
 
-    @pyqtSlot(str)
+    @Slot(str)
     def error(self, error: str) -> None:
         # TODO: improve
         self.user_err(error, "Error")

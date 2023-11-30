@@ -2,8 +2,8 @@ from traceback import format_exception
 from types import TracebackType
 from typing import Optional, Type
 
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QPushButton, QWidget
+from PySide6.QtCore import Slot
+from PySide6.QtWidgets import QDialog, QDialogButtonBox, QPushButton, QWidget
 
 from nitrokeyapp.logger import save_log
 from nitrokeyapp.ui.error_dialog import Ui_ErrorDialog
@@ -34,6 +34,6 @@ class ErrorDialog(QDialog):
         lines = format_exception(ty, e, tb)
         self.ui.textEditDetails.setPlainText("".join(lines))
 
-    @pyqtSlot()
+    @Slot()
     def save_log(self) -> None:
         save_log(self.log_file, self)

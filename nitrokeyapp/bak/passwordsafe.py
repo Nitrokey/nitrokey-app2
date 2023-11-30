@@ -29,7 +29,7 @@ def table_pws_function(self):
     self.qr_code.hide()
     self.random_otp.hide()
     self.copy_otp.hide()
-    self.pws_editOTP.setEchoMode(QtWidgets.QLineEdit.Password)
+    self.pws_editOTP.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
     self.show_hide_btn_2.hide()
 
 
@@ -151,7 +151,7 @@ def add_pws(self):
     self.qr_code.show()
     self.random_otp.show()
     self.copy_otp.show()
-    self.pws_editOTP.setEchoMode(QtWidgets.QLineEdit.Normal)
+    self.pws_editOTP.setEchoMode(QtWidgets.QLineEdit.EchoMode.Normal)
     self.show_hide_btn_2.show()
 
 

@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 from typing import Generator
 
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
+from PySide6.QtCore import QObject, Signal, Slot
 
 # TODO: DeviceJob
 # - connection management
@@ -9,12 +9,12 @@ from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 
 
 class Job(QObject):
-    finished = pyqtSignal()
+    finished = Signal()
 
     # standard UI
-    error = pyqtSignal(str)
-    start_touch = pyqtSignal()
-    stop_touch = pyqtSignal()
+    error = Signal(str)
+    start_touch = Signal()
+    stop_touch = Signal()
 
     def __init__(self) -> None:
         super().__init__()
@@ -24,11 +24,11 @@ class Job(QObject):
     def run(self) -> None:
         pass
 
-    @pyqtSlot()
+    @Slot()
     def cleanup(self) -> None:
         pass
 
-    @pyqtSlot(str)
+    @Slot(str)
     def trigger_error(self, msg: str) -> None:
         self.error.emit(msg)
         self.finished.emit()
@@ -50,10 +50,10 @@ class Job(QObject):
 
 class Worker(QObject):
     # standard UI
-    busy_state_changed = pyqtSignal(bool)
-    error = pyqtSignal(str)
-    start_touch = pyqtSignal()
-    stop_touch = pyqtSignal()
+    busy_state_changed = Signal(bool)
+    error = Signal(str)
+    start_touch = Signal()
+    stop_touch = Signal()
 
     def run(self, job: Job) -> None:
         self.busy_state_changed.emit(True)

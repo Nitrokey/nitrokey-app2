@@ -25,7 +25,7 @@ class ClockProgressBar(QWidget):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         size = min(self.width(), self.height())
         progress_radius = size / 4 - 2 - 10
@@ -35,14 +35,14 @@ class ClockProgressBar(QWidget):
             progress_x, progress_y, 2 * progress_radius, 2 * progress_radius
         )
         progress_angle = self._value / self._max * 360
-        painter.setPen(QPen(Qt.blue, 6, Qt.SolidLine))
+        painter.setPen(QPen(Qt.GlobalColor.blue, 6, Qt.PenStyle.SolidLine))
 
         path = QPainterPath()
         path.arcMoveTo(progress_rect, -90)
         path.arcTo(progress_rect, -90, -progress_angle)
         painter.drawPath(path)
 
-        painter.setPen(Qt.black)
+        painter.setPen(Qt.GlobalColor.black)
         painter.setFont(self.font())
 
         text = str(self._value)

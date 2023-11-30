@@ -9,7 +9,7 @@ from importlib.metadata import version as package_version
 from tempfile import NamedTemporaryFile
 from typing import Generator
 
-from PyQt5.QtWidgets import QFileDialog, QWidget
+from PySide6.QtWidgets import QFileDialog, QWidget
 
 logger = logging.getLogger(__name__)
 

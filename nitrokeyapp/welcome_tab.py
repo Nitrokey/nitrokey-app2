@@ -3,8 +3,8 @@ from typing import Optional
 from urllib.request import urlopen
 
 from pynitrokey.nk3.utils import Version
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QWidget
+from PySide6.QtCore import Slot
+from PySide6.QtWidgets import QWidget
 
 from nitrokeyapp import __version__
 from nitrokeyapp.logger import save_log
@@ -46,6 +46,6 @@ class WelcomeTab(QtUtilsMixIn, QWidget):
         else:
             self.ui.CheckUpdate.setText("App is up to date")
 
-    @pyqtSlot()
+    @Slot()
     def save_log(self) -> None:
         save_log(self.log_file, self)

@@ -63,9 +63,9 @@ class PINDialog(QtUtilsMixIn, QtWidgets.QDialog):
     @pyqtSlot(int)
     def checkbox_toggled(self, state: int) -> None:
         if state == 0:
-            self.line_edit.setEchoMode(QtWidgets.QLineEdit.Password)
+            self.line_edit.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
         elif state == 2:
-            self.line_edit.setEchoMode(QtWidgets.QLineEdit.Normal)
+            self.line_edit.setEchoMode(QtWidgets.QLineEdit.EchoMode.Normal)
 
     @pyqtSlot()
     def ok_clicked(self) -> None:

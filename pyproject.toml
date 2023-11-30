@@ -32,8 +32,7 @@ nitrokeyapp = "nitrokeyapp.__main__:main"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"
-pyqt5 = "^5.15.10"
-pyqt5-qt5 = "<=5.15.2"
+pySide6 = ">=6"
 pyudev = "^0.24.1"
 pynitrokey = "0.4.40"
 pywin32 = { version = "305", markers = "sys_platform =='win32'" }

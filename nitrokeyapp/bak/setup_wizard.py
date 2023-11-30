@@ -29,26 +29,26 @@ class SetupWizard(QtUtilsMixIn, QtWidgets.QWizard):
 
     def same_setup_wizard(self):
         if self.userpin_1.text() != self.userpin_2.text():
-            self.button(QtWidgets.QWizard.NextButton).setEnabled(False)
+            self.button(QtWidgets.QWizard.WizardButton.NextButton).setEnabled(False)
         else:
-            self.button(QtWidgets.QWizard.NextButton).setEnabled(True)
+            self.button(QtWidgets.QWizard.WizardButton.NextButton).setEnabled(True)
 
     def same_setup_wizard_2(self):
         if self.adminpin_1.text() != self.adminpin_2.text():
-            self.button(QtWidgets.QWizard.FinishButton).setEnabled(False)
+            self.button(QtWidgets.QWizard.WizardButton.FinishButton).setEnabled(False)
         else:
-            self.button(QtWidgets.QWizard.FinishButton).setEnabled(True)
+            self.button(QtWidgets.QWizard.WizardButton.FinishButton).setEnabled(True)
 
     def closeEvent(self, event):
         reply = QtWidgets.QMessageBox.question(
             self,
             "Message",
             "Are you sure to exit?",
-            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-            QtWidgets.QMessageBox.No,
+            QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No,
+            QtWidgets.QMessageBox.StandardButton.No,
         )
 
-        if reply == QtWidgets.QMessageBox.Yes:
+        if reply == QtWidgets.QMessageBox.StandardButton.Yes:
             event.accept()
 
         else:
