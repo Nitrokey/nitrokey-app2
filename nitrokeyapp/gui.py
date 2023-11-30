@@ -5,6 +5,7 @@ import functools
 import logging
 import platform
 import webbrowser
+import time
 from types import TracebackType
 from typing import Optional, Type
 
@@ -204,7 +205,13 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.tabs.setCurrentIndex(0)
         list_of_removed: list[DeviceData] = []
         if self.devices:
-            nk3_list = [str(device.uuid())[:-4] for device in Nitrokey3Device.list()]
+            try:
+                raw_list = Nitrokey3Device.list()
+            except:
+                time.sleep(0.5)
+                raw_list = Nitrokey3Device.list()
+
+            nk3_list = [str(device.uuid())[:-4] for device in raw_list]
             logger.info(f"list nk3: {nk3_list}")
             list_of_removed = [
                 data
