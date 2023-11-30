@@ -119,7 +119,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.lock_btn = self.ui.btn_dial_lock
         self.l_insert_nitrokey = self.ui.label_insert_Nitrokey
         # set some props, initial enabled/visible, finally show()
-        self.setAttribute(Qt.WA_DeleteOnClose)
+        self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
 
         for view in self.views:
             self.tabs.addTab(view.widget, view.title)
@@ -305,7 +305,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     @pyqtSlot(bool)
     def set_busy(self, busy: bool) -> None:
         if busy:
-            self.setCursor(QCursor(Qt.WaitCursor))
+            self.setCursor(QCursor(Qt.CursorShape.WaitCursor))
             self.home_button.setEnabled(False)
             self.tabs.setEnabled(False)
         else:

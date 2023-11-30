@@ -49,9 +49,9 @@ class Storage(QtUtilsMixIn, QtWidgets.QWizard):
 
     def same_storage(self):
         if self.hidden_pw_2.text() != self.hidden_pw_1.text():
-            self.button(QtWidgets.QWizard.NextButton).setEnabled(False)
+            self.button(QtWidgets.QWizard.WizardButton.NextButton).setEnabled(False)
         else:
-            self.button(QtWidgets.QWizard.NextButton).setEnabled(True)
+            self.button(QtWidgets.QWizard.WizardButton.NextButton).setEnabled(True)
 
     @pyqtSlot(int)
     # storage wizard

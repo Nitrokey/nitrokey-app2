@@ -94,16 +94,16 @@ class UpdateGUI(UpdateUi):
 
     def confirm_download(self, current: Optional[Version], new: Version) -> None:
         confirm_download_msgBox = QtWidgets.QMessageBox(self.overview_tab)
-        confirm_download_msgBox.setIcon(QtWidgets.QMessageBox.Information)
+        confirm_download_msgBox.setIcon(QtWidgets.QMessageBox.Icon.Information)
         confirm_download_msgBox.setText(
             f"Do you want to download the firmware version {new}?"
         )
         confirm_download_msgBox.setWindowTitle("Nitrokey 3 Firmware Update")
         confirm_download_msgBox.setStandardButtons(
-            QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel
+            QtWidgets.QMessageBox.StandardButton.Ok | QtWidgets.QMessageBox.StandardButton.Cancel
         )
         returnValue = confirm_download_msgBox.exec()
-        if returnValue == QtWidgets.QMessageBox.Cancel:
+        if returnValue == QtWidgets.QMessageBox.StandardButton.Cancel:
             logger.info("Cancel clicked (confirm download)")
             logger.info(
                 "Firmware Download cancelled by user in the (confirm download) dialog"
@@ -111,25 +111,25 @@ class UpdateGUI(UpdateUi):
             raise self.abort(
                 "Update cancelled by user in the (confirm download) dialog"
             )
-        elif returnValue == QtWidgets.QMessageBox.Ok:
+        elif returnValue == QtWidgets.QMessageBox.StandardButton.Ok:
             logger.info("OK clicked (confirm download)")
 
     def confirm_update(self, current: Optional[Version], new: Version) -> None:
         confirm_update_msgBox = QtWidgets.QMessageBox(self.overview_tab)
-        confirm_update_msgBox.setIcon(QtWidgets.QMessageBox.Information)
+        confirm_update_msgBox.setIcon(QtWidgets.QMessageBox.Icon.Information)
         confirm_update_msgBox.setText(
             "Please do not remove the Nitrokey 3 or insert any other Nitrokey 3 devices during the update. Doing so may damage the Nitrokey 3. Do you want to perform the firmware update now?"
         )
         confirm_update_msgBox.setWindowTitle("Nitrokey 3 Firmware Update")
         confirm_update_msgBox.setStandardButtons(
-            QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel
+            QtWidgets.QMessageBox.StandardButton.Ok | QtWidgets.QMessageBox.StandardButton.Cancel
         )
         returnValue = confirm_update_msgBox.exec()
-        if returnValue == QtWidgets.QMessageBox.Cancel:
+        if returnValue == QtWidgets.QMessageBox.StandardButton.Cancel:
             logger.info("Cancel clicked (confirm update)")
             logger.info("Update cancelled by user in the (confirm update) dialog")
             raise self.abort("Update cancelled by user in the (confirm update) dialog")
-        elif returnValue == QtWidgets.QMessageBox.Ok:
+        elif returnValue == QtWidgets.QMessageBox.StandardButton.Ok:
             logger.info("OK clicked (confirm update)")
             self.info_frame.set_text(
                 "Please touch the Nitrokey 3 until it stops flashing/glowing and then wait a few seconds.."
@@ -138,44 +138,44 @@ class UpdateGUI(UpdateUi):
 
     def confirm_update_same_version(self, version: Version) -> None:
         confirm_update_same_version_msgBox = QtWidgets.QMessageBox(self.overview_tab)
-        confirm_update_same_version_msgBox.setIcon(QtWidgets.QMessageBox.Information)
+        confirm_update_same_version_msgBox.setIcon(QtWidgets.QMessageBox.Icon.Information)
         confirm_update_same_version_msgBox.setText(
             "The version of the firmware image is the same as on the device. Do you want to continue anyway?"
         )
         confirm_update_same_version_msgBox.setWindowTitle("Nitrokey 3 Firmware Update")
         confirm_update_same_version_msgBox.setStandardButtons(
-            QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel
+            QtWidgets.QMessageBox.StandardButton.Ok | QtWidgets.QMessageBox.StandardButton.Cancel
         )
         returnValue = confirm_update_same_version_msgBox.exec()
-        if returnValue == QtWidgets.QMessageBox.Cancel:
+        if returnValue == QtWidgets.QMessageBox.StandardButton.Cancel:
             logger.info("Cancel clicked (confirm same version)")
             logger.info("Update cancelled by user in the (confirm same version) dialog")
             # raise Abort()
             raise self.abort(
                 "Update cancelled by user in the (confirm same version) dialog"
             )
-        elif returnValue == QtWidgets.QMessageBox.Ok:
+        elif returnValue == QtWidgets.QMessageBox.StandardButton.Ok:
             logger.info("OK clicked (confirm same version)")
 
     def confirm_extra_information(self, txt: List[str]) -> None:
         # if txt:
         # logger.info("\n".join(txt))
         # confirm_extra_information_msgBox QMessageBox(= QtWidgets.QMessageBox()
-        # confirm_extra_information_msgBox.setIcon(QtWidgets.QMessageBox.Information)
+        # confirm_extra_information_msgBox.setIcon(QtWidgets.QMessageBox.Icon.Information)
         # confirm_extra_information_msgBox.setText(
         #     "Have you read these information? Do you want to continue?"
         # )
         # confirm_extra_information_msgBox.setWindowTitle("Nitrokey 3 Firmware Update")
         # confirm_extra_information_msgBox.setStandardButtons(
-        #     QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel
+        #     QtWidgets.QMessageBox.StandardButton.Ok | QtWidgets.QMessageBox.StandardButton.Cancel
         # )
         # returnValue = confirm_extra_information_msgBox.exec()
-        # if returnValue == QtWidgets.QMessageBox.Cancel:
+        # if returnValue == QtWidgets.QMessageBox.StandardButton.Cancel:
         #     logger.info("Cancel clicked (confirm extra information)")
         #     logger.info("Update cancelled by user in the (confirm extra information) dialog")
         #     # raise Abort()
         #     raise self.abort("Update cancelled by user in the (confirm extra information) dialog")
-        # elif returnValue == QtWidgets.QMessageBox.Ok:
+        # elif returnValue == QtWidgets.QMessageBox.StandardButton.Ok:
         #     logger.info("OK clicked (confirm extra information)")
         # TODO: implement
         pass

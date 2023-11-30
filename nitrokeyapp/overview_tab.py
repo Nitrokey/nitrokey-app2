@@ -135,7 +135,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
     def update_with_file(self) -> None:
         assert self.data
         fdialog = QFileDialog()
-        fdialog.setFileMode(QFileDialog.AnyFile)
+        fdialog.setFileMode(QFileDialog.FileMode.AnyFile)
 
         if fdialog.exec_():
             filenames = fdialog.selectedFiles()

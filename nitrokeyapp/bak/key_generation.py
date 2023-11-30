@@ -48,19 +48,19 @@ class KeyGeneration(QtUtilsMixIn, QtWidgets.QWizard):
     @pyqtSlot()
     def finish_show_hide(self):
         if self.with_backup.isChecked():
-            self.button(QtWidgets.QWizard.FinishButton).setEnabled(False)
+            self.button(QtWidgets.QWizard.WizardButton.FinishButton).setEnabled(False)
             self.lastpage_keygen.cleanupPage()
             self.confirm_path.setEnabled(True)
             self.back_up_info.show()
         else:
-            self.button(QtWidgets.QWizard.FinishButton).setEnabled(True)
+            self.button(QtWidgets.QWizard.WizardButton.FinishButton).setEnabled(True)
             self.lastpage_keygen.cleanupPage()
             self.confirm_path.setEnabled(False)
             self.back_up_info.hide()
 
     def finish_show_hide_2(self):
         if self.confirm_path.text():
-            self.button(QtWidgets.QWizard.FinishButton).setEnabled(True)
+            self.button(QtWidgets.QWizard.WizardButton.FinishButton).setEnabled(True)
 
     def adsettings_func(self):
         self.collapse(self.adsettings, self.adsettings_button)

@@ -5,7 +5,7 @@ class LoadingScreen(QtWidgets.QWidget):
     # def __init__(self):
     #     super().__init__()
     #     self.setFixedSize(128,128)  #128 128
-    #     self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.CustomizeWindowHint)
+    #     self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.CustomizeWindowHint)
 
     #     self.label_animation = QLabel(self)
     #     self.qprogressbar = QProgressBar(self)
