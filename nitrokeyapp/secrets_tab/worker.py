@@ -4,7 +4,7 @@ from typing import Optional
 
 from pynitrokey.nk3.secrets_app import SecretsApp, SecretsAppException
 from pynitrokey.nk3.utils import Uuid
-from PySide6.QtCore import pyqtSignal, pyqtSlot
+from PySide6.QtCore import Signal, Slot
 from PySide6.QtWidgets import QWidget
 
 from nitrokeyapp.device_data import DeviceData
@@ -37,7 +37,7 @@ class PinCache:
 
 
 class CheckDeviceJob(Job):
-    device_checked = pyqtSignal(bool)
+    device_checked = Signal(bool)
 
     def __init__(self, data: DeviceData) -> None:
         super().__init__()
@@ -60,11 +60,11 @@ class CheckDeviceJob(Job):
 
 
 class VerifyPinJob(Job):
-    pin_verified = pyqtSignal(bool)
+    pin_verified = Signal(bool)
 
     # internal signals
-    query_pin = pyqtSignal(int)
-    choose_pin = pyqtSignal()
+    query_pin = Signal(int)
+    choose_pin = Signal()
 
     def __init__(
         self,
@@ -109,7 +109,7 @@ class VerifyPinJob(Job):
         else:
             self.pin_verified.emit(False)
 
-    @pyqtSlot(str)
+    @Slot(str)
     def pin_queried(self, pin: str) -> None:
         with self.data.open() as device:
             secrets = SecretsApp(device)
@@ -125,7 +125,7 @@ class VerifyPinJob(Job):
                 # TODO: improve error message
                 self.trigger_error(f"PIN validation failed: {e}")
 
-    @pyqtSlot(str)
+    @Slot(str)
     def pin_chosen(self, pin: str) -> None:
         with self.data.open() as device:
             secrets = SecretsApp(device)
@@ -138,14 +138,14 @@ class VerifyPinJob(Job):
         else:
             self.trigger_error("Failed to set Secrets PIN")
 
-    @pyqtSlot(str)
+    @Slot(str)
     def trigger_error(self, msg: str) -> None:
         self.error.emit(msg)
         self.pin_verified.emit(False)
 
 
 class AddCredentialJob(Job):
-    credential_added = pyqtSignal(Credential)
+    credential_added = Signal(Credential)
 
     def __init__(
         self,
@@ -175,7 +175,7 @@ class AddCredentialJob(Job):
         list_credentials_job.credentials_listed.connect(self.check_credential)
         self.spawn(list_credentials_job)
 
-    @pyqtSlot(list)
+    @Slot(list)
     def check_credential(self, credentials: list[Credential]) -> None:
         ids = set([credential.id for credential in credentials])
         if self.credential.id in ids:
@@ -194,7 +194,7 @@ class AddCredentialJob(Job):
         else:
             self.add_credential()
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def add_credential(self, successful: bool = True) -> None:
         if not successful:
             self.finished.emit()
@@ -216,7 +216,7 @@ class AddCredentialJob(Job):
 
 
 class DeleteCredentialJob(Job):
-    credential_deleted = pyqtSignal(Credential)
+    credential_deleted = Signal(Credential)
 
     def __init__(
         self,
@@ -243,7 +243,7 @@ class DeleteCredentialJob(Job):
             else:
                 self.delete_credential()
 
-    @pyqtSlot()
+    @Slot()
     def delete_credential(self) -> None:
         with self.data.open() as device:
             secrets = SecretsApp(device)
@@ -255,7 +255,7 @@ class DeleteCredentialJob(Job):
 class GenerateOtpJob(Job):
     # TODO: make period and digits configurable
 
-    otp_generated = pyqtSignal(OtpData)
+    otp_generated = Signal(OtpData)
 
     def __init__(
         self,
@@ -281,7 +281,7 @@ class GenerateOtpJob(Job):
         else:
             self.generate_otp()
 
-    @pyqtSlot()
+    @Slot()
     def generate_otp(self) -> None:
         with self.data.open() as device:
             secrets = SecretsApp(device)
@@ -307,8 +307,8 @@ class GenerateOtpJob(Job):
 
 
 class ListCredentialsJob(Job):
-    credentials_listed = pyqtSignal(list)
-    uncheck_checkbox = pyqtSignal(bool)
+    credentials_listed = Signal(list)
+    uncheck_checkbox = Signal(bool)
 
     def __init__(
         self, pin_cache: PinCache, pin_ui: PinUi, data: DeviceData, pin_protected: bool
@@ -333,7 +333,7 @@ class ListCredentialsJob(Job):
                 credentials = Credential.list(secrets)
             self.credentials_listed.emit(credentials)
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def list_protected_credentials(self, successful: bool) -> None:
         credentials = []
         if not successful:
@@ -350,12 +350,12 @@ class ListCredentialsJob(Job):
 class SecretsWorker(Worker):
     # TODO: remove DeviceData from signatures
 
-    credential_added = pyqtSignal(Credential)
-    credential_deleted = pyqtSignal(Credential)
-    credentials_listed = pyqtSignal(list)
-    uncheck_checkbox = pyqtSignal(bool)
-    device_checked = pyqtSignal(bool)
-    otp_generated = pyqtSignal(OtpData)
+    credential_added = Signal(Credential)
+    credential_deleted = Signal(Credential)
+    credentials_listed = Signal(list)
+    uncheck_checkbox = Signal(bool)
+    device_checked = Signal(bool)
+    otp_generated = Signal(OtpData)
 
     def __init__(self, widget: QWidget) -> None:
         super().__init__()
@@ -363,13 +363,13 @@ class SecretsWorker(Worker):
         self.pin_cache = PinCache()
         self.pin_ui = PinUi(widget)
 
-    @pyqtSlot(DeviceData)
+    @Slot(DeviceData)
     def check_device(self, data: DeviceData) -> None:
         job = CheckDeviceJob(data)
         job.device_checked.connect(self.device_checked)
         self.run(job)
 
-    @pyqtSlot(DeviceData, Credential, bytes)
+    @Slot(DeviceData, Credential, bytes)
     def add_credential(
         self, data: DeviceData, credential: Credential, secret: bytes
     ) -> None:
@@ -377,19 +377,19 @@ class SecretsWorker(Worker):
         job.credential_added.connect(self.credential_added)
         self.run(job)
 
-    @pyqtSlot(DeviceData, Credential)
+    @Slot(DeviceData, Credential)
     def delete_credential(self, data: DeviceData, credential: Credential) -> None:
         job = DeleteCredentialJob(self.pin_cache, self.pin_ui, data, credential)
         job.credential_deleted.connect(self.credential_deleted)
         self.run(job)
 
-    @pyqtSlot(DeviceData, Credential)
+    @Slot(DeviceData, Credential)
     def generate_otp(self, data: DeviceData, credential: Credential) -> None:
         job = GenerateOtpJob(self.pin_cache, self.pin_ui, data, credential)
         job.otp_generated.connect(self.otp_generated)
         self.run(job)
 
-    @pyqtSlot(DeviceData, bool)
+    @Slot(DeviceData, bool)
     def refresh_credentials(self, data: DeviceData, pin_protected: bool) -> None:
         job = ListCredentialsJob(self.pin_cache, self.pin_ui, data, pin_protected)
         job.credentials_listed.connect(self.credentials_listed)

@@ -2,7 +2,7 @@ import binascii
 from base64 import b32decode
 from typing import Optional
 
-from PySide6.QtCore import pyqtSlot
+from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QDialog, QDialogButtonBox, QWidget
 
 from nitrokeyapp.secrets_tab.data import Credential, OtpKind
@@ -32,7 +32,7 @@ class AddSecretDialog(QDialog):
 
         self.refresh()
 
-    @pyqtSlot()
+    @Slot()
     def refresh(self) -> None:
         errors = []
 

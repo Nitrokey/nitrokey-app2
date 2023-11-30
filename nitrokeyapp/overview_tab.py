@@ -1,7 +1,7 @@
 from typing import Optional
 
 from pynitrokey.nk3.admin_app import InitStatus
-from PySide6.QtCore import pyqtSignal, pyqtSlot
+from PySide6.QtCore import Signal, Slot
 from PySide6.QtWidgets import QFileDialog, QWidget
 
 from nitrokeyapp.device_data import DeviceData
@@ -12,7 +12,7 @@ from nitrokeyapp.worker import Worker
 
 
 class OverviewTab(QtUtilsMixIn, QWidget):
-    busy_state_changed = pyqtSignal(bool)
+    busy_state_changed = Signal(bool)
 
     def __init__(self, info_box: InfoBox, parent: Optional[QWidget] = None) -> None:
         QWidget.__init__(self, parent)
@@ -126,12 +126,12 @@ class OverviewTab(QtUtilsMixIn, QWidget):
     def show_more_options(self) -> None:
         self.collapse(self.ui.more_options_frame, self.ui.more_options_btn)
 
-    @pyqtSlot()
+    @Slot()
     def run_update(self) -> None:
         assert self.data
         self.data.update(self, self.info_box)
 
-    @pyqtSlot()
+    @Slot()
     def update_with_file(self) -> None:
         assert self.data
         fdialog = QFileDialog()

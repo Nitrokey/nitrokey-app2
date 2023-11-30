@@ -1,5 +1,5 @@
 from PySide6 import QtWidgets
-from PySide6.QtCore import pyqtSlot
+from PySide6.QtCore import Slot
 
 from nitrokeyapp import __version__
 from nitrokeyapp.logger import save_log
@@ -21,6 +21,6 @@ class AboutDialog(QtUtilsMixIn, QtWidgets.QDialog):
         self.ui.buttonSaveLog.pressed.connect(self.save_log)
         self.ui.VersionLabel.setText(__version__)
 
-    @pyqtSlot()
+    @Slot()
     def save_log(self) -> None:
         save_log(self.log_file, self)
