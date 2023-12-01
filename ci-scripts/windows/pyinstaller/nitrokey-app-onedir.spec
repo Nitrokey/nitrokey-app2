@@ -1,11 +1,13 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import copy_metadata
+import os
+
+venv_path = os.popen('poetry env info --path').read().rstrip()
 
 datas = [
-    ('..\\..\\..\\venv\\Lib\\site-packages\\pynitrokey\\VERSION', 'pynitrokey'),
-    ('..\\..\\..\\venv\\Lib\\site-packages\\fido2\\public_suffix_list.dat', 'fido2'),
+    (venv_path + '\\Lib\\site-packages\\pynitrokey\\VERSION', 'pynitrokey'),
+    (venv_path + '\\Lib\\site-packages\\fido2\\public_suffix_list.dat', 'fido2'),
     ('..\\..\\..\\nitrokeyapp\\ui', 'nitrokeyapp\\ui'),
-    ('..\\..\\..\\nitrokeyapp\\VERSION', 'nitrokeyapp'),
     ('..\\..\\..\\LICENSE', '.')
 ]
 datas += copy_metadata('ecdsa')
@@ -15,6 +17,7 @@ datas += copy_metadata('pynitrokey')
 datas += copy_metadata('pyusb')
 datas += copy_metadata('spsdk')
 
+
 block_cipher = None
 
 
@@ -22,8 +25,8 @@ a = Analysis(
     ['..\\..\\..\\nitrokeyapp\\__main__.py'],
     pathex=[],
     binaries=[
-        ('..\\..\\..\\venv\\Lib\\site-packages\\libusbsio\\bin\\x64\\libusbsio.dll', 'libusbsio'),
-        ('..\\..\\..\\venv\\Lib\\site-packages\\usb1\\libusb-1.0.dll', '.')
+        (venv_path + '\\Lib\\site-packages\\libusbsio\\bin\\x64\\libusbsio.dll', 'libusbsio'),
+        (venv_path + '\\Lib\\site-packages\\usb1\\libusb-1.0.dll', '.')
     ],
     datas=datas,
     hiddenimports=[],
