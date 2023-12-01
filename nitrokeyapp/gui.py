@@ -124,6 +124,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.tabs.addTab(view.widget, view.title)
         self.tabs.currentChanged.connect(self.slot_tab_changed)
 
+        # set some spacing between Nitrokey buttons
+        self.ui.nitrokeyButtonsLayout.setSpacing(8)
+
         self.init_gui()
         self.show()
 
