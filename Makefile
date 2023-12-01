@@ -17,6 +17,7 @@ update-venv:
 ifeq (, $(shell which poetry))
 $(error "No poetry in $(PATH)")
 endif
+	export PYTHON_KEYRING_BACKEND=keyring.backends.fail.Keyring
 	poetry env use $(PYTHON)
 	poetry install --sync --without=deploy
 
