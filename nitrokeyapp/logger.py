@@ -1,6 +1,8 @@
 import logging
+import os
 import platform
 import shutil
+import sys
 from contextlib import contextmanager
 from datetime import datetime
 from importlib.metadata import version as package_version
@@ -11,6 +13,7 @@ from PyQt5.QtWidgets import QFileDialog, QWidget
 
 logger = logging.getLogger(__name__)
 
+log_to_console = "NKAPP_LOG" in os.environ
 
 @contextmanager
 def init_logging() -> Generator[str, None, None]:
@@ -21,7 +24,13 @@ def init_logging() -> Generator[str, None, None]:
         handler = logging.FileHandler(
             filename=log_file.name, delay=True, encoding="utf-8"
         )
-        logging.basicConfig(format=log_format, level=logging.DEBUG, handlers=[handler])
+        console_handler = logging.StreamHandler(sys.stdout)
+
+        handlers = [handler]
+        if log_to_console:
+            handlers.append(console_handler)
+
+        logging.basicConfig(format=log_format, level=logging.DEBUG, handlers=handlers)
 
         yield log_file.name
     finally:
