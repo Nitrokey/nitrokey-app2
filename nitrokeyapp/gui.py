@@ -64,14 +64,14 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         if platform.system() == "Linux":
             # pyudev stuff
             import pyudev
-            from pyudev.pyqt5 import MonitorObserver
+            from pyudev import MonitorObserver
 
             # start monitoring usb
             self.context = pyudev.Context()
             self.monitor = pyudev.Monitor.from_netlink(self.context)
             self.monitor.filter_by(subsystem="usb")
-            self.observer = MonitorObserver(self.monitor)
-            self.observer.deviceEvent.connect(self.device_connect)
+            self.observer = MonitorObserver(self.monitor, self.device_connect)
+            #self.observer.deviceEvent.connect(self.device_connect)
             self.monitor.start()
         # windows
         if platform.system() == "Windows":
@@ -143,7 +143,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # overview
 
     # experimental idea to differ between removed and added
-    def device_connect(self) -> None:
+    def device_connect(self, action, device) -> None:
         import pyudev
 
         dvc: pyudev.Device
