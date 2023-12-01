@@ -1,6 +1,6 @@
 from typing import Optional, Type, TypeVar
 
-from PySide6 import QtGui, QtWidgets, uic
+from PySide6 import QtGui, QtWidgets #, uic
 from PySide6.QtCore import QObject, QSize
 
 Q = TypeVar("Q", bound=QObject)
