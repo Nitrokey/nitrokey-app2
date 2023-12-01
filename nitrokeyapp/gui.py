@@ -9,6 +9,9 @@ import webbrowser
 from types import TracebackType
 from typing import Optional, Type
 
+if platform.system() == "Linux":
+    import pyudev
+
 # Nitrokey 3
 from pynitrokey.nk3 import Nitrokey3Device
 
@@ -56,23 +59,21 @@ class TouchDialog(QtWidgets.QMessageBox):
 
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     trigger_handle_exception = Signal(object, BaseException, object)
+    sig_device_change = Signal(object)
 
     def __init__(self, qt_app: QtWidgets.QApplication, log_file: str):
         QtWidgets.QMainWindow.__init__(self)
         QtUtilsMixIn.__init__(self)
         # linux
         if platform.system() == "Linux":
-            # pyudev stuff
-            import pyudev
-            from pyudev import MonitorObserver
-
             # start monitoring usb
             self.context = pyudev.Context()
             self.monitor = pyudev.Monitor.from_netlink(self.context)
             self.monitor.filter_by(subsystem="usb")
-            self.observer = MonitorObserver(self.monitor, self.device_connect)
-            #self.observer.deviceEvent.connect(self.device_connect)
-            self.monitor.start()
+            # pyudev.pyside6 integration doesn't work properly
+            self.observer = pyudev.MonitorObserver(self.monitor, lambda action, device: self.sig_device_change.emit(action))
+            self.observer.start()
+
         # windows
         if platform.system() == "Windows":
             logger.info("OS:Windows")
@@ -128,6 +129,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # set some spacing between Nitrokey buttons
         self.ui.nitrokeyButtonsLayout.setSpacing(8)
 
+        self.sig_device_change.connect(self.device_connect)
+
+
         self.init_gui()
         self.show()
 
@@ -142,18 +146,14 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # generic / global
         # overview
 
-    # experimental idea to differ between removed and added
-    def device_connect(self, action, device) -> None:
-        import pyudev
-
-        dvc: pyudev.Device
-        for dvc in iter(functools.partial(self.monitor.poll, 3), None):
-            if dvc.action == "remove":
-                logger.info("removed")
-                self.detect_removed_devices()
-            elif dvc.action == "bind":
-                logger.info("BIND")
-                self.detect_added_devices()
+    @Slot(object)
+    def device_connect(self, action: str) -> None:
+        if action == "remove":
+            logger.info("removed")
+            self.detect_removed_devices()
+        elif action == "bind":
+            logger.info("bind")
+            self.detect_added_devices()
 
     @Slot(object, BaseException, object)
     def handle_exception(
