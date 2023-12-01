@@ -207,7 +207,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         if self.devices:
             try:
                 raw_list = Nitrokey3Device.list()
-            except:
+            except Exception:
                 time.sleep(0.5)
                 raw_list = Nitrokey3Device.list()
 
