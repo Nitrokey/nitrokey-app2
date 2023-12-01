@@ -34,7 +34,6 @@ def table_pws_function(self):
 
 
 def add_table_pws(self):
-
     row = self.table_pws.rowCount()
     self.table_pws.insertRow(row)
     qline = self.pws_editslotname.text()
