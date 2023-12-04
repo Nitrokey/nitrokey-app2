@@ -9,7 +9,7 @@ from PySide6.QtWidgets import QWidget
 from nitrokeyapp import __version__
 from nitrokeyapp.logger import save_log
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
-from nitrokeyapp.ui.welcome_tab import Ui_WelcomeTab
+
 
 
 class WelcomeTab(QtUtilsMixIn, QWidget):
@@ -19,8 +19,7 @@ class WelcomeTab(QtUtilsMixIn, QWidget):
 
         self.log_file = log_file
 
-        self.ui = Ui_WelcomeTab()
-        self.ui.setupUi(self)
+        self.ui = self.load_ui("welcome_tab.ui", self)
         self.ui.buttonSaveLog.pressed.connect(self.save_log)
         self.ui.VersionNr.setText(__version__)
         self.ui.CheckUpdate.pressed.connect(self.check_update)

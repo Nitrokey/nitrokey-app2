@@ -33,8 +33,8 @@ clean: semi-clean
 
 # build
 build-ui: $(UI_FILES)
-	pyside6-rcc $(UI_FILES_PATH)/resources.qrc -o $(UI_FILES_PATH)/resources_rc.py
-	$(foreach var,$(UI_FILES),pyside6-uic --from-imports $(var) -o $(subst .ui,.py,$(var));)
+	#pyside6-rcc $(UI_FILES_PATH)/resources.qrc -o $(UI_FILES_PATH)/resources_rc.py
+	#$(foreach var,$(UI_FILES),pyside6-uic --from-imports $(var) -o $(subst .ui,.py,$(var));)
 
 build: build-ui
 	poetry build

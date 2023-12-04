@@ -5,18 +5,18 @@ from typing import Optional, Type
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QDialog, QDialogButtonBox, QPushButton, QWidget
 
+from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.logger import save_log
-from nitrokeyapp.ui.error_dialog import Ui_ErrorDialog
 
 
-class ErrorDialog(QDialog):
+class ErrorDialog(QtUtilsMixIn, QDialog):
     def __init__(self, log_file: str, parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent)
+        QDialog.__init__(self, parent)
+        QtUtilsMixIn.__init__(self)
 
         self.log_file = log_file
 
-        self.ui = Ui_ErrorDialog()
-        self.ui.setupUi(self)
+        self.ui = self.load_ui("error_dialog.ui", self)
 
         self.button_save_log = QPushButton("Save Log File", self)
         self.button_save_log.pressed.connect(self.save_log)
@@ -33,6 +33,7 @@ class ErrorDialog(QDialog):
     ) -> None:
         lines = format_exception(ty, e, tb)
         self.ui.textEditDetails.setPlainText("".join(lines))
+        self.ui.show()
 
     @Slot()
     def save_log(self) -> None:
