@@ -17,7 +17,6 @@ from PySide6 import QtWidgets
 from PySide6.QtCore import Qt, Signal, Slot
 from PySide6.QtGui import QCursor
 
-# from nitrokeyapp.about_dialog import AboutDialog
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.device_view import DeviceView
 from nitrokeyapp.error_dialog import ErrorDialog
@@ -30,7 +29,6 @@ from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.secrets_tab import SecretsTab
 
 # import wizards and stuff
-from nitrokeyapp.ui.mainwindow import Ui_MainWindow
 from nitrokeyapp.welcome_tab import WelcomeTab
 from nitrokeyapp.windows_notification import WindowsUSBNotifi
 
@@ -60,6 +58,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def __init__(self, qt_app: QtWidgets.QApplication, log_file: str):
         QtWidgets.QMainWindow.__init__(self)
         QtUtilsMixIn.__init__(self)
+
         # linux
         if platform.system() == "Linux":
             # pyudev stuff
@@ -86,17 +85,24 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.trigger_handle_exception.connect(self.handle_exception)
 
         # loads main ui
-        self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
+        self.ui = self.load_ui("mainwindow.ui", None)
+
+        self.setCentralWidget(self.ui)
+        #layout = QtWidgets.QVBoxLayout()
+        #layout.addWidget(self.ui)
+        #self.setLayout(layout)
 
         self.info_box = InfoBox(
             self.ui.information_frame,
             self.ui.label_information_icon,
             self.ui.label_information,
         )
-        self.widgetTab = self.ui.widgetTab
-        self.widgetTab = WelcomeTab(self.widgetTab, self.log_file)
-        # self.about_dialog = AboutDialog(log_file, qt_app)
+
+        self.welcome_widget = WelcomeTab(self, self.log_file)
+
+        self.content_widget = self.ui.widgetTab
+        self.content_widget.layout().addWidget(self.welcome_widget)
+
         self.touch_dialog = TouchDialog(self)
         self.overview_tab = OverviewTab(self.info_box, self)
         self.views: list[DeviceView] = [self.overview_tab, SecretsTab(self)]
@@ -107,16 +113,13 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 view.worker.start_touch.connect(self.touch_dialog.start)
                 view.worker.stop_touch.connect(self.touch_dialog.stop)
 
-        # get widget objects
-        # app wide widgets
-        # self.status_bar = _get(_qt.QStatusBar, "statusBar")
-        # self.menu_bar = _get(_qt.QMenuBar, "menuBar")
+        # main window widgets
         self.tabs = self.ui.tabWidget
         self.home_button = self.ui.btn_home
         self.help_btn = self.ui.btn_dial_help
         # self.quit_button = self.ui.btn_dial_quit
-        self.settings_btn = self.ui.btn_settings
-        self.lock_btn = self.ui.btn_dial_lock
+        # self.settings_btn = self.ui.btn_settings
+        # self.lock_btn = self.ui.btn_dial_lock
         self.l_insert_nitrokey = self.ui.label_insert_Nitrokey
         # set some props, initial enabled/visible, finally show()
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
@@ -135,25 +138,30 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.help_btn.clicked.connect(
             lambda: webbrowser.open("https://docs.nitrokey.com/nitrokey3")
         )
-        self.lock_btn.clicked.connect(self.slot_lock_button_pressed)
+        #self.lock_btn.clicked.connect(self.slot_lock_button_pressed)
         self.home_button.clicked.connect(self.home_button_pressed)
         # self.settings_btn.clicked.connect()
         # connections for functional signals
         # generic / global
         # overview
 
-    # experimental idea to differ between removed and added
-    def device_connect(self) -> None:
-        import pyudev
 
-        dvc: pyudev.Device
-        for dvc in iter(functools.partial(self.monitor.poll, 3), None):
-            if dvc.action == "remove":
-                logger.info("removed")
-                self.detect_removed_devices()
-            elif dvc.action == "bind":
-                logger.info("BIND")
-                self.detect_added_devices()
+    def close_event(self, event):
+        print("before accept")
+        #event.accept()
+        print("after accept")
+        self.quit()
+        sys.exit(0)
+        #event.ignore()
+
+    @Slot(object)
+    def device_connect(self, action: str) -> None:
+        if action == "remove":
+            logger.info("removed")
+            self.detect_removed_devices()
+        elif action == "bind":
+            logger.info("bind")
+            self.detect_added_devices()
 
     @Slot(object, BaseException, object)
     def handle_exception(
@@ -166,7 +174,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         dialog = ErrorDialog(self.log_file, self)
         dialog.set_exception(ty, e, tb)
-        dialog.show()
 
     def toggle_update_btn(self) -> None:
         device_count = len(self.devices)
@@ -257,7 +264,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.overview_tab.busy_state_changed.connect(self.set_busy)
 
         if self.selected_device:
-            self.widgetTab.hide()
+            self.welcome_widget.hide()
             self.views[self.tabs.currentIndex()].refresh(self.selected_device)
             self.tabs.show()
         else:
@@ -268,8 +275,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def init_gui(self) -> None:
         self.tabs.hide()
         self.info_box.hide()
-        self.lock_btn.setEnabled(False)
-        self.settings_btn.setEnabled(False)
+        #self.lock_btn.setEnabled(False)
+        #self.settings_btn.setEnabled(False)
         self.detect_added_devices()
 
     def device_selected(self, data: DeviceData) -> None:
@@ -283,7 +290,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.device_selected(data)
         else:
             self.tabs.hide()
-            self.widgetTab.show()
+            self.welcome_widget.show()
 
     @Slot(int)
     def slot_tab_changed(self, idx: int) -> None:
@@ -292,7 +299,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     # main-window callbacks
     @Slot()
     def home_button_pressed(self) -> None:
-        self.widgetTab.show()
+        self.welcome_widget.show()
         self.tabs.hide()
 
     @Slot()
@@ -319,4 +326,4 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     @Slot(str)
     def error(self, error: str) -> None:
         # TODO: improve
-        self.user_err(error, "Error")
+        self.user_err(error, "Error", self)

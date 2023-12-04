@@ -1,18 +1,25 @@
 from typing import Optional, Type, TypeVar
 
-from PySide6 import QtGui, QtWidgets #, uic
-from PySide6.QtCore import QObject, QSize
+from PySide6 import QtGui, QtWidgets
+from PySide6.QtCore import QObject, QSize, QDir
+
+from PySide6.QtUiTools import QUiLoader
 
 Q = TypeVar("Q", bound=QObject)
 
 
 class QtUtilsMixIn:
+    loader = QUiLoader()
     def __init__(self) -> None:
         self.widgets: dict[str, QObject] = {}
 
         # ensure we are always mixed-in with an QObject-ish class
         # TODO: should we restrict this further to QWidget?
         assert isinstance(self, QObject)
+
+    @classmethod
+    def load_ui(cls, filename: str, parent: Optional[QObject] = None) -> bool:
+        return cls.loader.load("nitrokeyapp/ui/" + filename, parent)
 
     def user_warn(
         self,
@@ -56,23 +63,19 @@ class QtUtilsMixIn:
             self.widgets[name] = widget
         return widget  # type: ignore
 
-    def load_ui(self, filename: str, qt_obj: Type) -> bool:
-        uic.loadUi(filename, qt_obj)
-        return True
-
     def collapse(
         self, frame: QtWidgets.QWidget, expand_button: QtWidgets.QPushButton
     ) -> None:
         # Find out if the state is on or off
         state = expand_button.isChecked()
         if not state:
-            expand_button.setIcon(QtGui.QIcon(":/icons/right_arrow.png"))
+            expand_button.setIcon(QtGui.QIcon("nitrokeyapp/ui/icons/right_arrow.png"))
             expand_button.setIconSize(QSize(12, 12))
             frame.setFixedHeight(0)
             # Set window Height
             # self.setFixedHeight(self.sizeHint().height())
         else:
-            expand_button.setIcon(QtGui.QIcon(":/icons/down_arrow.png"))
+            expand_button.setIcon(QtGui.QIcon("nitrokeyapp/ui/icons/down_arrow.png"))
             oSize = frame.sizeHint()
             frame.setFixedHeight(oSize.height())
             # Set window Height

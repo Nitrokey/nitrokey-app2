@@ -7,7 +7,6 @@ from PySide6.QtWidgets import QFileDialog, QWidget
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.information_box import InfoBox
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
-from nitrokeyapp.ui.overview_tab import Ui_OverviewTab
 from nitrokeyapp.worker import Worker
 
 
@@ -20,8 +19,8 @@ class OverviewTab(QtUtilsMixIn, QWidget):
 
         self.data: Optional[DeviceData] = None
         self.info_box = info_box
-        self.ui = Ui_OverviewTab()
-        self.ui.setupUi(self)
+
+        self.ui = self.load_ui("overview_tab.ui", self)
 
         self.collapse(self.ui.more_options_frame, self.ui.more_options_btn)
         self.ui.update_with_file_btn.clicked.connect(self.update_with_file)

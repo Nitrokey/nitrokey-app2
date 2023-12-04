@@ -7,8 +7,9 @@ from PySide6.QtWidgets import QDialog, QListWidgetItem, QWidget
 
 from nitrokeyapp.add_secret_dialog import AddSecretDialog
 from nitrokeyapp.device_data import DeviceData
-from nitrokeyapp.ui.secrets_tab import Ui_SecretsTab
+#from nitrokeyapp.ui.secrets_tab import Ui_SecretsTab
 from nitrokeyapp.worker import Worker
+from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
 from .data import Credential, OtpData
 from .worker import SecretsWorker
@@ -22,7 +23,7 @@ from .worker import SecretsWorker
 # - confirm new PIN
 
 
-class SecretsTab(QWidget):
+class SecretsTab(QtUtilsMixIn, QWidget):
     # standard UI
     busy_state_changed = Signal(bool)
     error = Signal(str)
@@ -37,7 +38,8 @@ class SecretsTab(QWidget):
     trigger_refresh_credentials = Signal(DeviceData, bool)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent)
+        QWidget.__init__(self, parent)
+        QtUtilsMixIn.__init__(self)
 
         self.worker_thread = QThread()
         self._worker = SecretsWorker(self)
@@ -69,8 +71,7 @@ class SecretsTab(QWidget):
         self.clipboard = QGuiApplication.clipboard()
         self.originalText = self.clipboard.text()
 
-        self.ui = Ui_SecretsTab()
-        self.ui.setupUi(self)
+        self.ui = self.load_ui("secrets_tab.ui", self)
 
         labels = [
             self.ui.labelName,
@@ -200,7 +201,7 @@ class SecretsTab(QWidget):
             else "lock_open_FILL0_wght500_GRAD0_opsz40"
         )
         item = QListWidgetItem(credential.name)
-        item.setIcon(QIcon(f":/icons/{icon}.svg"))
+        item.setIcon(QIcon(f"nitrokeyapp/ui/icons/{icon}.svg"))
         item.setData(Qt.ItemDataRole.UserRole, credential)
         self.ui.secretsList.addItem(item)
         return item
