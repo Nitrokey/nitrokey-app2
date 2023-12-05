@@ -1,14 +1,18 @@
 import webbrowser
 from typing import Optional
-from urllib.request import urlopen
 
 from pynitrokey.nk3.utils import Version
+from pynitrokey.updates import Release, Repository
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QWidget
 
 from nitrokeyapp import __version__
 from nitrokeyapp.logger import save_log
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
+
+REPOSITORY_OWNER = "Nitrokey"
+REPOSITORY_NAME = "nitrokey-app2"
+REPOSITORY = Repository(owner=REPOSITORY_OWNER, name=REPOSITORY_NAME)
 
 
 class WelcomeTab(QtUtilsMixIn, QWidget):
@@ -26,11 +30,17 @@ class WelcomeTab(QtUtilsMixIn, QWidget):
 
     def check_update(self) -> None:
         self.c_version = __version__
-        self.n_version = urlopen(
-            "https://raw.githubusercontent.com/Nitrokey/nitrokey-app2/main/nitrokeyapp/VERSION"
-        ).read()
-        self.n_version = str(self.n_version, encoding="utf-8")
-        self.n_version = self.n_version[:-1]
+        try:
+            self.get_release = REPOSITORY.get_latest_release()
+        except Exception:
+            self.ui.CheckUpdate.setText("No connection")
+            return
+
+        self.release = Release
+        self.last_release = self.release.__str__(self.get_release)
+
+        self.n_version = self.last_release
+        self.n_version = self.n_version[1:]
 
         self.c_version_v = Version.from_str(self.c_version)
         self.n_version_v = Version.from_str(self.n_version)
