@@ -33,7 +33,7 @@ class ErrorDialog(QtUtilsMixIn, QDialog):
     ) -> None:
         lines = format_exception(ty, e, tb)
         self.ui.textEditDetails.setPlainText("".join(lines))
-        self.ui.show()
+        self.show()
 
     @Slot()
     def save_log(self) -> None:

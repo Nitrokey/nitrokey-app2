@@ -4,7 +4,6 @@
 import functools
 import logging
 import platform
-import time
 import webbrowser
 from types import TracebackType
 from typing import Optional, Type
@@ -85,12 +84,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.trigger_handle_exception.connect(self.handle_exception)
 
         # loads main ui
-        self.ui = self.load_ui("mainwindow.ui", None)
-
-        self.setCentralWidget(self.ui)
-        #layout = QtWidgets.QVBoxLayout()
-        #layout.addWidget(self.ui)
-        #self.setLayout(layout)
+        self.ui = self.load_ui("mainwindow.ui", self)
+        #self.setCentralWidget(self.ui)
 
         self.info_box = InfoBox(
             self.ui.information_frame,
@@ -130,6 +125,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         # set some spacing between Nitrokey buttons
         self.ui.nitrokeyButtonsLayout.setSpacing(8)
+        self.sig_device_change.connect(self.device_connect)
 
         self.init_gui()
         self.show()
@@ -209,16 +205,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             logger.info("no nk3 in list. no admin?")
 
     def detect_removed_devices(self) -> None:
-        self.tabs.setCurrentIndex(0)
         list_of_removed: list[DeviceData] = []
         if self.devices:
-            try:
-                raw_list = Nitrokey3Device.list()
-            except Exception:
-                time.sleep(0.5)
-                raw_list = Nitrokey3Device.list()
-
-            nk3_list = [str(device.uuid())[:-4] for device in raw_list]
+            nk3_list = [str(device.uuid())[:-4] for device in Nitrokey3Device.list()]
             logger.info(f"list nk3: {nk3_list}")
             list_of_removed = [
                 data
