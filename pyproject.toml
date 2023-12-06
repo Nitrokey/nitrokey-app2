@@ -25,7 +25,6 @@ classifiers=[
 packages = [
   {include = "nitrokeyapp"}
 ]
-include=["nitrokeyapp/ui/*.py"]
 
 [tool.poetry.scripts]
 nitrokeyapp = "nitrokeyapp.__main__:main"
