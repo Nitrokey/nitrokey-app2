@@ -1,15 +1,14 @@
 from typing import Optional, Type, TypeVar
 
 from PySide6 import QtGui, QtWidgets
-from PySide6.QtCore import QObject, QSize, QDir
+from PySide6.QtCore import QObject, QSize, QDir, QMetaObject
+from PySide6.QtWidgets import QWidget
 
-from PySide6.QtUiTools import QUiLoader
+from nitrokeyapp.ui_loader import UiLoader
 
 Q = TypeVar("Q", bound=QObject)
 
-
 class QtUtilsMixIn:
-    loader = QUiLoader()
     def __init__(self) -> None:
         self.widgets: dict[str, QObject] = {}
 
@@ -17,9 +16,10 @@ class QtUtilsMixIn:
         # TODO: should we restrict this further to QWidget?
         assert isinstance(self, QObject)
 
-    @classmethod
-    def load_ui(cls, filename: str, parent: Optional[QObject] = None) -> bool:
-        return cls.loader.load("nitrokeyapp/ui/" + filename, parent)
+    @staticmethod
+    def load_ui(filename: str, parent: Optional[QObject] = None) -> bool:
+        loader = UiLoader(parent, customWidgets=None)
+        return loader.load("nitrokeyapp/ui/" + filename)
 
     def user_warn(
         self,
