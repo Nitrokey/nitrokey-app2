@@ -32,14 +32,14 @@ nitrokeyapp = "nitrokeyapp.__main__:main"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"
-pySide6 = ">=6"
+pySide6 = ">=6.6.0"
 pyudev = "^0.24.1"
-pynitrokey = "0.4.40"
+pynitrokey = "0.4.43"
 pywin32 = { version = "305", markers = "sys_platform =='win32'" }
 qt_material = "^2.14"
 
 [tool.poetry.group.dev.dependencies]
-pyqt5-stubs = "^5.15.6.0"
+PySide6-stubs = "^6.4.2"
 black = ">=22.1.0,<23"
 flake8 = "^6.1.0"
 isort = "^5.12.0"
