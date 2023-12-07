@@ -42,7 +42,7 @@ class PinUi(QObject):
         else:
             self.cancelled.emit()
 
-    def connect(
+    def connect_actions(
         self,
         queried: Optional[Callable[[str], None]],
         chosen: Optional[Callable[[str], None]],
