@@ -203,7 +203,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             else "lock_open_FILL0_wght500_GRAD0_opsz40"
         )
         item = QListWidgetItem(credential.name)
-        item.setIcon(QIcon(f"nitrokeyapp/ui/icons/{icon}.svg"))
+        item.setIcon(self.get_qicon(f"{icon}.svg"))
         item.setData(Qt.ItemDataRole.UserRole, credential)
         self.ui.secretsList.addItem(item)
         return item

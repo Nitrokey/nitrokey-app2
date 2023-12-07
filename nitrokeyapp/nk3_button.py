@@ -3,6 +3,7 @@ from qt_material import apply_stylesheet
 
 from nitrokeyapp import get_theme_path
 from nitrokeyapp.device_data import DeviceData
+from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
 
 class Nk3Button(QtWidgets.QPushButton):
@@ -11,7 +12,7 @@ class Nk3Button(QtWidgets.QPushButton):
         data: DeviceData,
     ) -> None:
         super().__init__(
-            QtGui.QIcon("nitrokeyapp/ui/icons/usb_new.png"),
+            QtUtilsMixIn.get_qicon("usb_new.png"),
             "Nitrokey 3: " f"{str(data.uuid)[:5]}",
         )
         self.data = data

@@ -1,4 +1,5 @@
 from typing import Optional, Type, TypeVar
+from pathlib import Path
 
 from PySide6 import QtGui, QtWidgets
 from PySide6.QtCore import QObject, QSize, QDir, QMetaObject
@@ -7,6 +8,7 @@ from PySide6.QtWidgets import QWidget
 from nitrokeyapp.ui_loader import UiLoader
 
 Q = TypeVar("Q", bound=QObject)
+
 
 class QtUtilsMixIn:
     def __init__(self) -> None:
@@ -17,9 +19,15 @@ class QtUtilsMixIn:
         assert isinstance(self, QObject)
 
     @staticmethod
-    def load_ui(filename: str, parent: Optional[QObject] = None) -> bool:
-        loader = UiLoader(parent, customWidgets=None)
-        return loader.load("nitrokeyapp/ui/" + filename)
+    def load_ui(filename: str, base_instance: Optional[QObject] = None) -> bool:
+        loader = UiLoader(base_instance, customWidgets=None)
+        p = Path(__file__).parent / "ui" / filename
+        return loader.load(p.as_posix())
+
+    @staticmethod
+    def get_qicon(filename: str) -> QtGui.QIcon:
+        p = Path(__file__).parent / "ui" / "icons" / filename
+        return QtGui.QIcon(p.as_posix())
 
     def user_warn(
         self,
@@ -69,13 +77,13 @@ class QtUtilsMixIn:
         # Find out if the state is on or off
         state = expand_button.isChecked()
         if not state:
-            expand_button.setIcon(QtGui.QIcon("nitrokeyapp/ui/icons/right_arrow.png"))
+            expand_button.setIcon(self.get_qicon("right_arrow.png"))
             expand_button.setIconSize(QSize(12, 12))
             frame.setFixedHeight(0)
             # Set window Height
             # self.setFixedHeight(self.sizeHint().height())
         else:
-            expand_button.setIcon(QtGui.QIcon("nitrokeyapp/ui/icons/down_arrow.png"))
+            expand_button.setIcon(self.get_qicon("down_arrow.png"))
             oSize = frame.sizeHint()
             frame.setFixedHeight(oSize.height())
             # Set window Height
