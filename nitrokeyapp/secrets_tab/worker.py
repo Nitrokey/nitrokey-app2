@@ -84,7 +84,7 @@ class VerifyPinJob(Job):
         self.query_pin.connect(pin_ui.query)
         self.choose_pin.connect(pin_ui.choose)
 
-        self.pin_ui = pin_ui.connect(
+        self.pin_ui = pin_ui.connect_actions(
             self.pin_queried,
             self.pin_chosen,
             lambda: self.pin_verified.emit(False),
