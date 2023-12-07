@@ -40,9 +40,30 @@ jobs:
       - name: Install required packages
         run: |
           apt update
-          apt install -y binutils gcc libglib2.0-dev libpcsclite-dev libusb-1.0-0 make python3-poetry swig
+          apt install -y binutils \
+            libglib2.0-dev \
+            libgl-dev \
+            libegl-dev \
+            libxkbcommon-x11-dev \
+            libxcb-cursor-dev \
+            libxcb-icccm4-dev \
+            libxcb-image0-dev \
+            libxcb-keysyms1-dev \
+            libxcb-render-util0-dev \
+            libxcb-shape0-dev \
+            libxcb-xkb-dev \
+            libdbus-1-dev \
+            libwayland-dev \
+            libgtk-3-dev \
+            libatk1.0-dev \
+            libpangocairo-1.0-0 \
+            libpango1.0-dev \
+            make \
+            python3-poetry
       - name: Create virtual environment
-        run: poetry install
+        run: |
+          poetry env use python3.9
+          poetry install
       - name: Build
         run: make build-pyinstaller-onefile
       - name: Upload artifacts
