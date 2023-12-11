@@ -6,6 +6,17 @@ on:
   pull_request:
 
 jobs:
+  pyproject-lock-file-check:
+    name: Check pyproject syntax
+    runs-on: ubuntu-latest
+    container: python:3.9-slim
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install required packages
+        run: pip install poetry
+      - name: Check pyproject.toml syntax and consistency with poetry.lock
+        run: poetry check
   format-code:
     name: Check code format
     runs-on: ubuntu-latest
