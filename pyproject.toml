@@ -39,7 +39,7 @@ pywin32 = { version = "305", markers = "sys_platform =='win32'" }
 qt_material = "^2.14"
 
 [tool.poetry.group.dev.dependencies]
-PySide6-stubs = "^6.4.2.0"
+PySide6-stubs = "^6.4.2"
 black = ">=22.1.0,<23"
 flake8 = "^6.1.0"
 isort = "^5.12.0"
