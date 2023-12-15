@@ -75,21 +75,21 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         # self.ui === self -> this tricks mypy due to monkey-patching self
         self.ui = self.load_ui("secrets_tab.ui", self)
 
-        labels = [
-            self.ui.labelName,
-            self.ui.labelAlgorithm,
-            self.ui.labelOtp,
-        ]
-        max_width = max([label.width() for label in labels])
-        for label in labels:
-            label.setMinimumWidth(max_width)
+#        labels = [
+#            self.ui.labelName,
+#            self.ui.labelAlgorithm,
+#            self.ui.labelOtp,
+#        ]
+#        max_width = max([label.width() for label in labels])
+#        for label in labels:
+#            label.setMinimumWidth(max_width)
 
-        self.ui.buttonAdd.pressed.connect(self.add_new_credential)
-        self.ui.buttonDelete.pressed.connect(self.delete_credential)
-        self.ui.buttonRefresh.pressed.connect(self.refresh_credential_list)
+        self.ui.pushButtonAdd.pressed.connect(self.add_new_credential)
+#        self.ui.buttonDelete.pressed.connect(self.delete_credential)
+        self.ui.pushButtonRefresh.pressed.connect(self.refresh_credential_list)
         self.ui.checkBoxProtected.stateChanged.connect(self.refresh_credential_list)
-        self.ui.pushButtonOtpCopyToClipboard.pressed.connect(self.copy_to_clipboard)
-        self.ui.pushButtonOtpGenerate.pressed.connect(self.generate_otp)
+#        self.ui.pushButtonOtpCopyToClipboard.pressed.connect(self.copy_to_clipboard)
+#        self.ui.pushButtonOtpGenerate.pressed.connect(self.generate_otp)
         self.ui.secretsList.currentItemChanged.connect(self.credential_changed)
 
         self.reset()
@@ -115,8 +115,10 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     def reset_ui(self) -> None:
         self.ui.stackedWidget.setCurrentWidget(self.ui.pageEmpty)
         self.ui.secretsList.clear()
-        self.ui.credentialWidget.hide()
-        self.ui.buttonDelete.setEnabled(False)
+        widget = self.ui.credentialEmpty
+        self.ui.CredentialTabSpace.setCurrentWidget(widget)
+#        self.ui.credentialWidget.hide()
+#        self.ui.buttonDelete.setEnabled(False)
 
         self.hide_otp()
 
@@ -221,19 +223,25 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     def show_credential(self, credential: Credential) -> None:
         # TODO: show other credential kind if set
+        widget = self.ui.credentialShow
+        self.ui.CredentialTabSpace.setCurrentWidget(widget)
         if credential.otp:
             self.hide_otp()
-            self.ui.groupBoxOtp.show()
-            self.ui.lineEditName.setText(credential.name)
+#            self.ui.groupBoxOtp.show()
+            self.ui.credentialName.setText(credential.name)
             self.ui.checkBoxPinProtection.setChecked(credential.protected)
-            self.ui.lineEditOtpAlgorithm.setText(str(credential.otp))
+            self.ui.otp_label.setText(str(credential.otp))
         else:
-            self.ui.groupBoxOtp.hide()
+#            self.ui.groupBoxOtp.hide()
+            self.ui.otp.hide()
+            self.ui.otp_label.hide()
         self.update_otp_generation(credential)
-        self.ui.credentialWidget.show()
+#        self.ui.credentialWidget.show()
 
     def hide_credential(self) -> None:
-        self.ui.credentialWidget.hide()
+#        self.ui.credentialWidget.hide()
+        witget = self.ui.credentialEmpty
+        self.ui.CredentialTabSpace.setCurrentWidget(witget)
 
     def show_secrets(self, show: bool) -> None:
         widget = self.ui.pageCompatible if show else self.ui.pageIncompatible
@@ -244,16 +252,16 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.otp_timeout = None
         self.otp_timer.stop()
         self.ui.progressBarOtpTimeout.hide()
-        self.ui.labelOtp.hide()
-        self.ui.lineEditOtp.hide()
-        self.ui.pushButtonOtpCopyToClipboard.hide()
+        self.ui.otp.hide()
+        self.ui.otp_label.hide()
+#        self.ui.pushButtonOtpCopyToClipboard.hide()
 
         credential = self.get_current_credential()
         self.update_otp_generation(credential)
 
     def update_otp_generation(self, credential: Optional[Credential]) -> None:
         visible = credential is not None and credential.otp is not None
-        self.ui.pushButtonOtpGenerate.setVisible(visible)
+#        self.ui.pushButtonOtpGenerate.setVisible(visible)
 
     @Slot()
     def update_otp_timeout(self) -> None:
@@ -273,10 +281,10 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         if current:
             credential = self.get_credential(current)
             self.show_credential(credential)
-            self.ui.buttonDelete.setEnabled(True)
+#            self.ui.buttonDelete.setEnabled(True)
         else:
             self.hide_credential()
-            self.ui.buttonDelete.setEnabled(False)
+#            self.ui.buttonDelete.setEnabled(False)
 
     @Slot()
     def delete_credential(self) -> None:
