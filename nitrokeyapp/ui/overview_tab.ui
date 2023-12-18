@@ -315,7 +315,7 @@
                <enum>Qt::AutoText</enum>
               </property>
               <property name="pixmap">
-               <pixmap resource="resources.qrc">:/icons/icon_warning.svg</pixmap>
+          			 <pixmap>icons/icon_warning.svg</pixmap>
               </property>
               <property name="scaledContents">
                <bool>true</bool>

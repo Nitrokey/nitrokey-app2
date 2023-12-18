@@ -99,7 +99,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>nitrokeyapp/ui/icons/info_FILL0_wght500_GRAD0_opsz40.png</pixmap>
+          <pixmap>icons/info_FILL0_wght500_GRAD0_opsz40.png</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -172,7 +172,7 @@
          </property>
          <property name="icon">
           <iconset>
-           <normaloff>nitrokeyapp/ui/icons/home_FILL0_wght500_GRAD0_opsz40.png</normaloff>nitrokeyapp/ui/icons/home_FILL0_wght500_GRAD0_opsz40.png</iconset>
+           <normaloff>icons/home_FILL0_wght500_GRAD0_opsz40.png</normaloff>icons/home_FILL0_wght500_GRAD0_opsz40.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -215,7 +215,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>nitrokeyapp/ui/icons/nitrokey-app-icon-vector.svg</pixmap>
+          <pixmap>icons/nitrokey-app-icon-vector.svg</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -317,7 +317,7 @@
          </property>
          <property name="icon">
           <iconset>
-           <normaloff>nitrokeyapp/ui/icons/help_FILL0_wght500_GRAD0_opsz40.png</normaloff>nitrokeyapp/ui/icons/help_FILL0_wght500_GRAD0_opsz40.png</iconset>
+           <normaloff>icons/help_FILL0_wght500_GRAD0_opsz40.png</normaloff>icons/help_FILL0_wght500_GRAD0_opsz40.png</iconset>
          </property>
          <property name="iconSize">
           <size>
