@@ -21,8 +21,10 @@ class QtUtilsMixIn:
     @staticmethod
     def load_ui(filename: str, base_instance: Optional[QObject] = None) -> bool:
         loader = UiLoader(base_instance, customWidgets=None)
-        p = Path(__file__).parent / "ui" / filename
-        return loader.load(p.as_posix())
+        p_dir = (Path(__file__).parent / "ui").absolute()
+        loader.setWorkingDirectory(QDir(p_dir.as_posix()))
+        p_file = p_dir / filename
+        return loader.load(p_file.as_posix())
 
     @staticmethod
     def get_qicon(filename: str) -> QtGui.QIcon:
