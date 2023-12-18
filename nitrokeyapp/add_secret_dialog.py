@@ -21,6 +21,7 @@ class AddSecretDialog(QtUtilsMixIn, QDialog):
         QDialog.__init__(self, parent)
         QtUtilsMixIn.__init__(self)
 
+        # self.ui === self -> this tricks mypy due to monkey-patching self
         self.ui = self.load_ui("add_secret_dialog.ui", self)
 
         for kind in OtpKind:

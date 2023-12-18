@@ -29,7 +29,7 @@ def init_logging() -> Generator[str, None, None]:
 
         handlers = [handler]
         if log_to_console:
-            handlers.append(console_handler)
+            handlers.append(console_handler)  # type: ignore
 
         logging.basicConfig(format=log_format, level=logging.DEBUG, handlers=handlers)
 

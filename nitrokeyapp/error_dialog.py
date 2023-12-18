@@ -16,6 +16,7 @@ class ErrorDialog(QtUtilsMixIn, QDialog):
 
         self.log_file = log_file
 
+        # self.ui === self -> this tricks mypy due to monkey-patching self
         self.ui = self.load_ui("error_dialog.ui", self)
 
         self.button_save_log = QPushButton("Save Log File", self)

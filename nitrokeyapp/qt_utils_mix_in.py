@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional, Type, TypeVar
+from typing import Any, Optional, Type, TypeVar
 
 from PySide6 import QtGui, QtWidgets
 from PySide6.QtCore import QDir, QObject, QSize
@@ -18,7 +18,10 @@ class QtUtilsMixIn:
         assert isinstance(self, QObject)
 
     @staticmethod
-    def load_ui(filename: str, base_instance: Optional[QObject] = None) -> bool:
+    def load_ui(
+        filename: str, base_instance: Optional[QtWidgets.QWidget] = None
+    ) -> Any:
+        # returning `Any` to avoid  `mypy` going crazy due to monkey-patching
         loader = UiLoader(base_instance, customWidgets=None)
         p_dir = (Path(__file__).parent / "ui").absolute()
         loader.setWorkingDirectory(QDir(p_dir.as_posix()))

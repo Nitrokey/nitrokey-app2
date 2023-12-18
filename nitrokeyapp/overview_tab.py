@@ -20,6 +20,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         self.data: Optional[DeviceData] = None
         self.info_box = info_box
 
+        # self.ui === self -> this tricks mypy due to monkey-patching self
         self.ui = self.load_ui("overview_tab.ui", self)
 
         self.collapse(self.ui.more_options_frame, self.ui.more_options_btn)

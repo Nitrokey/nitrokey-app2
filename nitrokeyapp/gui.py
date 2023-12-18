@@ -83,8 +83,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.trigger_handle_exception.connect(self.handle_exception)
 
         # loads main ui
+        # self.ui === self -> this tricks mypy due to monkey-patching self
         self.ui = self.load_ui("mainwindow.ui", self)
-        # self.setCentralWidget(self.ui)
 
         self.info_box = InfoBox(
             self.ui.information_frame,

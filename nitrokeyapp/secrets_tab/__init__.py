@@ -72,14 +72,13 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.clipboard = QGuiApplication.clipboard()
         self.originalText = self.clipboard.text()
 
+        # self.ui === self -> this tricks mypy due to monkey-patching self
         self.ui = self.load_ui("secrets_tab.ui", self)
-        # breakpoint()
-        # print(self.pageCompatible)
 
         labels = [
-            self.labelName,
-            self.labelAlgorithm,
-            self.labelOtp,
+            self.ui.labelName,
+            self.ui.labelAlgorithm,
+            self.ui.labelOtp,
         ]
         max_width = max([label.width() for label in labels])
         for label in labels:

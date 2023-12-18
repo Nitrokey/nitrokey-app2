@@ -1,3 +1,6 @@
+from typing import Dict, Optional
+
+from PySide6 import QtWidgets
 from PySide6.QtUiTools import QUiLoader
 
 
@@ -12,7 +15,11 @@ class UiLoader(QUiLoader):
     This mimics the behaviour of :func:`PyQt4.uic.loadUi`.
     """
 
-    def __init__(self, baseinstance, customWidgets=None):
+    def __init__(
+        self,
+        baseinstance: Optional[QtWidgets.QWidget],
+        customWidgets: Optional[Dict[str, QtWidgets.QWidget]] = None,
+    ):
         """
         Create a loader for the given ``baseinstance``.
         The user interface is created in ``baseinstance``, which must be an
@@ -26,9 +33,14 @@ class UiLoader(QUiLoader):
 
         QUiLoader.__init__(self, baseinstance)
         self.baseinstance = baseinstance
-        self.customWidgets = customWidgets
+        self.customWidgets = customWidgets or {}
 
-    def createWidget(self, class_name, parent=None, name=""):
+    def createWidget(
+        self,
+        class_name: str,
+        parent: Optional[QtWidgets.QWidget] = None,
+        name: str = "",
+    ) -> QtWidgets.QWidget:
         """
         Function that is called for each widget defined in ui file,
         overridden here to populate baseinstance instead.
@@ -44,7 +56,8 @@ class UiLoader(QUiLoader):
                 widget = QUiLoader.createWidget(self, class_name, parent, name)
             else:
                 try:
-                    widget = self.customWidgets[class_name](parent)
+                    # @fixme? in fact QWidget is callable
+                    widget = self.customWidgets[class_name](parent)  # type: ignore
 
                 except (TypeError, KeyError):
                     raise Exception(

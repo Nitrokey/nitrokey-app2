@@ -18,10 +18,11 @@ class WelcomeTab(QtUtilsMixIn, QWidget):
 
         self.log_file = log_file
 
-        self.load_ui("welcome_tab.ui", self)
-        self.buttonSaveLog.pressed.connect(self.save_log)
-        self.VersionNr.setText(__version__)
-        self.CheckUpdate.pressed.connect(self.check_update)
+        # self.ui === self -> this tricks mypy due to monkey-patching self
+        self.ui = self.load_ui("welcome_tab.ui", self)
+        self.ui.buttonSaveLog.pressed.connect(self.save_log)
+        self.ui.VersionNr.setText(__version__)
+        self.ui.CheckUpdate.pressed.connect(self.check_update)
 
     def check_update(self) -> None:
         self.c_version = __version__
@@ -35,14 +36,14 @@ class WelcomeTab(QtUtilsMixIn, QWidget):
         self.n_version_v = Version.from_str(self.n_version)
 
         if Version.__lt__(self.c_version_v, self.n_version_v):
-            self.CheckUpdate.setText("update available")
-            self.CheckUpdate.pressed.connect(
+            self.ui.CheckUpdate.setText("update available")
+            self.ui.CheckUpdate.pressed.connect(
                 lambda: webbrowser.open(
                     "https://github.com/Nitrokey/nitrokey-app2/releases"
                 )
             )
         else:
-            self.CheckUpdate.setText("App is up to date")
+            self.ui.CheckUpdate.setText("App is up to date")
 
     @Slot()
     def save_log(self) -> None:
