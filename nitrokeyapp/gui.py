@@ -1,7 +1,3 @@
-# use "pbs" for packaging...
-# pip-run -> pyqt5
-# pip-dev -> pyqt5-stubs
-import functools
 import logging
 import platform
 import webbrowser

@@ -2,8 +2,7 @@ from pathlib import Path
 from typing import Optional, Type, TypeVar
 
 from PySide6 import QtGui, QtWidgets
-from PySide6.QtCore import QDir, QMetaObject, QObject, QSize
-from PySide6.QtWidgets import QWidget
+from PySide6.QtCore import QDir, QObject, QSize
 
 from nitrokeyapp.ui_loader import UiLoader
 

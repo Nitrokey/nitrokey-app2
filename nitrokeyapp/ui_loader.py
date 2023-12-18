@@ -46,7 +46,7 @@ class UiLoader(QUiLoader):
                 try:
                     widget = self.customWidgets[class_name](parent)
 
-                except (TypeError, KeyError) as e:
+                except (TypeError, KeyError):
                     raise Exception(
                         "No custom widget "
                         + class_name

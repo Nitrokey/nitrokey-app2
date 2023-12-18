@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
-from PySide6.QtGui import QGuiApplication, QIcon
+from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import QDialog, QListWidgetItem, QWidget
 
 from nitrokeyapp.add_secret_dialog import AddSecretDialog
