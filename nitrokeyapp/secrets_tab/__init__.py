@@ -7,9 +7,10 @@ from PySide6.QtWidgets import QDialog, QListWidgetItem, QWidget
 
 from nitrokeyapp.add_secret_dialog import AddSecretDialog
 from nitrokeyapp.device_data import DeviceData
-#from nitrokeyapp.ui.secrets_tab import Ui_SecretsTab
-from nitrokeyapp.worker import Worker
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
+
+# from nitrokeyapp.ui.secrets_tab import Ui_SecretsTab
+from nitrokeyapp.worker import Worker
 
 from .data import Credential, OtpData
 from .worker import SecretsWorker
@@ -72,8 +73,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.originalText = self.clipboard.text()
 
         self.ui = self.load_ui("secrets_tab.ui", self)
-        #breakpoint()
-        #print(self.pageCompatible)
+        # breakpoint()
+        # print(self.pageCompatible)
 
         labels = [
             self.labelName,

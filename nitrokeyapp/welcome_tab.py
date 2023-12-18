@@ -11,7 +11,6 @@ from nitrokeyapp.logger import save_log
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
 
-
 class WelcomeTab(QtUtilsMixIn, QWidget):
     def __init__(self, parent: Optional[QWidget], log_file: str) -> None:
         QWidget.__init__(self, parent)

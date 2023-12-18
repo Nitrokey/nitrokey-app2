@@ -69,7 +69,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.monitor = pyudev.Monitor.from_netlink(self.context)
             self.monitor.filter_by(subsystem="usb")
             # pyudev.pyside6 integration doesn't work properly
-            self.observer = pyudev.MonitorObserver(self.monitor, lambda action, device: self.sig_device_change.emit(action))
+            self.observer = pyudev.MonitorObserver(
+                self.monitor, lambda action, device: self.sig_device_change.emit(action)
+            )
             self.observer.start()
 
         # windows
@@ -86,7 +88,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         # loads main ui
         self.ui = self.load_ui("mainwindow.ui", self)
-        #self.setCentralWidget(self.ui)
+        # self.setCentralWidget(self.ui)
 
         self.info_box = InfoBox(
             self.ui.information_frame,
@@ -130,7 +132,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         self.sig_device_change.connect(self.device_connect)
 
-
         self.init_gui()
         self.show()
 
@@ -138,7 +139,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.help_btn.clicked.connect(
             lambda: webbrowser.open("https://docs.nitrokey.com/nitrokey3")
         )
-        #self.lock_btn.clicked.connect(self.slot_lock_button_pressed)
+        # self.lock_btn.clicked.connect(self.slot_lock_button_pressed)
         self.home_button.clicked.connect(self.home_button_pressed)
         # self.settings_btn.clicked.connect()
         # connections for functional signals
@@ -259,8 +260,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def init_gui(self) -> None:
         self.tabs.hide()
         self.info_box.hide()
-        #self.lock_btn.setEnabled(False)
-        #self.settings_btn.setEnabled(False)
+        # self.lock_btn.setEnabled(False)
+        # self.settings_btn.setEnabled(False)
         self.detect_added_devices()
 
     def device_selected(self, data: DeviceData) -> None:

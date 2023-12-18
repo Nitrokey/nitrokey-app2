@@ -1,5 +1,6 @@
 from PySide6.QtUiTools import QUiLoader
 
+
 # taken/inspired with many thanks from: https://gist.github.com/cpbotha/1b42a20c8f3eb9bb7cb8
 class UiLoader(QUiLoader):
     """
@@ -27,7 +28,7 @@ class UiLoader(QUiLoader):
         self.baseinstance = baseinstance
         self.customWidgets = customWidgets
 
-    def createWidget(self, class_name, parent=None, name=''):
+    def createWidget(self, class_name, parent=None, name=""):
         """
         Function that is called for each widget defined in ui file,
         overridden here to populate baseinstance instead.
@@ -46,7 +47,11 @@ class UiLoader(QUiLoader):
                     widget = self.customWidgets[class_name](parent)
 
                 except (TypeError, KeyError) as e:
-                    raise Exception("No custom widget " + class_name + " found in customWidgets param of UiLoader __init__.")
+                    raise Exception(
+                        "No custom widget "
+                        + class_name
+                        + " found in customWidgets param of UiLoader __init__."
+                    )
 
             if self.baseinstance:
                 # set an attribute for the new child widget on the base
@@ -56,6 +61,6 @@ class UiLoader(QUiLoader):
 
                 # this outputs the various widget names, e.g.
                 # sampleGraphicsView, dockWidget, samplesTableView etc.
-                #print(name)
+                # print(name)
 
             return widget

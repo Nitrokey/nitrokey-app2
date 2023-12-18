@@ -100,7 +100,8 @@ class UpdateGUI(UpdateUi):
         )
         confirm_download_msgBox.setWindowTitle("Nitrokey 3 Firmware Update")
         confirm_download_msgBox.setStandardButtons(
-            QtWidgets.QMessageBox.StandardButton.Ok | QtWidgets.QMessageBox.StandardButton.Cancel
+            QtWidgets.QMessageBox.StandardButton.Ok
+            | QtWidgets.QMessageBox.StandardButton.Cancel
         )
         returnValue = confirm_download_msgBox.exec()
         if returnValue == QtWidgets.QMessageBox.StandardButton.Cancel:
@@ -122,7 +123,8 @@ class UpdateGUI(UpdateUi):
         )
         confirm_update_msgBox.setWindowTitle("Nitrokey 3 Firmware Update")
         confirm_update_msgBox.setStandardButtons(
-            QtWidgets.QMessageBox.StandardButton.Ok | QtWidgets.QMessageBox.StandardButton.Cancel
+            QtWidgets.QMessageBox.StandardButton.Ok
+            | QtWidgets.QMessageBox.StandardButton.Cancel
         )
         returnValue = confirm_update_msgBox.exec()
         if returnValue == QtWidgets.QMessageBox.StandardButton.Cancel:
@@ -138,13 +140,16 @@ class UpdateGUI(UpdateUi):
 
     def confirm_update_same_version(self, version: Version) -> None:
         confirm_update_same_version_msgBox = QtWidgets.QMessageBox(self.overview_tab)
-        confirm_update_same_version_msgBox.setIcon(QtWidgets.QMessageBox.Icon.Information)
+        confirm_update_same_version_msgBox.setIcon(
+            QtWidgets.QMessageBox.Icon.Information
+        )
         confirm_update_same_version_msgBox.setText(
             "The version of the firmware image is the same as on the device. Do you want to continue anyway?"
         )
         confirm_update_same_version_msgBox.setWindowTitle("Nitrokey 3 Firmware Update")
         confirm_update_same_version_msgBox.setStandardButtons(
-            QtWidgets.QMessageBox.StandardButton.Ok | QtWidgets.QMessageBox.StandardButton.Cancel
+            QtWidgets.QMessageBox.StandardButton.Ok
+            | QtWidgets.QMessageBox.StandardButton.Cancel
         )
         returnValue = confirm_update_same_version_msgBox.exec()
         if returnValue == QtWidgets.QMessageBox.StandardButton.Cancel:

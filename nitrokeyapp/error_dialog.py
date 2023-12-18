@@ -5,8 +5,8 @@ from typing import Optional, Type
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QDialog, QDialogButtonBox, QPushButton, QWidget
 
-from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.logger import save_log
+from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
 
 class ErrorDialog(QtUtilsMixIn, QDialog):

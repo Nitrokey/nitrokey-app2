@@ -5,7 +5,6 @@ from nitrokeyapp import __version__
 from nitrokeyapp.logger import save_log
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
-
 ## unused ?
 
 

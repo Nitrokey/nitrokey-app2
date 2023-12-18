@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 log_to_console = "NKAPP_LOG" in os.environ
 
+
 @contextmanager
 def init_logging() -> Generator[str, None, None]:
     log_file = NamedTemporaryFile(prefix="nitrokey-app2.", suffix=".log", delete=False)
