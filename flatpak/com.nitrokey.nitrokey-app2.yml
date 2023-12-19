@@ -1,0 +1,21 @@
+app-id: com.nitrokey.nitrokey-app2
+runtime: org.kde.Platform
+runtime-version: '6.6'
+sdk: org.kde.Sdk
+command: nitrokeyapp
+finish-args:
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=all
+  - --share=network
+modules:
+  - pypi-dependencies.json
+  - name: nkapp
+    buildsystem: simple
+    build-commands:
+      - pip install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} . --no-build-isolation
+    sources:
+      - type: archive
+        url: https://github.com/Nitrokey/nitrokey-app2/archive/refs/tags/v2.1.5.tar.gz
+        sha256: 15886442409e3605b4e95526ce6f1687f1d5d307f866e846ff3549ff99f0c759
