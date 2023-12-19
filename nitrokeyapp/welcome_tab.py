@@ -3,13 +3,12 @@ from typing import Optional
 from urllib.request import urlopen
 
 from pynitrokey.nk3.utils import Version
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QWidget
+from PySide6.QtCore import Slot
+from PySide6.QtWidgets import QWidget
 
 from nitrokeyapp import __version__
 from nitrokeyapp.logger import save_log
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
-from nitrokeyapp.ui.welcome_tab import Ui_WelcomeTab
 
 
 class WelcomeTab(QtUtilsMixIn, QWidget):
@@ -19,8 +18,8 @@ class WelcomeTab(QtUtilsMixIn, QWidget):
 
         self.log_file = log_file
 
-        self.ui = Ui_WelcomeTab()
-        self.ui.setupUi(self)
+        # self.ui === self -> this tricks mypy due to monkey-patching self
+        self.ui = self.load_ui("welcome_tab.ui", self)
         self.ui.buttonSaveLog.pressed.connect(self.save_log)
         self.ui.VersionNr.setText(__version__)
         self.ui.CheckUpdate.pressed.connect(self.check_update)
@@ -46,6 +45,6 @@ class WelcomeTab(QtUtilsMixIn, QWidget):
         else:
             self.ui.CheckUpdate.setText("App is up to date")
 
-    @pyqtSlot()
+    @Slot()
     def save_log(self) -> None:
         save_log(self.log_file, self)

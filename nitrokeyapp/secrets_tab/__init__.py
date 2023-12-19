@@ -1,13 +1,15 @@
 from datetime import datetime
 from typing import Optional
 
-from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QGuiApplication, QIcon
-from PyQt5.QtWidgets import QDialog, QListWidgetItem, QWidget
+from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtWidgets import QDialog, QListWidgetItem, QWidget
 
 from nitrokeyapp.add_secret_dialog import AddSecretDialog
 from nitrokeyapp.device_data import DeviceData
-from nitrokeyapp.ui.secrets_tab import Ui_SecretsTab
+from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
+
+# from nitrokeyapp.ui.secrets_tab import Ui_SecretsTab
 from nitrokeyapp.worker import Worker
 
 from .data import Credential, OtpData
@@ -22,22 +24,23 @@ from .worker import SecretsWorker
 # - confirm new PIN
 
 
-class SecretsTab(QWidget):
+class SecretsTab(QtUtilsMixIn, QWidget):
     # standard UI
-    busy_state_changed = pyqtSignal(bool)
-    error = pyqtSignal(str)
-    start_touch = pyqtSignal()
-    stop_touch = pyqtSignal()
+    busy_state_changed = Signal(bool)
+    error = Signal(str)
+    start_touch = Signal()
+    stop_touch = Signal()
 
     # worker triggers
-    trigger_add_credential = pyqtSignal(DeviceData, Credential, bytes)
-    trigger_check_device = pyqtSignal(DeviceData)
-    trigger_delete_credential = pyqtSignal(DeviceData, Credential)
-    trigger_generate_otp = pyqtSignal(DeviceData, Credential)
-    trigger_refresh_credentials = pyqtSignal(DeviceData, bool)
+    trigger_add_credential = Signal(DeviceData, Credential, bytes)
+    trigger_check_device = Signal(DeviceData)
+    trigger_delete_credential = Signal(DeviceData, Credential)
+    trigger_generate_otp = Signal(DeviceData, Credential)
+    trigger_refresh_credentials = Signal(DeviceData, bool)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent)
+        QWidget.__init__(self, parent)
+        QtUtilsMixIn.__init__(self)
 
         self.worker_thread = QThread()
         self._worker = SecretsWorker(self)
@@ -69,8 +72,8 @@ class SecretsTab(QWidget):
         self.clipboard = QGuiApplication.clipboard()
         self.originalText = self.clipboard.text()
 
-        self.ui = Ui_SecretsTab()
-        self.ui.setupUi(self)
+        # self.ui === self -> this tricks mypy due to monkey-patching self
+        self.ui = self.load_ui("secrets_tab.ui", self)
 
         labels = [
             self.ui.labelName,
@@ -126,13 +129,13 @@ class SecretsTab(QWidget):
         self.reset_ui()
         self.trigger_check_device.emit(data)
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def device_checked(self, compatible: bool) -> None:
         self.show_secrets(compatible)
         if compatible:
             self.refresh_credential_list()
 
-    @pyqtSlot()
+    @Slot()
     def refresh_credential_list(self) -> None:
         assert self.data
 
@@ -145,7 +148,7 @@ class SecretsTab(QWidget):
 
         self.trigger_refresh_credentials.emit(self.data, pin_protected)
 
-    @pyqtSlot(Credential)
+    @Slot(Credential)
     def credential_added(self, credential: Credential) -> None:
         self.active_credential = credential
         if credential.protected:
@@ -153,11 +156,11 @@ class SecretsTab(QWidget):
 
         self.refresh_credential_list()
 
-    @pyqtSlot(Credential)
+    @Slot(Credential)
     def credential_deleted(self, credential: Credential) -> None:
         self.refresh_credential_list()
 
-    @pyqtSlot(list)
+    @Slot(list)
     def credentials_listed(self, credentials: list[Credential]) -> None:
         self.reset_ui()
         self.show_secrets(True)
@@ -171,7 +174,7 @@ class SecretsTab(QWidget):
         if active_item:
             self.ui.secretsList.setCurrentItem(active_item)
 
-    @pyqtSlot(OtpData)
+    @Slot(OtpData)
     def otp_generated(self, data: OtpData) -> None:
         self.ui.lineEditOtp.setText(data.otp)
         self.data_otp = data.otp
@@ -200,7 +203,7 @@ class SecretsTab(QWidget):
             else "lock_open_FILL0_wght500_GRAD0_opsz40"
         )
         item = QListWidgetItem(credential.name)
-        item.setIcon(QIcon(f":/icons/{icon}.svg"))
+        item.setIcon(self.get_qicon(f"{icon}.svg"))
         item.setData(Qt.ItemDataRole.UserRole, credential)
         self.ui.secretsList.addItem(item)
         return item
@@ -236,7 +239,7 @@ class SecretsTab(QWidget):
         widget = self.ui.pageCompatible if show else self.ui.pageIncompatible
         self.ui.stackedWidget.setCurrentWidget(widget)
 
-    @pyqtSlot()
+    @Slot()
     def hide_otp(self) -> None:
         self.otp_timeout = None
         self.otp_timer.stop()
@@ -252,7 +255,7 @@ class SecretsTab(QWidget):
         visible = credential is not None and credential.otp is not None
         self.ui.pushButtonOtpGenerate.setVisible(visible)
 
-    @pyqtSlot()
+    @Slot()
     def update_otp_timeout(self) -> None:
         if not self.otp_timeout:
             return
@@ -263,7 +266,7 @@ class SecretsTab(QWidget):
         else:
             self.hide_otp()
 
-    @pyqtSlot(QListWidgetItem, QListWidgetItem)
+    @Slot(QListWidgetItem, QListWidgetItem)
     def credential_changed(
         self, current: Optional[QListWidgetItem], old: Optional[QListWidgetItem]
     ) -> None:
@@ -275,7 +278,7 @@ class SecretsTab(QWidget):
             self.hide_credential()
             self.ui.buttonDelete.setEnabled(False)
 
-    @pyqtSlot()
+    @Slot()
     def delete_credential(self) -> None:
         assert self.data
         credential = self.get_current_credential()
@@ -285,7 +288,7 @@ class SecretsTab(QWidget):
 
         self.trigger_delete_credential.emit(self.data, credential)
 
-    @pyqtSlot()
+    @Slot()
     def add_new_credential(self) -> None:
         if not self.data:
             return
@@ -296,7 +299,7 @@ class SecretsTab(QWidget):
             secret = dialog.secret()
             self.trigger_add_credential.emit(self.data, credential, secret)
 
-    @pyqtSlot()
+    @Slot()
     def generate_otp(self) -> None:
         assert self.data
         credential = self.get_current_credential()
@@ -304,7 +307,7 @@ class SecretsTab(QWidget):
 
         self.trigger_generate_otp.emit(self.data, credential)
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def uncheck_checkbox(self, uncheck: bool) -> None:
         if uncheck:
             self.ui.checkBoxProtected.setChecked(False)

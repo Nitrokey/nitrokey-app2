@@ -1,21 +1,21 @@
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-from PyQt5.QtCore import QMetaObject, QObject, pyqtSignal, pyqtSlot
-from PyQt5.QtWidgets import QInputDialog, QLineEdit, QWidget
+from PySide6.QtCore import QMetaObject, QObject, Signal, Slot
+from PySide6.QtWidgets import QInputDialog, QLineEdit, QWidget
 
 
 class PinUi(QObject):
-    queried = pyqtSignal(str)
-    chosen = pyqtSignal(str)
-    cancelled = pyqtSignal()
+    queried = Signal(str)
+    chosen = Signal(str)
+    cancelled = Signal()
 
     def __init__(self, parent: QWidget) -> None:
         super().__init__(parent)
 
         self.parent_widget = parent
 
-    @pyqtSlot(int)
+    @Slot(int)
     def query(self, attempts: int) -> None:
         pin, ok = QInputDialog.getText(
             self.parent_widget,
@@ -28,7 +28,7 @@ class PinUi(QObject):
         else:
             self.cancelled.emit()
 
-    @pyqtSlot()
+    @Slot()
     def choose(self) -> None:
         # TODO: confirm
         pin, ok = QInputDialog.getText(
@@ -42,7 +42,7 @@ class PinUi(QObject):
         else:
             self.cancelled.emit()
 
-    def connect(
+    def connect_actions(
         self,
         queried: Optional[Callable[[str], None]],
         chosen: Optional[Callable[[str], None]],

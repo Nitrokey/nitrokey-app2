@@ -51,8 +51,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>488</width>
-        <height>369</height>
+        <width>476</width>
+        <height>342</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -315,7 +315,7 @@
                <enum>Qt::AutoText</enum>
               </property>
               <property name="pixmap">
-               <pixmap resource="resources.qrc">:/icons/icon_warning.svg</pixmap>
+          			 <pixmap>icons/icon_warning.svg</pixmap>
               </property>
               <property name="scaledContents">
                <bool>true</bool>
@@ -387,6 +387,10 @@
         <widget class="QPushButton" name="more_options_btn">
          <property name="text">
           <string>More Options</string>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>icons/right_arrow.png</normaloff>icons/right_arrow.png</iconset>
          </property>
          <property name="checkable">
           <bool>true</bool>

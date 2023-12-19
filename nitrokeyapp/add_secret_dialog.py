@@ -2,11 +2,11 @@ import binascii
 from base64 import b32decode
 from typing import Optional
 
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QWidget
+from PySide6.QtCore import Slot
+from PySide6.QtWidgets import QDialog, QDialogButtonBox, QWidget
 
+from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.secrets_tab.data import Credential, OtpKind
-from nitrokeyapp.ui.add_secret_dialog import Ui_AddSecretDialog
 
 # TODO:
 # - max length
@@ -16,12 +16,13 @@ from nitrokeyapp.ui.add_secret_dialog import Ui_AddSecretDialog
 DEFAULT_OTP_KIND = OtpKind.TOTP
 
 
-class AddSecretDialog(QDialog):
+class AddSecretDialog(QtUtilsMixIn, QDialog):
     def __init__(self, parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent)
+        QDialog.__init__(self, parent)
+        QtUtilsMixIn.__init__(self)
 
-        self.ui = Ui_AddSecretDialog()
-        self.ui.setupUi(self)
+        # self.ui === self -> this tricks mypy due to monkey-patching self
+        self.ui = self.load_ui("add_secret_dialog.ui", self)
 
         for kind in OtpKind:
             self.ui.comboBoxOtpType.addItem(str(kind))
@@ -32,7 +33,7 @@ class AddSecretDialog(QDialog):
 
         self.refresh()
 
-    @pyqtSlot()
+    @Slot()
     def refresh(self) -> None:
         errors = []
 

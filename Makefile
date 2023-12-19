@@ -32,14 +32,10 @@ clean: semi-clean
 	rm -rf .mypy_cache
 
 # build
-build-ui: $(UI_FILES)
-	$(VENV_BIN)/pyrcc5 $(UI_FILES_PATH)/resources.qrc -o $(UI_FILES_PATH)/resources_rc.py
-	$(foreach var,$(UI_FILES),$(VENV_BIN)/pyuic5 --from-imports $(var) -o $(subst .ui,.py,$(var));)
-
-build: build-ui
+build:
 	poetry build
 
-build-pyinstaller-onefile: build-ui
+build-pyinstaller-onefile:
 	$(VENV_BIN)/pyinstaller ci-scripts/linux/pyinstaller/nitrokey-app-onefile.spec
 
 # code checks
@@ -52,7 +48,7 @@ check-import-sorting:
 check-style:
 	$(VENV_PYTHON) -m flake8 $(PACKAGE_NAME)/
 
-check-typing: build-ui
+check-typing:
 	$(VENV_PYTHON) -m mypy $(PACKAGE_NAME)/
 
 check: check-format check-import-sorting check-style check-typing

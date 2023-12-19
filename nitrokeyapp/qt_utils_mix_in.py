@@ -1,7 +1,10 @@
-from typing import Optional, Type, TypeVar
+from pathlib import Path
+from typing import Any, Optional, Type, TypeVar
 
-from PyQt5 import QtGui, QtWidgets, uic
-from PyQt5.QtCore import QObject, QSize
+from PySide6 import QtGui, QtWidgets
+from PySide6.QtCore import QDir, QObject, QSize
+
+from nitrokeyapp.ui_loader import UiLoader
 
 Q = TypeVar("Q", bound=QObject)
 
@@ -13,6 +16,22 @@ class QtUtilsMixIn:
         # ensure we are always mixed-in with an QObject-ish class
         # TODO: should we restrict this further to QWidget?
         assert isinstance(self, QObject)
+
+    @staticmethod
+    def load_ui(
+        filename: str, base_instance: Optional[QtWidgets.QWidget] = None
+    ) -> Any:
+        # returning `Any` to avoid  `mypy` going crazy due to monkey-patching
+        loader = UiLoader(base_instance, customWidgets=None)
+        p_dir = (Path(__file__).parent / "ui").absolute()
+        loader.setWorkingDirectory(QDir(p_dir.as_posix()))
+        p_file = p_dir / filename
+        return loader.load(p_file.as_posix())
+
+    @staticmethod
+    def get_qicon(filename: str) -> QtGui.QIcon:
+        p = Path(__file__).parent / "ui" / "icons" / filename
+        return QtGui.QIcon(p.as_posix())
 
     def user_warn(
         self,
@@ -56,23 +75,19 @@ class QtUtilsMixIn:
             self.widgets[name] = widget
         return widget  # type: ignore
 
-    def load_ui(self, filename: str, qt_obj: Type) -> bool:
-        uic.loadUi(filename, qt_obj)
-        return True
-
     def collapse(
         self, frame: QtWidgets.QWidget, expand_button: QtWidgets.QPushButton
     ) -> None:
         # Find out if the state is on or off
         state = expand_button.isChecked()
         if not state:
-            expand_button.setIcon(QtGui.QIcon(":/icons/right_arrow.png"))
+            expand_button.setIcon(self.get_qicon("right_arrow.png"))
             expand_button.setIconSize(QSize(12, 12))
             frame.setFixedHeight(0)
             # Set window Height
             # self.setFixedHeight(self.sizeHint().height())
         else:
-            expand_button.setIcon(QtGui.QIcon(":/icons/down_arrow.png"))
+            expand_button.setIcon(self.get_qicon("down_arrow.png"))
             oSize = frame.sizeHint()
             frame.setFixedHeight(oSize.height())
             # Set window Height
