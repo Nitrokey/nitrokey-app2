@@ -21,6 +21,7 @@ classifiers=[
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
 ]
 packages = [
   {include = "nitrokeyapp"}
@@ -30,7 +31,7 @@ packages = [
 nitrokeyapp = "nitrokeyapp.__main__:main"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.12"
+python = ">=3.9,<3.13"
 pySide6 = ">=6.6.0"
 pyudev = "^0.24.1"
 pynitrokey = "0.4.43"
@@ -45,7 +46,7 @@ isort = "^5.12.0"
 mypy = ">=1.4,<1.5"
 
 [tool.poetry.group.deploy.dependencies]
-pyinstaller = "5.9.0"
+pyinstaller = "^6.3.0"
 pyinstaller-versionfile = { version = "2.1.1", markers = "sys_platform=='win32'" }
 
 [tool.isort]
