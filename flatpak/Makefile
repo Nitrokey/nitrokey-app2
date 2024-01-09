@@ -2,28 +2,31 @@
 MANIFEST=com.nitrokey.nitrokey-app2.yml
 
 
-.PHONY: pkg user run bundle clean
+.PHONY: pkg run bundle clean lint check-meta
 
 pkg: pypi-dependencies.json $(MANIFEST)
-	flatpak-builder build $(MANIFEST) --force-clean
-
-user: pypi-dependencies.json $(MANIFEST)
-	flatpak-builder build $(MANIFEST) --force-clean --user --install
+	#flatpak-builder build $(MANIFEST) --force-clean
+	flatpak run org.flatpak.Builder --force-clean --sandbox --user --install --install-deps-from=flathub --ccache --mirror-screenshots-url=https://dl.flathub.org/repo/screenshots --repo=repo builddir $(MANIFEST)
 
 run:
-	flatpak run com.nitrokey.nitrokey-app2
+	flatpak run --repo=repo com.nitrokey.nitrokey-app2
 
 bundle:
 	flatpak build-bundle .flatpak-builder/cache nk-app2.flatpak com.nitrokey.nitrokey-app2
 
+lint:
+	flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest $(MANIFEST)
+	flatpak run --command=flatpak-builder-lint org.flatpak.Builder repo repo
+
+check-meta:
+	flatpak run --command=appstream-util org.flatpak.Builder validate ../meta/com.nitrokey.nitrokey-app2.appdata.xml
 
 clean:
 	rm -f requirements.txt*
 	rm -f pypi-dependencies.json
-	rm -rf build venv
+	rm -rf build venv builddir .flatpak-builder
 	rm -rf flatpak-pip-generator
-
-.PHONY: user pkg run clean
+	rm -rf repo
 
 
 requirements.txt: ../pyproject.toml
