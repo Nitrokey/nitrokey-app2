@@ -2,6 +2,8 @@
 MANIFEST=com.nitrokey.nitrokey-app2.yml
 
 
+.PHONY: pkg user run bundle clean
+
 pkg: pypi-dependencies.json $(MANIFEST)
 	flatpak-builder build $(MANIFEST) --force-clean
 
@@ -10,6 +12,10 @@ user: pypi-dependencies.json $(MANIFEST)
 
 run:
 	flatpak run com.nitrokey.nitrokey-app2
+
+bundle:
+	flatpak build-bundle .flatpak-builder/cache nk-app2.flatpak com.nitrokey.nitrokey-app2
+
 
 clean:
 	rm -f requirements.txt*
