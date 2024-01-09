@@ -17,7 +17,7 @@
 	  <category>Qt</category>
   </categories>
 	<releases>
-		<release version="2.1.5" date="2024-01-09" />
+		<release version="2.1.5" date="2024-01-09"/>
   </releases>
   <provides>
 	  <binary>nitrokeyapp</binary>
@@ -28,13 +28,13 @@
          <modalias>usb:v20A0p42f4d*</modalias> <!-- Nitrokey Passkey Bootloader-->
 	</provides>
   <content_rating type="oars-1.1"/>
-  <launchable type="desktop-id">nitrokey-app.desktop</launchable>
+  <launchable type="desktop-id">com.nitrokey.nitrokey-app2.desktop</launchable>
   <url type="homepage">https://www.nitrokey.com/</url>
   <url type="bugtracker">https://github.com/Nitrokey/nitrokey-app2/issues</url>
   <url type="help">https://docs.nitrokey.com/software/nk-app2</url>
   <screenshots>
     <screenshot type="default">
-	    <image>https://github.com/Nitrokey/nitrokey-app2/raw/master/flatpak/screenshot.png</image>
+	    <image>https://github.com/Nitrokey/nitrokey-app2/raw/flatpak/meta/screenshot.png</image>
 			<caption>Main window</caption>
 		</screenshot>
   </screenshots>
