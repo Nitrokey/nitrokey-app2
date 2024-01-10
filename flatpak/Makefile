@@ -4,7 +4,7 @@ MANIFEST=com.nitrokey.nitrokey-app2.yml
 
 .PHONY: pkg run bundle clean lint check-meta
 
-pkg: pypi-dependencies.json $(MANIFEST)
+pkg: $(MANIFEST)
 	#flatpak-builder build $(MANIFEST) --force-clean
 	flatpak run org.flatpak.Builder --force-clean --sandbox --user --install --install-deps-from=flathub --ccache --mirror-screenshots-url=https://dl.flathub.org/repo/screenshots --repo=repo builddir $(MANIFEST)
 
