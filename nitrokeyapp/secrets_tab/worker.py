@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
-from pynitrokey.nk3.secrets_app import SecretsApp, SecretsAppException
+from pynitrokey.nk3.secrets_app import SecretsApp, SecretsAppException, Kind as RawKind
 from pynitrokey.nk3.utils import Uuid
 from PySide6.QtCore import Signal, Slot
 from PySide6.QtWidgets import QWidget
@@ -200,19 +200,32 @@ class AddCredentialJob(Job):
             self.finished.emit()
             return
 
-        assert self.credential.otp
+        kind = self.credential.otp or RawKind.NotSet
+
         with self.data.open() as device:
             secrets = SecretsApp(device)
             with self.touch_prompt():
-                secrets.register(
+
+                reg_data = dict(
                     credid=self.credential.id,
-                    secret=self.secret,
-                    kind=self.credential.otp.raw_kind(),
                     touch_button_required=self.credential.touch_required,
                     pin_based_encryption=self.credential.protected,
                 )
 
-            self.credential_added.emit(self.credential)
+                if self.credential.otp:
+                    reg_data["secret"] = self.secret
+                    reg_data["kind"] = self.credential.otp.raw_kind()
+
+                if self.credential.login:
+                    reg_data["login"] = self.credential.login
+                if self.credential.password:
+                    reg_data["password"] = self.credential.password
+                if self.credential.comment:
+                    reg_data["metadata"] = self.credential.comment
+
+                secrets.register(**reg_data)
+
+        self.credential_added.emit(self.credential)
 
 
 class DeleteCredentialJob(Job):
@@ -346,6 +359,37 @@ class ListCredentialsJob(Job):
 
         self.credentials_listed.emit(credentials)
 
+class GetCredentialJob(Job):
+    received_credential = Signal(Credential)
+
+    def __init__(
+        self, pin_cache: PinCache, pin_ui: PinUi, data: DeviceData, credential: Credential
+    ) -> None:
+        super().__init__()
+
+        self.pin_cache = pin_cache
+        self.pin_ui = pin_ui
+        self.data = data
+        self.credential = credential
+
+        self.received_credential.connect(lambda _: self.finished.emit())
+
+    def run(self) -> None:
+        with self.touch_prompt():
+            if self.credential.protected:
+                verify_pin_job = VerifyPinJob(self.pin_cache, self.pin_ui, self.data)
+                verify_pin_job.pin_verified.connect(self.get_credential)
+                self.spawn(verify_pin_job)
+            else:
+                self.get_credential()
+
+    @Slot()
+    def get_credential(self) -> None:
+        with self.data.open() as device:
+            secrets = SecretsApp(device)
+            pse = secrets.get_credential(self.credential.id)
+            cred = self.credential.extend_with_password_safe_entry(pse)
+            self.received_credential.emit(cred)
 
 class SecretsWorker(Worker):
     # TODO: remove DeviceData from signatures
@@ -356,6 +400,7 @@ class SecretsWorker(Worker):
     uncheck_checkbox = Signal(bool)
     device_checked = Signal(bool)
     otp_generated = Signal(OtpData)
+    received_credential = Signal(Credential)
 
     def __init__(self, widget: QWidget) -> None:
         super().__init__()
@@ -394,4 +439,10 @@ class SecretsWorker(Worker):
         job = ListCredentialsJob(self.pin_cache, self.pin_ui, data, pin_protected)
         job.credentials_listed.connect(self.credentials_listed)
         job.uncheck_checkbox.connect(self.uncheck_checkbox)
+        self.run(job)
+
+    @Slot(DeviceData, Credential)
+    def get_credential(self, data: DeviceData, credential: Credential) -> None:
+        job = GetCredentialJob(self.pin_cache, self.pin_ui, data, credential)
+        job.received_credential.connect(self.received_credential)
         self.run(job)

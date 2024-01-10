@@ -4,7 +4,7 @@ from enum import Enum, auto, unique
 from typing import Optional, Union
 
 from pynitrokey.nk3.secrets_app import Kind as RawKind
-from pynitrokey.nk3.secrets_app import ListItem, SecretsApp
+from pynitrokey.nk3.secrets_app import ListItem, SecretsApp, PasswordSafeEntry
 
 # TODO: these could be moved into pynitrokey
 
@@ -62,8 +62,12 @@ class Credential:
     id: bytes
     otp: Optional[OtpKind] = None
     other: Optional[OtherKind] = None
+    login: Optional[str] = None
+    password: Optional[str] = None
+    comment: Optional[str] = None
     protected: bool = False
     touch_required: bool = False
+    loaded: bool = False
 
     @property
     def name(self) -> str:
@@ -92,6 +96,15 @@ class Credential:
             credentials.append(cls.from_list_item(item))
         return credentials
 
+    def extend_with_password_safe_entry(self, item: PasswordSafeEntry) -> "Credential":
+        if item.login:
+            self.login = item.login.decode(errors="replace")
+        if item.password:
+            self.password = item.password.decode(errors="replace")
+        if item.metadata:
+            self.comment = item.metadata.decode(errors="replace")
+        self.loaded = True
+        return self
 
 @dataclass
 class OtpData:
