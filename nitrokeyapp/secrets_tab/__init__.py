@@ -37,6 +37,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     trigger_delete_credential = Signal(DeviceData, Credential)
     trigger_generate_otp = Signal(DeviceData, Credential)
     trigger_refresh_credentials = Signal(DeviceData, bool)
+    trigger_get_credential = Signal(DeviceData, Credential)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         QWidget.__init__(self, parent)
@@ -52,6 +53,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.trigger_delete_credential.connect(self._worker.delete_credential)
         self.trigger_generate_otp.connect(self._worker.generate_otp)
         self.trigger_refresh_credentials.connect(self._worker.refresh_credentials)
+        self.trigger_get_credential.connect(self._worker.get_credential)
 
         self._worker.credential_added.connect(self.credential_added)
         self._worker.credential_deleted.connect(self.credential_deleted)
@@ -59,6 +61,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self._worker.device_checked.connect(self.device_checked)
         self._worker.otp_generated.connect(self.otp_generated)
         self._worker.uncheck_checkbox.connect(self.uncheck_checkbox)
+        self._worker.received_credential.connect(self.show_credential)
 
         self.data: Optional[DeviceData] = None
         self.pin: Optional[str] = None
@@ -221,15 +224,31 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             return None
         return self.get_credential(item)
 
+    @Slot(Credential)
     def show_credential(self, credential: Credential) -> None:
-        # TODO: show other credential kind if set
+
+        # cache loaded credential into original credential in ListView
+        item = self.ui.secretsList.currentItem()
+        item.setData(Qt.ItemDataRole.UserRole, credential)
+
         widget = self.ui.credentialShow
         self.ui.CredentialTabSpace.setCurrentWidget(widget)
+
+        self.ui.credentialName.setText(credential.name)
+
+        self.ui.login.setText(credential.login)
+        self.ui.password.setText(credential.password)
+        self.ui.comment.setText(credential.comment)
+
+        self.ui.login.setReadOnly(True)
+        self.ui.password.setReadOnly(True)
+        self.ui.comment.setReadOnly(True)
+
+        self.ui.checkBoxPinProtection.setChecked(credential.protected)
+
         if credential.otp:
             self.hide_otp()
 #            self.ui.groupBoxOtp.show()
-            self.ui.credentialName.setText(credential.name)
-            self.ui.checkBoxPinProtection.setChecked(credential.protected)
             self.ui.otp_label.setText(str(credential.otp))
         else:
 #            self.ui.groupBoxOtp.hide()
@@ -280,7 +299,13 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     ) -> None:
         if current:
             credential = self.get_credential(current)
-            self.show_credential(credential)
+
+            # if credential was already loaded, don't do it again
+            if not credential.loaded:
+                self.trigger_get_credential.emit(self.data, credential)
+            else:
+                self.show_credential(credential)
+
 #            self.ui.buttonDelete.setEnabled(True)
         else:
             self.hide_credential()

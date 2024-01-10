@@ -346,6 +346,37 @@ class ListCredentialsJob(Job):
 
         self.credentials_listed.emit(credentials)
 
+class GetCredentialJob(Job):
+    received_credential = Signal(Credential)
+
+    def __init__(
+        self, pin_cache: PinCache, pin_ui: PinUi, data: DeviceData, credential: Credential
+    ) -> None:
+        super().__init__()
+
+        self.pin_cache = pin_cache
+        self.pin_ui = pin_ui
+        self.data = data
+        self.credential = credential
+
+        self.received_credential.connect(lambda _: self.finished.emit())
+
+    def run(self) -> None:
+        with self.touch_prompt():
+            if self.credential.protected:
+                verify_pin_job = VerifyPinJob(self.pin_cache, self.pin_ui, self.data)
+                verify_pin_job.pin_verified.connect(self.get_credential)
+                self.spawn(verify_pin_job)
+            else:
+                self.get_credential()
+
+    @Slot()
+    def get_credential(self) -> None:
+        with self.data.open() as device:
+            secrets = SecretsApp(device)
+            pse = secrets.get_credential(self.credential.id)
+            cred = self.credential.extend_with_password_safe_entry(pse)
+            self.received_credential.emit(cred)
 
 class SecretsWorker(Worker):
     # TODO: remove DeviceData from signatures
@@ -356,6 +387,7 @@ class SecretsWorker(Worker):
     uncheck_checkbox = Signal(bool)
     device_checked = Signal(bool)
     otp_generated = Signal(OtpData)
+    received_credential = Signal(Credential)
 
     def __init__(self, widget: QWidget) -> None:
         super().__init__()
@@ -394,4 +426,10 @@ class SecretsWorker(Worker):
         job = ListCredentialsJob(self.pin_cache, self.pin_ui, data, pin_protected)
         job.credentials_listed.connect(self.credentials_listed)
         job.uncheck_checkbox.connect(self.uncheck_checkbox)
+        self.run(job)
+
+    @Slot(DeviceData, Credential)
+    def get_credential(self, data: DeviceData, credential: Credential) -> None:
+        job = GetCredentialJob(self.pin_cache, self.pin_ui, data, credential)
+        job.received_credential.connect(self.received_credential)
         self.run(job)
