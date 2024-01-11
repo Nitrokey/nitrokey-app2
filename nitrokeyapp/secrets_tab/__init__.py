@@ -1,5 +1,7 @@
 from datetime import datetime
 from typing import Optional
+import binascii
+from base64 import b32decode
 
 from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QGuiApplication
@@ -22,6 +24,21 @@ from .worker import SecretsWorker
 # - investigate layout during OTP display
 # - disable UI during operations
 # - confirm new PIN
+
+
+def parse_base32(s: str) -> bytes:
+    n = len(s) % 8
+    if n:
+        s += (8 - n) * "="
+    return b32decode(s, casefold=True)
+
+
+def is_base32(s: str) -> bool:
+    try:
+        parse_base32(s)
+        return True
+    except binascii.Error:
+        return False
 
 
 class SecretsTab(QtUtilsMixIn, QWidget):
@@ -88,12 +105,23 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 #            label.setMinimumWidth(max_width)
 
         self.ui.btn_add.pressed.connect(self.add_new_credential)
-#        self.ui.buttonDelete.pressed.connect(self.delete_credential)
+        self.ui.btn_abort.pressed.connect(lambda: self.show_secrets(True))
+        self.ui.btn_save.pressed.connect(self.save_credential)
+
+        self.ui.credential_edit_name.textChanged.connect(self.check_credential)
+        self.ui.otp_edit.textChanged.connect(self.check_credential)
+
         self.ui.btn_refresh.pressed.connect(self.refresh_credential_list)
         self.ui.is_protected.stateChanged.connect(self.refresh_credential_list)
-#        self.ui.pushButtonOtpCopyToClipboard.pressed.connect(self.copy_to_clipboard)
-#        self.ui.pushButtonOtpGenerate.pressed.connect(self.generate_otp)
         self.ui.secrets_list.currentItemChanged.connect(self.credential_changed)
+
+        self.ui.btn_delete.pressed.connect(self.delete_credential)
+
+
+
+#        self.ui.pushButtonOtpCopyToClipboard.pressed.connect(self.copy_to_clipboard)
+#        self.ui.buttonDelete.pressed.connect(self.delete_credential)
+#        self.ui.pushButtonOtpGenerate.pressed.connect(self.generate_otp)
 
         self.reset()
 
@@ -116,14 +144,34 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.reset_ui()
 
     def reset_ui(self) -> None:
-        self.ui.secret_tab.setCurrentWidget(self.ui.page_empty)
-        self.ui.secrets_list.clear()
-        widget = self.ui.credential_empty
-        self.ui.credential_tab_space.setCurrentWidget(widget)
+        #self.ui.secret_tab.setCurrentWidget(self.ui.page_empty)
+        #self.ui.secrets_list.clear()
+        #widget = self.ui.credential_empty
+        #self.ui.credential_tab_space.setCurrentWidget(widget)
 #        self.ui.credentialWidget.hide()
 #        self.ui.buttonDelete.setEnabled(False)
 
-        self.hide_otp()
+        #self.hide_otp()
+        pass
+
+    def show_secrets(self, show: bool) -> None:
+        #widget = self.ui.page_compatible if show else self.ui.page_incompatible
+        #self.ui.secret_tab.setCurrentWidget(widget)
+        if show:
+            self.ui.page_compatible.show()
+            self.ui.page_incompatible.hide()
+            self.ui.page_empty.hide()
+            self.ui.credential_empty.show()
+            self.ui.credential_edit.hide()
+            self.ui.credential_show.hide()
+        else:
+            self.ui.page_incompatible.show()
+            self.ui.page_compatible.hide()
+            self.ui.page_empty.hide()
+            self.ui.credential_empty.hide()
+            self.ui.credential_edit.hide()
+            self.ui.credential_show.hide()
+
 
     def refresh(self, data: DeviceData) -> None:
         if data == self.data:
@@ -262,10 +310,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         witget = self.ui.credential_empty
         self.ui.credential_tab_space.setCurrentWidget(witget)
 
-    def show_secrets(self, show: bool) -> None:
-        widget = self.ui.page_compatible if show else self.ui.page_incompatible
-        self.ui.secret_tab.setCurrentWidget(widget)
-
     @Slot()
     def hide_otp(self) -> None:
         self.otp_timeout = None
@@ -326,11 +370,69 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         if not self.data:
             return
 
-        dialog = AddSecretDialog(self)
-        if dialog.exec() == QDialog.DialogCode.Accepted:
-            credential = dialog.credential()
-            secret = dialog.secret()
-            self.trigger_add_credential.emit(self.data, credential, secret)
+        #dialog = AddSecretDialog(self)
+        #if dialog.exec() == QDialog.DialogCode.Accepted:
+        #    credential = dialog.credential()
+        #    secret = dialog.secret()
+        #    self.trigger_add_credential.emit(self.data, credential, secret)
+
+        self.ui.credential_empty.hide()
+        self.ui.credential_show.hide()
+        self.ui.credential_edit.show()
+
+        self.ui.otp_edit.setText("")
+        self.ui.username_edit.setText("")
+        self.ui.password_edit.setText("")
+        self.ui.comment_edit.setText("")
+        self.ui.algorithm.setCurrentText("None")
+        self.ui.is_pin_protection_edit.setChecked(False)
+        self.ui.is_touch_protection_edit.setChecked(False)
+
+        self.check_credential()
+
+
+    @Slot()
+    def check_credential(self) -> None:
+        can_save = True
+
+        otp_secret = self.ui.otp_edit.text()
+        #assert otp_secret
+        #secret = parse_base32(otp_secret)
+
+        algo = self.ui.algorithm.currentText()
+        if algo != "None" and not is_base32(otp_secret):
+            can_save = False
+
+        if len(self.ui.credential_edit_name.text()) < 3:
+            can_save = False
+
+        self.ui.btn_save.setEnabled(can_save)
+
+
+
+
+    @Slot()
+    def save_credential(self) -> None:
+        name = self.ui.username_edit.text()
+        kind_str = self.ui.password_edit.currentText()
+        user_presence = self.ui.is_pin_protection_edit.isChecked()
+        pin_protected = self.ui.is_touch_protection_edit.isChecked()
+        #assert name
+
+        kind = OtpKind.from_str(kind_str)
+
+        otp_secret = self.ui.lineEditOtpSecret.text()
+        assert otp_secret
+        secret = parse_base32(otp_secret)
+
+        return Credential(
+            id=name.encode(),
+            otp=kind,
+            protected=pin_protected,
+            touch_required=user_presence,
+        )
+
+
 
     @Slot()
     def generate_otp(self) -> None:
