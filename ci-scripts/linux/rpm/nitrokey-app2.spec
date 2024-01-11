@@ -56,10 +56,14 @@ mkdir -p %{buildroot}%{_libdir}/%{name}
 cp -r dist/nitrokey-app/* %{buildroot}%{_libdir}/%{name}
 mkdir -p %{buildroot}%{_bindir}
 ln -s %{_libdir}/%{name}/nitrokey-app %{buildroot}%{_bindir}/%{name}
+mkdir -p %{buildroot}%{_datadir}/icons/hicolor
+cp -r ci-scripts/linux/rpm/icons/hicolor/* %{buildroot}%{_datadir}/icons/hicolor
 
 %files
 %{_bindir}/%{name}
 %{_libdir}/%{name}
+%{_datadir}/icons/hicolor/*/apps/%{name}.png
+%{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
 
 %changelog
 * Wed Jan 10 2024 Markus Merklinger <markus@nitrokey.com> - 2.1.5-1
