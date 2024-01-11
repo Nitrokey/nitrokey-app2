@@ -293,13 +293,14 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     @Slot(Credential)
     def show_credential(self, credential: Credential) -> None:
-
         # cache loaded credential into original credential in ListView
         item = self.ui.secrets_list.currentItem()
         item.setData(Qt.ItemDataRole.UserRole, credential)
 
-        widget = self.ui.credential_show
-        self.ui.credential_tab_space.setCurrentWidget(widget)
+        # widget = self.ui.credential_show
+        #self.ui.credential_tab_space.setCurrentWidget(widget)
+
+
 
         self.ui.credential_name.setText(credential.name)
         self.ui.username.setText(credential.login)
