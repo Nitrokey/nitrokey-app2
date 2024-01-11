@@ -35,3 +35,7 @@ nitrokeyapp
 
 * [pynitrokey ](https://github.com/Nitrokey/pynitrokey)
 * Python >3.9
+
+## Author
+
+Nitrokey GmbH, Jan Suhr and [contributors](https://github.com/Nitrokey/nitrokey-app2/graphs/contributors).
