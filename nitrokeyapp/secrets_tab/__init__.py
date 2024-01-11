@@ -4,8 +4,8 @@ import binascii
 from base64 import b32decode
 
 from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
-from PySide6.QtGui import QGuiApplication
-from PySide6.QtWidgets import QDialog, QListWidgetItem, QWidget
+from PySide6.QtGui import QGuiApplication, QIcon, QAction
+from PySide6.QtWidgets import QDialog, QListWidgetItem, QWidget, QLineEdit
 
 from nitrokeyapp.add_secret_dialog import AddSecretDialog
 from nitrokeyapp.device_data import DeviceData
@@ -229,7 +229,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     @Slot(OtpData)
     def otp_generated(self, data: OtpData) -> None:
-        self.ui.lineEditOtp.setText(data.otp)
+        self.ui.otp.setText(data.otp)
         self.data_otp = data.otp
 
         if data.validity:
@@ -241,10 +241,10 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.otp_timer.start()
             self.update_otp_timeout()
 
-        self.ui.pushButtonOtpGenerate.setVisible(data.validity is None)
+#        self.ui.pushButtonOtpGenerate.setVisible(data.validity is None)
         self.ui.otp_timeout_progress.setVisible(data.validity is not None)
-        self.ui.labelOtp.show()
-        self.ui.lineEditOtp.show()
+        self.ui.otp_label.show()
+        self.ui.otp.show()
 
     def copy_to_clipboard(self) -> None:
         self.clipboard.setText(self.data_otp)
@@ -283,8 +283,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.credential_tab_space.setCurrentWidget(widget)
 
         self.ui.credential_name.setText(credential.name)
-
         self.ui.username.setText(credential.login)
+        self.ui.username.addAction(QIcon("nitrokeyapp/ui/icons/content_copy_FILL0_wght400_GRAD0_opsz24.svg"), QLineEdit.ActionPosition.TrailingPosition)
         self.ui.password.setText(credential.password)
         self.ui.comment.setText(credential.comment)
 
@@ -294,12 +294,16 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.ui.is_pin_protection.setChecked(credential.protected)
 
+        genotp = self.ui.otp.addAction(QIcon("nitrokeyapp/ui/icons/refresh_FILL0_wght400_GRAD0_opsz24.svg"), QLineEdit.ActionPosition.TrailingPosition)
+        genotp.triggered.connect(self.generate_otp)
+        genotp.setEnabled(False)
+
         if credential.otp:
             self.hide_otp()
-#            self.ui.groupBoxOtp.show()
+            self.ui.otp.show()
+            genotp.setEnabled(True)
             self.ui.otp_label.setText(str(credential.otp))
         else:
-#            self.ui.groupBoxOtp.hide()
             self.ui.otp.hide()
             self.ui.otp_label.hide()
         self.update_otp_generation(credential)
@@ -315,9 +319,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.otp_timeout = None
         self.otp_timer.stop()
         self.ui.otp_timeout_progress.hide()
-        self.ui.otp.hide()
-        self.ui.otp_label.hide()
-#        self.ui.pushButtonOtpCopyToClipboard.hide()
+        self.ui.otp.clear()
 
         credential = self.get_current_credential()
         self.update_otp_generation(credential)
@@ -328,13 +330,19 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     @Slot()
     def update_otp_timeout(self) -> None:
+
+        cp_otp = self.ui.otp.addAction(QIcon("nitrokeyapp/ui/icons/content_copy_FILL0_wght400_GRAD0_opsz24.svg"), QLineEdit.ActionPosition.TrailingPosition)
+        cp_otp.triggered.connect(self.copy_to_clipboard)
+        cp_otp.setIconVisible(False)
+
         if not self.otp_timeout:
             return
         timeout = int((self.otp_timeout - datetime.now()).total_seconds())
         if timeout >= 0:
             self.ui.otp_timeout_progress.setValue(timeout)
-            self.ui.pushButtonOtpCopyToClipboard.show()
+            cp_otp.setIconVisible(True)
         else:
+            cp_otp.setIconVisible(False)
             self.hide_otp()
 
     @Slot(QListWidgetItem, QListWidgetItem)
@@ -439,7 +447,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         assert self.data
         credential = self.get_current_credential()
         assert credential
-
         self.trigger_generate_otp.emit(self.data, credential)
 
     @Slot(bool)
