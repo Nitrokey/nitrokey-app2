@@ -95,6 +95,25 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         # self.ui === self -> this tricks mypy due to monkey-patching self
         self.ui = self.load_ui("secrets_tab.ui", self)
 
+        cp_username = self.ui.username.addAction(QIcon("nitrokeyapp/ui/icons/content_copy_FILL0_wght400_GRAD0_opsz24.svg"), QLineEdit.ActionPosition.TrailingPosition)
+        cp_username.triggered.connect(self.copy_username)
+
+        cp_password = self.ui.password.addAction(QIcon("nitrokeyapp/ui/icons/content_copy_FILL0_wght400_GRAD0_opsz24.svg"), QLineEdit.ActionPosition.TrailingPosition)
+        cp_password.triggered.connect(self.copy_password)
+
+        show_password = self.ui.password.addAction(QIcon("nitrokeyapp/ui/icons/visibility_FILL0_wght400_GRAD0_opsz24.svg"), QLineEdit.ActionPosition.TrailingPosition)
+        show_password.triggered.connect(self.passwords_show)
+
+        cp_comment = self.ui.comment.addAction(QIcon("nitrokeyapp/ui/icons/content_copy_FILL0_wght400_GRAD0_opsz24.svg"), QLineEdit.ActionPosition.TrailingPosition)
+        cp_comment.triggered.connect(self.copy_comment)
+
+        cp_otp = self.ui.otp.addAction(QIcon("nitrokeyapp/ui/icons/content_copy_FILL0_wght400_GRAD0_opsz24.svg"), QLineEdit.ActionPosition.TrailingPosition)
+        cp_otp.triggered.connect(self.copy_otp)
+
+        gen_otp = self.ui.otp.addAction(QIcon("nitrokeyapp/ui/icons/refresh_FILL0_wght400_GRAD0_opsz24.svg"), QLineEdit.ActionPosition.TrailingPosition)
+        gen_otp.triggered.connect(self.generate_otp)
+
+
 #        labels = [
 #            self.ui.labelName,
 #            self.ui.labelAlgorithm,
@@ -246,7 +265,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.otp_label.show()
         self.ui.otp.show()
 
-    def copy_to_clipboard(self) -> None:
+    def copy_otp(self) -> None:
         self.clipboard.setText(self.data_otp)
 
     def add_credential(self, credential: Credential) -> QListWidgetItem:
@@ -284,7 +303,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.ui.credential_name.setText(credential.name)
         self.ui.username.setText(credential.login)
-        self.ui.username.addAction(QIcon("nitrokeyapp/ui/icons/content_copy_FILL0_wght400_GRAD0_opsz24.svg"), QLineEdit.ActionPosition.TrailingPosition)
         self.ui.password.setText(credential.password)
         self.ui.comment.setText(credential.comment)
 
@@ -294,14 +312,13 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.ui.is_pin_protection.setChecked(credential.protected)
 
-        genotp = self.ui.otp.addAction(QIcon("nitrokeyapp/ui/icons/refresh_FILL0_wght400_GRAD0_opsz24.svg"), QLineEdit.ActionPosition.TrailingPosition)
-        genotp.triggered.connect(self.generate_otp)
-        genotp.setEnabled(False)
+        self.c_username = credential.login
+        self.c_password = credential.password
+        self.c_comment = credential.comment 
 
         if credential.otp:
             self.hide_otp()
             self.ui.otp.show()
-            genotp.setEnabled(True)
             self.ui.otp_label.setText(str(credential.otp))
         else:
             self.ui.otp.hide()
@@ -309,6 +326,23 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.update_otp_generation(credential)
 #        self.ui.credentialWidget.show()
 
+    def copy_username(self) -> None:
+        self.clipboard.setText(self.c_username)
+    
+    def copy_password(self) -> None:
+        self.clipboard.setText(self.c_password)
+
+    def copy_comment(self) -> None:
+        self.clipboard.setText(self.c_comment)
+
+    def passwords_show(self) -> None:
+#        if eye:
+            self.ui.password.setEchoMode(QLineEdit.Normal)
+            self.ui.password.findChildren(QAction)[1].setIcon(QIcon("nitrokeyapp/ui/icons/visibility_off_FILL0_wght400_GRAD0_opsz24.svg"))
+#        else:
+#            self.ui.password.setEchoMode(QLineEdit.Passwords)
+#            self.ui.password.findChildren(QAction)[1].setIcon(QIcon("nitrokeyapp/ui/icons/visibility_FILL0_wght400_GRAD0_opsz24.svg"))
+            
     def hide_credential(self) -> None:
 #        self.ui.credentialWidget.hide()
         witget = self.ui.credential_empty
@@ -330,19 +364,12 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     @Slot()
     def update_otp_timeout(self) -> None:
-
-        cp_otp = self.ui.otp.addAction(QIcon("nitrokeyapp/ui/icons/content_copy_FILL0_wght400_GRAD0_opsz24.svg"), QLineEdit.ActionPosition.TrailingPosition)
-        cp_otp.triggered.connect(self.copy_to_clipboard)
-        cp_otp.setIconVisible(False)
-
         if not self.otp_timeout:
             return
         timeout = int((self.otp_timeout - datetime.now()).total_seconds())
         if timeout >= 0:
             self.ui.otp_timeout_progress.setValue(timeout)
-            cp_otp.setIconVisible(True)
         else:
-            cp_otp.setIconVisible(False)
             self.hide_otp()
 
     @Slot(QListWidgetItem, QListWidgetItem)
