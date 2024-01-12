@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
-from pynitrokey.nk3.secrets_app import SecretsApp, SecretsAppException
+from pynitrokey.nk3.secrets_app import SecretsApp, SecretsAppException, Kind as RawKind
 from pynitrokey.nk3.utils import Uuid
 from PySide6.QtCore import Signal, Slot
 from PySide6.QtWidgets import QWidget
@@ -200,19 +200,32 @@ class AddCredentialJob(Job):
             self.finished.emit()
             return
 
-        assert self.credential.otp
+        kind = self.credential.otp or RawKind.NotSet
+
         with self.data.open() as device:
             secrets = SecretsApp(device)
             with self.touch_prompt():
-                secrets.register(
+
+                reg_data = dict(
                     credid=self.credential.id,
-                    secret=self.secret,
-                    kind=self.credential.otp.raw_kind(),
                     touch_button_required=self.credential.touch_required,
                     pin_based_encryption=self.credential.protected,
                 )
 
-            self.credential_added.emit(self.credential)
+                if self.credential.otp:
+                    reg_data["secret"] = self.secret
+                    reg_data["kind"] = self.credential.otp.raw_kind()
+
+                if self.credential.login:
+                    reg_data["login"] = self.credential.login
+                if self.credential.password:
+                    reg_data["password"] = self.credential.password
+                if self.credential.comment:
+                    reg_data["metadata"] = self.credential.comment
+
+                secrets.register(**reg_data)
+
+        self.credential_added.emit(self.credential)
 
 
 class DeleteCredentialJob(Job):
