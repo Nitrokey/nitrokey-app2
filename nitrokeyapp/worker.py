@@ -62,3 +62,4 @@ class Worker(QObject):
         job.stop_touch.connect(self.stop_touch)
         job.finished.connect(lambda: self.busy_state_changed.emit(False))
         job.run()
+

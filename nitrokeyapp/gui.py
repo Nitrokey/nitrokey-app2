@@ -50,6 +50,32 @@ class TouchDialog(QtWidgets.QMessageBox):
         self.close()
 
 
+class TouchIndicator(QtWidgets.QLabel):
+    def __init__(self, parent: QtWidgets.QWidget) -> None:
+        super().__init__(parent)
+
+        self.parent = parent
+        self.active_btn: Optional[Nk3Button] = None
+
+    @Slot()
+    def start(self) -> None:
+        if self.active_btn:
+            return
+
+        for btn in self.parent.device_buttons:
+            if btn.data == self.parent.selected_device:
+                self.active_btn = btn
+                break
+        if self.active_btn:
+            self.active_btn.start_touch()
+
+    @Slot()
+    def stop(self) -> None:
+        if self.active_btn:
+            self.active_btn.stop_touch()
+            self.active_btn = None
+
+
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     trigger_handle_exception = Signal(object, BaseException, object)
     sig_device_change = Signal(object)
@@ -97,7 +123,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.content_widget = self.ui.widgetTab
         self.content_widget.layout().addWidget(self.welcome_widget)
 
-        self.touch_dialog = TouchDialog(self)
+        #self.touch_dialog = TouchDialog(self)
+        self.touch_dialog = TouchIndicator(self)
+
         self.overview_tab = OverviewTab(self.info_box, self)
         self.views: list[DeviceView] = [self.overview_tab, SecretsTab(self)]
         for view in self.views:
@@ -170,7 +198,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.overview_tab.set_update_enabled(device_count == 1)
 
     def detect_added_devices(self) -> None:
-        nk3_list = Nitrokey3Device.list()
+        try:
+            nk3_list = Nitrokey3Device.list()
+        except Exception as e:
+            logger.info(repr(e))
+            return
+
         if len(nk3_list):
             list_of_added = [device.uuid_prefix for device in self.devices]
             logger.info(f"list of added: {list_of_added}")
@@ -199,7 +232,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def detect_removed_devices(self) -> None:
         list_of_removed: list[DeviceData] = []
         if self.devices:
-            nk3_list = [str(device.uuid())[:-4] for device in Nitrokey3Device.list()]
+            try:
+                nk3_list = [str(device.uuid())[:-4] for device in Nitrokey3Device.list()]
+            except OSError as e:
+                logger.info(repr(e))
+                return
+
             logger.info(f"list nk3: {nk3_list}")
             list_of_removed = [
                 data
