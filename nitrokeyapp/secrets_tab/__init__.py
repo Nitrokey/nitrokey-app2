@@ -485,8 +485,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         username = self.ui.username.text()
         password = self.ui.password.text()
         comment = self.ui.comment.text()
-        user_presence = self.ui.is_pin_protected.isChecked()
-        pin_protected = self.ui.is_touch_protected.isChecked()
+        user_presence = self.ui.is_touch_protected.isChecked()
+        pin_protected = self.ui.is_pin_protected.isChecked()
         kind_str = self.algorithm.currentText()
 
         if len(name) < 3:
