@@ -50,6 +50,32 @@ class TouchDialog(QtWidgets.QMessageBox):
         self.close()
 
 
+class TouchIndicator(QtWidgets.QLabel):
+    def __init__(self, parent: QtWidgets.QWidget) -> None:
+        super().__init__(parent)
+
+        self.parent = parent
+        self.active_btn: Optional[Nk3Button] = None
+
+    @Slot()
+    def start(self) -> None:
+        if self.active_btn:
+            return
+
+        for btn in self.parent.device_buttons:
+            if btn.data == self.parent.selected_device:
+                self.active_btn = btn
+                break
+        if self.active_btn:
+            self.active_btn.start_touch()
+
+    @Slot()
+    def stop(self) -> None:
+        if self.active_btn:
+            self.active_btn.stop_touch()
+            self.active_btn = None
+
+
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     trigger_handle_exception = Signal(object, BaseException, object)
     sig_device_change = Signal(object)
@@ -97,7 +123,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.content_widget = self.ui.widgetTab
         self.content_widget.layout().addWidget(self.welcome_widget)
 
-        self.touch_dialog = TouchDialog(self)
+        #self.touch_dialog = TouchDialog(self)
+        self.touch_dialog = TouchIndicator(self)
+
         self.overview_tab = OverviewTab(self.info_box, self)
         self.views: list[DeviceView] = [self.overview_tab, SecretsTab(self)]
         for view in self.views:
