@@ -20,3 +20,9 @@ class Nk3Button(QtWidgets.QPushButton):
         # set material stylesheet if no system theme is set
         if not self.style().objectName() or self.style().objectName() == "fusion":
             apply_stylesheet(self, theme=get_theme_path())
+
+    def fold(self):
+        self.setText("")
+
+    def unfold(self):
+        self.setText("Nitrokey 3: " f"{str(self.data.uuid)[:5]}")

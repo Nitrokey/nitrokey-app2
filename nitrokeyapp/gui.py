@@ -221,6 +221,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.ui.nitrokeyButtonsLayout.addWidget(button)
         self.devices.append(data)
         self.device_buttons.append(button)
+        if self.selected_device:
+            button.fold()
         self.widget_show()
 
     def remove_device(self, data: DeviceData) -> None:
@@ -248,10 +250,30 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.welcome_widget.hide()
             self.views[self.tabs.currentIndex()].refresh(self.selected_device)
             self.tabs.show()
+
+            self.ui.vertical_navigation.setMinimumWidth(80)
+            self.ui.vertical_navigation.setMaximumWidth(80)
+            self.ui.btn_dial_help.hide()
+            for btn in self.device_buttons:
+                btn.fold()
+            self.ui.main_logo.setMaximumWidth(48)
+            self.ui.main_logo.setMaximumHeight(48)
+            self.ui.main_logo.setMinimumWidth(48)
+            self.ui.main_logo.setMinimumHeight(48)
+
         else:
             for view in self.views:
                 view.reset()
             self.tabs.hide()
+
+            self.ui.vertical_navigation.setMinimumWidth(200)
+            self.ui.btn_dial_help.show()
+            for btn in self.device_buttons:
+                btn.unfold()
+            self.ui.main_logo.setMaximumWidth(120)
+            self.ui.main_logo.setMaximumHeight(120)
+            self.ui.main_logo.setMinimumWidth(64)
+            self.ui.main_logo.setMinimumHeight(64)
 
     def init_gui(self) -> None:
         self.tabs.hide()
@@ -282,6 +304,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def home_button_pressed(self) -> None:
         self.welcome_widget.show()
         self.tabs.hide()
+        self.selected_device = None
+        self.refresh()
 
     @Slot()
     def slot_lock_button_pressed(self) -> None:
