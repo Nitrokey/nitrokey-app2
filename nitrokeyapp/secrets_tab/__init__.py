@@ -45,7 +45,8 @@ def is_base32(s: str) -> bool:
 class SecretsTabState(Enum):
     Initial = 0
     ShowCred = 1
-    EditCred = 2
+    AddCred = 2
+    EditCred = 3
 
     NotAvailable = 99
 
@@ -135,8 +136,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_abort.pressed.connect(lambda: self.show_secrets(True))
         self.ui.btn_save.pressed.connect(self.save_credential)
 
-        self.ui.credential_edit_name.textChanged.connect(self.check_credential)
-        self.ui.otp_edit.textChanged.connect(self.check_credential)
+        self.ui.credential_name.textChanged.connect(self.check_credential)
+        self.ui.otp.textChanged.connect(self.check_credential)
 
         self.ui.btn_refresh.pressed.connect(self.refresh_credential_list)
         self.ui.is_protected.stateChanged.connect(self.refresh_credential_list)
@@ -170,55 +171,34 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.reset_ui()
 
-
-    def set_state(self, state: SecretsTabState) -> None:
-        if not state == SecretsTabState.NotAvailable:
-            self.ui.page_compatible.show()
-            self.ui.page_incompatible.hide()
-        else:
-            self.ui.page_compatible.hide()
-            self.ui.page_incompatible.show()
-
-        self.ui.page_empty.hide()
-
-        if state == SecretsTabState.Initial:
-            self.ui.credential_empty.show()
-            self.ui.credential_edit.hide()
-            self.ui.credential_show.hide()
-        elif state == SecretsTabState.ShowCred:
-            self.ui.credential_empty.hide()
-            self.ui.credential_edit.hide()
-            self.ui.credential_show.show()
-        elif state == SecretsTabState.EditCred:
-            self.ui.credential_empty.hide()
-            self.ui.credential_edit.show()
-            self.ui.credential_show.hide()
-        elif state == SecretsTabState.NotAvailable:
-            self.ui.credential_empty.hide()
-            self.ui.credential_edit.hide()
-            self.ui.credential_show.hide()
-        else:
-            self.error("invalid secrets tab state provided")
-
     def reset_ui(self) -> None:
-        #self.ui.secret_tab.setCurrentWidget(self.ui.page_empty)
-        self.set_state(SecretsTabState.Initial)
-        self.ui.secrets_list.clear()
-        #widget = self.ui.credential_empty
-        #self.ui.credential_tab_space.setCurrentWidget(widget)
-#        self.ui.credentialWidget.hide()
-#        self.ui.buttonDelete.setEnabled(False)
+        self.ui.page_empty.show()
+        self.ui.page_compatible.hide()
+        self.ui.page_incompatible.hide()
 
-        #self.hide_otp()
+        self.ui.credential_empty.show()
+        self.ui.credential_show.hide()
+
+        self.ui.secrets_list.clear()
+
+        self.ui.btn_abort.hide()
+        self.ui.btn_delete.hide()
+        self.ui.btn_edit.hide()
+        self.ui.btn_save.hide()
+
         self.show_secrets(True)
 
     def show_secrets(self, show: bool) -> None:
-        #widget = self.ui.page_compatible if show else self.ui.page_incompatible
-        #self.ui.secret_tab.setCurrentWidget(widget)
         if show:
-            self.set_state(SecretsTabState.Initial)
+            self.ui.page_empty.hide()
+            self.ui.page_compatible.show()
+            self.ui.page_incompatible.hide()
+            self.hide_credential()
         else:
-            self.set_state(SecretsTabState.NotAvailable)
+            self.ui.page_empty.hide()
+            self.ui.page_compatible.hide()
+            self.ui.page_incompatible.show()
+            self.hide_credential()
 
     def refresh(self, data: DeviceData) -> None:
         if data == self.data:
@@ -290,7 +270,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
 #        self.ui.pushButtonOtpGenerate.setVisible(data.validity is None)
         self.ui.otp_timeout_progress.setVisible(data.validity is not None)
-        self.ui.otp_label.show()
         self.ui.otp.show()
 
     def copy_otp(self) -> None:
@@ -325,44 +304,45 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         item = self.ui.secrets_list.currentItem()
         item.setData(Qt.ItemDataRole.UserRole, credential)
 
-        # widget = self.ui.credential_show
-        #self.ui.credential_tab_space.setCurrentWidget(widget)
-        #self.ui.page_incompatible.hide()
-        #self.ui.page_compatible.show()
-        #self.ui.page_empty.hide()
         self.ui.credential_empty.hide()
-        self.ui.credential_edit.hide()
         self.ui.credential_show.show()
 
+        self.ui.btn_abort.hide()
+        self.ui.btn_save.hide()
+        self.ui.btn_delete.hide()
+        self.ui.btn_edit.show()
 
         self.ui.credential_name.setText(credential.name)
         self.ui.username.setText(credential.login)
         self.ui.password.setText(credential.password)
         self.ui.comment.setText(credential.comment)
 
+        self.ui.credential_name.setReadOnly(True)
         self.ui.username.setReadOnly(True)
         self.ui.password.setReadOnly(True)
         self.ui.comment.setReadOnly(True)
 
-        self.ui.is_pin_protection.setChecked(credential.protected)
+        self.ui.is_pin_protected.setChecked(credential.protected)
+        self.ui.is_touch_protected.setChecked(credential.touch_required)
 
         self.c_username = credential.login
         self.c_password = credential.password
-        self.c_comment = credential.comment 
+        self.c_comment = credential.comment
 
+        self.hide_otp()
         if credential.otp:
-            self.hide_otp()
             self.ui.otp.show()
-            self.ui.otp_label.setText(str(credential.otp))
+            self.ui.algorithm.show()
+            self.ui.algorithm.setCurrentText(str(credential.otp))
+            self.ui.algorithm.setEnabled(False)
         else:
+            self.ui.algorithm.hide()
             self.ui.otp.hide()
-            self.ui.otp_label.hide()
         self.update_otp_generation(credential)
-#        self.ui.credentialWidget.show()
 
     def copy_username(self) -> None:
         self.clipboard.setText(self.c_username)
-    
+
     def copy_password(self) -> None:
         self.clipboard.setText(self.c_password)
 
@@ -376,19 +356,10 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 #        else:
 #            self.ui.password.setEchoMode(QLineEdit.Passwords)
 #            self.ui.password.findChildren(QAction)[1].setIcon(QIcon("nitrokeyapp/ui/icons/visibility_FILL0_wght400_GRAD0_opsz24.svg"))
-            
-    def hide_credential(self) -> None:
-#       self.ui.credentialWidget.hide()
-        #witget = self.ui.credential_empty
-        #self.ui.credential_tab_space.setCurrentWidget(witget)
-        self.ui.page_incompatible.hide()
-        self.ui.page_compatible.show()
-        self.ui.page_empty.hide()
-        self.ui.credential_empty.hide()
-        self.ui.credential_edit.hide()
-        self.ui.credential_show.hide()
 
-        ### TODO: SET STATE HERE!!!
+    def hide_credential(self) -> None:
+        self.ui.credential_empty.show()
+        self.ui.credential_show.hide()
 
     @Slot()
     def hide_otp(self) -> None:
@@ -402,7 +373,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     def update_otp_generation(self, credential: Optional[Credential]) -> None:
         visible = credential is not None and credential.otp is not None
-#        self.ui.pushButtonOtpGenerate.setVisible(visible)
 
     @Slot()
     def update_otp_timeout(self) -> None:
@@ -453,43 +423,70 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         #    secret = dialog.secret()
         #    self.trigger_add_credential.emit(self.data, credential, secret)
 
-        self.set_state(SecretsTabState.EditCred)
+        ui = self.ui
 
-        self.ui.credential_edit_name.setText("")
-        self.ui.otp_edit.setText("")
-        self.ui.username_edit.setText("")
-        self.ui.password_edit.setText("")
-        self.ui.comment_edit.setText("")
-        self.ui.algorithm.setCurrentText("None")
-        self.ui.is_pin_protection_edit.setChecked(False)
-        self.ui.is_touch_protection_edit.setChecked(False)
+        ui.credential_empty.hide()
+        ui.credential_show.show()
+
+        ui.credential_name.setText("")
+        ui.otp.setText("")
+        ui.username.setText("")
+        ui.password.setText("")
+        ui.comment.setText("")
+
+        ui.credential_name.setReadOnly(False)
+        ui.otp.setReadOnly(False)
+        ui.username.setReadOnly(False)
+        ui.password.setReadOnly(False)
+        ui.comment.setReadOnly(False)
+
+        ui.algorithm.setCurrentText("None")
+        ui.algorithm.setEnabled(True)
+
+        ui.is_pin_protected.setChecked(False)
+        ui.is_touch_protected.setChecked(False)
+
+        ui.is_pin_protected.setEnabled(True)
+        ui.is_touch_protected.setEnabled(True)
+
+        ui.algorithm.show()
+        ui.algorithm.setCurrentText("None")
+        ui.algorithm.setEnabled(True)
+
+        self.hide_otp()
+        ui.otp.show()
+        ui.otp.setReadOnly(False)
+
+        ui.btn_abort.show()
+        ui.btn_delete.hide()
+        ui.btn_edit.hide()
+        ui.btn_save.show()
 
         self.check_credential()
-
 
     @Slot()
     def check_credential(self) -> None:
         can_save = True
 
-        otp_secret = self.ui.otp_edit.text()
+        otp_secret = self.ui.otp.text()
 
         algo = self.ui.algorithm.currentText()
         if algo != "None" and not is_base32(otp_secret):
             can_save = False
 
-        if len(self.ui.credential_edit_name.text()) < 3:
+        if len(self.ui.credential_name.text()) < 3:
             can_save = False
 
         self.ui.btn_save.setEnabled(can_save)
 
     @Slot()
     def save_credential(self) -> None:
-        name = self.ui.credential_edit_name.text()
-        username = self.ui.username_edit.text()
-        password = self.ui.password_edit.text()
-        comment = self.ui.comment_edit.text()
-        user_presence = self.ui.is_pin_protection_edit.isChecked()
-        pin_protected = self.ui.is_touch_protection_edit.isChecked()
+        name = self.ui.credential_name.text()
+        username = self.ui.username.text()
+        password = self.ui.password.text()
+        comment = self.ui.comment.text()
+        user_presence = self.ui.is_pin_protected.isChecked()
+        pin_protected = self.ui.is_touch_protected.isChecked()
         kind_str = self.algorithm.currentText()
 
         if len(name) < 3:
@@ -499,7 +496,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         kind, otp_secret, secret = None, None, None
         try:
             kind = OtpKind.from_str(kind_str)
-            otp_secret = self.ui.otp_edit.text()
+            otp_secret = self.ui.otp.text()
             secret = parse_base32(otp_secret)
         except RuntimeError as e:
             pass
