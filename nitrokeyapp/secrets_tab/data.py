@@ -62,12 +62,14 @@ class Credential:
     id: bytes
     otp: Optional[OtpKind] = None
     other: Optional[OtherKind] = None
-    login: Optional[str] = None
-    password: Optional[str] = None
-    comment: Optional[str] = None
+    login: Optional[bytes] = None
+    password: Optional[bytes] = None
+    comment: Optional[bytes] = None
     protected: bool = False
     touch_required: bool = False
+
     loaded: bool = False
+    new_secret: bool = False
 
     @property
     def name(self) -> str:
@@ -98,11 +100,11 @@ class Credential:
 
     def extend_with_password_safe_entry(self, item: PasswordSafeEntry) -> "Credential":
         if item.login:
-            self.login = item.login.decode(errors="replace")
+            self.login = item.login
         if item.password:
-            self.password = item.password.decode(errors="replace")
+            self.password = item.password
         if item.metadata:
-            self.comment = item.metadata.decode(errors="replace")
+            self.comment = item.metadata
         self.loaded = True
         return self
 
