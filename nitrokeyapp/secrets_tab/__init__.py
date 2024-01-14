@@ -113,23 +113,40 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         # self.ui === self -> this tricks mypy due to monkey-patching self
         self.ui = self.load_ui("secrets_tab.ui", self)
 
-        cp_username = self.ui.username.addAction(QIcon("nitrokeyapp/ui/icons/content_copy_FILL0_wght400_GRAD0_opsz24.svg"), QLineEdit.ActionPosition.TrailingPosition)
-        cp_username.triggered.connect(self.copy_username)
 
-        cp_password = self.ui.password.addAction(QIcon("nitrokeyapp/ui/icons/content_copy_FILL0_wght400_GRAD0_opsz24.svg"), QLineEdit.ActionPosition.TrailingPosition)
-        cp_password.triggered.connect(self.copy_password)
+        icon_copy = self.get_qicon("content_copy_FILL0_wght400_GRAD0_opsz24.svg")
+        icon_refresh = self.get_qicon("refresh_FILL0_wght400_GRAD0_opsz24.svg")
+        icon_edit = self.get_qicon("edit_FILL0_wght400_GRAD0_opsz24.png")
+        icon_visibility = self.get_qicon("visibility_off_FILL0_wght400_GRAD0_opsz24.svg")
 
-        show_password = self.ui.password.addAction(QIcon("nitrokeyapp/ui/icons/visibility_FILL0_wght400_GRAD0_opsz24.svg"), QLineEdit.ActionPosition.TrailingPosition)
-        show_password.triggered.connect(self.passwords_show)
+        loc = QLineEdit.ActionPosition.TrailingPosition
+        self.action_username_copy = self.ui.username.addAction(icon_copy, loc)
+        self.action_username_copy.triggered.connect(lambda: self.act_copy_line_edit(self.ui.username))
 
-        cp_comment = self.ui.comment.addAction(QIcon("nitrokeyapp/ui/icons/content_copy_FILL0_wght400_GRAD0_opsz24.svg"), QLineEdit.ActionPosition.TrailingPosition)
-        cp_comment.triggered.connect(self.copy_comment)
+        self.action_password_copy = self.ui.password.addAction(icon_copy, loc)
+        self.action_password_copy.triggered.connect(lambda: self.act_copy_line_edit(self.ui.password))
 
-        cp_otp = self.ui.otp.addAction(QIcon("nitrokeyapp/ui/icons/content_copy_FILL0_wght400_GRAD0_opsz24.svg"), QLineEdit.ActionPosition.TrailingPosition)
-        cp_otp.triggered.connect(self.copy_otp)
+        self.action_password_show = self.ui.password.addAction(icon_visibility, loc)
+        self.action_password_show.triggered.connect(self.act_password_show)
 
-        gen_otp = self.ui.otp.addAction(QIcon("nitrokeyapp/ui/icons/refresh_FILL0_wght400_GRAD0_opsz24.svg"), QLineEdit.ActionPosition.TrailingPosition)
-        gen_otp.triggered.connect(self.generate_otp)
+        self.action_comment_copy = self.ui.comment.addAction(icon_copy, loc)
+        self.action_comment_copy.triggered.connect(lambda: self.act_copy_line_edit(self.ui.comment))
+
+        self.action_otp_copy = self.ui.otp.addAction(icon_copy, loc)
+        self.action_otp_copy.triggered.connect(lambda: self.act_copy_line_edit(self.ui.otp))
+
+        self.action_otp_gen = self.ui.otp.addAction(icon_refresh, loc)
+        self.action_otp_gen.triggered.connect(self.generate_otp)
+
+        self.action_otp_edit = self.ui.otp.addAction(icon_edit, loc)
+        self.action_otp_edit.triggered.connect(self.act_enable_otp_edit)
+
+        self.line_actions = [
+            self.action_username_copy,
+            self.action_password_copy, self.action_password_show,
+            self.action_comment_copy,
+            self.action_otp_copy, self.action_otp_edit, self.action_otp_gen
+        ]
 
 
 #        labels = [
@@ -281,12 +298,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.otp_timer.start()
             self.update_otp_timeout()
 
-#        self.ui.pushButtonOtpGenerate.setVisible(data.validity is None)
         self.ui.otp_timeout_progress.setVisible(data.validity is not None)
         self.ui.otp.show()
-
-    def copy_otp(self) -> None:
-        self.clipboard.setText(self.data_otp)
 
     def add_credential(self, credential: Credential) -> QListWidgetItem:
         icon = (
@@ -340,6 +353,11 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         item.setData(Qt.ItemDataRole.UserRole, credential)
 
+
+        ####self.act_password_show(show=False)
+        for action in self.line_actions:
+            action.setVisible(True)
+
         self.ui.credential_empty.hide()
         self.ui.credential_show.show()
 
@@ -349,9 +367,29 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_edit.show()
 
         self.ui.credential_name.setText(credential.name)
-        self.ui.username.setText(credential.login.decode(errors="replace") if credential.login else "")
-        self.ui.password.setText(credential.password.decode(errors="replace") if credential.password else "")
-        self.ui.comment.setText(credential.comment.decode(errors="replace") if credential.comment else "")
+
+        if credential.login:
+            self.ui.username.setText(credential.login.decode(errors="replace"))
+            self.action_username_copy.setEnabled(True)
+        else:
+            self.ui.username.setText("")
+            self.action_username_copy.setEnabled(False)
+
+        if credential.password:
+            self.ui.password.setText(credential.password.decode(errors="replace"))
+            self.action_password_copy.setEnabled(True)
+            self.action_password_show.setEnabled(True)
+        else:
+            self.ui.password.setText("")
+            self.action_password_copy.setEnabled(False)
+            self.action_password_show.setEnabled(False)
+
+        if credential.comment:
+            self.ui.comment.setText(credential.comment.decode(errors="replace"))
+            self.action_comment_copy.setEnabled(True)
+        else:
+            self.ui.comment.setText("")
+            self.action_comment_copy.setEnabled(False)
 
         self.ui.credential_name.setReadOnly(True)
         self.ui.username.setReadOnly(True)
@@ -361,10 +399,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.is_pin_protected.setChecked(credential.protected)
         self.ui.is_touch_protected.setChecked(credential.touch_required)
 
-        self.c_username = credential.login
-        self.c_password = credential.password
-        self.c_comment = credential.comment
-
         self.hide_otp()
         if credential.otp:
             self.ui.otp.show()
@@ -373,9 +407,14 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.ui.algorithm.setCurrentText(str(credential.otp))
             self.ui.algorithm.setEnabled(False)
             self.ui.otp.setPlaceholderText("<hidden>")
+
+            self.action_otp_copy.setVisible(True)
+            self.action_otp_edit.setVisible(False)
+            self.action_otp_gen.setVisible(True)
         else:
             self.ui.algorithm.hide()
             self.ui.otp.hide()
+
         self.update_otp_generation(credential)
 
     @Slot(Credential)
@@ -392,13 +431,28 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_delete.show()
         self.ui.btn_edit.hide()
 
+        ####self.act_password_show(show=False)
+        for action in self.line_actions:
+            action.setVisible(False)
+
+        self.action_password_show.setEnabled(True)
+
         self.ui.credential_name.setText(credential.name)
+
         if credential.login:
             self.ui.username.setText(credential.login.decode(errors="replace"))
+        else:
+            self.ui.username.setText("")
+
         if credential.password:
             self.ui.password.setText(credential.password.decode(errors="replace"))
+        else:
+            self.ui.password.setText("")
+
         if credential.comment:
             self.ui.comment.setText(credential.comment.decode(errors="replace"))
+        else:
+            self.ui.comment.setText("")
 
         self.ui.credential_name.setReadOnly(False)
         self.ui.username.setReadOnly(False)
@@ -411,36 +465,34 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.is_pin_protected.setEnabled(False)
         self.ui.is_touch_protected.setEnabled(True)
 
-        self.c_username = credential.login
-        self.c_password = credential.password
-        self.c_comment = credential.comment
-
         self.hide_otp()
+        self.ui.otp.show()
+        self.ui.algorithm.show()
 
+        # already existing otp requires confirmation to change
         if credential.otp:
-            self.ui.otp.show()
             self.ui.otp.setReadOnly(True)
             self.ui.otp.setPlaceholderText("<hidden - click to edit>")
-            self.ui.algorithm.show()
             self.ui.algorithm.setCurrentText(str(credential.otp))
             self.ui.algorithm.setEnabled(False)
+
+            self.action_otp_copy.setVisible(False)
+            self.action_otp_edit.setVisible(True)
+            self.action_otp_gen.setVisible(False)
+        # no otp there, just offer it as in add
         else:
-            self.ui.otp.show()
             self.ui.otp.setText("")
             self.ui.otp.setReadOnly(False)
-            self.ui.algorithm.show()
             self.ui.otp.setPlaceholderText("<empty>")
             self.ui.algorithm.setCurrentText(str(credential.otp))
             self.ui.algorithm.setEnabled(True)
 
-        #self.update_otp_generation(credential)
-
-    def activate_otp_edit(self, event) -> None:
+    def act_enable_otp_edit(self) -> None:
         self.ui.otp.setReadOnly(False)
         self.ui.algorithm.setEnabled(True)
-        self.ui.otp.mousePressEvent = None
+        self.ui.otp.setPlaceholderText("<empty>")
         self.ui.otp.setText("")
-        credential.new_secret = True
+        self.active_credential.new_secret = True
 
     @Slot()
     def add_new_credential(self) -> None:
@@ -451,6 +503,12 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.ui.credential_empty.hide()
         self.ui.credential_show.show()
+
+        ###self.act_password_show(show=False)
+        for action in self.line_actions:
+            action.setVisible(False)
+        self.action_password_show.setVisible(True)
+        self.action_password_show.setEnabled(True)
 
         self.ui.credential_name.setText("")
         self.ui.otp.setText("")
@@ -503,22 +561,21 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.ui.btn_save.setEnabled(can_save)
 
-    def copy_username(self) -> None:
-        self.clipboard.setText(self.c_username)
+    def act_copy_line_edit(self, obj: QLineEdit):
+        self.clipboard.setText(obj.text())
 
-    def copy_password(self) -> None:
-        self.clipboard.setText(self.c_password)
+    def act_password_show(self) -> None:
+        icon_show = self.get_qicon("visibility_FILL0_wght400_GRAD0_opsz24.svg")
+        icon_hide = self.get_qicon("visibility_off_FILL0_wght400_GRAD0_opsz24.svg")
 
-    def copy_comment(self) -> None:
-        self.clipboard.setText(self.c_comment)
-
-    def passwords_show(self) -> None:
-#        if eye:
-            self.ui.password.setEchoMode(QLineEdit.Normal)
-            self.ui.password.findChildren(QAction)[1].setIcon(QIcon("nitrokeyapp/ui/icons/visibility_off_FILL0_wght400_GRAD0_opsz24.svg"))
-#        else:
-#            self.ui.password.setEchoMode(QLineEdit.Passwords)
-#            self.ui.password.findChildren(QAction)[1].setIcon(QIcon("nitrokeyapp/ui/icons/visibility_FILL0_wght400_GRAD0_opsz24.svg"))
+        if self.ui.password.echoMode() == QLineEdit.Normal:
+            mode = QLineEdit.Password
+            icon = icon_hide
+        else:
+            mode = QLineEdit.Normal
+            icon = icon_show
+        self.ui.password.setEchoMode(mode)
+        self.action_password_show.setIcon(icon)
 
     def hide_credential(self) -> None:
         self.ui.credential_empty.show()
