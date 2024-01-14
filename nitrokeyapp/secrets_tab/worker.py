@@ -48,13 +48,17 @@ class CheckDeviceJob(Job):
 
     def run(self) -> None:
         compatible = False
-        with self.data.open() as device:
-            secrets = SecretsApp(device)
-            try:
-                compatible = secrets._semver_equal_or_newer("4.11.0")
-            except Exception:
-                # TODO: catch a more specific exception
-                pass
+        try:
+            with self.data.open() as device:
+                secrets = SecretsApp(device)
+                try:
+                    compatible = secrets._semver_equal_or_newer("4.11.0")
+                except Exception:
+                    # TODO: catch a more specific exception
+                    pass
+        except Exception as e:
+            logger.info("check device job failed: ", repr(e))
+            compatible = False
 
         self.device_checked.emit(compatible)
 
@@ -385,6 +389,9 @@ class GetCredentialJob(Job):
 
     @Slot()
     def get_credential(self) -> None:
+        if not self.data:
+            return
+
         with self.data.open() as device:
             secrets = SecretsApp(device)
             pse = secrets.get_credential(self.credential.id)

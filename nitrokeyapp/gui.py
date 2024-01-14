@@ -198,7 +198,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.overview_tab.set_update_enabled(device_count == 1)
 
     def detect_added_devices(self) -> None:
-        nk3_list = Nitrokey3Device.list()
+        try:
+            nk3_list = Nitrokey3Device.list()
+        except Exception as e:
+            logger.info(repr(e))
+            return
+
         if len(nk3_list):
             list_of_added = [device.uuid_prefix for device in self.devices]
             logger.info(f"list of added: {list_of_added}")
@@ -227,7 +232,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def detect_removed_devices(self) -> None:
         list_of_removed: list[DeviceData] = []
         if self.devices:
-            nk3_list = [str(device.uuid())[:-4] for device in Nitrokey3Device.list()]
+            try:
+                nk3_list = [str(device.uuid())[:-4] for device in Nitrokey3Device.list()]
+            except OSError as e:
+                logger.info(repr(e))
+                return
+
             logger.info(f"list nk3: {nk3_list}")
             list_of_removed = [
                 data
