@@ -9,7 +9,6 @@ from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QGuiApplication, QIcon, QAction
 from PySide6.QtWidgets import QDialog, QListWidgetItem, QWidget, QLineEdit
 
-from nitrokeyapp.add_secret_dialog import AddSecretDialog
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
@@ -163,7 +162,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_save.pressed.connect(self.save_credential)
         self.ui.btn_edit.pressed.connect(self.prepare_edit_credential)
 
-        self.ui.credential_name.textChanged.connect(self.check_credential)
+        self.ui.name.textChanged.connect(self.check_credential)
         self.ui.otp.textChanged.connect(self.check_credential)
 
         self.ui.btn_refresh.pressed.connect(self.refresh_credential_list)
@@ -255,6 +254,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.trigger_refresh_credentials.emit(self.data, pin_protected)
 
+
     @Slot(Credential)
     def credential_added(self, credential: Credential) -> None:
         self.active_credential = credential
@@ -265,10 +265,12 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     @Slot(Credential)
     def credential_deleted(self, credential: Credential) -> None:
+        self.active_credential = None
         self.refresh_credential_list()
 
     @Slot(Credential)
     def credential_edited(self, credential: Credential) -> None:
+        self.active_credential = credential
         self.refresh_credential_list()
 
     @Slot(list)
@@ -366,7 +368,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_delete.hide()
         self.ui.btn_edit.show()
 
-        self.ui.credential_name.setText(credential.name)
+        self.ui.name.hide()
+        self.ui.name_label.show()
+        self.ui.name_label.setText(credential.name)
 
         if credential.login:
             self.ui.username.setText(credential.login.decode(errors="replace"))
@@ -391,7 +395,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.ui.comment.setText("")
             self.action_comment_copy.setEnabled(False)
 
-        self.ui.credential_name.setReadOnly(True)
+        self.ui.name.setReadOnly(True)
         self.ui.username.setReadOnly(True)
         self.ui.password.setReadOnly(True)
         self.ui.comment.setReadOnly(True)
@@ -415,8 +419,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.ui.algorithm.hide()
             self.ui.otp.hide()
 
-        self.update_otp_generation(credential)
-
     @Slot(Credential)
     def edit_credential(self, credential: Credential) -> None:
         item = self.ui.secrets_list.currentItem()
@@ -437,7 +439,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.action_password_show.setEnabled(True)
 
-        self.ui.credential_name.setText(credential.name)
+        self.ui.name.show()
+        self.ui.name_label.hide()
+        self.ui.name.setText(credential.name)
 
         if credential.login:
             self.ui.username.setText(credential.login.decode(errors="replace"))
@@ -454,7 +458,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         else:
             self.ui.comment.setText("")
 
-        self.ui.credential_name.setReadOnly(False)
+        self.ui.name.setReadOnly(False)
         self.ui.username.setReadOnly(False)
         self.ui.password.setReadOnly(False)
         self.ui.comment.setReadOnly(False)
@@ -510,13 +514,16 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.action_password_show.setVisible(True)
         self.action_password_show.setEnabled(True)
 
-        self.ui.credential_name.setText("")
+        self.ui.name.show()
+        self.ui.name_label.hide()
+        self.ui.name.setText("")
+
         self.ui.otp.setText("")
         self.ui.username.setText("")
         self.ui.password.setText("")
         self.ui.comment.setText("")
 
-        self.ui.credential_name.setReadOnly(False)
+        self.ui.name.setReadOnly(False)
         self.ui.otp.setReadOnly(False)
         self.ui.username.setReadOnly(False)
         self.ui.password.setReadOnly(False)
@@ -556,7 +563,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         if algo != "None" and not is_base32(otp_secret):
             can_save = False
 
-        if len(self.ui.credential_name.text()) < 3:
+        if len(self.ui.name.text()) < 3:
             can_save = False
 
         self.ui.btn_save.setEnabled(can_save)
@@ -588,14 +595,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.otp_timeout_progress.hide()
         self.ui.otp.clear()
 
-        credential = self.get_current_credential()
-        self.update_otp_generation(credential)
-
-    def update_otp_generation(self, credential: Optional[Credential]) -> None:
-        visible = credential is not None and credential.otp is not None
-
     @Slot()
     def update_otp_timeout(self) -> None:
+        self.ui.otp_timeout_progress.show()
         if not self.otp_timeout:
             return
         timeout = int((self.otp_timeout - datetime.now()).total_seconds())
@@ -635,7 +637,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     @Slot()
     def save_credential(self) -> None:
-        name = self.ui.credential_name.text()
+        name = self.ui.name.text()
         username = self.ui.username.text()
         password = self.ui.password.text()
         comment = self.ui.comment.text()
