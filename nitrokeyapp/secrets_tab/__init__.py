@@ -417,8 +417,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.ui.algorithm.hide()
             self.ui.otp.hide()
 
-        self.update_otp_generation(credential)
-
     @Slot(Credential)
     def edit_credential(self, credential: Credential) -> None:
         item = self.ui.secrets_list.currentItem()
@@ -595,14 +593,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.otp_timeout_progress.hide()
         self.ui.otp.clear()
 
-        credential = self.get_current_credential()
-        self.update_otp_generation(credential)
-
-    def update_otp_generation(self, credential: Optional[Credential]) -> None:
-        visible = credential is not None and credential.otp is not None
-
     @Slot()
     def update_otp_timeout(self) -> None:
+        self.ui.otp_timeout_progress.show()
         if not self.otp_timeout:
             return
         timeout = int((self.otp_timeout - datetime.now()).total_seconds())
