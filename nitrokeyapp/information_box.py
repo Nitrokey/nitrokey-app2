@@ -50,11 +50,3 @@ class InfoBox:
     def hide(self) -> None:
         self.device.setText("")
         self.status.setText("")
-
-
-
-    #def set_text_durable(self, text: str) -> None:
-    #    self.text_label.setText(text)
-
-
-
