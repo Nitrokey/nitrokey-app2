@@ -114,8 +114,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         self.info_box = InfoBox(
             self.ui.information_frame,
-            self.ui.label_information_icon,
-            self.ui.label_information,
+            self.ui.status_icon,
+            self.ui.status,
+            self.ui.device_info
         )
 
         self.welcome_widget = WelcomeTab(self, self.log_file)
@@ -152,8 +153,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         # set some spacing between Nitrokey buttons
         self.ui.nitrokeyButtonsLayout.setSpacing(8)
-        self.sig_device_change.connect(self.device_connect)
-
         self.sig_device_change.connect(self.device_connect)
 
         self.init_gui()
@@ -251,7 +250,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         if list_of_removed:
             logger.info("nk3 instance removed")
             self.toggle_update_btn()
-            self.info_box.set_text("Nitrokey 3 removed.")
+            self.info_box.set_status("Nitrokey 3 removed.")
 
     def add_device(self, data: DeviceData) -> None:
         button = Nk3Button(data)
@@ -286,6 +285,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         if self.selected_device:
             self.welcome_widget.hide()
+            self.info_box.set_device(f"Nitrokey 3 - {self.selected_device.uuid_prefix}")
             self.views[self.tabs.currentIndex()].refresh(self.selected_device)
             self.tabs.show()
 
@@ -300,6 +300,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.ui.main_logo.setMinimumHeight(48)
 
         else:
+            self.info_box.hide_device()
             for view in self.views:
                 view.reset()
             self.tabs.hide()
@@ -322,6 +323,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     def device_selected(self, data: DeviceData) -> None:
         self.selected_device = data
+        self.info_box.set_device(f"Nitrokey 3 - {data.uuid_prefix}")
         self.refresh()
 
     def widget_show(self) -> None:
@@ -333,6 +335,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.tabs.hide()
             self.welcome_widget.show()
             self.selected_device = None
+            self.info_box.hide_device()
             self.refresh()
 
     @Slot(int)

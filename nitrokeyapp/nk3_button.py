@@ -14,7 +14,7 @@ class Nk3Button(QtWidgets.QPushButton):
     ) -> None:
         super().__init__(
             QtUtilsMixIn.get_qicon("usb_new.png"),
-            "Nitrokey 3: " f"{str(data.uuid)[:5]}",
+            "Nitrokey 3: " f"{data.uuid_prefix}",
         )
         self.data = data
         # needs to create button in the vertical navigation with the nitrokey type and serial number as text

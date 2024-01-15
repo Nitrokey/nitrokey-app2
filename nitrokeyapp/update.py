@@ -133,7 +133,7 @@ class UpdateGUI(UpdateUi):
             raise self.abort("Update cancelled by user in the (confirm update) dialog")
         elif returnValue == QtWidgets.QMessageBox.StandardButton.Ok:
             logger.info("OK clicked (confirm update)")
-            self.info_frame.set_text(
+            self.info_frame.set_status(
                 "Please touch the Nitrokey 3 until it stops flashing/glowing and then wait a few seconds.."
             )
             QCoreApplication.processEvents()
