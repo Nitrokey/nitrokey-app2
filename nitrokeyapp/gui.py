@@ -176,10 +176,11 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     @Slot(object)
     def device_connect(self, action: str) -> None:
         if action == "remove":
-            logger.info("removed")
+            logger.info("device removed event")
             self.detect_removed_devices()
+
         elif action == "bind":
-            logger.info("bind")
+            logger.info("device bind event")
             self.detect_added_devices()
 
     @Slot(object, BaseException, object)
@@ -236,25 +237,27 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         list_of_removed: list[DeviceData] = []
         if self.devices:
             try:
-                nk3_list = [str(device.uuid())[:-4] for device in Nitrokey3Device.list()]
+                nk3_list = [device.uuid() for device in Nitrokey3Device.list()]
             except OSError as e:
-                logger.info(repr(e))
+                logger.info(f"detect removed failed: {e}")
                 return
-
             logger.info(f"list nk3: {nk3_list}")
+
             list_of_removed = [
                 data
                 for data in self.devices
-                if ((data.uuid_prefix not in nk3_list) and not data.updating)
+                if ((data.uuid not in nk3_list) and not data.updating)
             ]
 
         for data in list_of_removed:
             self.remove_device(data)
 
+
         if list_of_removed:
-            logger.info("nk3 instance removed")
+            who = [d.uuid_prefix for d in list_of_removed]
+            logger.info(f"nk3 instance(s) removed: {' '.join(who)}")
+            self.info_box.set_status(f"Nitrokey 3 removed: {' '.join(who)}")
             self.toggle_update_btn()
-            self.info_box.set_status("Nitrokey 3 removed.")
 
     def add_device(self, data: DeviceData) -> None:
         button = Nk3Button(data)
@@ -320,7 +323,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     def init_gui(self) -> None:
         self.tabs.hide()
-
         self.detect_added_devices()
 
     def device_selected(self, data: DeviceData) -> None:
@@ -351,13 +353,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.tabs.hide()
         self.selected_device = None
         self.refresh()
-
-    @Slot()
-    def slot_lock_button_pressed(self) -> None:
-        # removes side buttos for nk3 (for now)
-        logger.info("nk3 instance removed (lock button)")
-        for data in self.devices:
-            self.remove_device(data)
 
     @Slot(bool)
     def set_busy(self, busy: bool) -> None:
