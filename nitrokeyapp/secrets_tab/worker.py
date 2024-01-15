@@ -172,8 +172,6 @@ class EditCredentialJob(Job):
         self.secret = secret
         self.old_cred_id = old_cred_id
 
-        self.to_be_deleted: Optional[bytes] = None
-
         self.all_credentials: Optional[Dict[str, Credential]] = None
 
         self.credential_edited.connect(lambda _: self.finished.emit())
@@ -232,16 +230,14 @@ class EditCredentialJob(Job):
         else:
             # new secret, new id -> create new, delete old
             if self.old_cred_id != self.credential.id:
-                self.to_be_deleted = self.old_cred_id
-                self.add_credential(self.credential, self.secret)
+                self.add_credential(self.credential, self.secret, self.old_cred_id)
 
             # new secret, same id -> rename old, create new, delete renamed-old
             else:
                 temp_cred_id = self.temp_rename_credential(self.old_cred_id)
-                self.to_be_deleted = temp_cred_id
-                self.add_credential(self.credential, self.secret)
+                self.add_credential(self.credential, self.secret, temp_cred_id)
 
-    def add_credential(self, cred: Credential, secret: bytes) -> None:
+    def add_credential(self, cred: Credential, secret: bytes, then_delete_id: bytes) -> None:
         add_job = AddCredentialJob(
             self.pin_cache,
             self.pin_ui,
@@ -249,14 +245,13 @@ class EditCredentialJob(Job):
             credential=cred,
             secret=secret
         )
-        add_job.credential_added.connect(self.handle_created)
+        add_job.credential_added.connect(lambda cred: self.handle_created(cred, then_delete_id))
         self.spawn(add_job)
 
     @Slot(Credential)
-    def handle_created(self, credential: Credential) -> None:
+    def handle_created(self, credential: Credential, delete_id: bytes) -> None:
         self.credential = credential
-        self.delete_credential(self.to_be_deleted)
-        self.to_be_deleted = None
+        self.delete_credential(delete_id)
 
     @Slot()
     def delete_credential(self, cred_id: bytes) -> None:
