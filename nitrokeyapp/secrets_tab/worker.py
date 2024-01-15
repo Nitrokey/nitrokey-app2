@@ -266,9 +266,13 @@ class EditCredentialJob(Job):
             self.data,
             credential=cred,
         )
-        del_job.credential_deleted.connect(lambda _: self.credential_edited.emit(self.credential))
+        del_job.credential_deleted.connect(self.handle_deleted)
         self.spawn(del_job)
 
+    @Slot(Credential)
+    def handle_deleted(self, credential: Credential) -> None:
+        # drop credential
+        self.credential_edited.emit(self.credential)
 
     @Slot()
     def temp_rename_credential(self, from_cred_id: bytes) -> bytes:

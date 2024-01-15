@@ -254,6 +254,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.trigger_refresh_credentials.emit(self.data, pin_protected)
 
+
     @Slot(Credential)
     def credential_added(self, credential: Credential) -> None:
         self.active_credential = credential
@@ -264,10 +265,12 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     @Slot(Credential)
     def credential_deleted(self, credential: Credential) -> None:
+        self.active_credential = None
         self.refresh_credential_list()
 
     @Slot(Credential)
     def credential_edited(self, credential: Credential) -> None:
+        self.active_credential = credential
         self.refresh_credential_list()
 
     @Slot(list)
