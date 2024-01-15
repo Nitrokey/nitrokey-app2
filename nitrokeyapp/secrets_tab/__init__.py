@@ -356,7 +356,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         item.setData(Qt.ItemDataRole.UserRole, credential)
 
 
-        ####self.act_password_show(show=False)
+        self.set_password_show(show=False)
         for action in self.line_actions:
             action.setVisible(True)
 
@@ -433,7 +433,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_delete.show()
         self.ui.btn_edit.hide()
 
-        ####self.act_password_show(show=False)
+        self.set_password_show(show=False)
         for action in self.line_actions:
             action.setVisible(False)
 
@@ -508,7 +508,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.credential_empty.hide()
         self.ui.credential_show.show()
 
-        ###self.act_password_show(show=False)
+        self.set_password_show(show=False)
         for action in self.line_actions:
             action.setVisible(False)
         self.action_password_show.setVisible(True)
@@ -572,17 +572,16 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.clipboard.setText(obj.text())
 
     def act_password_show(self) -> None:
+        self.set_password_show(self.ui.password.echoMode() == QLineEdit.Password)
+
+    def set_password_show(self, show=True):
         icon_show = self.get_qicon("visibility_FILL0_wght400_GRAD0_opsz24.svg")
         icon_hide = self.get_qicon("visibility_off_FILL0_wght400_GRAD0_opsz24.svg")
-
-        if self.ui.password.echoMode() == QLineEdit.Normal:
-            mode = QLineEdit.Password
-            icon = icon_hide
-        else:
-            mode = QLineEdit.Normal
-            icon = icon_show
+        icon = icon_show if show else icon_hide
+        mode = QLineEdit.Normal if show else QLineEdit.Password
         self.ui.password.setEchoMode(mode)
         self.action_password_show.setIcon(icon)
+
 
     def hide_credential(self) -> None:
         self.ui.credential_empty.show()
