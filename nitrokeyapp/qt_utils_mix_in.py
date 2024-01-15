@@ -33,6 +33,11 @@ class QtUtilsMixIn:
         p = Path(__file__).parent / "ui" / "icons" / filename
         return QtGui.QIcon(p.as_posix())
 
+    @staticmethod
+    def get_pixmap(filename: str) -> QtGui.QPixmap:
+        p = Path(__file__).parent / "ui" / "icons" / filename
+        return QtGui.QPixmap(p.as_posix())
+
     def user_warn(
         self,
         msg: str,

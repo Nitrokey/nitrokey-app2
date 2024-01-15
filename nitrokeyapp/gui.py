@@ -12,7 +12,7 @@ from pynitrokey.nk3 import Nitrokey3Device
 
 # pyqt5
 from PySide6 import QtWidgets
-from PySide6.QtCore import Qt, Signal, Slot
+from PySide6.QtCore import Qt, Signal, Slot, QTimer
 from PySide6.QtGui import QCursor
 
 from nitrokeyapp.device_data import DeviceData
@@ -50,12 +50,20 @@ class TouchDialog(QtWidgets.QMessageBox):
         self.close()
 
 
-class TouchIndicator(QtWidgets.QLabel):
-    def __init__(self, parent: QtWidgets.QWidget) -> None:
+class TouchIndicator(QtWidgets.QWidget):
+    def __init__(self, parent: QtWidgets.QWidget, info_box: InfoBox) -> None:
         super().__init__(parent)
 
         self.parent = parent
         self.active_btn: Optional[Nk3Button] = None
+        self.info_box = info_box
+
+        # show status bar info 750ms late
+        t = QTimer(self)
+        t.setSingleShot(True)
+        t.setInterval(750)
+        t.timeout.connect(lambda: self.info_box.set_touch_status())
+        self.info_box_timer: QTimer = t
 
     @Slot()
     def start(self) -> None:
@@ -69,11 +77,16 @@ class TouchIndicator(QtWidgets.QLabel):
         if self.active_btn:
             self.active_btn.start_touch()
 
+        self.info_box_timer.start()
+
     @Slot()
     def stop(self) -> None:
         if self.active_btn:
             self.active_btn.stop_touch()
             self.active_btn = None
+
+        self.info_box.hide_status()
+        self.info_box_timer.stop()
 
 
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
@@ -125,7 +138,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.content_widget.layout().addWidget(self.welcome_widget)
 
         #self.touch_dialog = TouchDialog(self)
-        self.touch_dialog = TouchIndicator(self)
+        self.touch_dialog = TouchIndicator(self, self.info_box)
 
         self.overview_tab = OverviewTab(self.info_box, self)
         self.views: list[DeviceView] = [self.overview_tab, SecretsTab(self)]
