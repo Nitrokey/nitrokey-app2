@@ -16,6 +16,9 @@ class InfoBox:
         self.icon.setFixedSize(QtCore.QSize(16, 16))
         self.information_frame.show()
 
+
+        #self.information_frame.setStyleSheet("background-color:#666666; border: 0;");
+
     def set_status(self, text: str, timeout: int = 5000) -> None:
         self.status.setText(text)
         self.information_frame.show()
