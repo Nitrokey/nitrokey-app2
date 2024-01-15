@@ -51,7 +51,7 @@ class TouchDialog(QtWidgets.QMessageBox):
 
 
 class TouchIndicator(QtWidgets.QWidget):
-    def __init__(self, parent: QtWidgets.QWidget, info_box: InfoBox) -> None:
+    def __init__(self, info_box: InfoBox, parent: Optional[QtWidgets.QWidget] = None) -> None:
         super().__init__(parent)
 
         self.parent = parent
@@ -132,15 +132,16 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.ui.device_info
         )
 
-        self.welcome_widget = WelcomeTab(self, self.log_file)
+        self.welcome_widget = WelcomeTab(self.log_file, self)
 
         self.content.layout().addWidget(self.welcome_widget)
 
         #self.touch_dialog = TouchDialog(self)
-        self.touch_dialog = TouchIndicator(self, self.info_box)
+        self.touch_dialog = TouchIndicator(self.info_box, self)
 
         self.overview_tab = OverviewTab(self.info_box, self)
-        self.views: list[DeviceView] = [self.overview_tab, SecretsTab(self)]
+        self.secrets_tab = SecretsTab(self.info_box, self)
+        self.views: list[DeviceView] = [self.overview_tab, self.secrets_tab]
         for view in self.views:
             if view.worker:
                 view.worker.busy_state_changed.connect(self.set_busy)

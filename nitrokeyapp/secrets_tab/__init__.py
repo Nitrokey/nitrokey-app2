@@ -11,6 +11,7 @@ from PySide6.QtWidgets import QDialog, QListWidgetItem, QWidget, QLineEdit
 
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
+from nitrokeyapp.information_box import InfoBox
 
 # from nitrokeyapp.ui.secrets_tab import Ui_SecretsTab
 from nitrokeyapp.worker import Worker
@@ -69,9 +70,11 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     trigger_get_credential = Signal(DeviceData, Credential)
     trigger_edit_credential = Signal(DeviceData, Credential, bytes, bytes)
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, info_box: InfoBox, parent: Optional[QWidget] = None) -> None:
         QWidget.__init__(self, parent)
         QtUtilsMixIn.__init__(self)
+
+        self.info_box = info_box
 
         self.worker_thread = QThread()
         self._worker = SecretsWorker(self)
@@ -146,7 +149,12 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.action_comment_copy,
             self.action_otp_copy, self.action_otp_edit, self.action_otp_gen
         ]
-
+        self.line2copy_action = {
+            self.ui.username: self.action_username_copy,
+            self.ui.password: self.action_password_copy,
+            self.ui.comment: self.action_comment_copy,
+            self.ui.otp: self.action_otp_copy
+        }
 
 #        labels = [
 #            self.ui.labelName,
@@ -571,6 +579,12 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     def act_copy_line_edit(self, obj: QLineEdit):
         self.clipboard.setText(obj.text())
+        self.info_box.set_status("contents copied to clipboard")
+        self.line2copy_action[obj].setIcon(self.get_qicon("done_FILL0_wght400_GRAD0_opsz24.png"))
+        QTimer.singleShot(5000, lambda:
+            self.line2copy_action[obj].setIcon(self.get_qicon("content_copy_FILL0_wght400_GRAD0_opsz24.png"))
+        )
+
 
     def act_password_show(self) -> None:
         self.set_password_show(self.ui.password.echoMode() == QLineEdit.Password)
