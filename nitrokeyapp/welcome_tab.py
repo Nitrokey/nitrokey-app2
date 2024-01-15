@@ -12,7 +12,7 @@ from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
 
 class WelcomeTab(QtUtilsMixIn, QWidget):
-    def __init__(self, parent: Optional[QWidget], log_file: str) -> None:
+    def __init__(self, log_file: str, parent: Optional[QWidget] = None) -> None:
         QWidget.__init__(self, parent)
         QtUtilsMixIn.__init__(self)
 

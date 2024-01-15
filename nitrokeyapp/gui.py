@@ -51,7 +51,7 @@ class TouchDialog(QtWidgets.QMessageBox):
 
 
 class TouchIndicator(QtWidgets.QWidget):
-    def __init__(self, parent: QtWidgets.QWidget, info_box: InfoBox) -> None:
+    def __init__(self, info_box: InfoBox, parent: Optional[QtWidgets.QWidget] = None) -> None:
         super().__init__(parent)
 
         self.parent = parent
@@ -129,18 +129,20 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.ui.information_frame,
             self.ui.status_icon,
             self.ui.status,
-            self.ui.device_info
+            self.ui.device_info,
+            self.ui.pin_icon
         )
 
-        self.welcome_widget = WelcomeTab(self, self.log_file)
+        self.welcome_widget = WelcomeTab(self.log_file, self)
 
         self.content.layout().addWidget(self.welcome_widget)
 
         #self.touch_dialog = TouchDialog(self)
-        self.touch_dialog = TouchIndicator(self, self.info_box)
+        self.touch_dialog = TouchIndicator(self.info_box, self)
 
         self.overview_tab = OverviewTab(self.info_box, self)
-        self.views: list[DeviceView] = [self.overview_tab, SecretsTab(self)]
+        self.secrets_tab = SecretsTab(self.info_box, self)
+        self.views: list[DeviceView] = [self.overview_tab, self.secrets_tab]
         for view in self.views:
             if view.worker:
                 view.worker.busy_state_changed.connect(self.set_busy)
@@ -283,12 +285,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.devices.remove(data)
         self.widget_show()
 
-    def refresh(self) -> None:
-        self.overview_tab.busy_state_changed.connect(self.set_busy)
+    def refresh(self, set_busy: bool = True) -> None:
         """
         Should be called if the selected device or the selected tab is changed
         """
-        self.overview_tab.busy_state_changed.connect(self.set_busy)
+        if set_busy:
+            self.overview_tab.busy_state_changed.connect(self.set_busy)
 
         if self.selected_device:
             self.welcome_widget.hide()
@@ -340,15 +342,25 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.welcome_widget.show()
             self.selected_device = None
             self.info_box.hide_device()
-            self.refresh()
+            self.refresh(set_busy=False)
 
     @Slot(int)
     def slot_tab_changed(self, idx: int) -> None:
+        # TODO: not a good place
+        for view in self.views:
+            view.reset()
+        if idx == 0:
+            self.info_box.pin_icon.hide()
+        else:
+            self.info_box.pin_icon.show()
+
         self.refresh()
 
     # main-window callbacks
     @Slot()
     def home_button_pressed(self) -> None:
+        for view in self.views:
+            view.reset()
         self.welcome_widget.show()
         self.tabs.hide()
         self.selected_device = None
