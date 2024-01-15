@@ -255,7 +255,11 @@ class EditCredentialJob(Job):
 
     @Slot()
     def delete_credential(self, cred_id: bytes) -> None:
-        cred = Credential(id=cred_id)
+        cred = Credential(
+            id=cred_id,
+            protected=self.credential.protected,
+            touch_required=self.credential.touch_required
+        )
         del_job = DeleteCredentialJob(
             self.pin_cache,
             self.pin_ui,
