@@ -164,6 +164,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.ui.name.textChanged.connect(self.check_credential)
         self.ui.otp.textChanged.connect(self.check_credential)
+        self.ui.algorithm.currentIndexChanged.connect(self.check_credential)
 
         self.ui.btn_refresh.pressed.connect(self.refresh_credential_list)
         self.ui.is_protected.stateChanged.connect(self.refresh_credential_list)
