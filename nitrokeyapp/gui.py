@@ -332,6 +332,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         else:
             self.tabs.hide()
             self.welcome_widget.show()
+            self.selected_device = None
+            self.refresh()
 
     @Slot(int)
     def slot_tab_changed(self, idx: int) -> None:
