@@ -49,4 +49,4 @@ class InfoBox:
 
     def hide(self) -> None:
         self.device.setText("")
-        self.status.setText("")
+        self.hide_status()
