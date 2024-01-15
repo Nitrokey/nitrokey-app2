@@ -91,9 +91,9 @@ class OverviewTab(QtUtilsMixIn, QWidget):
     def set_update_enabled(self, enabled: bool) -> None:
         tooltip = ""
         if enabled:
-            self.info_box.hide()
+            self.info_box.hide_status()
         else:
-            self.info_box.set_text_durable(
+            self.info_box.set_status(
                 "Please remove all Nitrokey 3 devices except the one you want to update."
             )
             tooltip = "Please remove all Nitrokey 3 devices except the one you want to update."

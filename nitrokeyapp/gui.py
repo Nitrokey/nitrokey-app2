@@ -12,7 +12,7 @@ from pynitrokey.nk3 import Nitrokey3Device
 
 # pyqt5
 from PySide6 import QtWidgets
-from PySide6.QtCore import Qt, Signal, Slot
+from PySide6.QtCore import Qt, Signal, Slot, QTimer
 from PySide6.QtGui import QCursor
 
 from nitrokeyapp.device_data import DeviceData
@@ -50,12 +50,20 @@ class TouchDialog(QtWidgets.QMessageBox):
         self.close()
 
 
-class TouchIndicator(QtWidgets.QLabel):
-    def __init__(self, parent: QtWidgets.QWidget) -> None:
+class TouchIndicator(QtWidgets.QWidget):
+    def __init__(self, parent: QtWidgets.QWidget, info_box: InfoBox) -> None:
         super().__init__(parent)
 
         self.parent = parent
         self.active_btn: Optional[Nk3Button] = None
+        self.info_box = info_box
+
+        # show status bar info 750ms late
+        t = QTimer(self)
+        t.setSingleShot(True)
+        t.setInterval(750)
+        t.timeout.connect(lambda: self.info_box.set_touch_status())
+        self.info_box_timer: QTimer = t
 
     @Slot()
     def start(self) -> None:
@@ -69,11 +77,16 @@ class TouchIndicator(QtWidgets.QLabel):
         if self.active_btn:
             self.active_btn.start_touch()
 
+        self.info_box_timer.start()
+
     @Slot()
     def stop(self) -> None:
         if self.active_btn:
             self.active_btn.stop_touch()
             self.active_btn = None
+
+        self.info_box.hide_status()
+        self.info_box_timer.stop()
 
 
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
@@ -114,17 +127,17 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         self.info_box = InfoBox(
             self.ui.information_frame,
-            self.ui.label_information_icon,
-            self.ui.label_information,
+            self.ui.status_icon,
+            self.ui.status,
+            self.ui.device_info
         )
 
         self.welcome_widget = WelcomeTab(self, self.log_file)
 
-        self.content_widget = self.ui.widgetTab
-        self.content_widget.layout().addWidget(self.welcome_widget)
+        self.content.layout().addWidget(self.welcome_widget)
 
         #self.touch_dialog = TouchDialog(self)
-        self.touch_dialog = TouchIndicator(self)
+        self.touch_dialog = TouchIndicator(self, self.info_box)
 
         self.overview_tab = OverviewTab(self.info_box, self)
         self.views: list[DeviceView] = [self.overview_tab, SecretsTab(self)]
@@ -136,13 +149,11 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 view.worker.stop_touch.connect(self.touch_dialog.stop)
 
         # main window widgets
-        self.tabs = self.ui.tabWidget
         self.home_button = self.ui.btn_home
         self.help_btn = self.ui.btn_dial_help
-        # self.quit_button = self.ui.btn_dial_quit
-        # self.settings_btn = self.ui.btn_settings
-        # self.lock_btn = self.ui.btn_dial_lock
+
         self.l_insert_nitrokey = self.ui.label_insert_Nitrokey
+
         # set some props, initial enabled/visible, finally show()
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
 
@@ -154,21 +165,13 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.ui.nitrokeyButtonsLayout.setSpacing(8)
         self.sig_device_change.connect(self.device_connect)
 
-        self.sig_device_change.connect(self.device_connect)
-
-        self.init_gui()
-        self.show()
-
-        # nk3
         self.help_btn.clicked.connect(
             lambda: webbrowser.open("https://docs.nitrokey.com/nitrokey3")
         )
-        # self.lock_btn.clicked.connect(self.slot_lock_button_pressed)
         self.home_button.clicked.connect(self.home_button_pressed)
-        # self.settings_btn.clicked.connect()
-        # connections for functional signals
-        # generic / global
-        # overview
+
+        self.init_gui()
+        self.show()
 
     @Slot(object)
     def device_connect(self, action: str) -> None:
@@ -251,7 +254,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         if list_of_removed:
             logger.info("nk3 instance removed")
             self.toggle_update_btn()
-            self.info_box.set_text("Nitrokey 3 removed.")
+            self.info_box.set_status("Nitrokey 3 removed.")
 
     def add_device(self, data: DeviceData) -> None:
         button = Nk3Button(data)
@@ -286,6 +289,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         if self.selected_device:
             self.welcome_widget.hide()
+            self.info_box.set_device(f"Nitrokey 3 - {self.selected_device.uuid_prefix}")
             self.views[self.tabs.currentIndex()].refresh(self.selected_device)
             self.tabs.show()
 
@@ -300,6 +304,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.ui.main_logo.setMinimumHeight(48)
 
         else:
+            self.info_box.hide_device()
             for view in self.views:
                 view.reset()
             self.tabs.hide()
@@ -315,13 +320,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     def init_gui(self) -> None:
         self.tabs.hide()
-        self.info_box.hide()
-        # self.lock_btn.setEnabled(False)
-        # self.settings_btn.setEnabled(False)
+
         self.detect_added_devices()
 
     def device_selected(self, data: DeviceData) -> None:
         self.selected_device = data
+        self.info_box.set_device(f"Nitrokey 3 - {data.uuid_prefix}")
         self.refresh()
 
     def widget_show(self) -> None:
@@ -333,6 +337,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.tabs.hide()
             self.welcome_widget.show()
             self.selected_device = None
+            self.info_box.hide_device()
             self.refresh()
 
     @Slot(int)

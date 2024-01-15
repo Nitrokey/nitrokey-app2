@@ -27,7 +27,7 @@ class DeviceData:
         The prefix of the UUID that is constant even when switching between
         stable and test firmware.
         """
-        return str(self.uuid)[:-4]
+        return str(self.uuid)[:5]
 
     def open(self) -> Nitrokey3Device:
         device = Nitrokey3Device.open(self.path)
@@ -48,9 +48,9 @@ class DeviceData:
         try:
             Nk3Context(self.path).update(overview_tab, info_frame, image)
             logger.info("Successfully updated the Nitrokey 3")
-            info_frame.set_text("Successfully updated the Nitrokey 3.")
+            info_frame.set_status("Successfully updated the Nitrokey 3.")
         except Exception as e:
             logger.info(f"Failed to update Nitrokey 3 {e}")
-            info_frame.set_text("Failed to update Nitrokey 3.")
+            info_frame.set_status("Failed to update Nitrokey 3.")
         self.updating = False
         overview_tab.update_btns_during_update(True)
