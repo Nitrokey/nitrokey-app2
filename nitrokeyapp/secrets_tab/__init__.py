@@ -9,7 +9,6 @@ from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QGuiApplication, QIcon, QAction
 from PySide6.QtWidgets import QDialog, QListWidgetItem, QWidget, QLineEdit
 
-from nitrokeyapp.add_secret_dialog import AddSecretDialog
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
