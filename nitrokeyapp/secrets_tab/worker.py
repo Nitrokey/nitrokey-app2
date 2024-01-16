@@ -5,7 +5,7 @@ import logging
 
 from pynitrokey.nk3.secrets_app import SecretsApp, SecretsAppException, Kind as RawKind
 from pynitrokey.nk3.utils import Uuid
-from PySide6.QtCore import Signal, Slot
+from PySide6.QtCore import Signal, Slot, QObject
 from PySide6.QtWidgets import QWidget
 
 from nitrokeyapp.device_data import DeviceData
@@ -19,13 +19,21 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class PinCache:
+class PinCache(QObject):
     uuid: Optional[Uuid] = None
     pin: Optional[str] = None
 
+    pin_cached = Signal()
+    pin_cleared = Signal()
+
+    def __init__(self, *v, **kw) -> None:
+        super().__init__(*v, **kw)
+
+    @Slot()
     def clear(self) -> None:
         self.uuid = None
         self.pin = None
+        self.pin_cleared.emit()
 
     def get(self, data: DeviceData) -> Optional[str]:
         if data.uuid and self.uuid == data.uuid:
@@ -39,6 +47,7 @@ class PinCache:
         self.uuid = data.uuid
         self.pin = pin
 
+        self.pin_cached.emit()
 
 class CheckDeviceJob(Job):
     device_checked = Signal(bool)

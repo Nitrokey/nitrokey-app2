@@ -89,6 +89,13 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.trigger_get_credential.connect(self._worker.get_credential)
         self.trigger_edit_credential.connect(self._worker.edit_credential)
 
+        self._worker.pin_cache.pin_cleared.connect(lambda: (
+            self.info_box.set_pin_icon(pin_cached=False),
+            self.uncheck_checkbox(True)
+        ))
+        self._worker.pin_cache.pin_cached.connect(lambda: self.info_box.set_pin_icon(pin_cached=True))
+        self.info_box.pin_icon.pressed.connect(self._worker.pin_cache.clear)
+
         self._worker.credential_added.connect(self.credential_added)
         self._worker.credential_deleted.connect(self.credential_deleted)
         self._worker.credentials_listed.connect(self.credentials_listed)
@@ -101,7 +108,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.next_credential_receiver: Optional[Callable[[Credential], None]] = None
 
         self.data: Optional[DeviceData] = None
-        self.pin: Optional[str] = None
         self.active_credential: Optional[Credential] = None
 
         self.otp_timeout: Optional[datetime] = None
@@ -202,7 +208,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     def reset(self) -> None:
         self.data = None
-        self.pin = None
 
         self.reset_ui()
 
@@ -239,7 +244,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         if data == self.data:
             return
         self.data = data
-        self.pin = None
 
         self.reset_ui()
         self.trigger_check_device.emit(data)

@@ -129,7 +129,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.ui.information_frame,
             self.ui.status_icon,
             self.ui.status,
-            self.ui.device_info
+            self.ui.device_info,
+            self.ui.pin_icon
         )
 
         self.welcome_widget = WelcomeTab(self.log_file, self)
@@ -345,6 +346,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     @Slot(int)
     def slot_tab_changed(self, idx: int) -> None:
+        # TODO: not a good place
+        if idx == 0:
+            self.info_box.pin_icon.hide()
+        else:
+            self.info_box.pin_icon.show()
+
         self.refresh()
 
     # main-window callbacks
