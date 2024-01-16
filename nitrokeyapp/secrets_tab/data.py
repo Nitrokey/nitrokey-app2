@@ -38,6 +38,8 @@ class OtherKind(Enum):
     REVERSE_HOTP = auto()
     HMAC = auto()
 
+    def __str__(self) -> str:
+        return self.name
 
 Kind = Union[OtpKind, OtherKind]
 
