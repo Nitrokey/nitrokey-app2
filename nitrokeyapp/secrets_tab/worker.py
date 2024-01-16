@@ -157,7 +157,7 @@ class VerifyPinJob(Job):
 
     @Slot(str)
     def trigger_error(self, msg: str) -> None:
-        self.error.emit(msg)
+        self.error.emit(self.__class__.__name__, Exception(msg))
         self.pin_verified.emit(False)
 
 
@@ -317,7 +317,12 @@ class EditCredentialJob(Job):
                 if self.credential.comment:
                     reg_data["metadata"] = self.credential.comment
 
-                secrets.update_credential(**reg_data)
+                try:
+                    secrets.update_credential(**reg_data)
+                except SecretsAppException as e:
+                    self.trigger_exception(e)
+                    return
+
 
         self.credential_edited.emit(self.credential)
 
@@ -401,7 +406,11 @@ class AddCredentialJob(Job):
                 if self.credential.comment:
                     reg_data["metadata"] = self.credential.comment
 
-                secrets.register(**reg_data)
+                try:
+                    secrets.register(**reg_data)
+                except SecretsAppException as e:
+                    self.trigger_exception(e)
+                    return
 
         self.credential_added.emit(self.credential)
 
@@ -438,8 +447,12 @@ class DeleteCredentialJob(Job):
     def delete_credential(self) -> None:
         with self.data.open() as device:
             secrets = SecretsApp(device)
+            try:
+                secrets.delete(self.credential.id)
+            except SecretsAppException as e:
+                self.trigger_exception(e)
+                return
 
-            secrets.delete(self.credential.id)
             self.credential_deleted.emit(self.credential)
 
 class GenerateOtpJob(Job):
@@ -488,7 +501,9 @@ class GenerateOtpJob(Job):
                 valid_until = datetime.fromtimestamp((challenge + 1) * period)
                 validity = (valid_from, valid_until)
             else:
-                raise RuntimeError(f"Unexpected OTP kind: {self.credential.otp}")
+                self.trigger_exception(
+                    RuntimeError(f"Unexpected OTP kind: {self.credential.otp}")
+                )
 
             with self.touch_prompt():
                 otp = secrets.calculate(self.credential.id, challenge).decode()
@@ -561,12 +576,14 @@ class GetCredentialJob(Job):
 
     @Slot()
     def get_credential(self) -> None:
-        if not self.data:
-            return
-
         with self.data.open() as device:
             secrets = SecretsApp(device)
-            pse = secrets.get_credential(self.credential.id)
+            try:
+                pse = secrets.get_credential(self.credential.id)
+            except SecretsAppException as e:
+                self.trigger_exception(e)
+                return
+
             cred = self.credential.extend_with_password_safe_entry(pse)
             self.received_credential.emit(cred)
 

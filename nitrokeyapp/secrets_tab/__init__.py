@@ -57,7 +57,7 @@ class SecretsTabState(Enum):
 class SecretsTab(QtUtilsMixIn, QWidget):
     # standard UI
     busy_state_changed = Signal(bool)
-    error = Signal(str)
+    error = Signal(str, Exception)
     start_touch = Signal()
     stop_touch = Signal()
 
@@ -406,11 +406,14 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.is_touch_protected.setChecked(credential.touch_required)
 
         self.hide_otp()
+        self.ui.algorithm_tab.setCurrentIndex(1)
         if credential.otp:
+            self.ui.algorithm_tab.show()
+            self.ui.algorithm_edit.hide()
+            self.ui.algorithm_show.show()
+
             self.ui.otp.show()
             self.ui.otp.setReadOnly(True)
-            self.ui.algorithm_tab.show()
-            self.ui.algorithm_tab.setCurrentIndex(1)
             self.ui.algorithm.setText(str(credential.otp)+":")
             self.ui.otp.setPlaceholderText("<hidden>")
 
@@ -419,6 +422,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.action_otp_gen.setVisible(True)
         else:
             self.ui.algorithm_tab.hide()
+            self.ui.algorithm_show.hide()
             self.ui.otp.hide()
 
     @Slot(Credential)
@@ -472,8 +476,17 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.is_touch_protected.setEnabled(True)
 
         self.hide_otp()
+        #self.ui.algorithm_tab.show()
+        #self.ui.algorithm_tab.setCurrentIndex(0)
+        #self.ui.otp.show()
+        #self.ui.algorithm_edit.show()
+        #self.ui.algorithm_show.hide()
+
         self.ui.algorithm_tab.show()
         self.ui.algorithm_tab.setCurrentIndex(0)
+        self.ui.algorithm_show.hide()
+        self.ui.algorithm_edit.show()
+        self.ui.select_algorithm.show()
         self.ui.otp.show()
 
         # already existing otp requires confirmation to change
@@ -532,10 +545,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.password.setReadOnly(False)
         self.ui.comment.setReadOnly(False)
 
-        self.ui.algorithm_tab.setCurrentIndex(0)
-        self.ui.select_algorithm.setCurrentText("None")
-        self.ui.select_algorithm.setEnabled(True)
-
         self.ui.is_pin_protected.setChecked(False)
         self.ui.is_touch_protected.setChecked(False)
 
@@ -545,6 +554,11 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.hide_otp()
         self.ui.otp.show()
         self.ui.otp.setReadOnly(False)
+
+        self.ui.algorithm_tab.show()
+        self.ui.algorithm_tab.setCurrentIndex(0)
+        self.ui.algorithm_edit.show()
+        self.ui.algorithm_show.hide()
 
         self.ui.select_algorithm.show()
         self.ui.select_algorithm.setCurrentText("None")
@@ -579,7 +593,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         QTimer.singleShot(5000, lambda:
             self.line2copy_action[obj].setIcon(self.get_qicon("content_copy_FILL0_wght400_GRAD0_opsz24.png"))
         )
-
 
     def act_password_show(self) -> None:
         self.set_password_show(self.ui.password.echoMode() == QLineEdit.Password)

@@ -62,13 +62,15 @@ class TouchIndicator(QtWidgets.QWidget):
         t = QTimer(self)
         t.setSingleShot(True)
         t.setInterval(750)
-        t.timeout.connect(lambda: self.info_box.set_touch_status())
+        t.timeout.connect(self.info_box.set_touch_status)
         self.info_box_timer: QTimer = t
 
     @Slot()
     def start(self) -> None:
         if self.active_btn:
             return
+
+        self.info_box_timer.start()
 
         for btn in self.parent.device_buttons:
             if btn.data == self.parent.selected_device:
@@ -77,16 +79,16 @@ class TouchIndicator(QtWidgets.QWidget):
         if self.active_btn:
             self.active_btn.start_touch()
 
-        self.info_box_timer.start()
-
     @Slot()
     def stop(self) -> None:
         if self.active_btn:
             self.active_btn.stop_touch()
             self.active_btn = None
 
-        self.info_box.hide_status()
-        self.info_box_timer.stop()
+        #self.info_box.hide_status()
+        if self.info_box_timer.isActive():
+            self.info_box_timer.stop()
+        self.info_box.hide_touch()
 
 
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
@@ -146,7 +148,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         for view in self.views:
             if view.worker:
                 view.worker.busy_state_changed.connect(self.set_busy)
-                view.worker.error.connect(self.error)
+                view.worker.error.connect(self.handle_error)
                 view.worker.start_touch.connect(self.touch_dialog.start)
                 view.worker.stop_touch.connect(self.touch_dialog.stop)
 
@@ -380,7 +382,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # TODO: setEnabled?
         # self.setEnabled(not busy)
 
-    @Slot(str)
-    def error(self, error: str) -> None:
-        # TODO: improve
-        self.user_err(error, "Error", self)
+    @Slot(str, Exception)
+    def handle_error(self, sender: str, exc: Exception) -> None:
+        msg = f"{sender} - {exc}"
+        self.info_box.set_error_status(msg)
+        #self.user_err(msg, "Error", self)
