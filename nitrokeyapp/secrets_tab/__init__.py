@@ -183,6 +183,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_refresh.pressed.connect(self.refresh_credential_list)
         self.ui.is_protected.stateChanged.connect(self.refresh_credential_list)
         self.ui.secrets_list.currentItemChanged.connect(self.credential_changed)
+        self.ui.secrets_list.itemClicked.connect(self.credential_clicked)
 
         self.ui.btn_delete.pressed.connect(self.delete_credential)
 
@@ -356,7 +357,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             return
 
         item.setData(Qt.ItemDataRole.UserRole, credential)
-
 
         self.set_password_show(show=False)
         for action in self.line_actions:
@@ -601,6 +601,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_edit.hide()
         self.ui.btn_save.hide()
 
+        self.ui.secrets_list.clearSelection()
+        self.active_credential = None
+
     @Slot()
     def hide_otp(self) -> None:
         self.otp_timeout = None
@@ -619,13 +622,10 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         else:
             self.hide_otp()
 
-    @Slot(QListWidgetItem, QListWidgetItem)
-    def credential_changed(
-        self, current: Optional[QListWidgetItem], old: Optional[QListWidgetItem]
-    ) -> None:
-        if current and self.data:
-            credential = self.get_credential(current)
-
+    @Slot(QListWidgetItem)
+    def credential_clicked(self, item: Optional[QListWidgetItem]):
+        if self.data:
+            credential = self.get_credential(item)
             # if credential was already loaded, don't do it again
             if not credential.loaded:
                 self.next_credential_receiver = self.show_credential
@@ -633,10 +633,14 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             else:
                 self.show_credential(credential)
 
-#            self.ui.buttonDelete.setEnabled(True)
+    @Slot(QListWidgetItem, QListWidgetItem)
+    def credential_changed(
+        self, current: Optional[QListWidgetItem], old: Optional[QListWidgetItem]
+    ) -> None:
+        if current and self.data:
+            pass
         else:
             self.hide_credential()
-#            self.ui.buttonDelete.setEnabled(False)
 
     @Slot()
     def delete_credential(self) -> None:
