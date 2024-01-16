@@ -178,7 +178,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.ui.name.textChanged.connect(self.check_credential)
         self.ui.otp.textChanged.connect(self.check_credential)
-        self.ui.algorithm.currentIndexChanged.connect(self.check_credential)
+        self.ui.select_algorithm.currentIndexChanged.connect(self.check_credential)
 
         self.ui.btn_refresh.pressed.connect(self.refresh_credential_list)
         self.ui.is_protected.stateChanged.connect(self.refresh_credential_list)
@@ -409,16 +409,16 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         if credential.otp:
             self.ui.otp.show()
             self.ui.otp.setReadOnly(True)
-            self.ui.algorithm.show()
-            self.ui.algorithm.setCurrentText(str(credential.otp))
-            self.ui.algorithm.setEnabled(False)
+            self.ui.algorithm_tab.show()
+            self.ui.algorithm_tab.setCurrentIndex(1)
+            self.ui.algorithm.setText(str(credential.otp)+":")
             self.ui.otp.setPlaceholderText("<hidden>")
 
             self.action_otp_copy.setVisible(True)
             self.action_otp_edit.setVisible(False)
             self.action_otp_gen.setVisible(True)
         else:
-            self.ui.algorithm.hide()
+            self.ui.algorithm_tab.hide()
             self.ui.otp.hide()
 
     @Slot(Credential)
@@ -472,15 +472,16 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.is_touch_protected.setEnabled(True)
 
         self.hide_otp()
+        self.ui.algorithm_tab.show()
+        self.ui.algorithm_tab.setCurrentIndex(0)
         self.ui.otp.show()
-        self.ui.algorithm.show()
 
         # already existing otp requires confirmation to change
         if credential.otp:
             self.ui.otp.setReadOnly(True)
             self.ui.otp.setPlaceholderText("<hidden - click to edit>")
-            self.ui.algorithm.setCurrentText(str(credential.otp))
-            self.ui.algorithm.setEnabled(False)
+            self.ui.select_algorithm.setCurrentText(str(credential.otp))
+            self.ui.select_algorithm.setEnabled(False)
 
             self.action_otp_copy.setVisible(False)
             self.action_otp_edit.setVisible(True)
@@ -490,12 +491,12 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.ui.otp.setText("")
             self.ui.otp.setReadOnly(False)
             self.ui.otp.setPlaceholderText("<empty>")
-            self.ui.algorithm.setCurrentText(str(credential.otp))
-            self.ui.algorithm.setEnabled(True)
+            self.ui.select_algorithm.setCurrentText(str(credential.otp))
+            self.ui.select_algorithm.setEnabled(True)
 
     def act_enable_otp_edit(self) -> None:
         self.ui.otp.setReadOnly(False)
-        self.ui.algorithm.setEnabled(True)
+        self.ui.select_algorithm.setEnabled(True)
         self.ui.otp.setPlaceholderText("<empty>")
         self.ui.otp.setText("")
         self.active_credential.new_secret = True
@@ -531,8 +532,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.password.setReadOnly(False)
         self.ui.comment.setReadOnly(False)
 
-        self.ui.algorithm.setCurrentText("None")
-        self.ui.algorithm.setEnabled(True)
+        self.ui.algorithm_tab.setCurrentIndex(0)
+        self.ui.select_algorithm.setCurrentText("None")
+        self.ui.select_algorithm.setEnabled(True)
 
         self.ui.is_pin_protected.setChecked(False)
         self.ui.is_touch_protected.setChecked(False)
@@ -540,9 +542,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.is_pin_protected.setEnabled(True)
         self.ui.is_touch_protected.setEnabled(True)
 
-        self.ui.algorithm.show()
-        self.ui.algorithm.setCurrentText("None")
-        self.ui.algorithm.setEnabled(True)
+        self.ui.select_algorithm.show()
+        self.ui.select_algorithm.setCurrentText("None")
+        self.ui.select_algorithm.setEnabled(True)
 
         self.hide_otp()
         self.ui.otp.show()
@@ -561,7 +563,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         otp_secret = self.ui.otp.text()
 
-        algo = self.ui.algorithm.currentText()
+        algo = self.ui.select_algorithm.currentText()
         if algo != "None" and not is_base32(otp_secret):
             can_save = False
 
@@ -654,7 +656,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         comment = self.ui.comment.text()
         user_presence = self.ui.is_touch_protected.isChecked()
         pin_protected = self.ui.is_pin_protected.isChecked()
-        kind_str = self.algorithm.currentText()
+        kind_str = self.select_algorithm.currentText()
 
         if len(name) < 3:
             print("INSERT ERROR MESSAGE HERE - status bar?")
@@ -662,7 +664,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         kind, otp_secret, secret = None, None, None
         # only save otp, if enabled
-        if self.ui.algorithm.isEnabled():
+        if self.ui.select_algorithm.isEnabled():
             try:
                 kind = OtpKind.from_str(kind_str)
                 otp_secret = self.ui.otp.text()
@@ -678,7 +680,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             comment=comment.encode(),
             protected=pin_protected,
             touch_required=user_presence,
-            new_secret=self.ui.algorithm.isEnabled() and self.ui.algorithm.currentText() != "None"
+            new_secret=self.ui.select_algorithm.isEnabled() and self.ui.select_algorithm.currentText() != "None"
         )
 
         if self.active_credential is None:
