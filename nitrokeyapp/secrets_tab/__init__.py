@@ -407,19 +407,25 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.hide_otp()
         self.ui.algorithm_tab.setCurrentIndex(1)
-        if credential.otp:
+
+        if credential.otp or credential.other:
             self.ui.algorithm_tab.show()
             self.ui.algorithm_edit.hide()
             self.ui.algorithm_show.show()
 
             self.ui.otp.show()
             self.ui.otp.setReadOnly(True)
-            self.ui.algorithm.setText(str(credential.otp)+":")
+            self.ui.algorithm.setText(str(credential.otp or credential.other)+":")
             self.ui.otp.setPlaceholderText("<hidden>")
 
-            self.action_otp_copy.setVisible(True)
+            if credential.otp:
+                self.action_otp_copy.setVisible(True)
+                self.action_otp_gen.setVisible(True)
+            else:
+                self.action_otp_copy.setVisible(False)
+                self.action_otp_gen.setVisible(False)
+
             self.action_otp_edit.setVisible(False)
-            self.action_otp_gen.setVisible(True)
         else:
             self.ui.algorithm_tab.hide()
             self.ui.algorithm_show.hide()
@@ -476,11 +482,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.is_touch_protected.setEnabled(True)
 
         self.hide_otp()
-        #self.ui.algorithm_tab.show()
-        #self.ui.algorithm_tab.setCurrentIndex(0)
-        #self.ui.otp.show()
-        #self.ui.algorithm_edit.show()
-        #self.ui.algorithm_show.hide()
 
         self.ui.algorithm_tab.show()
         self.ui.algorithm_tab.setCurrentIndex(0)
@@ -490,15 +491,24 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.otp.show()
 
         # already existing otp requires confirmation to change
-        if credential.otp:
+        if credential.otp or credential.other:
             self.ui.otp.setReadOnly(True)
-            self.ui.otp.setPlaceholderText("<hidden - click to edit>")
-            self.ui.select_algorithm.setCurrentText(str(credential.otp))
+
+            self.ui.select_algorithm.setCurrentText(str(credential.otp or credential.other))
             self.ui.select_algorithm.setEnabled(False)
 
             self.action_otp_copy.setVisible(False)
-            self.action_otp_edit.setVisible(True)
             self.action_otp_gen.setVisible(False)
+            if credential.otp:
+                self.action_otp_edit.setVisible(True)
+                self.ui.otp.setPlaceholderText("<hidden - click to edit>")
+            else:
+                self.ui.algorithm_show.show()
+                self.ui.algorithm_edit.hide()
+                self.ui.algorithm.setText(str(credential.otp or credential.other)+":")
+                self.action_otp_edit.setVisible(False)
+                self.ui.otp.setPlaceholderText("<cannot edit>")
+
         # no otp there, just offer it as in add
         else:
             self.ui.otp.setText("")
