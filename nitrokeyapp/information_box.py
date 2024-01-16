@@ -65,10 +65,10 @@ class InfoBox(QObject):
     @Slot(bool)
     def set_pin_icon(self, pin_cached: bool = True) -> None:
         if pin_cached:
-            self.pin_icon.setIcon(QtUtilsMixIn.get_qicon("lock_open_FILL0_wght500_GRAD0_opsz40.png"))
+            self.pin_icon.setIcon(QtUtilsMixIn.get_qicon("dialpad_FILL0_wght400_GRAD0_opsz24.svg"))
             self.pin_icon.setToolTip("Passwords PIN is cached - click to clear")
         else:
-            self.pin_icon.setIcon(QtUtilsMixIn.get_qicon("encrypted_FILL0_wght500_GRAD0_opsz40.png"))
+            self.pin_icon.setIcon(QtUtilsMixIn.get_qicon("dialpad_X.png"))
             self.pin_icon.setToolTip("Passwords PIN locked")
         self.pin_icon.show()
 
