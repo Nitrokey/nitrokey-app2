@@ -212,19 +212,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.reset_ui()
 
     def reset_ui(self) -> None:
-        self.ui.page_empty.show()
-        self.ui.page_compatible.hide()
-        self.ui.page_incompatible.hide()
-
-        self.ui.credential_empty.show()
-        self.ui.credential_show.hide()
-
         self.ui.secrets_list.clear()
-
-        self.ui.btn_abort.hide()
-        self.ui.btn_delete.hide()
-        self.ui.btn_edit.hide()
-        self.ui.btn_save.hide()
 
         self.show_secrets(True)
 
@@ -601,10 +589,14 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.password.setEchoMode(mode)
         self.action_password_show.setIcon(icon)
 
-
     def hide_credential(self) -> None:
         self.ui.credential_empty.show()
         self.ui.credential_show.hide()
+
+        self.ui.btn_abort.hide()
+        self.ui.btn_delete.hide()
+        self.ui.btn_edit.hide()
+        self.ui.btn_save.hide()
 
     @Slot()
     def hide_otp(self) -> None:
