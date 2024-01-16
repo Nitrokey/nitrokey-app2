@@ -111,6 +111,10 @@ class VerifyPinJob(Job):
         self.pin_ui.disconnect()
 
     def run(self) -> None:
+        if not self.data:
+            self.pin_verified.emit(False)
+            return
+
         with self.data.open() as device:
             secrets = SecretsApp(device)
             select = secrets.select()
