@@ -208,6 +208,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     def reset(self) -> None:
         self.data = None
+        self.active_credential = None
 
         self.reset_ui()
 
@@ -620,7 +621,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     def credential_changed(
         self, current: Optional[QListWidgetItem], old: Optional[QListWidgetItem]
     ) -> None:
-        if current:
+        if current and self.data:
             credential = self.get_credential(current)
 
             # if credential was already loaded, don't do it again

@@ -285,12 +285,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.devices.remove(data)
         self.widget_show()
 
-    def refresh(self) -> None:
-        self.overview_tab.busy_state_changed.connect(self.set_busy)
+    def refresh(self, set_busy: bool = True) -> None:
         """
         Should be called if the selected device or the selected tab is changed
         """
-        self.overview_tab.busy_state_changed.connect(self.set_busy)
+        if set_busy:
+            self.overview_tab.busy_state_changed.connect(self.set_busy)
 
         if self.selected_device:
             self.welcome_widget.hide()
@@ -342,11 +342,13 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.welcome_widget.show()
             self.selected_device = None
             self.info_box.hide_device()
-            self.refresh()
+            self.refresh(set_busy=False)
 
     @Slot(int)
     def slot_tab_changed(self, idx: int) -> None:
         # TODO: not a good place
+        for view in self.views:
+            view.reset()
         if idx == 0:
             self.info_box.pin_icon.hide()
         else:
@@ -357,6 +359,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     # main-window callbacks
     @Slot()
     def home_button_pressed(self) -> None:
+        for view in self.views:
+            view.reset()
         self.welcome_widget.show()
         self.tabs.hide()
         self.selected_device = None
