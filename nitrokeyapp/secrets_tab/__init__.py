@@ -542,13 +542,13 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.is_pin_protected.setEnabled(True)
         self.ui.is_touch_protected.setEnabled(True)
 
-        self.ui.select_algorithm.show()
-        self.ui.select_algorithm.setCurrentText("None")
-        self.ui.select_algorithm.setEnabled(True)
-
         self.hide_otp()
         self.ui.otp.show()
         self.ui.otp.setReadOnly(False)
+
+        self.ui.select_algorithm.show()
+        self.ui.select_algorithm.setCurrentText("None")
+        self.ui.select_algorithm.setEnabled(True)
 
         self.ui.btn_abort.show()
         self.ui.btn_delete.hide()
