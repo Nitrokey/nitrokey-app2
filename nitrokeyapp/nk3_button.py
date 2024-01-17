@@ -13,7 +13,7 @@ class Nk3Button(QtWidgets.QPushButton):
         data: DeviceData,
     ) -> None:
         super().__init__(
-            QtUtilsMixIn.get_qicon("usb_new.png"),
+            QtUtilsMixIn.get_qicon("nitrokey.svg"),
             "Nitrokey 3: " f"{data.uuid_prefix}",
         )
         self.data = data
