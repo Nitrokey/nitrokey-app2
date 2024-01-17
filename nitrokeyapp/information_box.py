@@ -54,7 +54,7 @@ class InfoBox(QObject):
 
     @Slot(str)
     def set_error_status(self, text: str) -> None:
-        icon = "delete_FILL0_wght500_GRAD0_opsz40.png"
+        icon = "warning.svg"
         self.set_status(text, timeout=12000, icon=icon)
 
     @Slot()
