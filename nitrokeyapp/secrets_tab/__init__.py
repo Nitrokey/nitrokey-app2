@@ -10,8 +10,8 @@ from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import QLineEdit, QListWidgetItem, QWidget
 
+from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
-from nitrokeyapp.information_box import InfoBox
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.worker import Worker
 
@@ -66,14 +66,14 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     trigger_get_credential = Signal(DeviceData, Credential)
     trigger_edit_credential = Signal(DeviceData, Credential, bytes, bytes)
 
-    def __init__(self, info_box: InfoBox, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         QWidget.__init__(self, parent)
         QtUtilsMixIn.__init__(self)
 
-        self.info_box = info_box
+        self.common_ui = CommonUi()
 
         self.worker_thread = QThread()
-        self._worker = SecretsWorker(self)
+        self._worker = SecretsWorker(self.common_ui, self)
         self._worker.moveToThread(self.worker_thread)
         self.worker_thread.start()
 
@@ -86,15 +86,14 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.trigger_edit_credential.connect(self._worker.edit_credential)
 
         self._worker.pin_cache.pin_cleared.connect(
-            lambda: (
-                self.info_box.set_pin_icon(pin_cached=False),
-                self.uncheck_checkbox(True),
-            )
+            lambda: self.common_ui.info.pin_cached.emit(False)
         )
+        self._worker.pin_cache.pin_cleared.connect(lambda: self.uncheck_checkbox(True))
+
         self._worker.pin_cache.pin_cached.connect(
-            lambda: self.info_box.set_pin_icon(pin_cached=True)
+            lambda: self.common_ui.info.pin_cached.emit(True)
         )
-        self.info_box.pin_icon.pressed.connect(self._worker.pin_cache.clear)
+        self.common_ui.info.pin_pressed.connect(self._worker.pin_cache.clear)
 
         self._worker.credential_added.connect(self.credential_added)
         self._worker.credential_deleted.connect(self.credential_deleted)
@@ -632,7 +631,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     def act_copy_line_edit(self, obj: QLineEdit) -> None:
         self.clipboard.setText(obj.text())
-        self.info_box.set_status("contents copied to clipboard")
+        self.common_ui.info.info.emit("contents copied to clipboard")
         self.line2copy_action[obj].setIcon(self.get_qicon("done.svg"))
         QTimer.singleShot(
             5000,

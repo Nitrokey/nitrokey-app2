@@ -51,8 +51,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>476</width>
-        <height>342</height>
+        <width>482</width>
+        <height>459</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -114,7 +114,6 @@
             </property>
             <property name="font">
              <font>
-              <weight>75</weight>
               <bold>true</bold>
              </font>
             </property>
@@ -315,7 +314,7 @@
                <enum>Qt::AutoText</enum>
               </property>
               <property name="pixmap">
-          			 <pixmap>icons/warning.svg</pixmap>
+               <pixmap>icons/icon_warning.svg</pixmap>
               </property>
               <property name="scaledContents">
                <bool>true</bool>
@@ -390,7 +389,7 @@
          </property>
          <property name="icon">
           <iconset>
-           <normaloff>icons/right_arrow.svg</normaloff>icons/right_arrow.svg</iconset>
+           <normaloff>icons/right_arrow.png</normaloff>icons/right_arrow.png</iconset>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -444,43 +443,8 @@
      </widget>
     </widget>
    </item>
-   <item>
-    <widget class="QProgressBar" name="progressBar_Download">
-     <property name="value">
-      <number>0</number>
-     </property>
-     <property name="textVisible">
-      <bool>true</bool>
-     </property>
-     <property name="format">
-      <string>Download Firmware %p%</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QProgressBar" name="progressBar_Update">
-     <property name="value">
-      <number>0</number>
-     </property>
-     <property name="format">
-      <string>Update the Nitrokey %p%</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QProgressBar" name="progressBar_Finalization">
-     <property name="value">
-      <number>0</number>
-     </property>
-     <property name="format">
-      <string>Finalization %p%</string>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

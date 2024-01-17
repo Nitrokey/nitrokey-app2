@@ -15,7 +15,10 @@ class Nk3Button(QtWidgets.QPushButton):
             QtUtilsMixIn.get_qicon("nitrokey.svg"),
             "Nitrokey 3: " f"{data.uuid_prefix}",
         )
+
+        print("CREATING BUTTON with data: ", data)
         self.data = data
+
         # needs to create button in the vertical navigation with the nitrokey type and serial number as text
         # set material stylesheet if no system theme is set
         if not self.style().objectName() or self.style().objectName() == "fusion":

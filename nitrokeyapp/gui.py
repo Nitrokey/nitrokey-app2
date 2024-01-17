@@ -12,7 +12,7 @@ from pynitrokey.nk3 import Nitrokey3Device
 
 # pyqt5
 from PySide6 import QtWidgets
-from PySide6.QtCore import Qt, QTimer, Signal, Slot
+from PySide6.QtCore import Qt, Signal, Slot
 from PySide6.QtGui import QCursor
 
 from nitrokeyapp.device_data import DeviceData
@@ -21,75 +21,17 @@ from nitrokeyapp.error_dialog import ErrorDialog
 from nitrokeyapp.information_box import InfoBox
 from nitrokeyapp.nk3_button import Nk3Button
 from nitrokeyapp.overview_tab import OverviewTab
-
-# from nitrokeyapp.loading_screen import LoadingScreen
+from nitrokeyapp.progress_box import ProgressBox
+from nitrokeyapp.prompt_box import PromptBox
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.secrets_tab import SecretsTab
+from nitrokeyapp.touch import TouchIndicator
 
 # import wizards and stuff
 from nitrokeyapp.welcome_tab import WelcomeTab
 from nitrokeyapp.windows_notification import WindowsUSBNotifi
 
 logger = logging.getLogger(__name__)
-
-
-class TouchDialog(QtWidgets.QMessageBox):
-    def __init__(self, parent: QtWidgets.QWidget) -> None:
-        super().__init__(parent)
-
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
-        self.setWindowTitle("Touch Confirmation")
-        self.setText("Press the button on the Nitrokey 3 if the LED blinks.")
-
-    @Slot()
-    def start(self) -> None:
-        self.show()
-
-    @Slot()
-    def stop(self) -> None:
-        self.close()
-
-
-class TouchIndicator(QtWidgets.QWidget):
-    def __init__(self, info_box: InfoBox, parent: "GUI") -> None:
-        super().__init__(parent)
-
-        # TODO: dont pass entire top-lvl obj
-        self.owner = parent
-        self.active_btn: Optional[Nk3Button] = None
-        self.info_box = info_box
-
-        # show status bar info 750ms late
-        t = QTimer(self)
-        t.setSingleShot(True)
-        t.setInterval(750)
-        t.timeout.connect(self.info_box.set_touch_status)
-        self.info_box_timer: QTimer = t
-
-    @Slot()
-    def start(self) -> None:
-        if self.active_btn:
-            return
-
-        self.info_box_timer.start()
-
-        for btn in self.owner.device_buttons:
-            if btn.data == self.owner.selected_device:
-                self.active_btn = btn
-                break
-        if self.active_btn:
-            self.active_btn.start_touch()
-
-    @Slot()
-    def stop(self) -> None:
-        if self.active_btn:
-            self.active_btn.stop_touch()
-            self.active_btn = None
-
-        # self.info_box.hide_status()
-        if self.info_box_timer.isActive():
-            self.info_box_timer.stop()
-        self.info_box.hide_touch()
 
 
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
@@ -136,24 +78,39 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.ui.pin_icon,
         )
 
+        self.prompt_box = PromptBox(self)
+
+        self.progress_box = ProgressBox(self.ui.progress_bar)
+
         self.welcome_widget = WelcomeTab(self.log_file, self)
 
         # hint for mypy
         self.content = self.ui.content
         self.content.layout().addWidget(self.welcome_widget)
 
-        # self.touch_dialog = TouchDialog(self)
         self.touch_dialog = TouchIndicator(self.info_box, self)
 
-        self.overview_tab = OverviewTab(self.info_box, self)
-        self.secrets_tab = SecretsTab(self.info_box, self)
+        self.overview_tab = OverviewTab(self)
+        self.secrets_tab = SecretsTab(self)
+
         self.views: list[DeviceView] = [self.overview_tab, self.secrets_tab]
         for view in self.views:
             if view.worker:
+
                 view.worker.busy_state_changed.connect(self.set_busy)
-                view.worker.error.connect(self.handle_error)
-                view.worker.start_touch.connect(self.touch_dialog.start)
-                view.worker.stop_touch.connect(self.touch_dialog.stop)
+
+                view.common_ui.touch.start.connect(self.touch_dialog.start)
+                view.common_ui.touch.stop.connect(self.touch_dialog.stop)
+
+                view.common_ui.info.info.connect(self.info_box.set_status)
+                view.common_ui.info.error.connect(self.info_box.set_error_status)
+
+                view.common_ui.prompt.confirm.connect(self.prompt_box.confirm)
+                self.prompt_box.confirmed.connect(view.common_ui.prompt.confirmed)
+
+                view.common_ui.progress.start.connect(self.progress_box.show)
+                view.common_ui.progress.stop.connect(self.progress_box.hide)
+                view.common_ui.progress.progress.connect(self.progress_box.update)
 
         # main window widgets
         self.home_button = self.ui.btn_home
@@ -221,7 +178,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             list_of_added = [device.uuid_prefix for device in self.devices]
             logger.info(f"list of added: {list_of_added}")
             for device in nk3_list:
-                data = DeviceData(device)
+                try:
+                    data = DeviceData(device)
+                except Exception as e:
+                    logger.info(repr(e))
+                    return
+
                 if data.uuid_prefix not in list_of_added:
                     if data.uuid:
                         logger.info(f"{data.path}: Nitrokey 3 {data.uuid}")

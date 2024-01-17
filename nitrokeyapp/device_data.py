@@ -1,14 +1,9 @@
 import logging
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 from pynitrokey.nk3 import Nitrokey3Device
 
-from nitrokeyapp.information_box import InfoBox
-from nitrokeyapp.update import Nk3Context
-
-# TODO: This fixes a circular dependency, but should be avoided if possible
-if TYPE_CHECKING:
-    from nitrokeyapp.overview_tab import OverviewTab
+from nitrokeyapp.update import Nk3Context, UpdateGUI
 
 logger = logging.getLogger(__name__)
 
@@ -39,18 +34,16 @@ class DeviceData:
 
     def update(
         self,
-        overview_tab: "OverviewTab",
-        info_frame: InfoBox,
+        ui: UpdateGUI,
         image: Optional[str] = None,
-    ) -> None:
+    ) -> bool:
         self.updating = True
-        overview_tab.update_btns_during_update(False)
         try:
-            Nk3Context(self.path).update(overview_tab, info_frame, image)
-            logger.info("Successfully updated the Nitrokey 3")
-            info_frame.set_status("Successfully updated the Nitrokey 3.")
+            Nk3Context(self.path).update(ui, image)
+            logger.info("Nitrokey 3 successfully updated")
+            self.updating = False
+            return True
         except Exception as e:
-            logger.info(f"Failed to update Nitrokey 3 {e}")
-            info_frame.set_status("Failed to update Nitrokey 3.")
-        self.updating = False
-        overview_tab.update_btns_during_update(True)
+            logger.info(f"Nitrokey 3 failed to update - {e}")
+            self.updating = False
+            return False

@@ -8,6 +8,7 @@ from pynitrokey.nk3.utils import Uuid
 from PySide6.QtCore import QObject, Signal, Slot
 from PySide6.QtWidgets import QWidget
 
+from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.worker import Job, Worker
 
@@ -25,8 +26,8 @@ class PinCache(QObject):
     pin_cached = Signal()
     pin_cleared = Signal()
 
-    def __init__(self, *v: tuple, **kw: dict) -> None:
-        super().__init__(*v, **kw)  # type: ignore [arg-type]
+    def __init__(self) -> None:
+        super().__init__()
 
     @Slot()
     def clear(self) -> None:
@@ -52,8 +53,12 @@ class PinCache(QObject):
 class CheckDeviceJob(Job):
     device_checked = Signal(bool)
 
-    def __init__(self, data: DeviceData) -> None:
-        super().__init__()
+    def __init__(
+        self,
+        common_ui: CommonUi,
+        data: DeviceData,
+    ) -> None:
+        super().__init__(common_ui)
 
         self.data = data
 
@@ -85,12 +90,13 @@ class VerifyPinJob(Job):
 
     def __init__(
         self,
+        common_ui: CommonUi,
         pin_cache: PinCache,
         pin_ui: PinUi,
         data: DeviceData,
         set_pin: bool = False,
     ) -> None:
-        super().__init__()
+        super().__init__(common_ui)
 
         self.pin_cache = pin_cache
         self.data = data
@@ -157,7 +163,7 @@ class VerifyPinJob(Job):
 
     @Slot(str)
     def trigger_error(self, msg: str) -> None:
-        self.error.emit(self.__class__.__name__, Exception(msg))
+        self.common_ui.info.error.emit(self.__class__.__name__, Exception(msg))
         self.pin_verified.emit(False)
 
 
@@ -166,6 +172,7 @@ class EditCredentialJob(Job):
 
     def __init__(
         self,
+        common_ui: CommonUi,
         pin_cache: PinCache,
         pin_ui: PinUi,
         data: DeviceData,
@@ -173,7 +180,7 @@ class EditCredentialJob(Job):
         secret: bytes,
         old_cred_id: bytes,
     ) -> None:
-        super().__init__()
+        super().__init__(common_ui)
 
         self.pin_cache = pin_cache
         self.pin_ui = pin_ui
@@ -188,6 +195,7 @@ class EditCredentialJob(Job):
 
     def run(self) -> None:
         list_credentials_job = ListCredentialsJob(
+            self.common_ui,
             self.pin_cache,
             self.pin_ui,
             self.data,
@@ -218,6 +226,7 @@ class EditCredentialJob(Job):
 
         if self.credential.protected:
             verify_pin_job = VerifyPinJob(
+                self.common_ui,
                 self.pin_cache,
                 self.pin_ui,
                 self.data,
@@ -253,7 +262,12 @@ class EditCredentialJob(Job):
         self, cred: Credential, secret: bytes, then_delete_id: bytes
     ) -> None:
         add_job = AddCredentialJob(
-            self.pin_cache, self.pin_ui, self.data, credential=cred, secret=secret
+            self.common_ui,
+            self.pin_cache,
+            self.pin_ui,
+            self.data,
+            credential=cred,
+            secret=secret,
         )
         add_job.credential_added.connect(
             lambda cred: self.handle_created(cred, then_delete_id)
@@ -273,6 +287,7 @@ class EditCredentialJob(Job):
             touch_required=self.credential.touch_required,
         )
         del_job = DeleteCredentialJob(
+            self.common_ui,
             self.pin_cache,
             self.pin_ui,
             self.data,
@@ -335,13 +350,14 @@ class AddCredentialJob(Job):
 
     def __init__(
         self,
+        common_ui: CommonUi,
         pin_cache: PinCache,
         pin_ui: PinUi,
         data: DeviceData,
         credential: Credential,
         secret: bytes,
     ) -> None:
-        super().__init__()
+        super().__init__(common_ui)
 
         self.pin_cache = pin_cache
         self.pin_ui = pin_ui
@@ -353,6 +369,7 @@ class AddCredentialJob(Job):
 
     def run(self) -> None:
         list_credentials_job = ListCredentialsJob(
+            self.common_ui,
             self.pin_cache,
             self.pin_ui,
             self.data,
@@ -370,6 +387,7 @@ class AddCredentialJob(Job):
             )
         elif self.credential.protected:
             verify_pin_job = VerifyPinJob(
+                self.common_ui,
                 self.pin_cache,
                 self.pin_ui,
                 self.data,
@@ -424,12 +442,13 @@ class DeleteCredentialJob(Job):
 
     def __init__(
         self,
+        common_ui: CommonUi,
         pin_cache: PinCache,
         pin_ui: PinUi,
         data: DeviceData,
         credential: Credential,
     ) -> None:
-        super().__init__()
+        super().__init__(common_ui)
 
         self.pin_cache = pin_cache
         self.pin_ui = pin_ui
@@ -441,7 +460,12 @@ class DeleteCredentialJob(Job):
     def run(self) -> None:
         with self.touch_prompt():
             if self.credential.protected:
-                verify_pin_job = VerifyPinJob(self.pin_cache, self.pin_ui, self.data)
+                verify_pin_job = VerifyPinJob(
+                    self.common_ui,
+                    self.pin_cache,
+                    self.pin_ui,
+                    self.data,
+                )
                 verify_pin_job.pin_verified.connect(self.delete_credential)
                 self.spawn(verify_pin_job)
             else:
@@ -467,12 +491,13 @@ class GenerateOtpJob(Job):
 
     def __init__(
         self,
+        common_ui: CommonUi,
         pin_cache: PinCache,
         pin_ui: PinUi,
         data: DeviceData,
         credential: Credential,
     ) -> None:
-        super().__init__()
+        super().__init__(common_ui)
 
         self.pin_cache = pin_cache
         self.pin_ui = pin_ui
@@ -483,7 +508,12 @@ class GenerateOtpJob(Job):
 
     def run(self) -> None:
         if self.credential.protected:
-            verify_pin_job = VerifyPinJob(self.pin_cache, self.pin_ui, self.data)
+            verify_pin_job = VerifyPinJob(
+                self.common_ui,
+                self.pin_cache,
+                self.pin_ui,
+                self.data,
+            )
             verify_pin_job.pin_verified.connect(self.generate_otp)
             self.spawn(verify_pin_job)
         else:
@@ -521,9 +551,14 @@ class ListCredentialsJob(Job):
     uncheck_checkbox = Signal(bool)
 
     def __init__(
-        self, pin_cache: PinCache, pin_ui: PinUi, data: DeviceData, pin_protected: bool
+        self,
+        common_ui: CommonUi,
+        pin_cache: PinCache,
+        pin_ui: PinUi,
+        data: DeviceData,
+        pin_protected: bool,
     ) -> None:
-        super().__init__()
+        super().__init__(common_ui)
 
         self.pin_cache = pin_cache
         self.pin_ui = pin_ui
@@ -534,7 +569,9 @@ class ListCredentialsJob(Job):
 
     def run(self) -> None:
         if self.pin_protected:
-            verify_pin_job = VerifyPinJob(self.pin_cache, self.pin_ui, self.data)
+            verify_pin_job = VerifyPinJob(
+                self.common_ui, self.pin_cache, self.pin_ui, self.data
+            )
             verify_pin_job.pin_verified.connect(self.list_protected_credentials)
             self.spawn(verify_pin_job)
         else:
@@ -562,12 +599,13 @@ class GetCredentialJob(Job):
 
     def __init__(
         self,
+        common_ui: CommonUi,
         pin_cache: PinCache,
         pin_ui: PinUi,
         data: DeviceData,
         credential: Credential,
     ) -> None:
-        super().__init__()
+        super().__init__(common_ui)
 
         self.pin_cache = pin_cache
         self.pin_ui = pin_ui
@@ -579,7 +617,12 @@ class GetCredentialJob(Job):
     def run(self) -> None:
         with self.touch_prompt():
             if self.credential.protected:
-                verify_pin_job = VerifyPinJob(self.pin_cache, self.pin_ui, self.data)
+                verify_pin_job = VerifyPinJob(
+                    self.common_ui,
+                    self.pin_cache,
+                    self.pin_ui,
+                    self.data,
+                )
                 verify_pin_job.pin_verified.connect(self.get_credential)
                 self.spawn(verify_pin_job)
             else:
@@ -611,15 +654,19 @@ class SecretsWorker(Worker):
     otp_generated = Signal(OtpData)
     received_credential = Signal(Credential)
 
-    def __init__(self, widget: QWidget) -> None:
-        super().__init__()
+    def __init__(
+        self,
+        common_ui: CommonUi,
+        widget: QWidget,
+    ) -> None:
+        super().__init__(common_ui)
 
         self.pin_cache = PinCache()
         self.pin_ui = PinUi(widget)
 
     @Slot(DeviceData)
     def check_device(self, data: DeviceData) -> None:
-        job = CheckDeviceJob(data)
+        job = CheckDeviceJob(self.common_ui, data)
         job.device_checked.connect(self.device_checked)
         self.run(job)
 
@@ -627,32 +674,63 @@ class SecretsWorker(Worker):
     def add_credential(
         self, data: DeviceData, credential: Credential, secret: bytes
     ) -> None:
-        job = AddCredentialJob(self.pin_cache, self.pin_ui, data, credential, secret)
+        job = AddCredentialJob(
+            self.common_ui,
+            self.pin_cache,
+            self.pin_ui,
+            data,
+            credential,
+            secret,
+        )
         job.credential_added.connect(self.credential_added)
         self.run(job)
 
     @Slot(DeviceData, Credential)
     def delete_credential(self, data: DeviceData, credential: Credential) -> None:
-        job = DeleteCredentialJob(self.pin_cache, self.pin_ui, data, credential)
+        job = DeleteCredentialJob(
+            self.common_ui,
+            self.pin_cache,
+            self.pin_ui,
+            data,
+            credential,
+        )
         job.credential_deleted.connect(self.credential_deleted)
         self.run(job)
 
     @Slot(DeviceData, Credential)
     def generate_otp(self, data: DeviceData, credential: Credential) -> None:
-        job = GenerateOtpJob(self.pin_cache, self.pin_ui, data, credential)
+        job = GenerateOtpJob(
+            self.common_ui,
+            self.pin_cache,
+            self.pin_ui,
+            data,
+            credential,
+        )
         job.otp_generated.connect(self.otp_generated)
         self.run(job)
 
     @Slot(DeviceData, bool)
     def refresh_credentials(self, data: DeviceData, pin_protected: bool) -> None:
-        job = ListCredentialsJob(self.pin_cache, self.pin_ui, data, pin_protected)
+        job = ListCredentialsJob(
+            self.common_ui,
+            self.pin_cache,
+            self.pin_ui,
+            data,
+            pin_protected,
+        )
         job.credentials_listed.connect(self.credentials_listed)
         job.uncheck_checkbox.connect(self.uncheck_checkbox)
         self.run(job)
 
     @Slot(DeviceData, Credential)
     def get_credential(self, data: DeviceData, credential: Credential) -> None:
-        job = GetCredentialJob(self.pin_cache, self.pin_ui, data, credential)
+        job = GetCredentialJob(
+            self.common_ui,
+            self.pin_cache,
+            self.pin_ui,
+            data,
+            credential,
+        )
         job.received_credential.connect(self.received_credential)
         self.run(job)
 
@@ -665,7 +743,13 @@ class SecretsWorker(Worker):
         old_cred_id: bytes,
     ) -> None:
         job = EditCredentialJob(
-            self.pin_cache, self.pin_ui, data, credential, secret, old_cred_id
+            self.common_ui,
+            self.pin_cache,
+            self.pin_ui,
+            data,
+            credential,
+            secret,
+            old_cred_id,
         )
         job.credential_edited.connect(self.credential_edited)
         self.run(job)
