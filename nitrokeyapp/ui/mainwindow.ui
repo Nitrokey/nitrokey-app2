@@ -107,7 +107,7 @@
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap>nitrokeyapp/ui/icons/info_FILL0_wght500_GRAD0_opsz40.png</pixmap>
+            <pixmap>nitrokeyapp/ui/icons/info.svg</pixmap>
            </property>
            <property name="scaledContents">
             <bool>true</bool>
@@ -227,7 +227,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>icons/nitrokey-app-icon-vector.svg</pixmap>
+          <pixmap>icons/red_nitrokey-app-icon.svg</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -354,7 +354,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>icons/home_FILL0_wght500_GRAD0_opsz40.png</normaloff>icons/home_FILL0_wght500_GRAD0_opsz40.png</iconset>
+              <normaloff>icons/home.svg</normaloff>icons/home.svg</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -412,7 +412,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>icons/help_FILL0_wght500_GRAD0_opsz40.png</normaloff>icons/help_FILL0_wght500_GRAD0_opsz40.png</iconset>
+              <normaloff>icons/help.svg</normaloff>icons/help.svg</iconset>
             </property>
             <property name="iconSize">
              <size>

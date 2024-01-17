@@ -42,7 +42,7 @@ class InfoBox(QObject):
         self.status.show()
         self.information_frame.show()
         if not icon:
-            self.icon.setPixmap(QtUtilsMixIn.get_pixmap("info_FILL0_wght500_GRAD0_opsz40.png"))
+            self.icon.setPixmap(QtUtilsMixIn.get_pixmap("info.svg"))
         else:
             self.icon.setPixmap(QtUtilsMixIn.get_pixmap(icon))
         self.icon.show()
@@ -54,7 +54,7 @@ class InfoBox(QObject):
 
     @Slot(str)
     def set_error_status(self, text: str) -> None:
-        icon = "delete_FILL0_wght500_GRAD0_opsz40.png"
+        icon = "warning.svg"
         self.set_status(text, timeout=12000, icon=icon)
 
     @Slot()
@@ -66,7 +66,7 @@ class InfoBox(QObject):
     def set_touch_status(self) -> None:
         self.set_status("Press your Nitrokey to confirm...",
             timeout=15000,
-            icon="touch_app_FILL0_wght500_GRAD0_opsz40.png")
+            icon="touch.svg")
 
     @Slot()
     def hide_touch(self) -> None:
@@ -89,10 +89,10 @@ class InfoBox(QObject):
     @Slot(bool)
     def set_pin_icon(self, pin_cached: bool = True) -> None:
         if pin_cached:
-            self.pin_icon.setIcon(QtUtilsMixIn.get_qicon("dialpad_FILL0_wght400_GRAD0_opsz24.svg"))
+            self.pin_icon.setIcon(QtUtilsMixIn.get_qicon("dialpad.svg"))
             self.pin_icon.setToolTip("Passwords PIN is cached - click to clear")
         else:
-            self.pin_icon.setIcon(QtUtilsMixIn.get_qicon("dialpad_X.png"))
+            self.pin_icon.setIcon(QtUtilsMixIn.get_qicon("dialpad_off.svg"))
             self.pin_icon.setToolTip("Passwords PIN locked")
         self.pin_icon.show()
 

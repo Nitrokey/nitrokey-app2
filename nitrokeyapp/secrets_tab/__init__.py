@@ -122,10 +122,10 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui = self.load_ui("secrets_tab.ui", self)
 
 
-        icon_copy = self.get_qicon("content_copy_FILL0_wght400_GRAD0_opsz24.svg")
-        icon_refresh = self.get_qicon("refresh_FILL0_wght400_GRAD0_opsz24.svg")
-        icon_edit = self.get_qicon("edit_FILL0_wght400_GRAD0_opsz24.png")
-        icon_visibility = self.get_qicon("visibility_off_FILL0_wght400_GRAD0_opsz24.svg")
+        icon_copy = self.get_qicon("content_copy.svg")
+        icon_refresh = self.get_qicon("OTP_generate.svg")
+        icon_edit = self.get_qicon("edit.svg")
+        icon_visibility = self.get_qicon("visibility_off.svg")
 
         loc = QLineEdit.ActionPosition.TrailingPosition
         self.action_username_copy = self.ui.username.addAction(icon_copy, loc)
@@ -308,9 +308,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     def add_credential(self, credential: Credential) -> QListWidgetItem:
         icon = (
-            "lock_FILL0_wght500_GRAD0_opsz40"
+            "lock"
             if credential.protected
-            else "lock_open_FILL0_wght500_GRAD0_opsz40"
+            else "lock_open"
         )
         item = QListWidgetItem(credential.name)
         item.setIcon(self.get_qicon(f"{icon}.svg"))
@@ -599,17 +599,17 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     def act_copy_line_edit(self, obj: QLineEdit):
         self.clipboard.setText(obj.text())
         self.info_box.set_status("contents copied to clipboard")
-        self.line2copy_action[obj].setIcon(self.get_qicon("done_FILL0_wght400_GRAD0_opsz24.png"))
+        self.line2copy_action[obj].setIcon(self.get_qicon("done.svg"))
         QTimer.singleShot(5000, lambda:
-            self.line2copy_action[obj].setIcon(self.get_qicon("content_copy_FILL0_wght400_GRAD0_opsz24.png"))
+            self.line2copy_action[obj].setIcon(self.get_qicon("content_copy.svg"))
         )
 
     def act_password_show(self) -> None:
         self.set_password_show(self.ui.password.echoMode() == QLineEdit.Password)
 
     def set_password_show(self, show=True):
-        icon_show = self.get_qicon("visibility_FILL0_wght400_GRAD0_opsz24.svg")
-        icon_hide = self.get_qicon("visibility_off_FILL0_wght400_GRAD0_opsz24.svg")
+        icon_show = self.get_qicon("visibility.svg")
+        icon_hide = self.get_qicon("visibility_off.svg")
         icon = icon_show if show else icon_hide
         mode = QLineEdit.Normal if show else QLineEdit.Password
         self.ui.password.setEchoMode(mode)
