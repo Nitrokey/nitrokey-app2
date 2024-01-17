@@ -1,8 +1,10 @@
 from typing import Optional
-from PySide6 import QtCore, QtWidgets, QtGui
-from PySide6.QtCore import Slot, QObject, Signal
+
+from PySide6 import QtCore, QtWidgets
+from PySide6.QtCore import QObject, Slot
 
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
+
 
 class InfoBox(QObject):
     def __init__(
@@ -11,7 +13,7 @@ class InfoBox(QObject):
         icon: QtWidgets.QLabel,
         status: QtWidgets.QLabel,
         device: QtWidgets.QLabel,
-        pin_icon: QtWidgets.QPushButton
+        pin_icon: QtWidgets.QPushButton,
     ) -> None:
         super().__init__()
         self.information_frame = information_frame
@@ -25,11 +27,13 @@ class InfoBox(QObject):
         self.icon.hide()
 
         self.pin_icon = pin_icon
-        self.pin_icon.setStyleSheet("QPushButton { background-color: none; border: 0; margin: 0; padding: 0; width: 16; height: 16; }")
+        self.pin_icon.setStyleSheet(
+            "QPushButton { background-color: none; border: 0; margin: 0; padding: 0; width: 16; height: 16; }"
+        )
         self.set_pin_icon(False)
         self.pin_icon.hide()
 
-        #self.information_frame.setStyleSheet("background-color:#666666; border: 0;");
+        # self.information_frame.setStyleSheet("background-color:#666666; border: 0;");
 
         self.hide_timer = QtCore.QTimer(self)
         self.hide_timer.setSingleShot(True)
@@ -37,7 +41,9 @@ class InfoBox(QObject):
         self.hide_timer.timeout.connect(self.hide_status)
 
     @Slot(str, int, str)
-    def set_status(self, text: str, timeout: int = 7000, icon: Optional[str] = None) -> None:
+    def set_status(
+        self, text: str, timeout: int = 7000, icon: Optional[str] = None
+    ) -> None:
         self.status.setText(text)
         self.status.show()
         self.information_frame.show()
@@ -64,9 +70,9 @@ class InfoBox(QObject):
 
     @Slot()
     def set_touch_status(self) -> None:
-        self.set_status("Press your Nitrokey to confirm...",
-            timeout=15000,
-            icon="touch.svg")
+        self.set_status(
+            "Press your Nitrokey to confirm...", timeout=15000, icon="touch.svg"
+        )
 
     @Slot()
     def hide_touch(self) -> None:
@@ -95,4 +101,3 @@ class InfoBox(QObject):
             self.pin_icon.setIcon(QtUtilsMixIn.get_qicon("dialpad_off.svg"))
             self.pin_icon.setToolTip("Passwords PIN locked")
         self.pin_icon.show()
-

@@ -12,7 +12,7 @@ from pynitrokey.nk3 import Nitrokey3Device
 
 # pyqt5
 from PySide6 import QtWidgets
-from PySide6.QtCore import Qt, Signal, Slot, QTimer
+from PySide6.QtCore import Qt, QTimer, Signal, Slot
 from PySide6.QtGui import QCursor
 
 from nitrokeyapp.device_data import DeviceData
@@ -51,10 +51,11 @@ class TouchDialog(QtWidgets.QMessageBox):
 
 
 class TouchIndicator(QtWidgets.QWidget):
-    def __init__(self, info_box: InfoBox, parent: Optional[QtWidgets.QWidget] = None) -> None:
+    def __init__(self, info_box: InfoBox, parent: "GUI") -> None:
         super().__init__(parent)
 
-        self.parent = parent
+        # TODO: dont pass entire top-lvl obj
+        self.owner = parent
         self.active_btn: Optional[Nk3Button] = None
         self.info_box = info_box
 
@@ -72,8 +73,8 @@ class TouchIndicator(QtWidgets.QWidget):
 
         self.info_box_timer.start()
 
-        for btn in self.parent.device_buttons:
-            if btn.data == self.parent.selected_device:
+        for btn in self.owner.device_buttons:
+            if btn.data == self.owner.selected_device:
                 self.active_btn = btn
                 break
         if self.active_btn:
@@ -85,7 +86,7 @@ class TouchIndicator(QtWidgets.QWidget):
             self.active_btn.stop_touch()
             self.active_btn = None
 
-        #self.info_box.hide_status()
+        # self.info_box.hide_status()
         if self.info_box_timer.isActive():
             self.info_box_timer.stop()
         self.info_box.hide_touch()
@@ -132,14 +133,16 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.ui.status_icon,
             self.ui.status,
             self.ui.device_info,
-            self.ui.pin_icon
+            self.ui.pin_icon,
         )
 
         self.welcome_widget = WelcomeTab(self.log_file, self)
 
+        # hint for mypy
+        self.content = self.ui.content
         self.content.layout().addWidget(self.welcome_widget)
 
-        #self.touch_dialog = TouchDialog(self)
+        # self.touch_dialog = TouchDialog(self)
         self.touch_dialog = TouchIndicator(self.info_box, self)
 
         self.overview_tab = OverviewTab(self.info_box, self)
@@ -161,6 +164,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # set some props, initial enabled/visible, finally show()
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
 
+        # hint for mypy
+        self.tabs = self.ui.tabs
         for view in self.views:
             self.tabs.addTab(view.widget, view.title)
         self.tabs.currentChanged.connect(self.slot_tab_changed)
@@ -255,7 +260,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         for data in list_of_removed:
             self.remove_device(data)
-
 
         if list_of_removed:
             who = [d.uuid_prefix for d in list_of_removed]
@@ -386,4 +390,4 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def handle_error(self, sender: str, exc: Exception) -> None:
         msg = f"{sender} - {exc}"
         self.info_box.set_error_status(msg)
-        #self.user_err(msg, "Error", self)
+        # self.user_err(msg, "Error", self)

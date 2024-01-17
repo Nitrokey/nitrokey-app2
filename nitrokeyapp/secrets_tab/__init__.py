@@ -1,30 +1,24 @@
-from datetime import datetime
-from typing import Optional
 import binascii
-from base64 import b32decode
-from enum import Enum
 import logging
+from base64 import b32decode
+from datetime import datetime
+from enum import Enum
+from typing import Callable, Optional
 
 from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
-from PySide6.QtGui import QGuiApplication, QIcon, QAction
-from PySide6.QtWidgets import QDialog, QListWidgetItem, QWidget, QLineEdit
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtWidgets import QLineEdit, QListWidgetItem, QWidget
 
 from nitrokeyapp.device_data import DeviceData
-from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.information_box import InfoBox
-
-# from nitrokeyapp.ui.secrets_tab import Ui_SecretsTab
+from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.worker import Worker
 
 from .data import Credential, OtpData, OtpKind
 from .worker import SecretsWorker
 
 # TODO:
-# - logging
 # - handle expired OTP
-# - add OTP copy to clipboard
-# - investigate layout during OTP display
-# - disable UI during operations
 # - confirm new PIN
 
 
@@ -53,6 +47,7 @@ class SecretsTabState(Enum):
     EditCred = 3
 
     NotAvailable = 99
+
 
 class SecretsTab(QtUtilsMixIn, QWidget):
     # standard UI
@@ -89,11 +84,15 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.trigger_get_credential.connect(self._worker.get_credential)
         self.trigger_edit_credential.connect(self._worker.edit_credential)
 
-        self._worker.pin_cache.pin_cleared.connect(lambda: (
-            self.info_box.set_pin_icon(pin_cached=False),
-            self.uncheck_checkbox(True)
-        ))
-        self._worker.pin_cache.pin_cached.connect(lambda: self.info_box.set_pin_icon(pin_cached=True))
+        self._worker.pin_cache.pin_cleared.connect(
+            lambda: (
+                self.info_box.set_pin_icon(pin_cached=False),
+                self.uncheck_checkbox(True),
+            )
+        )
+        self._worker.pin_cache.pin_cached.connect(
+            lambda: self.info_box.set_pin_icon(pin_cached=True)
+        )
         self.info_box.pin_icon.pressed.connect(self._worker.pin_cache.clear)
 
         self._worker.credential_added.connect(self.credential_added)
@@ -121,7 +120,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         # self.ui === self -> this tricks mypy due to monkey-patching self
         self.ui = self.load_ui("secrets_tab.ui", self)
 
-
         icon_copy = self.get_qicon("content_copy.svg")
         icon_refresh = self.get_qicon("OTP_generate.svg")
         icon_edit = self.get_qicon("edit.svg")
@@ -129,19 +127,27 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         loc = QLineEdit.ActionPosition.TrailingPosition
         self.action_username_copy = self.ui.username.addAction(icon_copy, loc)
-        self.action_username_copy.triggered.connect(lambda: self.act_copy_line_edit(self.ui.username))
+        self.action_username_copy.triggered.connect(
+            lambda: self.act_copy_line_edit(self.ui.username)
+        )
 
         self.action_password_copy = self.ui.password.addAction(icon_copy, loc)
-        self.action_password_copy.triggered.connect(lambda: self.act_copy_line_edit(self.ui.password))
+        self.action_password_copy.triggered.connect(
+            lambda: self.act_copy_line_edit(self.ui.password)
+        )
 
         self.action_password_show = self.ui.password.addAction(icon_visibility, loc)
         self.action_password_show.triggered.connect(self.act_password_show)
 
         self.action_comment_copy = self.ui.comment.addAction(icon_copy, loc)
-        self.action_comment_copy.triggered.connect(lambda: self.act_copy_line_edit(self.ui.comment))
+        self.action_comment_copy.triggered.connect(
+            lambda: self.act_copy_line_edit(self.ui.comment)
+        )
 
         self.action_otp_copy = self.ui.otp.addAction(icon_copy, loc)
-        self.action_otp_copy.triggered.connect(lambda: self.act_copy_line_edit(self.ui.otp))
+        self.action_otp_copy.triggered.connect(
+            lambda: self.act_copy_line_edit(self.ui.otp)
+        )
 
         self.action_otp_gen = self.ui.otp.addAction(icon_refresh, loc)
         self.action_otp_gen.triggered.connect(self.generate_otp)
@@ -151,25 +157,19 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.line_actions = [
             self.action_username_copy,
-            self.action_password_copy, self.action_password_show,
+            self.action_password_copy,
+            self.action_password_show,
             self.action_comment_copy,
-            self.action_otp_copy, self.action_otp_edit, self.action_otp_gen
+            self.action_otp_copy,
+            self.action_otp_edit,
+            self.action_otp_gen,
         ]
         self.line2copy_action = {
             self.ui.username: self.action_username_copy,
             self.ui.password: self.action_password_copy,
             self.ui.comment: self.action_comment_copy,
-            self.ui.otp: self.action_otp_copy
+            self.ui.otp: self.action_otp_copy,
         }
-
-#        labels = [
-#            self.ui.labelName,
-#            self.ui.labelAlgorithm,
-#            self.ui.labelOtp,
-#        ]
-#        max_width = max([label.width() for label in labels])
-#        for label in labels:
-#            label.setMinimumWidth(max_width)
 
         self.ui.btn_add.pressed.connect(self.add_new_credential)
         self.ui.btn_abort.pressed.connect(lambda: self.show_secrets(True))
@@ -186,12 +186,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.secrets_list.itemClicked.connect(self.credential_clicked)
 
         self.ui.btn_delete.pressed.connect(self.delete_credential)
-
-
-
-#        self.ui.pushButtonOtpCopyToClipboard.pressed.connect(self.copy_to_clipboard)
-#        self.ui.buttonDelete.pressed.connect(self.delete_credential)
-#        self.ui.pushButtonOtpGenerate.pressed.connect(self.generate_otp)
 
         self.reset()
 
@@ -257,7 +251,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.trigger_refresh_credentials.emit(self.data, pin_protected)
 
-
     @Slot(Credential)
     def credential_added(self, credential: Credential) -> None:
         self.active_credential = credential
@@ -307,11 +300,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.otp.show()
 
     def add_credential(self, credential: Credential) -> QListWidgetItem:
-        icon = (
-            "lock"
-            if credential.protected
-            else "lock_open"
-        )
+        icon = "lock" if credential.protected else "lock_open"
         item = QListWidgetItem(credential.name)
         item.setIcon(self.get_qicon(f"{icon}.svg"))
         item.setData(Qt.ItemDataRole.UserRole, credential)
@@ -415,7 +404,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
             self.ui.otp.show()
             self.ui.otp.setReadOnly(True)
-            self.ui.algorithm.setText(str(credential.otp or credential.other)+":")
+            self.ui.algorithm.setText(str(credential.otp or credential.other) + ":")
             self.ui.otp.setPlaceholderText("<hidden>")
 
             if credential.otp:
@@ -494,7 +483,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         if credential.otp or credential.other:
             self.ui.otp.setReadOnly(True)
 
-            self.ui.select_algorithm.setCurrentText(str(credential.otp or credential.other))
+            self.ui.select_algorithm.setCurrentText(
+                str(credential.otp or credential.other)
+            )
             self.ui.select_algorithm.setEnabled(False)
 
             self.action_otp_copy.setVisible(False)
@@ -505,7 +496,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             else:
                 self.ui.algorithm_show.show()
                 self.ui.algorithm_edit.hide()
-                self.ui.algorithm.setText(str(credential.otp or credential.other)+":")
+                self.ui.algorithm.setText(str(credential.otp or credential.other) + ":")
                 self.action_otp_edit.setVisible(False)
                 self.ui.otp.setPlaceholderText("<cannot edit>")
 
@@ -518,11 +509,13 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.ui.select_algorithm.setEnabled(True)
 
     def act_enable_otp_edit(self) -> None:
+        assert self.active_credential
+        self.active_credential.new_secret = True
+
         self.ui.otp.setReadOnly(False)
         self.ui.select_algorithm.setEnabled(True)
         self.ui.otp.setPlaceholderText("<empty>")
         self.ui.otp.setText("")
-        self.active_credential.new_secret = True
 
     @Slot()
     def add_new_credential(self) -> None:
@@ -596,22 +589,25 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.ui.btn_save.setEnabled(can_save)
 
-    def act_copy_line_edit(self, obj: QLineEdit):
+    def act_copy_line_edit(self, obj: QLineEdit) -> None:
         self.clipboard.setText(obj.text())
         self.info_box.set_status("contents copied to clipboard")
         self.line2copy_action[obj].setIcon(self.get_qicon("done.svg"))
-        QTimer.singleShot(5000, lambda:
-            self.line2copy_action[obj].setIcon(self.get_qicon("content_copy.svg"))
+        QTimer.singleShot(
+            5000,
+            lambda: self.line2copy_action[obj].setIcon(
+                self.get_qicon("content_copy.svg")
+            ),
         )
 
     def act_password_show(self) -> None:
-        self.set_password_show(self.ui.password.echoMode() == QLineEdit.Password)
+        self.set_password_show(self.ui.password.echoMode() == QLineEdit.Password)  # type: ignore [attr-defined]
 
-    def set_password_show(self, show=True):
+    def set_password_show(self, show: bool = True) -> None:
         icon_show = self.get_qicon("visibility.svg")
         icon_hide = self.get_qicon("visibility_off.svg")
         icon = icon_show if show else icon_hide
-        mode = QLineEdit.Normal if show else QLineEdit.Password
+        mode = QLineEdit.Normal if show else QLineEdit.Password  # type: ignore [attr-defined]
         self.ui.password.setEchoMode(mode)
         self.action_password_show.setIcon(icon)
 
@@ -646,8 +642,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.hide_otp()
 
     @Slot(QListWidgetItem)
-    def credential_clicked(self, item: Optional[QListWidgetItem]):
+    def credential_clicked(self, item: Optional[QListWidgetItem]) -> None:
         if self.data:
+            assert item
             credential = self.get_credential(item)
             # if credential was already loaded, don't do it again
             if not credential.loaded:
@@ -683,7 +680,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         comment = self.ui.comment.text()
         user_presence = self.ui.is_touch_protected.isChecked()
         pin_protected = self.ui.is_pin_protected.isChecked()
-        kind_str = self.select_algorithm.currentText()
+        kind_str = self.ui.select_algorithm.currentText()
 
         if len(name) < 3:
             print("INSERT ERROR MESSAGE HERE - status bar?")
@@ -696,7 +693,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
                 kind = OtpKind.from_str(kind_str)
                 otp_secret = self.ui.otp.text()
                 secret = parse_base32(otp_secret)
-            except RuntimeError as e:
+            except RuntimeError:
                 pass
 
         cred = Credential(
@@ -707,15 +704,16 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             comment=comment.encode(),
             protected=pin_protected,
             touch_required=user_presence,
-            new_secret=self.ui.select_algorithm.isEnabled() and self.ui.select_algorithm.currentText() != "None"
+            new_secret=self.ui.select_algorithm.isEnabled()
+            and self.ui.select_algorithm.currentText() != "None",
         )
 
         if self.active_credential is None:
             self.trigger_add_credential.emit(self.data, cred, secret)
         else:
-            self.trigger_edit_credential.emit(self.data, cred, secret, self.active_credential.id)
-
-
+            self.trigger_edit_credential.emit(
+                self.data, cred, secret, self.active_credential.id
+            )
 
     @Slot()
     def generate_otp(self) -> None:

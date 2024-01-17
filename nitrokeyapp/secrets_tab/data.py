@@ -4,7 +4,7 @@ from enum import Enum, auto, unique
 from typing import Optional, Union
 
 from pynitrokey.nk3.secrets_app import Kind as RawKind
-from pynitrokey.nk3.secrets_app import ListItem, SecretsApp, PasswordSafeEntry
+from pynitrokey.nk3.secrets_app import ListItem, PasswordSafeEntry, SecretsApp
 
 # TODO: these could be moved into pynitrokey
 
@@ -40,6 +40,7 @@ class OtherKind(Enum):
 
     def __str__(self) -> str:
         return self.name
+
 
 Kind = Union[OtpKind, OtherKind]
 
@@ -109,6 +110,7 @@ class Credential:
             self.comment = item.metadata
         self.loaded = True
         return self
+
 
 @dataclass
 class OtpData:

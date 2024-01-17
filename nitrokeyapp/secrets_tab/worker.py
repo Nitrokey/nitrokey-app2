@@ -1,11 +1,11 @@
+import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, Dict
-import logging
+from typing import Dict, Optional
 
-from pynitrokey.nk3.secrets_app import SecretsApp, SecretsAppException, Kind as RawKind
+from pynitrokey.nk3.secrets_app import SecretsApp, SecretsAppException
 from pynitrokey.nk3.utils import Uuid
-from PySide6.QtCore import Signal, Slot, QObject
+from PySide6.QtCore import QObject, Signal, Slot
 from PySide6.QtWidgets import QWidget
 
 from nitrokeyapp.device_data import DeviceData
@@ -13,7 +13,6 @@ from nitrokeyapp.worker import Job, Worker
 
 from .data import Credential, OtpData, OtpKind
 from .ui import PinUi
-
 
 logger = logging.getLogger(__name__)
 
@@ -26,8 +25,8 @@ class PinCache(QObject):
     pin_cached = Signal()
     pin_cleared = Signal()
 
-    def __init__(self, *v, **kw) -> None:
-        super().__init__(*v, **kw)
+    def __init__(self, *v: tuple, **kw: dict) -> None:
+        super().__init__(*v, **kw)  # type: ignore [arg-type]
 
     @Slot()
     def clear(self) -> None:
@@ -48,6 +47,7 @@ class PinCache(QObject):
         self.pin = pin
 
         self.pin_cached.emit()
+
 
 class CheckDeviceJob(Job):
     device_checked = Signal(bool)
@@ -164,7 +164,8 @@ class VerifyPinJob(Job):
 class EditCredentialJob(Job):
     credential_edited = Signal(Credential)
 
-    def __init__(self,
+    def __init__(
+        self,
         pin_cache: PinCache,
         pin_ui: PinUi,
         data: DeviceData,
@@ -181,7 +182,7 @@ class EditCredentialJob(Job):
         self.secret = secret
         self.old_cred_id = old_cred_id
 
-        self.all_credentials: Optional[Dict[str, Credential]] = None
+        self.all_credentials: Optional[Dict[bytes, Credential]] = None
 
         self.credential_edited.connect(lambda _: self.finished.emit())
 
@@ -197,17 +198,19 @@ class EditCredentialJob(Job):
 
     @Slot(list)
     def check_credential(self, credentials: list[Credential]) -> None:
-        self.all_credentials = { cred.id: cred for cred in credentials }
-        #ids = set([credential.id for credential in credentials])
+        self.all_credentials = {cred.id: cred for cred in credentials}
+        # ids = set([credential.id for credential in credentials])
 
         if self.old_cred_id not in self.all_credentials:
             self.trigger_error(
-                f"A credential with the name {self.old_cred_id} does not exists."
+                f"A credential with the name {self.old_cred_id!r} does not exists."
             )
             return
 
-        if self.credential.id != self.old_cred_id and \
-            self.credential.id in self.all_credentials:
+        if (
+            self.credential.id != self.old_cred_id
+            and self.credential.id in self.all_credentials
+        ):
             self.trigger_error(
                 f"A credential with the name {self.credential.name} does already exist."
             )
@@ -246,15 +249,15 @@ class EditCredentialJob(Job):
                 temp_cred_id = self.temp_rename_credential(self.old_cred_id)
                 self.add_credential(self.credential, self.secret, temp_cred_id)
 
-    def add_credential(self, cred: Credential, secret: bytes, then_delete_id: bytes) -> None:
+    def add_credential(
+        self, cred: Credential, secret: bytes, then_delete_id: bytes
+    ) -> None:
         add_job = AddCredentialJob(
-            self.pin_cache,
-            self.pin_ui,
-            self.data,
-            credential=cred,
-            secret=secret
+            self.pin_cache, self.pin_ui, self.data, credential=cred, secret=secret
         )
-        add_job.credential_added.connect(lambda cred: self.handle_created(cred, then_delete_id))
+        add_job.credential_added.connect(
+            lambda cred: self.handle_created(cred, then_delete_id)
+        )
         self.spawn(add_job)
 
     @Slot(Credential)
@@ -267,7 +270,7 @@ class EditCredentialJob(Job):
         cred = Credential(
             id=cred_id,
             protected=self.credential.protected,
-            touch_required=self.credential.touch_required
+            touch_required=self.credential.touch_required,
         )
         del_job = DeleteCredentialJob(
             self.pin_cache,
@@ -286,7 +289,8 @@ class EditCredentialJob(Job):
     @Slot()
     def temp_rename_credential(self, from_cred_id: bytes) -> bytes:
         new_cred_id = b"__" + from_cred_id
-        while new_cred_id in self.all_credentials:
+        assert self.all_credentials
+        while new_cred_id in self.all_credentials.keys():
             new_cred_id += b"_"
 
         with self.data.open() as device:
@@ -305,7 +309,7 @@ class EditCredentialJob(Job):
                 reg_data = dict(
                     cred_id=self.old_cred_id,
                     touch_button=self.credential.touch_required,
-                    #pin_based_encryption=self.credential.protected,
+                    # pin_based_encryption=self.credential.protected,
                 )
                 if self.old_cred_id != self.credential.id:
                     reg_data["new_name"] = self.credential.id
@@ -318,11 +322,10 @@ class EditCredentialJob(Job):
                     reg_data["metadata"] = self.credential.comment
 
                 try:
-                    secrets.update_credential(**reg_data)
+                    secrets.update_credential(**reg_data)  # type: ignore [arg-type]
                 except SecretsAppException as e:
                     self.trigger_exception(e)
                     return
-
 
         self.credential_edited.emit(self.credential)
 
@@ -383,8 +386,6 @@ class AddCredentialJob(Job):
             self.finished.emit()
             return
 
-        kind = self.credential.otp or RawKind.NotSet
-
         with self.data.open() as device:
             secrets = SecretsApp(device)
             with self.touch_prompt():
@@ -407,7 +408,7 @@ class AddCredentialJob(Job):
                     reg_data["metadata"] = self.credential.comment
 
                 try:
-                    secrets.register(**reg_data)
+                    secrets.register(**reg_data)  # type: ignore [arg-type]
                 except SecretsAppException as e:
                     self.trigger_exception(e)
                     return
@@ -454,6 +455,7 @@ class DeleteCredentialJob(Job):
                 return
 
             self.credential_deleted.emit(self.credential)
+
 
 class GenerateOtpJob(Job):
     # TODO: make period and digits configurable
@@ -510,6 +512,7 @@ class GenerateOtpJob(Job):
 
             self.otp_generated.emit(OtpData(otp, validity))
 
+
 class ListCredentialsJob(Job):
     credentials_listed = Signal(list)
     uncheck_checkbox = Signal(bool)
@@ -550,11 +553,16 @@ class ListCredentialsJob(Job):
 
         self.credentials_listed.emit(credentials)
 
+
 class GetCredentialJob(Job):
     received_credential = Signal(Credential)
 
     def __init__(
-        self, pin_cache: PinCache, pin_ui: PinUi, data: DeviceData, credential: Credential
+        self,
+        pin_cache: PinCache,
+        pin_ui: PinUi,
+        data: DeviceData,
+        credential: Credential,
     ) -> None:
         super().__init__()
 
@@ -586,6 +594,7 @@ class GetCredentialJob(Job):
 
             cred = self.credential.extend_with_password_safe_entry(pse)
             self.received_credential.emit(cred)
+
 
 class SecretsWorker(Worker):
     # TODO: remove DeviceData from signatures
@@ -645,8 +654,15 @@ class SecretsWorker(Worker):
         self.run(job)
 
     @Slot(DeviceData, Credential, bytes, str)
-    def edit_credential(self, data: DeviceData, credential: Credential, secret: bytes, old_cred_id: bytes) -> None:
-        job = EditCredentialJob(self.pin_cache, self.pin_ui, data, credential, secret, old_cred_id)
+    def edit_credential(
+        self,
+        data: DeviceData,
+        credential: Credential,
+        secret: bytes,
+        old_cred_id: bytes,
+    ) -> None:
+        job = EditCredentialJob(
+            self.pin_cache, self.pin_ui, data, credential, secret, old_cred_id
+        )
         job.credential_edited.connect(self.credential_edited)
         self.run(job)
-
