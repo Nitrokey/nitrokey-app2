@@ -343,6 +343,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         if device_count == 1:
             data = self.devices[0]
             self.device_selected(data)
+            # TODO: solve centrally
+            self.tabs.setCurrentIndex(0)
         else:
             self.tabs.hide()
             self.welcome_widget.show()
