@@ -38,6 +38,9 @@ build:
 build-pyinstaller-onefile:
 	$(VENV_BIN)/pyinstaller ci-scripts/linux/pyinstaller/nitrokey-app-onefile.spec
 
+build-pyinstaller-onedir:
+	$(VENV_BIN)/pyinstaller ci-scripts/linux/pyinstaller/nitrokey-app-onedir.spec
+
 # code checks
 check-format:
 	$(VENV_PYTHON) -m black --check $(PACKAGE_NAME)/
