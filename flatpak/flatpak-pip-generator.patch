@@ -1,0 +1,11 @@
+--- flatpak-pip-generator.org	2023-12-19 22:57:53.690661087 +0100
++++ flatpak-pip-generator	2023-12-19 22:57:45.310718780 +0100
+@@ -285,7 +285,7 @@
+
+     fprint('Downloading arch independent packages')
+     for filename in os.listdir(tempdir):
+-        if not filename.endswith(('bz2', 'any.whl', 'gz', 'xz', 'zip')):
++        if not filename.endswith(('bz2', 'any.whl', 'gz', 'xz', 'zip', 'x86_64.whl')):
+             version = get_file_version(filename)
+             name = get_package_name(filename)
+             url = get_tar_package_url_pypi(name, version)
