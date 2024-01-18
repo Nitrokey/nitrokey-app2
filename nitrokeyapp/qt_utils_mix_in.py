@@ -33,6 +33,11 @@ class QtUtilsMixIn:
         p = Path(__file__).parent / "ui" / "icons" / filename
         return QtGui.QIcon(p.as_posix())
 
+    @staticmethod
+    def get_pixmap(filename: str) -> QtGui.QPixmap:
+        p = Path(__file__).parent / "ui" / "icons" / filename
+        return QtGui.QPixmap(p.as_posix())
+
     def user_warn(
         self,
         msg: str,
@@ -81,13 +86,13 @@ class QtUtilsMixIn:
         # Find out if the state is on or off
         state = expand_button.isChecked()
         if not state:
-            expand_button.setIcon(self.get_qicon("right_arrow.png"))
+            expand_button.setIcon(self.get_qicon("right_arrow.svg"))
             expand_button.setIconSize(QSize(12, 12))
             frame.setFixedHeight(0)
             # Set window Height
             # self.setFixedHeight(self.sizeHint().height())
         else:
-            expand_button.setIcon(self.get_qicon("down_arrow.png"))
+            expand_button.setIcon(self.get_qicon("down_arrow.svg"))
             oSize = frame.sizeHint()
             frame.setFixedHeight(oSize.height())
             # Set window Height

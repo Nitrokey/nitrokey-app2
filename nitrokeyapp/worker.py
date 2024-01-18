@@ -12,7 +12,7 @@ class Job(QObject):
     finished = Signal()
 
     # standard UI
-    error = Signal(str)
+    error = Signal(str, Exception)
     start_touch = Signal()
     stop_touch = Signal()
 
@@ -30,7 +30,12 @@ class Job(QObject):
 
     @Slot(str)
     def trigger_error(self, msg: str) -> None:
-        self.error.emit(msg)
+        self.error.emit(self.__class__.__name__, Exception(msg))
+        self.finished.emit()
+
+    @Slot(str, Exception)
+    def trigger_exception(self, exc: Exception) -> None:
+        self.error.emit(self.__class__.__name__, exc)
         self.finished.emit()
 
     def spawn(self, job: "Job") -> None:
@@ -51,7 +56,7 @@ class Job(QObject):
 class Worker(QObject):
     # standard UI
     busy_state_changed = Signal(bool)
-    error = Signal(str)
+    error = Signal(str, Exception)
     start_touch = Signal()
     stop_touch = Signal()
 
