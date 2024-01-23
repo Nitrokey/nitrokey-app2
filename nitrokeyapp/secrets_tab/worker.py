@@ -70,7 +70,7 @@ class CheckDeviceJob(Job):
                     # TODO: catch a more specific exception
                     pass
         except Exception as e:
-            logger.info("check device job failed: ", repr(e))
+            logger.info(f"check device job failed: {e}")
             compatible = False
 
         self.device_checked.emit(compatible)
