@@ -508,6 +508,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.ui.select_algorithm.setCurrentText(str(credential.otp))
             self.ui.select_algorithm.setEnabled(True)
 
+        self.check_credential()
+
     def act_enable_otp_edit(self) -> None:
         assert self.active_credential
         self.active_credential.new_secret = True
@@ -516,6 +518,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.select_algorithm.setEnabled(True)
         self.ui.otp.setPlaceholderText("<empty>")
         self.ui.otp.setText("")
+
+        self.check_credential()
 
     @Slot()
     def add_new_credential(self) -> None:
@@ -581,8 +585,12 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         otp_secret = self.ui.otp.text()
 
         algo = self.ui.select_algorithm.currentText()
-        if algo != "None" and not is_base32(otp_secret):
-            can_save = False
+        if self.ui.select_algorithm.isEnabled():
+            if algo != "None" and not is_base32(otp_secret):
+                can_save = False
+
+            if algo != "None" and len(otp_secret) < 1:
+                can_save = False
 
         if len(self.ui.name.text()) < 3:
             can_save = False
