@@ -235,7 +235,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.data = data
 
         self.reset_ui()
-        self.trigger_check_device.emit(data)
+        self.trigger_check_device.emit(self.data)
 
     @Slot(bool)
     def device_checked(self, compatible: bool) -> None:

@@ -1,7 +1,10 @@
 import logging
-from typing import Optional
+from typing import List, Optional
 
-from pynitrokey.nk3 import Nitrokey3Device
+from pynitrokey import nk3
+from pynitrokey.nk3 import Nitrokey3Base, Nitrokey3Device
+from pynitrokey.nk3.admin_app import Status
+from pynitrokey.nk3.utils import Uuid, Version
 
 from nitrokeyapp.update import Nk3Context, UpdateGUI
 
@@ -9,12 +12,50 @@ logger = logging.getLogger(__name__)
 
 
 class DeviceData:
-    def __init__(self, device: Nitrokey3Device) -> None:
+    def __init__(self, device: Nitrokey3Base) -> None:
         self.path = device.path
-        self.uuid = device.uuid()
-        self.version = device.version()
         self.updating = False
-        self.status = device.admin.status()
+
+        self._status: Optional[Status] = None
+        self._uuid: Optional[Uuid] = None
+        self._version: Optional[Version] = None
+        self._device = device
+
+    @classmethod
+    def list(cls) -> List["DeviceData"]:
+        return [cls(dev) for dev in nk3.list()]
+
+    @property
+    def name(self) -> str:
+        if self.is_bootloader:
+            # desc = self.path.split("/")[-1]
+            return "Nitrokey 3 (BL)"
+        return f"Nitrokey 3: {self.uuid_prefix}"
+
+    @property
+    def is_bootloader(self) -> bool:
+        return not isinstance(self._device, Nitrokey3Device)
+
+    @property
+    def status(self) -> Status:
+        assert isinstance(self._device, Nitrokey3Device)
+        if not self._status:
+            self._status = self._device.admin.status()
+        return self._status
+
+    @property
+    def version(self) -> Version:
+        assert isinstance(self._device, Nitrokey3Device)
+        if not self._version:
+            self._version = self._device.version()
+        return self._version
+
+    @property
+    def uuid(self) -> Optional[Uuid]:
+        assert isinstance(self._device, Nitrokey3Device)
+        if not self._uuid:
+            self._uuid = self._device.uuid()
+        return self._uuid
 
     @property
     def uuid_prefix(self) -> str:
@@ -22,6 +63,7 @@ class DeviceData:
         The prefix of the UUID that is constant even when switching between
         stable and test firmware.
         """
+        assert isinstance(self._device, Nitrokey3Device)
         return str(self.uuid)[:5]
 
     def open(self) -> Nitrokey3Device:

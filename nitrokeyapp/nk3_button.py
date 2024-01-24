@@ -1,3 +1,5 @@
+from typing import Optional
+
 from PySide6 import QtCore, QtGui, QtWidgets
 from qt_material import apply_stylesheet
 
@@ -11,13 +13,10 @@ class Nk3Button(QtWidgets.QPushButton):
         self,
         data: DeviceData,
     ) -> None:
-        super().__init__(
-            QtUtilsMixIn.get_qicon("nitrokey.svg"),
-            "Nitrokey 3: " f"{data.uuid_prefix}",
-        )
+        super().__init__(QtUtilsMixIn.get_qicon("nitrokey.svg"), data.name)
 
-        print("CREATING BUTTON with data: ", data)
         self.data = data
+        self.bootloader_data: Optional[DeviceData] = None
 
         # needs to create button in the vertical navigation with the nitrokey type and serial number as text
         # set material stylesheet if no system theme is set
@@ -66,4 +65,4 @@ class Nk3Button(QtWidgets.QPushButton):
         self.setText("")
 
     def unfold(self) -> None:
-        self.setText("Nitrokey 3: " f"{str(self.data.uuid)[:5]}")
+        self.setText(self.data.name)

@@ -65,32 +65,41 @@ class OverviewTab(QtUtilsMixIn, QWidget):
     def reset(self) -> None:
         self.data = None
         self.set_device_data("?", "?", "?", "?", "?")
-        # self.ui.progressBar_Update.hide()
-        # self.ui.progressBar_Download.hide()
-        # self.ui.progressBar_Finalization.hide()
-        # self.ui.progress_bar.hide()
 
     def refresh(self, data: DeviceData) -> None:
         if data == self.data:
             return
         self.reset()
         self.data = data
-        if data.status.variant is None:
-            return
 
-        self.set_device_data(
-            str(data.path),
-            str(data.uuid),
-            str(data.version),
-            str(data.status.variant.name),
-            str(data.status.init_status),
-        )
-
-        if data.status.init_status is None:
+        if data.is_bootloader:
+            self.set_device_data(
+                str(data.path),
+                "n/a",
+                "n/a",
+                "n/a",
+                "n/a",
+            )
             self.ui.label_init_status.hide()
             self.ui.nk3_lineedit_init_status.hide()
+            self.ui.moreInfo.hide()
+            self.ui.label_nk3.setText("Nitrokey 3 Bootloader")
+
         else:
-            self.status_error(InitStatus(data.status.init_status))
+            assert data.status.variant
+            self.set_device_data(
+                str(data.path),
+                str(data.uuid),
+                str(data.version),
+                str(data.status.variant.name),
+                str(data.status.init_status),
+            )
+            self.ui.label_nk3.setText("Nitrokey 3")
+            if data.status.init_status is None:
+                self.ui.label_init_status.hide()
+                self.ui.nk3_lineedit_init_status.hide()
+            else:
+                self.status_error(InitStatus(data.status.init_status))
 
     def set_device_data(
         self, path: str, uuid: str, version: str, variant: str, init_status: str
