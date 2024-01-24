@@ -58,6 +58,7 @@ class Nk3Button(QtWidgets.QPushButton):
         self.animation.stop()
         self.setToolTip("")
         self.effect.setStrength(0)
+        self.setFocus()
 
     def fold(self) -> None:
         self.setText("")
