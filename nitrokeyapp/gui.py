@@ -247,7 +247,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         if self.devices:
             try:
                 nk3_list = [device.uuid() for device in Nitrokey3Device.list()]
-            except OSError as e:
+            except Exception as e:
                 logger.info(f"detect removed failed: {e}")
                 return
             logger.info(f"list nk3: {nk3_list}")
