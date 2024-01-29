@@ -46,10 +46,9 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         # self.ui === self -> this tricks mypy due to monkey-patching self
         self.ui = self.load_ui("overview_tab.ui", self)
 
-        self.collapse(self.ui.more_options_frame, self.ui.more_options_btn)
-        self.ui.update_with_file_btn.clicked.connect(self.update_with_file)
-        self.ui.more_options_btn.clicked.connect(self.show_more_options)
-        self.ui.pushButtonUpdate.clicked.connect(self.run_update)
+        self.ui.btn_update_with_file.clicked.connect(self.update_with_file)
+        self.ui.btn_more_options.clicked.connect(self.more_options)
+        self.ui.btn_update.clicked.connect(self.run_update)
 
         self.reset()
 
@@ -74,6 +73,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             return
         self.reset()
         self.data = data
+        self.hide_more_options()
 
         if data.is_bootloader:
             self.set_device_data(
@@ -83,10 +83,10 @@ class OverviewTab(QtUtilsMixIn, QWidget):
                 "n/a",
                 "n/a",
             )
-            self.ui.label_init_status.hide()
-            self.ui.nk3_lineedit_init_status.hide()
-            self.ui.moreInfo.hide()
-            self.ui.label_nk3.setText("Nitrokey 3 Bootloader")
+            self.ui.status_label.hide()
+            self.ui.nk3_status.hide()
+            self.ui.more_info.hide()
+            self.ui.nk3_label.setText("Nitrokey 3 Bootloader")
 
         else:
             assert data.status.variant
@@ -97,69 +97,83 @@ class OverviewTab(QtUtilsMixIn, QWidget):
                 str(data.status.variant.name),
                 str(data.status.init_status),
             )
-            self.ui.label_nk3.setText("Nitrokey 3")
+            self.ui.nk3_label.setText("Nitrokey 3")
             if data.status.init_status is None:
-                self.ui.label_init_status.hide()
-                self.ui.nk3_lineedit_init_status.hide()
+                self.ui.status_label.hide()
+                self.ui.nk3_status.hide()
             else:
                 self.status_error(InitStatus(data.status.init_status))
-                self.ui.label_init_status.show()
-                self.ui.nk3_lineedit_init_status.show()
+                self.ui.status_label.show()
+                self.ui.nk3_status.show()
 
     def set_device_data(
         self, path: str, uuid: str, version: str, variant: str, init_status: str
     ) -> None:
-        self.ui.nk3_lineedit_path.setText(path)
-        self.ui.nk3_lineedit_uuid.setText(uuid)
-        self.ui.nk3_lineedit_version.setText(version)
-        self.ui.nk3_lineedit_variant.setText(variant)
-        self.ui.nk3_lineedit_init_status.setText(init_status)
+        self.ui.nk3_path.setText(path)
+        self.ui.nk3_uuid.setText(uuid)
+        self.ui.nk3_version.setText(version)
+        self.ui.nk3_variant.setText(variant)
+        self.ui.nk3_status.setText(init_status)
 
     def status_error(self, init: InitStatus) -> None:
         if init.is_error():
-            self.ui.warnNoticeIcon.show()
-            self.ui.moreInfo.show()
+            self.ui.icon_warn_notice.show()
+            self.ui.more_info.show()
         else:
-            self.ui.warnNoticeIcon.hide()
-            self.ui.moreInfo.hide()
+            self.ui.icon_warn_notice.hide()
+            self.ui.more_info.hide()
 
     def set_update_enabled(self, enabled: bool) -> None:
         tooltip = ""
         if enabled:
             ...
         else:
+            self.hide_more_options()
             self.common_ui.info.info.emit(
                 "Please remove all Nitrokey 3 devices except the one you want to update."
             )
             tooltip = "Please remove all Nitrokey 3 devices except the one you want to update."
 
-        self.ui.pushButtonUpdate.setEnabled(enabled)
-        self.ui.pushButtonUpdate.setToolTip(tooltip)
-        self.ui.more_options_btn.setEnabled(enabled)
-        self.ui.more_options_btn.setToolTip(tooltip)
+        self.ui.btn_update.setEnabled(enabled)
+        self.ui.btn_update.setToolTip(tooltip)
+        self.ui.btn_more_options.setEnabled(enabled)
+        self.ui.btn_more_options.setToolTip(tooltip)
 
     def update_btns_during_update(self, enabled: bool) -> None:
         tooltip = ""
         if enabled:
             self.busy_state_changed.emit(False)
-            self.ui.pushButtonUpdate.setEnabled(enabled)
-            self.ui.pushButtonUpdate.setToolTip(tooltip)
-            self.ui.more_options_btn.setEnabled(enabled)
-            self.ui.more_options_btn.setToolTip(tooltip)
-            self.ui.update_with_file_btn.setEnabled(enabled)
-            self.ui.update_with_file_btn.setToolTip(tooltip)
+            self.ui.btn_update.setEnabled(enabled)
+            self.ui.btn_update.setToolTip(tooltip)
+            self.ui.btn_more_options.setEnabled(enabled)
+            self.ui.btn_more_options.setToolTip(tooltip)
+            self.ui.btn_update_with_file.setEnabled(enabled)
+            self.ui.btn_update_with_file.setToolTip(tooltip)
         else:
             tooltip = "Update is already running. Please wait."
             self.busy_state_changed.emit(True)
-            self.ui.pushButtonUpdate.setEnabled(enabled)
-            self.ui.pushButtonUpdate.setToolTip(tooltip)
-            self.ui.more_options_btn.setEnabled(enabled)
-            self.ui.more_options_btn.setToolTip(tooltip)
-            self.ui.update_with_file_btn.setEnabled(enabled)
-            self.ui.update_with_file_btn.setToolTip(tooltip)
+            self.ui.btn_update.setEnabled(enabled)
+            self.ui.btn_update.setToolTip(tooltip)
+            self.ui.btn_more_options.setEnabled(enabled)
+            self.ui.btn_more_options.setToolTip(tooltip)
+            self.ui.btn_update_with_file.setEnabled(enabled)
+            self.ui.btn_update_with_file.setToolTip(tooltip)
+
+    def more_options(self) -> None:
+        state = self.ui.btn_more_options.isChecked()
+        if state:
+            self.show_more_options()
+        else:
+            self.hide_more_options()
 
     def show_more_options(self) -> None:
-        self.collapse(self.ui.more_options_frame, self.ui.more_options_btn)
+        self.ui.btn_more_options.setIcon(QtUtilsMixIn.get_qicon("down_arrow.svg"))
+        oSize = self.ui.frame_more_options.sizeHint()
+        self.ui.frame_more_options.setFixedHeight(oSize.height())
+
+    def hide_more_options(self) -> None:
+        self.ui.btn_more_options.setIcon(QtUtilsMixIn.get_qicon("right_arrow.svg"))
+        self.ui.frame_more_options.setFixedHeight(0)
 
     @Slot()
     def run_update(self) -> None:
