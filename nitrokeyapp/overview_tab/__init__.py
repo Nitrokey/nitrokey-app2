@@ -132,6 +132,9 @@ class OverviewTab(QtUtilsMixIn, QWidget):
                 "Please remove all Nitrokey 3 devices except the one you want to update."
             )
             tooltip = "Please remove all Nitrokey 3 devices except the one you want to update."
+            if self.ui.more_options_btn.isChecked():
+                self.ui.more_options_btn.setChecked(False)
+                self.show_more_options()
 
         self.ui.pushButtonUpdate.setEnabled(enabled)
         self.ui.pushButtonUpdate.setToolTip(tooltip)
