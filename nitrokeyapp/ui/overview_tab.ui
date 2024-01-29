@@ -52,7 +52,7 @@
         <x>0</x>
         <y>0</y>
         <width>482</width>
-        <height>459</height>
+        <height>375</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -314,7 +314,7 @@
                <enum>Qt::AutoText</enum>
               </property>
               <property name="pixmap">
-               <pixmap>icons/icon_warning.svg</pixmap>
+               <pixmap>icons/warning.svg</pixmap>
               </property>
               <property name="scaledContents">
                <bool>true</bool>
@@ -373,7 +373,7 @@
             <item>
              <widget class="QPushButton" name="pushButtonUpdate">
               <property name="text">
-               <string>Update</string>
+               <string>Check for Update</string>
               </property>
              </widget>
             </item>
