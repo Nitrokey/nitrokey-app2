@@ -9,3 +9,11 @@
              version = get_file_version(filename)
              name = get_package_name(filename)
              url = get_tar_package_url_pypi(name, version)
+@@ -436,6 +437,7 @@
+     pip_command = [
+         pip_executable,
+         'install',
++        '--no-deps', '-I',
+         '--verbose',
+         '--exists-action=i',
+         '--no-index',

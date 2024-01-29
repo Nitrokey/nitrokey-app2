@@ -7,7 +7,7 @@
             "name": "python3-appdirs",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"appdirs==1.4.4\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"appdirs==1.4.4\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -21,7 +21,7 @@
             "name": "python3-argparse-addons",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"argparse-addons==0.12.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"argparse-addons==0.12.0\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -35,7 +35,7 @@
             "name": "python3-asn1crypto",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"asn1crypto==1.5.1\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"asn1crypto==1.5.1\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -49,7 +49,7 @@
             "name": "python3-astunparse",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"astunparse==1.6.3\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"astunparse==1.6.3\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -63,7 +63,7 @@
             "name": "python3-bincopy",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"bincopy==17.14.5\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"bincopy==17.14.5\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -92,7 +92,7 @@
             "name": "python3-bitstring",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"bitstring==4.0.2\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"bitstring==4.0.2\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -106,7 +106,7 @@
             "name": "python3-capstone",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"capstone==4.0.2\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"capstone==4.0.2\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -120,7 +120,7 @@
             "name": "python3-certifi",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"certifi==2023.11.17\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"certifi==2023.11.17\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -134,7 +134,7 @@
             "name": "python3-cffi",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"cffi==1.16.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"cffi==1.16.0\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -153,7 +153,7 @@
             "name": "python3-charset-normalizer",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"charset-normalizer==3.3.2\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"charset-normalizer==3.3.2\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -167,7 +167,7 @@
             "name": "python3-click-aliases",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"click-aliases==1.0.1\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"click-aliases==1.0.1\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -186,7 +186,7 @@
             "name": "python3-click-command-tree",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"click-command-tree==1.1.1\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"click-command-tree==1.1.1\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -205,7 +205,7 @@
             "name": "python3-click-option-group",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"click-option-group==0.5.6\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"click-option-group==0.5.6\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -224,7 +224,7 @@
             "name": "python3-click",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"click==8.1.3\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"click==8.1.3\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -238,7 +238,7 @@
             "name": "python3-cmsis-pack-manager",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"cmsis-pack-manager==0.5.3\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"cmsis-pack-manager==0.5.3\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -272,7 +272,7 @@
             "name": "python3-colorama",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"colorama==0.4.6\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"colorama==0.4.6\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -286,7 +286,7 @@
             "name": "python3-commentjson",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"commentjson==0.9.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"commentjson==0.9.0\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -305,7 +305,7 @@
             "name": "python3-crcmod",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"crcmod==1.7\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"crcmod==1.7\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -319,7 +319,7 @@
             "name": "python3-cryptography",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"cryptography==41.0.7\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"cryptography==41.0.7\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -343,7 +343,7 @@
             "name": "python3-deepmerge",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"deepmerge==1.1.1\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"deepmerge==1.1.1\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -357,7 +357,7 @@
             "name": "python3-ecdsa",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"ecdsa==0.18.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"ecdsa==0.18.0\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -371,7 +371,7 @@
             "name": "python3-fastjsonschema",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"fastjsonschema==2.17.1\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"fastjsonschema==2.17.1\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -385,7 +385,7 @@
             "name": "python3-fido2",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"fido2==1.1.2\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"fido2==1.1.2\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -414,7 +414,7 @@
             "name": "python3-fire",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"fire==0.5.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"fire==0.5.0\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -433,7 +433,7 @@
             "name": "python3-hexdump",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"hexdump==3.3\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"hexdump==3.3\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -447,7 +447,7 @@
             "name": "python3-humanfriendly",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"humanfriendly==10.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"humanfriendly==10.0\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -461,7 +461,7 @@
             "name": "python3-idna",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"idna==3.6\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"idna==3.6\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -475,13 +475,13 @@
             "name": "python3-importlib-metadata",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"importlib-metadata==7.0.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"importlib-metadata==7.0.1\" --no-build-isolation"
             ],
             "sources": [
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/73/26/9777cfe0cdc8181a32eaf542f4a2a435e5aba5dd38f41cfc0a532dc51027/importlib_metadata-7.0.0-py3-none-any.whl",
-                    "sha256": "d97503976bb81f40a193d41ee6570868479c69d5068651eb039c40d850c59d67"
+                    "url": "https://files.pythonhosted.org/packages/c0/8b/d8427f023c081a8303e6ac7209c16e6878f2765d5b59667f3903fbcfd365/importlib_metadata-7.0.1-py3-none-any.whl",
+                    "sha256": "4805911c3a4ec7c3966410053e9ec6a1fecd629117df5adee56dfc9432a1081e"
                 },
                 {
                     "type": "file",
@@ -494,7 +494,7 @@
             "name": "python3-importlib-resources",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"importlib-resources==6.1.1\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"importlib-resources==6.1.1\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -508,7 +508,7 @@
             "name": "python3-intelhex",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"intelhex==2.3.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"intelhex==2.3.0\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -522,7 +522,7 @@
             "name": "python3-intervaltree",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"intervaltree==3.1.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"intervaltree==3.1.0\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -541,18 +541,18 @@
             "name": "python3-jinja2",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"jinja2==3.1.2\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"jinja2==3.1.3\" --no-build-isolation"
             ],
             "sources": [
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/bc/c3/f068337a370801f372f2f8f6bad74a5c140f6fda3d9de154052708dd3c65/Jinja2-3.1.2-py3-none-any.whl",
-                    "sha256": "6088930bfe239f0e6710546ab9c19c9ef35e29792895fed6e6e31a023a182a61"
+                    "url": "https://files.pythonhosted.org/packages/30/6d/6de6be2d02603ab56e72997708809e8a5b0fbfee080735109b40a3564843/Jinja2-3.1.3-py3-none-any.whl",
+                    "sha256": "7d6d50dd97d52cbc355597bd845fabfbac3f551e1f99619e39a35ce8c370b5fa"
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/fe/21/2eff1de472ca6c99ec3993eab11308787b9879af9ca8bbceb4868cf4f2ca/MarkupSafe-2.1.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
-                    "sha256": "bfce63a9e7834b12b87c64d6b155fdd9b3b96191b6bd334bf37db7ff1fe457f2"
+                    "url": "https://files.pythonhosted.org/packages/d3/0a/c6dfffacc5a9a17c97019cb7cbec67e5abfb65c59a58ecba270fa224f88d/MarkupSafe-2.1.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+                    "sha256": "3ab3a886a237f6e9c9f4f7d272067e712cdb4efa774bef494dccad08f39d8ae6"
                 }
             ]
         },
@@ -560,7 +560,7 @@
             "name": "python3-lark-parser",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"lark-parser==0.7.8\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"lark-parser==0.7.8\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -574,13 +574,13 @@
             "name": "python3-lark",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"lark==1.1.8\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"lark==1.1.9\" --no-build-isolation"
             ],
             "sources": [
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/99/ca/f3532a61dce7dd52fbd38737a12e16cdc7699697e23287eb7addfdd93e3f/lark-1.1.8-py3-none-any.whl",
-                    "sha256": "7d2c221a66a8165f3f81aacb958d26033d40d972fdb70213ab0a2e0627e29c86"
+                    "url": "https://files.pythonhosted.org/packages/e7/9c/eef7c591e6dc952f3636cfe0df712c0f9916cedf317810a3bb53ccb65cdd/lark-1.1.9-py3-none-any.whl",
+                    "sha256": "a0dd3a87289f8ccbb325901e4222e723e7d745dbfc1803eaf5f3d2ace19cf2db"
                 }
             ]
         },
@@ -588,7 +588,7 @@
             "name": "python3-libusb-package",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"libusb-package==1.0.26.2\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"libusb-package==1.0.26.2\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -607,7 +607,7 @@
             "name": "python3-libusb1",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"libusb1==3.1.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"libusb1==3.1.0\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -621,7 +621,7 @@
             "name": "python3-libusbsio",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"libusbsio==2.1.11\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"libusbsio==2.1.11\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -635,13 +635,13 @@
             "name": "python3-markupsafe",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"markupsafe==2.1.3\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"markupsafe==2.1.4\" --no-build-isolation"
             ],
             "sources": [
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/fe/21/2eff1de472ca6c99ec3993eab11308787b9879af9ca8bbceb4868cf4f2ca/MarkupSafe-2.1.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
-                    "sha256": "bfce63a9e7834b12b87c64d6b155fdd9b3b96191b6bd334bf37db7ff1fe457f2"
+                    "url": "https://files.pythonhosted.org/packages/d3/0a/c6dfffacc5a9a17c97019cb7cbec67e5abfb65c59a58ecba270fa224f88d/MarkupSafe-2.1.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+                    "sha256": "3ab3a886a237f6e9c9f4f7d272067e712cdb4efa774bef494dccad08f39d8ae6"
                 }
             ]
         },
@@ -649,7 +649,7 @@
             "name": "python3-natsort",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"natsort==8.4.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"natsort==8.4.0\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -663,7 +663,7 @@
             "name": "python3-nethsm",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"nethsm==1.0.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"nethsm==1.0.0\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -712,7 +712,7 @@
             "name": "python3-nkdfu",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"nkdfu==0.2\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"nkdfu==0.2\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -751,7 +751,7 @@
             "name": "python3-oscrypto",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"oscrypto==1.3.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"oscrypto==1.3.0\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -770,7 +770,7 @@
             "name": "python3-prettytable",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"prettytable==3.9.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"prettytable==3.9.0\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -780,8 +780,8 @@
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/31/b1/a59de0ad3aabb17523a39804f4c6df3ae87ead053a4e25362ae03d73d03a/wcwidth-0.2.12-py2.py3-none-any.whl",
-                    "sha256": "f26ec43d96c8cbfed76a5075dac87680124fa84e0855195a6184da9c187f133c"
+                    "url": "https://files.pythonhosted.org/packages/fd/84/fd2ba7aafacbad3c4201d395674fc6348826569da3c0937e75505ead3528/wcwidth-0.2.13-py2.py3-none-any.whl",
+                    "sha256": "3da69048e4540d84af32131829ff948f1e022c1c6bdb8d6102117aac784f6859"
                 }
             ]
         },
@@ -789,7 +789,7 @@
             "name": "python3-protobuf",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"protobuf==3.20.3\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"protobuf==3.20.3\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -803,13 +803,13 @@
             "name": "python3-psutil",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"psutil==5.9.7\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"psutil==5.9.8\" --no-build-isolation"
             ],
             "sources": [
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/be/fa/f1f626620e3b47e6237dcc64cb8cc1472f139e99422e5b9fa5bbcf457f48/psutil-5.9.7-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
-                    "sha256": "fe8b7f07948f1304497ce4f4684881250cd859b16d06a1dc4d7941eeb6233bfe"
+                    "url": "https://files.pythonhosted.org/packages/c5/4f/0e22aaa246f96d6ac87fe5ebb9c5a693fbe8877f537a1022527c47ca43c5/psutil-5.9.8-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+                    "sha256": "d06016f7f8625a1825ba3732081d77c94589dca78b7a3fc072194851e88461a4"
                 }
             ]
         },
@@ -817,7 +817,7 @@
             "name": "python3-pycparser",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pycparser==2.21\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pycparser==2.21\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -831,7 +831,7 @@
             "name": "python3-pycryptodome",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pycryptodome==3.18.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pycryptodome==3.18.0\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -845,7 +845,7 @@
             "name": "python3-pyelftools",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyelftools==0.30\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyelftools==0.30\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -859,13 +859,13 @@
             "name": "python3-pylink-square",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pylink-square==1.1.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pylink-square==1.1.0\" --no-build-isolation"
             ],
             "sources": [
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/be/fa/f1f626620e3b47e6237dcc64cb8cc1472f139e99422e5b9fa5bbcf457f48/psutil-5.9.7-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
-                    "sha256": "fe8b7f07948f1304497ce4f4684881250cd859b16d06a1dc4d7941eeb6233bfe"
+                    "url": "https://files.pythonhosted.org/packages/c5/4f/0e22aaa246f96d6ac87fe5ebb9c5a693fbe8877f537a1022527c47ca43c5/psutil-5.9.8-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+                    "sha256": "d06016f7f8625a1825ba3732081d77c94589dca78b7a3fc072194851e88461a4"
                 },
                 {
                     "type": "file",
@@ -878,18 +878,18 @@
             "name": "python3-pynitrokey",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pynitrokey==0.4.43\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pynitrokey==0.4.45\" --no-build-isolation"
             ],
             "sources": [
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/bc/c3/f068337a370801f372f2f8f6bad74a5c140f6fda3d9de154052708dd3c65/Jinja2-3.1.2-py3-none-any.whl",
-                    "sha256": "6088930bfe239f0e6710546ab9c19c9ef35e29792895fed6e6e31a023a182a61"
+                    "url": "https://files.pythonhosted.org/packages/30/6d/6de6be2d02603ab56e72997708809e8a5b0fbfee080735109b40a3564843/Jinja2-3.1.3-py3-none-any.whl",
+                    "sha256": "7d6d50dd97d52cbc355597bd845fabfbac3f551e1f99619e39a35ce8c370b5fa"
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/fe/21/2eff1de472ca6c99ec3993eab11308787b9879af9ca8bbceb4868cf4f2ca/MarkupSafe-2.1.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
-                    "sha256": "bfce63a9e7834b12b87c64d6b155fdd9b3b96191b6bd334bf37db7ff1fe457f2"
+                    "url": "https://files.pythonhosted.org/packages/d3/0a/c6dfffacc5a9a17c97019cb7cbec67e5abfb65c59a58ecba270fa224f88d/MarkupSafe-2.1.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+                    "sha256": "3ab3a886a237f6e9c9f4f7d272067e712cdb4efa774bef494dccad08f39d8ae6"
                 },
                 {
                     "type": "file",
@@ -1033,8 +1033,8 @@
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/73/26/9777cfe0cdc8181a32eaf542f4a2a435e5aba5dd38f41cfc0a532dc51027/importlib_metadata-7.0.0-py3-none-any.whl",
-                    "sha256": "d97503976bb81f40a193d41ee6570868479c69d5068651eb039c40d850c59d67"
+                    "url": "https://files.pythonhosted.org/packages/c0/8b/d8427f023c081a8303e6ac7209c16e6878f2765d5b59667f3903fbcfd365/importlib_metadata-7.0.1-py3-none-any.whl",
+                    "sha256": "4805911c3a4ec7c3966410053e9ec6a1fecd629117df5adee56dfc9432a1081e"
                 },
                 {
                     "type": "file",
@@ -1053,8 +1053,8 @@
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/99/ca/f3532a61dce7dd52fbd38737a12e16cdc7699697e23287eb7addfdd93e3f/lark-1.1.8-py3-none-any.whl",
-                    "sha256": "7d2c221a66a8165f3f81aacb958d26033d40d972fdb70213ab0a2e0627e29c86"
+                    "url": "https://files.pythonhosted.org/packages/e7/9c/eef7c591e6dc952f3636cfe0df712c0f9916cedf317810a3bb53ccb65cdd/lark-1.1.9-py3-none-any.whl",
+                    "sha256": "a0dd3a87289f8ccbb325901e4222e723e7d745dbfc1803eaf5f3d2ace19cf2db"
                 },
                 {
                     "type": "file",
@@ -1108,8 +1108,8 @@
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/be/fa/f1f626620e3b47e6237dcc64cb8cc1472f139e99422e5b9fa5bbcf457f48/psutil-5.9.7-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
-                    "sha256": "fe8b7f07948f1304497ce4f4684881250cd859b16d06a1dc4d7941eeb6233bfe"
+                    "url": "https://files.pythonhosted.org/packages/c5/4f/0e22aaa246f96d6ac87fe5ebb9c5a693fbe8877f537a1022527c47ca43c5/psutil-5.9.8-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+                    "sha256": "d06016f7f8625a1825ba3732081d77c94589dca78b7a3fc072194851e88461a4"
                 },
                 {
                     "type": "file",
@@ -1133,8 +1133,8 @@
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/dc/49/9373048aad4d399025f98c9f27c55631eaa2994bd7d8297e686d07cfc3ec/pynitrokey-0.4.43-py3-none-any.whl",
-                    "sha256": "3cb6cae19d5ed6ff52fb100037e3852371e072e1f8ce36507c3dbbf5829b030b"
+                    "url": "https://files.pythonhosted.org/packages/ed/18/bb1308617cd06db6538f850fc1acb9678e0953ce411327452c02d93533d3/pynitrokey-0.4.45-py3-none-any.whl",
+                    "sha256": "529b8d936be3b523ed4ea4508712f46e08efa71f1fb72f1804b55b2ad5fb18ae"
                 },
                 {
                     "type": "file",
@@ -1228,8 +1228,8 @@
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/31/b1/a59de0ad3aabb17523a39804f4c6df3ae87ead053a4e25362ae03d73d03a/wcwidth-0.2.12-py2.py3-none-any.whl",
-                    "sha256": "f26ec43d96c8cbfed76a5075dac87680124fa84e0855195a6184da9c187f133c"
+                    "url": "https://files.pythonhosted.org/packages/fd/84/fd2ba7aafacbad3c4201d395674fc6348826569da3c0937e75505ead3528/wcwidth-0.2.13-py2.py3-none-any.whl",
+                    "sha256": "3da69048e4540d84af32131829ff948f1e022c1c6bdb8d6102117aac784f6859"
                 },
                 {
                     "type": "file",
@@ -1242,7 +1242,7 @@
             "name": "python3-pyocd-pemicro",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyocd-pemicro==1.1.5\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyocd-pemicro==1.1.5\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -1261,7 +1261,7 @@
             "name": "python3-pyocd",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyocd==0.35.1\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyocd==0.35.1\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -1296,8 +1296,8 @@
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/73/26/9777cfe0cdc8181a32eaf542f4a2a435e5aba5dd38f41cfc0a532dc51027/importlib_metadata-7.0.0-py3-none-any.whl",
-                    "sha256": "d97503976bb81f40a193d41ee6570868479c69d5068651eb039c40d850c59d67"
+                    "url": "https://files.pythonhosted.org/packages/c0/8b/d8427f023c081a8303e6ac7209c16e6878f2765d5b59667f3903fbcfd365/importlib_metadata-7.0.1-py3-none-any.whl",
+                    "sha256": "4805911c3a4ec7c3966410053e9ec6a1fecd629117df5adee56dfc9432a1081e"
                 },
                 {
                     "type": "file",
@@ -1316,8 +1316,8 @@
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/99/ca/f3532a61dce7dd52fbd38737a12e16cdc7699697e23287eb7addfdd93e3f/lark-1.1.8-py3-none-any.whl",
-                    "sha256": "7d2c221a66a8165f3f81aacb958d26033d40d972fdb70213ab0a2e0627e29c86"
+                    "url": "https://files.pythonhosted.org/packages/e7/9c/eef7c591e6dc952f3636cfe0df712c0f9916cedf317810a3bb53ccb65cdd/lark-1.1.9-py3-none-any.whl",
+                    "sha256": "a0dd3a87289f8ccbb325901e4222e723e7d745dbfc1803eaf5f3d2ace19cf2db"
                 },
                 {
                     "type": "file",
@@ -1336,8 +1336,8 @@
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/be/fa/f1f626620e3b47e6237dcc64cb8cc1472f139e99422e5b9fa5bbcf457f48/psutil-5.9.7-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
-                    "sha256": "fe8b7f07948f1304497ce4f4684881250cd859b16d06a1dc4d7941eeb6233bfe"
+                    "url": "https://files.pythonhosted.org/packages/c5/4f/0e22aaa246f96d6ac87fe5ebb9c5a693fbe8877f537a1022527c47ca43c5/psutil-5.9.8-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+                    "sha256": "d06016f7f8625a1825ba3732081d77c94589dca78b7a3fc072194851e88461a4"
                 },
                 {
                     "type": "file",
@@ -1376,8 +1376,8 @@
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/31/b1/a59de0ad3aabb17523a39804f4c6df3ae87ead053a4e25362ae03d73d03a/wcwidth-0.2.12-py2.py3-none-any.whl",
-                    "sha256": "f26ec43d96c8cbfed76a5075dac87680124fa84e0855195a6184da9c187f133c"
+                    "url": "https://files.pythonhosted.org/packages/fd/84/fd2ba7aafacbad3c4201d395674fc6348826569da3c0937e75505ead3528/wcwidth-0.2.13-py2.py3-none-any.whl",
+                    "sha256": "3da69048e4540d84af32131829ff948f1e022c1c6bdb8d6102117aac784f6859"
                 },
                 {
                     "type": "file",
@@ -1390,7 +1390,7 @@
             "name": "python3-pypemicro",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pypemicro==0.1.11\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pypemicro==0.1.11\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -1404,7 +1404,7 @@
             "name": "python3-pyserial",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyserial==3.5\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyserial==3.5\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -1418,7 +1418,7 @@
             "name": "python3-pyside6-addons",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyside6-addons==6.6.1\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyside6-addons==6.6.1\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -1442,7 +1442,7 @@
             "name": "python3-pyside6-essentials",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyside6-essentials==6.6.1\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyside6-essentials==6.6.1\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -1461,7 +1461,7 @@
             "name": "python3-pyside6",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyside6==6.6.1\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyside6==6.6.1\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -1490,7 +1490,7 @@
             "name": "python3-python-dateutil",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"python-dateutil==2.7.5\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"python-dateutil==2.7.5\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -1504,7 +1504,7 @@
             "name": "python3-pyudev",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyudev==0.24.1\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyudev==0.24.1\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -1518,7 +1518,7 @@
             "name": "python3-pyusb",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyusb==1.2.1\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyusb==1.2.1\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -1532,7 +1532,7 @@
             "name": "python3-pyyaml",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyyaml==6.0.1\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyyaml==6.0.1\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -1546,18 +1546,18 @@
             "name": "python3-qt-material",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"qt-material==2.14\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"qt-material==2.14\" --no-build-isolation"
             ],
             "sources": [
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/bc/c3/f068337a370801f372f2f8f6bad74a5c140f6fda3d9de154052708dd3c65/Jinja2-3.1.2-py3-none-any.whl",
-                    "sha256": "6088930bfe239f0e6710546ab9c19c9ef35e29792895fed6e6e31a023a182a61"
+                    "url": "https://files.pythonhosted.org/packages/30/6d/6de6be2d02603ab56e72997708809e8a5b0fbfee080735109b40a3564843/Jinja2-3.1.3-py3-none-any.whl",
+                    "sha256": "7d6d50dd97d52cbc355597bd845fabfbac3f551e1f99619e39a35ce8c370b5fa"
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/fe/21/2eff1de472ca6c99ec3993eab11308787b9879af9ca8bbceb4868cf4f2ca/MarkupSafe-2.1.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
-                    "sha256": "bfce63a9e7834b12b87c64d6b155fdd9b3b96191b6bd334bf37db7ff1fe457f2"
+                    "url": "https://files.pythonhosted.org/packages/d3/0a/c6dfffacc5a9a17c97019cb7cbec67e5abfb65c59a58ecba270fa224f88d/MarkupSafe-2.1.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+                    "sha256": "3ab3a886a237f6e9c9f4f7d272067e712cdb4efa774bef494dccad08f39d8ae6"
                 },
                 {
                     "type": "file",
@@ -1570,7 +1570,7 @@
             "name": "python3-requests",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"requests==2.31.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"requests==2.31.0\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -1604,7 +1604,7 @@
             "name": "python3-ruamel-yaml-clib",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"ruamel-yaml-clib==0.2.8\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"ruamel-yaml-clib==0.2.8\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -1618,7 +1618,7 @@
             "name": "python3-ruamel-yaml",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"ruamel-yaml==0.17.40\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"ruamel-yaml==0.17.40\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -1637,7 +1637,7 @@
             "name": "python3-semver",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"semver==3.0.2\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"semver==3.0.2\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -1651,7 +1651,7 @@
             "name": "python3-shiboken6",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"shiboken6==6.6.1\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"shiboken6==6.6.1\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -1665,7 +1665,7 @@
             "name": "python3-sly",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"sly==0.5\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"sly==0.5\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -1679,7 +1679,7 @@
             "name": "python3-sortedcontainers",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"sortedcontainers==2.4.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"sortedcontainers==2.4.0\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -1693,18 +1693,18 @@
             "name": "python3-spsdk",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"spsdk==1.11.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"spsdk==1.11.0\" --no-build-isolation"
             ],
             "sources": [
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/bc/c3/f068337a370801f372f2f8f6bad74a5c140f6fda3d9de154052708dd3c65/Jinja2-3.1.2-py3-none-any.whl",
-                    "sha256": "6088930bfe239f0e6710546ab9c19c9ef35e29792895fed6e6e31a023a182a61"
+                    "url": "https://files.pythonhosted.org/packages/30/6d/6de6be2d02603ab56e72997708809e8a5b0fbfee080735109b40a3564843/Jinja2-3.1.3-py3-none-any.whl",
+                    "sha256": "7d6d50dd97d52cbc355597bd845fabfbac3f551e1f99619e39a35ce8c370b5fa"
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/fe/21/2eff1de472ca6c99ec3993eab11308787b9879af9ca8bbceb4868cf4f2ca/MarkupSafe-2.1.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
-                    "sha256": "bfce63a9e7834b12b87c64d6b155fdd9b3b96191b6bd334bf37db7ff1fe457f2"
+                    "url": "https://files.pythonhosted.org/packages/d3/0a/c6dfffacc5a9a17c97019cb7cbec67e5abfb65c59a58ecba270fa224f88d/MarkupSafe-2.1.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+                    "sha256": "3ab3a886a237f6e9c9f4f7d272067e712cdb4efa774bef494dccad08f39d8ae6"
                 },
                 {
                     "type": "file",
@@ -1813,8 +1813,8 @@
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/73/26/9777cfe0cdc8181a32eaf542f4a2a435e5aba5dd38f41cfc0a532dc51027/importlib_metadata-7.0.0-py3-none-any.whl",
-                    "sha256": "d97503976bb81f40a193d41ee6570868479c69d5068651eb039c40d850c59d67"
+                    "url": "https://files.pythonhosted.org/packages/c0/8b/d8427f023c081a8303e6ac7209c16e6878f2765d5b59667f3903fbcfd365/importlib_metadata-7.0.1-py3-none-any.whl",
+                    "sha256": "4805911c3a4ec7c3966410053e9ec6a1fecd629117df5adee56dfc9432a1081e"
                 },
                 {
                     "type": "file",
@@ -1833,8 +1833,8 @@
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/99/ca/f3532a61dce7dd52fbd38737a12e16cdc7699697e23287eb7addfdd93e3f/lark-1.1.8-py3-none-any.whl",
-                    "sha256": "7d2c221a66a8165f3f81aacb958d26033d40d972fdb70213ab0a2e0627e29c86"
+                    "url": "https://files.pythonhosted.org/packages/e7/9c/eef7c591e6dc952f3636cfe0df712c0f9916cedf317810a3bb53ccb65cdd/lark-1.1.9-py3-none-any.whl",
+                    "sha256": "a0dd3a87289f8ccbb325901e4222e723e7d745dbfc1803eaf5f3d2ace19cf2db"
                 },
                 {
                     "type": "file",
@@ -1868,8 +1868,8 @@
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/be/fa/f1f626620e3b47e6237dcc64cb8cc1472f139e99422e5b9fa5bbcf457f48/psutil-5.9.7-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
-                    "sha256": "fe8b7f07948f1304497ce4f4684881250cd859b16d06a1dc4d7941eeb6233bfe"
+                    "url": "https://files.pythonhosted.org/packages/c5/4f/0e22aaa246f96d6ac87fe5ebb9c5a693fbe8877f537a1022527c47ca43c5/psutil-5.9.8-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+                    "sha256": "d06016f7f8625a1825ba3732081d77c94589dca78b7a3fc072194851e88461a4"
                 },
                 {
                     "type": "file",
@@ -1948,8 +1948,8 @@
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/31/b1/a59de0ad3aabb17523a39804f4c6df3ae87ead053a4e25362ae03d73d03a/wcwidth-0.2.12-py2.py3-none-any.whl",
-                    "sha256": "f26ec43d96c8cbfed76a5075dac87680124fa84e0855195a6184da9c187f133c"
+                    "url": "https://files.pythonhosted.org/packages/fd/84/fd2ba7aafacbad3c4201d395674fc6348826569da3c0937e75505ead3528/wcwidth-0.2.13-py2.py3-none-any.whl",
+                    "sha256": "3da69048e4540d84af32131829ff948f1e022c1c6bdb8d6102117aac784f6859"
                 },
                 {
                     "type": "file",
@@ -1962,7 +1962,7 @@
             "name": "python3-termcolor",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"termcolor==2.4.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"termcolor==2.4.0\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -1976,7 +1976,7 @@
             "name": "python3-tlv8",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"tlv8==0.10.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"tlv8==0.10.0\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -1990,7 +1990,7 @@
             "name": "python3-tqdm",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"tqdm==4.66.1\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"tqdm==4.66.1\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -2004,7 +2004,7 @@
             "name": "python3-typing-extensions",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"typing-extensions==4.3.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"typing-extensions==4.3.0\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -2018,7 +2018,7 @@
             "name": "python3-urllib3",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"urllib3==2.0.7\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"urllib3==2.0.7\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -2032,13 +2032,13 @@
             "name": "python3-wcwidth",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"wcwidth==0.2.12\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"wcwidth==0.2.13\" --no-build-isolation"
             ],
             "sources": [
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/31/b1/a59de0ad3aabb17523a39804f4c6df3ae87ead053a4e25362ae03d73d03a/wcwidth-0.2.12-py2.py3-none-any.whl",
-                    "sha256": "f26ec43d96c8cbfed76a5075dac87680124fa84e0855195a6184da9c187f133c"
+                    "url": "https://files.pythonhosted.org/packages/fd/84/fd2ba7aafacbad3c4201d395674fc6348826569da3c0937e75505ead3528/wcwidth-0.2.13-py2.py3-none-any.whl",
+                    "sha256": "3da69048e4540d84af32131829ff948f1e022c1c6bdb8d6102117aac784f6859"
                 }
             ]
         },
@@ -2046,7 +2046,7 @@
             "name": "python3-zipp",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"zipp==3.17.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"zipp==3.17.0\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -2060,7 +2060,7 @@
             "name": "python3-pyreadline3",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyreadline3==3.4.1\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyreadline3==3.4.1\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -2074,7 +2074,7 @@
             "name": "python3-hidapi",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"hidapi==0.14.0\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"hidapi==0.14.0\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -2088,7 +2088,7 @@
             "name": "python3-poetry",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"poetry==1.6.1\" --no-build-isolation"
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"poetry==1.6.1\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -2163,8 +2163,8 @@
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/73/26/9777cfe0cdc8181a32eaf542f4a2a435e5aba5dd38f41cfc0a532dc51027/importlib_metadata-7.0.0-py3-none-any.whl",
-                    "sha256": "d97503976bb81f40a193d41ee6570868479c69d5068651eb039c40d850c59d67"
+                    "url": "https://files.pythonhosted.org/packages/c0/8b/d8427f023c081a8303e6ac7209c16e6878f2765d5b59667f3903fbcfd365/importlib_metadata-7.0.1-py3-none-any.whl",
+                    "sha256": "4805911c3a4ec7c3966410053e9ec6a1fecd629117df5adee56dfc9432a1081e"
                 },
                 {
                     "type": "file",
@@ -2300,6 +2300,20 @@
                     "type": "file",
                     "url": "https://files.pythonhosted.org/packages/d9/66/48866fc6b158c81cc2bfecc04c480f105c6040e8b077bc54c634b4a67926/zipp-3.17.0-py3-none-any.whl",
                     "sha256": "0e923e726174922dce09c53c59ad483ff7bbb8e572e00c7f7c46b88556409f31"
+                }
+            ]
+        },
+        {
+            "name": "python3-poetry-core",
+            "buildsystem": "simple",
+            "build-commands": [
+                "pip3 install --no-deps -I --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"poetry-core==1.7.0\" --no-build-isolation"
+            ],
+            "sources": [
+                {
+                    "type": "file",
+                    "url": "https://files.pythonhosted.org/packages/bf/d4/ce72ac247f414d15ff046f0926b76eb42bd743e83c1df28e856f328e3db1/poetry_core-1.7.0-py3-none-any.whl",
+                    "sha256": "38e174cdb00a84ee4a1cab66a378b435747f72414f5573bc18cfc3850a94df38"
                 }
             ]
         }
