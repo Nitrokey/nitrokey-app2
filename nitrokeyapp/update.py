@@ -45,9 +45,9 @@ class UpdateGUI(UpdateUi):
     ) -> None:
         self._version_printed = False
         self.overview_tab = overview_tab
-        self.bar_update = overview_tab.ui.progressBar_Update
-        self.bar_download = overview_tab.ui.progressBar_Download
-        self.bar_finalization = overview_tab.ui.progressBar_Finalization
+        self.bar_update = overview_tab.ui.update_progress
+        self.bar_download = overview_tab.ui.download_progress
+        self.bar_finalization = overview_tab.ui.finalization_progress
         self.info_frame = info_frame
 
     def error(self, *msgs: Any) -> Exception:
