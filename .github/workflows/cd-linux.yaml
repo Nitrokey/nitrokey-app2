@@ -11,7 +11,7 @@ jobs:
     container: python:3.9-slim
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install required packages
         run: |
           apt update
@@ -36,7 +36,7 @@ jobs:
     needs: version-check
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install required packages
         run: |
           apt update
@@ -67,7 +67,7 @@ jobs:
       - name: Build
         run: make build-pyinstaller-onefile
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: nitrokey-app-onefile
           path: dist/nitrokey-app
@@ -80,7 +80,7 @@ jobs:
       contents: write
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: nitrokey-app-onefile
       - name: Rename binary
