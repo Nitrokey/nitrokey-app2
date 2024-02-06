@@ -145,15 +145,10 @@ jobs:
           mv `
             nitrokey-app.exe `
             nitrokey-app-${{ github.event.release.tag_name }}-x64-windows-binary.exe
-      - name: Create archive
-        run: |
-          7z a -tzip -mx9 `
-            nitrokey-app-${{ github.event.release.tag_name }}-x64-windows-binary.zip `
-            nitrokey-app-${{ github.event.release.tag_name }}-x64-windows-binary.exe
       - name: Publish release
         uses: softprops/action-gh-release@v1
         with:
-          files: nitrokey-app-${{ github.event.release.tag_name }}-x64-windows-binary.zip
+          files: nitrokey-app-${{ github.event.release.tag_name }}-x64-windows-binary.exe
   publish-msi-installer:
     name: Publish MSI installer
     runs-on: windows-latest
