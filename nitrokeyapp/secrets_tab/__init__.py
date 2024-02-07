@@ -1,8 +1,9 @@
 import binascii
 import logging
-from base64 import b32decode
+from base64 import b32decode, b32encode
 from datetime import datetime
 from enum import Enum
+from random import randbytes
 from typing import Callable, Optional
 
 from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
@@ -14,7 +15,7 @@ from nitrokeyapp.information_box import InfoBox
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.worker import Worker
 
-from .data import Credential, OtpData, OtpKind
+from .data import Credential, OtherKind, OtpData, OtpKind
 from .worker import SecretsWorker
 
 # TODO:
@@ -124,6 +125,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         icon_refresh = self.get_qicon("OTP_generate.svg")
         icon_edit = self.get_qicon("edit.svg")
         icon_visibility = self.get_qicon("visibility_off.svg")
+        icon_generate = self.get_qicon("refresh.svg")
 
         loc = QLineEdit.ActionPosition.TrailingPosition
         self.action_username_copy = self.ui.username.addAction(icon_copy, loc)
@@ -155,6 +157,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.action_otp_edit = self.ui.otp.addAction(icon_edit, loc)
         self.action_otp_edit.triggered.connect(self.act_enable_otp_edit)
 
+        self.action_hmac_gen = self.ui.otp.addAction(icon_generate, loc)
+        self.action_hmac_gen.triggered.connect(self.generate_hmac)
+
         self.line_actions = [
             self.action_username_copy,
             self.action_password_copy,
@@ -163,6 +168,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.action_otp_copy,
             self.action_otp_edit,
             self.action_otp_gen,
+            self.action_hmac_gen,
         ]
         self.line2copy_action = {
             self.ui.username: self.action_username_copy,
@@ -394,6 +400,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.is_pin_protected.setChecked(credential.protected)
         self.ui.is_touch_protected.setChecked(credential.touch_required)
 
+        self.hide_hmac_view()
+
         self.hide_otp()
         self.ui.algorithm_tab.setCurrentIndex(1)
 
@@ -401,6 +409,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.ui.algorithm_tab.show()
             self.ui.algorithm_edit.hide()
             self.ui.algorithm_show.show()
+            self.action_hmac_gen.setVisible(False)
 
             self.ui.otp.show()
             self.ui.otp.setReadOnly(True)
@@ -413,6 +422,12 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             else:
                 self.action_otp_copy.setVisible(False)
                 self.action_otp_gen.setVisible(False)
+
+            algo = str(credential.other)
+            if algo == "HMAC":
+                self.show_hmac_view()
+            else:
+                self.hide_hmac_view()
 
             self.action_otp_edit.setVisible(False)
         else:
@@ -458,7 +473,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.ui.comment.setText(credential.comment.decode(errors="replace"))
         else:
             self.ui.comment.setText("")
-
         self.ui.name.setReadOnly(False)
         self.ui.username.setReadOnly(False)
         self.ui.password.setReadOnly(False)
@@ -487,6 +501,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
                 str(credential.otp or credential.other)
             )
             self.ui.select_algorithm.setEnabled(False)
+            self.action_hmac_gen.setVisible(False)
 
             self.action_otp_copy.setVisible(False)
             self.action_otp_gen.setVisible(False)
@@ -510,11 +525,18 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.check_credential()
 
+        if credential.other == OtherKind.HMAC:
+            self.show_hmac_view()
+            self.ui.btn_save.setEnabled(False)
+        else:
+            self.hide_hmac_view()
+
     def act_enable_otp_edit(self) -> None:
         assert self.active_credential
         self.active_credential.new_secret = True
 
         self.ui.otp.setReadOnly(False)
+        self.ui.select_algorithm.setMaxCount(3)
         self.ui.select_algorithm.setEnabled(True)
         self.ui.otp.setPlaceholderText("<empty>")
         self.ui.otp.setText("")
@@ -523,6 +545,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     @Slot()
     def add_new_credential(self) -> None:
+
         if not self.data:
             return
 
@@ -563,6 +586,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.otp.setReadOnly(False)
 
         self.ui.algorithm_tab.show()
+        self.ui.select_algorithm.setMaxCount(4)
+        self.ui.select_algorithm.addItem("HMAC")
         self.ui.algorithm_tab.setCurrentIndex(0)
         self.ui.algorithm_edit.show()
         self.ui.algorithm_show.hide()
@@ -570,6 +595,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.select_algorithm.show()
         self.ui.select_algorithm.setCurrentText("None")
         self.ui.select_algorithm.setEnabled(True)
+        self.action_hmac_gen.setVisible(False)
 
         self.ui.btn_abort.show()
         self.ui.btn_delete.hide()
@@ -586,6 +612,13 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         algo = self.ui.select_algorithm.currentText()
         if self.ui.select_algorithm.isEnabled():
+            if algo == "HMAC":
+                self.show_hmac_view()
+                if len(otp_secret) != 32:
+                    can_save = False
+            else:
+                self.hide_hmac_view()
+
             if algo != "None" and not is_base32(otp_secret):
                 can_save = False
 
@@ -630,6 +663,54 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.ui.secrets_list.clearSelection()
         self.active_credential = None
+
+    def show_hmac_view(self) -> None:
+
+        name_hmac = "HmacSlot2"
+
+        if self.active_credential is None:
+            self.action_otp_copy.setVisible(True)
+            self.action_hmac_gen.setVisible(True)
+            self.ui.name_label.setText(name_hmac)
+            self.ui.name.setText(name_hmac)
+        else:
+            self.action_hmac_gen.setVisible(False)
+            self.action_otp_copy.setVisible(False)
+
+        self.ui.name.hide()
+        self.ui.name_label.show()
+
+        self.ui.username_label.hide()
+        self.ui.username.hide()
+
+        self.ui.password_label.hide()
+        self.ui.password.hide()
+
+        self.ui.comment_label.hide()
+        self.ui.comment.hide()
+
+        self.ui.is_pin_protection_label.hide()
+        self.ui.is_pin_protected.hide()
+
+        self.ui.is_touch_protection_label.hide()
+        self.ui.is_touch_protected.hide()
+
+    def hide_hmac_view(self) -> None:
+
+        self.ui.username_label.show()
+        self.ui.username.show()
+
+        self.ui.password_label.show()
+        self.ui.password.show()
+
+        self.ui.comment_label.show()
+        self.ui.comment.show()
+
+        self.ui.is_pin_protection_label.show()
+        self.ui.is_pin_protected.show()
+
+        self.ui.is_touch_protection_label.show()
+        self.ui.is_touch_protected.show()
 
     @Slot()
     def hide_otp(self) -> None:
@@ -694,11 +775,14 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             print("INSERT ERROR MESSAGE HERE - status bar?")
             return
 
-        kind, otp_secret, secret = None, None, None
+        kind, otherKind, otp_secret, secret = None, None, None, None
         # only save otp, if enabled
         if self.ui.select_algorithm.isEnabled():
             try:
-                kind = OtpKind.from_str(kind_str)
+                if kind_str == "HMAC" or kind_str == "REVERSE_HOTP":
+                    otherKind = OtherKind.from_str(kind_str)
+                else:
+                    kind = OtpKind.from_str(kind_str)
                 otp_secret = self.ui.otp.text()
                 secret = parse_base32(otp_secret)
             except RuntimeError:
@@ -707,6 +791,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         cred = Credential(
             id=name.encode(),
             otp=kind,
+            other=otherKind,
             login=username.encode(),
             password=password.encode(),
             comment=comment.encode(),
@@ -734,3 +819,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     def uncheck_checkbox(self, uncheck: bool) -> None:
         if uncheck:
             self.ui.is_protected.setChecked(False)
+
+    @Slot()
+    def generate_hmac(self) -> None:
+        secret = b32encode(randbytes(20))
+        self.ui.otp.setText(secret.decode())
