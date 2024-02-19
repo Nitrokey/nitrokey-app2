@@ -24,6 +24,8 @@ class Nk3Button(QtWidgets.QPushButton):
             apply_stylesheet(self, theme=get_theme_path())
 
         self.setCheckable(True)
+        self.setDefault(False)
+        self.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
 
         self.effect = QtWidgets.QGraphicsColorizeEffect(self)
         self.effect.setColor(QtGui.QColor(115, 215, 125))
