@@ -18,9 +18,3 @@ class CommonUi:
         self.info = InfoUi()
         self.progress = ProgressUi()
         self.prompt = PromptUi()
-
-    # def __init__(self, parent: QObject) -> None:
-    #     self.touch = TouchUi(parent)
-    #     self.info = InfoUi(parent)
-    #     self.progress = ProgressUi(parent)
-    #     self.prompt = PromptUi(parent)

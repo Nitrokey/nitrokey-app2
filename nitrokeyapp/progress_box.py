@@ -13,50 +13,8 @@ class ProgressUi(QObject):
     stop = Signal()
     progress = Signal(int, int)
 
-    # def __init__(self, parent: QObject) -> None:
-    # super().__init__(parent)
     def __init__(self) -> None:
         super().__init__()
-
-    def connect_ui(self, progress: "ProgressBox") -> None:
-        self.start.connect(progress.show)
-        self.progress.connect(progress.update)
-        self.stop.connect(progress.hide)
-
-    def connect_actions(
-        self,
-        start: Optional[Callable[[str], None]],
-        stop: Optional[Callable[[], None]],
-        progress: Optional[Callable[[int, int], None]],
-    ) -> "ProgressUiConnection":
-        con = ProgressUiConnection(self)
-        if start:
-            con.start = self.start.connect(start)
-        if stop:
-            con.stop = self.stop.connect(stop)
-        if progress:
-            con.progress = self.progress.connect(progress)
-        return con
-
-
-@dataclass
-class ProgressUiConnection:
-    progress_ui: ProgressUi
-    start: Optional[QMetaObject.Connection] = None
-    stop: Optional[QMetaObject.Connection] = None
-    progress: Optional[QMetaObject.Connection] = None
-
-    def disconnect_actions(self) -> None:
-        if self.start:
-            self.progress_ui.start.disconnect()
-            self.start = None
-        if self.stop:
-            self.progress_ui.stop.disconnect()
-            self.stop = None
-        if self.progress:
-            self.progress_ui.progress.disconnect()
-            self.progress = None
-
 
 class ProgressBox(QObject):
     def __init__(self, progress_bar: QProgressBar):
@@ -66,8 +24,6 @@ class ProgressBox(QObject):
 
         self.progress_bar.setTextVisible(True)
 
-        # self.start.connect(self.show)
-        # self.progress.connect(self.update)
         self.progress_bar.hide()
         self.progress_bar.setStyleSheet("color: #808080; font: bold;")
 

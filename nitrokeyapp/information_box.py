@@ -13,48 +13,8 @@ class InfoUi(QObject):
     pin_cached = Signal(bool)
     pin_pressed = Signal()
 
-    # def __init__(self, parent: QObject) -> None:
-    #    #super().__init__(parent)
-    #    super().__init__()
-
-    # self.info_box = info_box
-
     def __init__(self) -> None:
         super().__init__()
-
-    def connect_ui(self, info_box: "InfoBox") -> None:
-        self.error.connect(info_box.set_error_status)
-        self.info.connect(info_box.set_status)
-        self.pin_cached.connect(info_box.set_pin_icon)
-        self.pin_pressed.connect(info_box.pin_icon.pressed)
-
-    def connect_actions(
-        self,
-        error: Optional[Callable[[str], None]],
-        info: Optional[Callable[[str], None]],
-    ) -> "InfoUiConnection":
-        con = InfoUiConnection(self)
-        if error:
-            con.error = self.error.connect(error)
-        if info:
-            con.info = self.info.connect(info)
-        return con
-
-
-@dataclass
-class InfoUiConnection:
-    info_ui: InfoUi
-    error: Optional[QMetaObject.Connection] = None
-    info: Optional[QMetaObject.Connection] = None
-
-    def disconnect_actions(self) -> None:
-        if self.error:
-            self.info_ui.error.disconnect()
-            self.start = None
-        if self.info:
-            self.info_ui.info.disconnect()
-            self.info = None
-
 
 class InfoBox(QObject):
     def __init__(
