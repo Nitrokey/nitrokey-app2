@@ -7,10 +7,6 @@ from typing import Optional, Type
 if platform.system() == "Linux":
     import pyudev
 
-# Nitrokey 3
-from pynitrokey.nk3 import Nitrokey3Device
-
-# pyqt5
 from PySide6 import QtWidgets
 from PySide6.QtCore import Qt, Signal, Slot
 from PySide6.QtGui import QCursor

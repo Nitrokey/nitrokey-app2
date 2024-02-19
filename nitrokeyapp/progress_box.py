@@ -1,8 +1,6 @@
 import logging
-from dataclasses import dataclass
-from typing import Callable, Optional
 
-from PySide6.QtCore import QMetaObject, QObject, QTimer, Signal, Slot
+from PySide6.QtCore import QObject, QTimer, Signal, Slot
 from PySide6.QtWidgets import QProgressBar
 
 logger = logging.getLogger(__name__)
@@ -15,6 +13,7 @@ class ProgressUi(QObject):
 
     def __init__(self) -> None:
         super().__init__()
+
 
 class ProgressBox(QObject):
     def __init__(self, progress_bar: QProgressBar):

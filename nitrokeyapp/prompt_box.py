@@ -11,6 +11,7 @@ class PromptUi(QObject):
     def __init__(self) -> None:
         super().__init__()
 
+
 class PromptBox(QtWidgets.QMessageBox):
     confirmed = Signal(bool)
 

@@ -1,10 +1,5 @@
 import logging
-from typing import List, Optional
-
-from pynitrokey import nk3
-from pynitrokey.nk3 import Nitrokey3Base, Nitrokey3Device
-from pynitrokey.nk3.admin_app import Status
-from pynitrokey.nk3.utils import Uuid, Version
+from typing import List
 
 from nitrokeyapp.device_data import DeviceData
 

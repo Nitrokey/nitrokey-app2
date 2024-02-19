@@ -1,8 +1,7 @@
-from dataclasses import dataclass
-from typing import Callable, Optional
+from typing import Optional
 
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtCore import QMetaObject, QObject, Signal, Slot
+from PySide6.QtCore import QObject, Signal, Slot
 
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
@@ -15,6 +14,7 @@ class InfoUi(QObject):
 
     def __init__(self) -> None:
         super().__init__()
+
 
 class InfoBox(QObject):
     def __init__(
