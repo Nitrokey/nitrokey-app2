@@ -23,6 +23,8 @@ class Nk3Button(QtWidgets.QPushButton):
         if not self.style().objectName() or self.style().objectName() == "fusion":
             apply_stylesheet(self, theme=get_theme_path())
 
+        self.setCheckable(True)
+
         self.effect = QtWidgets.QGraphicsColorizeEffect(self)
         self.effect.setColor(QtGui.QColor(115, 215, 125))
         self.effect.setStrength(0)

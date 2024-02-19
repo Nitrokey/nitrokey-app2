@@ -248,6 +248,11 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     def show_device(self, data: DeviceData) -> None:
         self.selected_device = data
+        for btn in self.device_buttons:
+            if btn.data == data:
+                btn.setChecked(True)
+            else:
+                btn.setChecked(False)
 
         self.info_box.set_device(data.name)
         self.tabs.show()
