@@ -200,13 +200,17 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.selected_device = None
             self.hide_device()
 
+        def remove_button(btn: Nk3Button) -> None:
+            self.ui.nitrokeyButtonsLayout.removeWidget(button)
+            self.device_buttons.remove(button)
+            button.destroy()
+
         for button in self.device_buttons:
-            if button.data.uuid == data.uuid or (
-                data.is_bootloader and button.data.path == data.path
-            ):
-                self.ui.nitrokeyButtonsLayout.removeWidget(button)
-                self.device_buttons.remove(button)
-                button.destroy()
+            if button.data.is_bootloader:
+                if button.data.path == data.path:
+                    remove_button(button)
+            elif button.data.uuid == data.uuid:
+                remove_button(button)
 
         if self.device_manager.count() == 0:
             self.l_insert_nitrokey.show()
