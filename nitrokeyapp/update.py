@@ -172,7 +172,11 @@ class Nk3Context:
     ) -> T:
         for t in Retries(retries):
             logger.debug(f"Searching {name} device ({t})")
-            devices = [device for device in list_nk3() if isinstance(device, ty)]
+            try:
+                devices = [device for device in list_nk3() if isinstance(device, ty)]
+            except Exception:
+                # have to catch this, to avoid early exception-raise-out
+                devices = []
             if len(devices) == 0:
                 if callback:
                     callback(int((t.i / retries) * 100), 100)

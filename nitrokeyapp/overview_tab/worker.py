@@ -35,11 +35,11 @@ class UpdateDevice(Job):
             success = self.data.update(self.update_gui)
         else:
             success = self.data.update(self.update_gui, self.image)
+
         self.device_updated.emit(success)
 
     @Slot()
     def cleanup(self) -> None:
-        # TODO: better connection management
         self.common_ui.prompt.confirmed.disconnect()
 
     @Slot(bool)

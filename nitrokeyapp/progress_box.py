@@ -39,6 +39,7 @@ class ProgressBox(QObject):
     @Slot()
     def hide(self) -> None:
         self.progress_bar.hide()
+        self.progress_bar.setValue(0)
 
     @Slot(int)
     def update(self, n: int, total: int) -> None:

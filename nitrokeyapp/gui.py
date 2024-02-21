@@ -156,6 +156,11 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     def detect_added_devices(self) -> None:
         devs = self.device_manager.add()
+
+        # show device as the connection might been updated
+        if len(devs) == 0 and self.selected_device:
+            self.show_device(self.selected_device)
+
         if not devs:
             logger.info("failed adding device")
             return
@@ -187,8 +192,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         if not self.selected_device:
             self.selected_device = data
+
         self.l_insert_nitrokey.hide()
-        self.show_device(self.selected_device)
 
     def remove_device(self, data: DeviceData) -> None:
         self.toggle_update_btn()
@@ -260,8 +265,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.show_navigation()
         self.welcome_widget.hide()
 
+        # enforce refreshing the current view
         view = self.views[self.tabs.currentIndex()]
-        view.refresh(data)
+        view.refresh(data, force=True)
 
     def hide_device(self) -> None:
         self.selected_device = None

@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from pynitrokey.nk3.admin_app import InitStatus
@@ -10,6 +11,8 @@ from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.worker import Worker
 
 from .worker import OverviewWorker
+
+logger = logging.getLogger(__name__)
 
 
 class OverviewTab(QtUtilsMixIn, QWidget):
@@ -66,8 +69,8 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         self.data = None
         self.set_device_data("?", "?", "?", "?", "?")
 
-    def refresh(self, data: DeviceData) -> None:
-        if data == self.data:
+    def refresh(self, data: DeviceData, force: bool = False) -> None:
+        if data == self.data and not force:
             return
         self.reset()
         self.data = data
@@ -161,6 +164,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         assert self.data
         # self.data.update(self, self.info_box)
         self.update_btns_during_update(False)
+
         self.trigger_update.emit(self.data)
 
     @Slot(bool)
@@ -180,5 +184,5 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         if fdialog.exec_():
             filenames = fdialog.selectedFiles()
             file = filenames[0]
-            # self.data.update(self.progress_box, self.prompt_box, self.info_box, image=file)
+
             self.trigger_update_file.emit(self.data, file)

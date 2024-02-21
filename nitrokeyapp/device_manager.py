@@ -12,7 +12,20 @@ def match(lhs: DeviceData, rhs: DeviceData) -> bool:
             return True
         if lhs.uuid == rhs.uuid:
             return True
+    elif lhs.path != rhs.path:
+        if not lhs.is_bootloader and not rhs.is_bootloader:
+            if lhs.uuid == rhs.uuid:
+                return True
     return False
+
+
+def test(devices: List[DeviceData]) -> bool:
+    for dev in devices:
+        if dev.is_bootloader:
+            continue
+        if dev.uuid is not None:
+            continue
+    return True
 
 
 class DeviceManager:
@@ -25,19 +38,44 @@ class DeviceManager:
     def add(self) -> List[DeviceData]:
         try:
             all_devs = DeviceData.list()
+            test(all_devs)
         except Exception as e:
             logger.error(f"failed listing nk3 devices: {e}")
             return []
 
         new_devices = []
         for candidate in all_devs:
-            res = list(filter(lambda x: match(x, candidate), self._devices))
-            if len(res) > 0:
-                org_dev = res[0]
-                # keep the most recent `path` + `_device`
-                org_dev.path = candidate.path
-                org_dev._device = candidate._device
+            # ignore bootloader device during update
+            if (
+                len(self._devices) == 1
+                and self._devices[0].updating
+                and candidate.is_bootloader
+            ):
                 continue
+
+            # handle from bootloader-device updating
+            if (
+                len(self._devices) == 1
+                and self._devices[0].is_bootloader
+                and not candidate.is_bootloader
+            ):
+                self._devices[0].path = candidate.path
+                self._devices[0]._device = candidate._device
+                continue
+
+            # typical case
+            matched = False
+            for my_dev in self._devices:
+                if match(my_dev, candidate):
+                    my_dev.path = candidate.path
+                    my_dev._device = candidate._device
+                    matched = True
+                    break
+            if matched:
+                continue
+
+            # only actually add the device, if it was not consumed
+            # to update an existing device
             self._devices.append(candidate)
             new_devices.append(candidate)
 
@@ -46,18 +84,20 @@ class DeviceManager:
     def remove(self) -> List[DeviceData]:
         try:
             all_devs = DeviceData.list()
+            test(all_devs)
         except Exception as e:
             logger.error(f"failed listing nk3 devices: {e}")
             return []
 
         out = []
         for dev in self._devices:
+            # skip any removal during device update
+            if dev.updating:
+                continue
+
             res = list(filter(lambda x: match(x, dev), all_devs))
             if len(res) == 0:
                 self._devices.remove(dev)
                 out.append(dev)
 
         return out
-
-    def update(self) -> None:
-        pass
