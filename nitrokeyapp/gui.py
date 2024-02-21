@@ -152,7 +152,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         device_count = self.device_manager.count()
         if device_count == 0:
             self.l_insert_nitrokey.show()
-        self.overview_tab.set_update_enabled(device_count == 1)
+        self.overview_tab.set_update_enabled(device_count <= 1)
 
     def detect_added_devices(self) -> None:
         devs = self.device_manager.add()
@@ -167,7 +167,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         # add as nk3 device
         logger.info(f"nk3 connected: {devs}")
-        self.info_box.set_status(f"Nitrokey 3 added: {devs}")
+        desc = ", ".join(str(dev.uuid) for dev in devs)
+        self.info_box.set_status(f"Nitrokey 3 added: {desc}")
         for dev in devs:
             self.add_device(dev)
 
@@ -177,7 +178,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             logger.info("failed removing device")
             return
 
-        self.info_box.set_status(f"Nitrokey 3 removed: {devs}")
+        desc = ", ".join(str(dev.uuid) for dev in devs)
+        self.info_box.set_status(f"Nitrokey 3 removed: {desc}")
         logger.info(f"nk3 disconnected: {devs}")
         for dev in devs:
             self.remove_device(dev)
