@@ -41,6 +41,21 @@ class OtherKind(Enum):
     def __str__(self) -> str:
         return self.name
 
+    def raw_kind(self) -> RawKind:
+        if self == OtherKind.HMAC:
+            return RawKind.Hmac
+        elif self == OtherKind.REVERSE_HOTP:
+            return RawKind.HotpReverse
+        else:
+            raise RuntimeError(f"Unexpected OTP kind: {self}")
+
+    @classmethod
+    def from_str(cls, s: str) -> "OtherKind":
+        for kind in OtherKind:
+            if kind.name == s:
+                return kind
+        raise RuntimeError(f"Unexpected Other kind: {kind}")
+
 
 Kind = Union[OtpKind, OtherKind]
 

@@ -396,6 +396,10 @@ class AddCredentialJob(Job):
                     pin_based_encryption=self.credential.protected,
                 )
 
+                if self.credential.other:
+                    reg_data["secret"] = self.secret
+                    reg_data["kind"] = self.credential.other.raw_kind()
+
                 if self.credential.otp:
                     reg_data["secret"] = self.secret
                     reg_data["kind"] = self.credential.otp.raw_kind()
@@ -406,7 +410,6 @@ class AddCredentialJob(Job):
                     reg_data["password"] = self.credential.password
                 if self.credential.comment:
                     reg_data["metadata"] = self.credential.comment
-
                 try:
                     secrets.register(**reg_data)  # type: ignore [arg-type]
                 except SecretsAppException as e:
