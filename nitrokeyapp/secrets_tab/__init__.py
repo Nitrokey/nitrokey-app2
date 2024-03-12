@@ -178,8 +178,11 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_edit.pressed.connect(self.prepare_edit_credential)
 
         self.ui.name.textChanged.connect(self.check_credential)
+        self.ui.username.textChanged.connect(self.check_credential)
+        self.ui.password.textChanged.connect(self.check_credential)
         self.ui.otp.textChanged.connect(self.check_credential)
         self.ui.select_algorithm.currentIndexChanged.connect(self.check_credential)
+        self.ui.comment.textChanged.connect(self.check_credential)
 
         self.ui.btn_refresh.pressed.connect(self.refresh_credential_list)
         self.ui.is_protected.stateChanged.connect(self.refresh_credential_list)
@@ -288,6 +291,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     def otp_generated(self, data: OtpData) -> None:
         self.ui.otp.setText(data.otp)
         self.data_otp = data.otp
+        self.common_ui.info.info.emit("Secret is generated")
 
         if data.validity:
             start, end = data.validity
@@ -363,13 +367,14 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.ui.name.hide()
         self.ui.name_label.show()
+        self.ui.name.setText(credential.name)
         self.ui.name_label.setText(credential.name)
 
         if credential.login:
             self.ui.username.setText(credential.login.decode(errors="replace"))
             self.action_username_copy.setEnabled(True)
         else:
-            self.ui.username.setText("")
+            self.ui.username.clear()
             self.action_username_copy.setEnabled(False)
 
         if credential.password:
@@ -377,7 +382,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.action_password_copy.setEnabled(True)
             self.action_password_show.setEnabled(True)
         else:
-            self.ui.password.setText("")
+            self.ui.password.clear()
             self.action_password_copy.setEnabled(False)
             self.action_password_show.setEnabled(False)
 
@@ -385,7 +390,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.ui.comment.setText(credential.comment.decode(errors="replace"))
             self.action_comment_copy.setEnabled(True)
         else:
-            self.ui.comment.setText("")
+            self.ui.comment.clear()
             self.action_comment_copy.setEnabled(False)
 
         self.ui.name.setReadOnly(True)
@@ -458,17 +463,17 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         if credential.login:
             self.ui.username.setText(credential.login.decode(errors="replace"))
         else:
-            self.ui.username.setText("")
+            self.ui.username.clear()
 
         if credential.password:
             self.ui.password.setText(credential.password.decode(errors="replace"))
         else:
-            self.ui.password.setText("")
+            self.ui.password.clear()
 
         if credential.comment:
             self.ui.comment.setText(credential.comment.decode(errors="replace"))
         else:
-            self.ui.comment.setText("")
+            self.ui.comment.clear()
         self.ui.name.setReadOnly(False)
         self.ui.username.setReadOnly(False)
         self.ui.password.setReadOnly(False)
@@ -484,6 +489,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.ui.algorithm_tab.show()
         self.ui.algorithm_tab.setCurrentIndex(0)
+        self.ui.select_algorithm.setMaxCount(3)
         self.ui.algorithm_show.hide()
         self.ui.algorithm_edit.show()
         self.ui.select_algorithm.show()
@@ -513,7 +519,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         # no otp there, just offer it as in add
         else:
-            self.ui.otp.setText("")
+            self.ui.otp.clear()
             self.ui.otp.setReadOnly(False)
             self.ui.otp.setPlaceholderText("<empty>")
             self.ui.select_algorithm.setCurrentText(str(credential.otp))
@@ -532,10 +538,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.active_credential.new_secret = True
 
         self.ui.otp.setReadOnly(False)
-        self.ui.select_algorithm.setMaxCount(3)
         self.ui.select_algorithm.setEnabled(True)
         self.ui.otp.setPlaceholderText("<empty>")
-        self.ui.otp.setText("")
+        self.ui.otp.clear()
 
         self.check_credential()
 
@@ -558,12 +563,13 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.ui.name.show()
         self.ui.name_label.hide()
-        self.ui.name.setText("")
+        self.ui.name.clear()
 
-        self.ui.otp.setText("")
-        self.ui.username.setText("")
-        self.ui.password.setText("")
-        self.ui.comment.setText("")
+        self.ui.otp.clear()
+        self.ui.otp.setPlaceholderText("<empty>")
+        self.ui.username.clear()
+        self.ui.password.clear()
+        self.ui.comment.clear()
 
         self.ui.name.setReadOnly(False)
         self.ui.otp.setReadOnly(False)
@@ -602,29 +608,85 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     @Slot()
     def check_credential(self) -> None:
-        can_save = True
+        self.common_ui.info.info.emit("")
 
-        otp_secret = self.ui.otp.text()
+        tool_Tip = "Credeantial cannot be saved:"
+        can_save = True
+        check_secret = self.ui.otp.text()
+
+        name_len = len(str.encode(self.ui.name.text()))
+        username_len = len(str.encode(self.ui.username.text()))
+        password_len = len(str.encode(self.ui.password.text()))
+        comment_len = len(str.encode(self.ui.comment.text()))
 
         algo = self.ui.select_algorithm.currentText()
-        if self.ui.select_algorithm.isEnabled():
-            if algo == "HMAC":
-                self.show_hmac_view()
-                if len(otp_secret) != 32:
-                    can_save = False
-            else:
-                self.hide_hmac_view()
-
-            if algo != "None" and not is_base32(otp_secret):
-                can_save = False
-
-            if algo != "None" and len(otp_secret) < 1:
-                can_save = False
 
         if len(self.ui.name.text()) < 3:
             can_save = False
+        if len(self.ui.name.text()) == 0:
+            self.common_ui.info.info.emit("Enter a Credential Name")
+            tool_Tip = tool_Tip + "\n- Enter a Credential Name"
+        if len(self.ui.name.text()) >= 1 and len(self.ui.name.text()) < 3:
+            self.common_ui.info.info.emit("Credential Name is too short")
+            tool_Tip = tool_Tip + "\n- Credential Name is too short"
+        if name_len >= 128:
+            can_save = False
+            self.common_ui.info.info.emit("Credential Name is too long")
+            tool_Tip = tool_Tip + "\n- Credential Name is too long"
+
+        if username_len >= 128:
+            can_save = False
+            self.common_ui.info.info.emit("Username is too long")
+            tool_Tip = tool_Tip + "\n- Username is too long"
+
+        if password_len >= 128:
+            can_save = False
+            self.common_ui.info.info.emit("Password is too long")
+            tool_Tip = tool_Tip + "\n- Password is too long"
+
+        if comment_len >= 128:
+            can_save = False
+            self.common_ui.info.info.emit("Comment is too long")
+            tool_Tip = tool_Tip + "\n- Comment is too long"
+
+        if self.ui.select_algorithm.isEnabled():
+            if algo == "None":
+                self.ui.otp.setReadOnly(True)
+                self.ui.otp.setPlaceholderText("<Select Algotithm>")
+            else:
+                self.ui.otp.setReadOnly(False)
+                self.ui.otp.setPlaceholderText("<empty>")
+
+            if algo == "HMAC":
+                self.show_hmac_view()
+                if len(check_secret) != 32:
+                    can_save = False
+                    self.common_ui.info.info.emit(
+                        "The HMAC-Secret is not 32 chars long"
+                    )
+                    tool_Tip = tool_Tip + "\n- The HMAC-Secret is not 32 chars long"
+            else:
+                self.hide_hmac_view()
+
+            if algo != "None" and len(check_secret) != len(check_secret.encode()):
+                can_save = False
+                self.common_ui.info.info.emit("Invalid character in Secret")
+                tool_Tip = tool_Tip + "\n- Invalid character in Secret"
+            elif not is_base32(check_secret) and len(check_secret) > 1:
+                can_save = False
+                self.common_ui.info.info.emit("Secret is not in Base32")
+                tool_Tip = tool_Tip + "\n- Secret is not in Base32"
+
+            if algo != "None" and len(check_secret) < 1:
+                can_save = False
+                self.common_ui.info.info.emit("Enter a Secret")
+                tool_Tip = tool_Tip + "\n- Enter a Secret"
 
         self.ui.btn_save.setEnabled(can_save)
+        if can_save:
+            tool_Tip = "Credential Save"
+
+        self.ui.btn_save.setToolTip(tool_Tip)
 
     def act_copy_line_edit(self, obj: QLineEdit) -> None:
         self.clipboard.setText(obj.text())
@@ -692,6 +754,15 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.is_touch_protected.hide()
 
     def hide_hmac_view(self) -> None:
+
+        if self.active_credential is None and self.ui.name_label.text() == "HmacSlot2":
+            self.ui.name_label.clear()
+            self.ui.name_label.hide()
+            self.ui.name.clear()
+            self.ui.name.show()
+            self.ui.otp.clear()
+
+        self.action_hmac_gen.setVisible(False)
 
         self.ui.username_label.show()
         self.ui.username.show()
