@@ -229,6 +229,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         if data == self.data:
             return
         self.data = data
+        self._worker.pin_cache.clear()
 
         self.reset_ui()
         self.trigger_check_device.emit(self.data)
