@@ -170,7 +170,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         # add as nk3 device
         logger.info(f"nk3 connected: {devs}")
-        desc = ", ".join(str(dev.uuid) for dev in devs)
+        desc = ", ".join(
+            (str(dev.uuid) if not dev.is_bootloader else "NK3 (BL)") for dev in devs
+        )
+
         self.info_box.set_status(f"Nitrokey 3 added: {desc}")
         for dev in devs:
             self.add_device(dev)
@@ -181,7 +184,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             logger.info("failed removing device")
             return
 
-        desc = ", ".join(str(dev.uuid) for dev in devs)
+        desc = ", ".join(
+            (str(dev.uuid) if not dev.is_bootloader else "NK3 (BL)") for dev in devs
+        )
         self.info_box.set_status(f"Nitrokey 3 removed: {desc}")
         logger.info(f"nk3 disconnected: {devs}")
         for dev in devs:

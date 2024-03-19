@@ -103,6 +103,8 @@ class OverviewTab(QtUtilsMixIn, QWidget):
                 self.ui.nk3_lineedit_init_status.hide()
             else:
                 self.status_error(InitStatus(data.status.init_status))
+                self.ui.label_init_status.show()
+                self.ui.nk3_lineedit_init_status.show()
 
     def set_device_data(
         self, path: str, uuid: str, version: str, variant: str, init_status: str
