@@ -67,6 +67,10 @@ class Nk3Button(QtWidgets.QPushButton):
 
     def fold(self) -> None:
         self.setText("")
+        self.setMinimumWidth(58)
+        self.setMaximumWidth(58)
 
     def unfold(self) -> None:
         self.setText(self.data.name)
+        self.setMinimumWidth(178)
+        self.setMaximumWidth(178)

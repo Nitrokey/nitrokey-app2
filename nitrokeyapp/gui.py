@@ -246,6 +246,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             btn.unfold()
 
         self.ui.vertical_navigation.setMinimumWidth(200)
+        self.ui.vertical_navigation.setMaximumWidth(200)
         self.ui.btn_dial_help.show()
 
         self.ui.main_logo.setMaximumWidth(120)
