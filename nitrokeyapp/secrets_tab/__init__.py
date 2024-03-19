@@ -85,14 +85,10 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.trigger_get_credential.connect(self._worker.get_credential)
         self.trigger_edit_credential.connect(self._worker.edit_credential)
 
-        self._worker.pin_cache.pin_cleared.connect(
-            lambda: self.common_ui.info.pin_cached.emit(False)
-        )
+        self._worker.pin_cache.pin_cleared.connect(self.common_ui.info.pin_cleared)
         self._worker.pin_cache.pin_cleared.connect(lambda: self.uncheck_checkbox(True))
 
-        self._worker.pin_cache.pin_cached.connect(
-            lambda: self.common_ui.info.pin_cached.emit(True)
-        )
+        self._worker.pin_cache.pin_cached.connect(self.common_ui.info.pin_cached)
         self.common_ui.info.pin_pressed.connect(self._worker.pin_cache.clear)
 
         self._worker.credential_added.connect(self.credential_added)

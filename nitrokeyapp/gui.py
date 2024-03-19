@@ -103,6 +103,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
                 view.common_ui.info.info.connect(self.info_box.set_status)
                 view.common_ui.info.error.connect(self.info_box.set_error_status)
+                view.common_ui.info.pin_cached.connect(self.info_box.set_pin_icon)
+                view.common_ui.info.pin_cleared.connect(self.info_box.unset_pin_icon)
+                self.info_box.pin_pressed.connect(view.common_ui.info.pin_pressed)
 
                 view.common_ui.prompt.confirm.connect(self.prompt_box.confirm)
                 self.prompt_box.confirmed.connect(view.common_ui.prompt.confirmed)
