@@ -1,24 +1,47 @@
+import logging
 from typing import Optional
 
 from pynitrokey.nk3.admin_app import InitStatus
-from PySide6.QtCore import Signal, Slot
+from PySide6.QtCore import QThread, Signal, Slot
 from PySide6.QtWidgets import QFileDialog, QWidget
 
+from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
-from nitrokeyapp.information_box import InfoBox
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.worker import Worker
 
+from .worker import OverviewWorker
+
+logger = logging.getLogger(__name__)
+
 
 class OverviewTab(QtUtilsMixIn, QWidget):
+    # standard UI
     busy_state_changed = Signal(bool)
 
-    def __init__(self, info_box: InfoBox, parent: Optional[QWidget] = None) -> None:
+    # worker triggers
+    trigger_update = Signal(DeviceData)
+    trigger_update_file = Signal(DeviceData, str)
+
+    def __init__(
+        self,
+        parent: Optional[QWidget] = None,
+    ) -> None:
         QWidget.__init__(self, parent)
         QtUtilsMixIn.__init__(self)
 
         self.data: Optional[DeviceData] = None
-        self.info_box = info_box
+        self.common_ui = CommonUi()
+
+        self.worker_thread = QThread()
+        self._worker = OverviewWorker(self.common_ui)
+        self._worker.moveToThread(self.worker_thread)
+        self.worker_thread.start()
+
+        self.trigger_update.connect(self._worker.update_device)
+        self.trigger_update_file.connect(self._worker.update_device_file)
+
+        self._worker.device_updated.connect(self.device_updated)
 
         # self.ui === self -> this tricks mypy due to monkey-patching self
         self.ui = self.load_ui("overview_tab.ui", self)
@@ -40,36 +63,48 @@ class OverviewTab(QtUtilsMixIn, QWidget):
 
     @property
     def worker(self) -> Optional[Worker]:
-        return None
+        return self._worker
 
     def reset(self) -> None:
         self.data = None
         self.set_device_data("?", "?", "?", "?", "?")
-        self.ui.progressBar_Update.hide()
-        self.ui.progressBar_Download.hide()
-        self.ui.progressBar_Finalization.hide()
 
-    def refresh(self, data: DeviceData) -> None:
-        if data == self.data:
+    def refresh(self, data: DeviceData, force: bool = False) -> None:
+        if data == self.data and not force:
             return
         self.reset()
         self.data = data
-        if data.status.variant is None:
-            return
 
-        self.set_device_data(
-            str(data.path),
-            str(data.uuid),
-            str(data.version),
-            str(data.status.variant.name),
-            str(data.status.init_status),
-        )
-
-        if data.status.init_status is None:
+        if data.is_bootloader:
+            self.set_device_data(
+                str(data.path),
+                "n/a",
+                "n/a",
+                "n/a",
+                "n/a",
+            )
             self.ui.label_init_status.hide()
             self.ui.nk3_lineedit_init_status.hide()
+            self.ui.moreInfo.hide()
+            self.ui.label_nk3.setText("Nitrokey 3 Bootloader")
+
         else:
-            self.status_error(InitStatus(data.status.init_status))
+            assert data.status.variant
+            self.set_device_data(
+                str(data.path),
+                str(data.uuid),
+                str(data.version),
+                str(data.status.variant.name),
+                str(data.status.init_status),
+            )
+            self.ui.label_nk3.setText("Nitrokey 3")
+            if data.status.init_status is None:
+                self.ui.label_init_status.hide()
+                self.ui.nk3_lineedit_init_status.hide()
+            else:
+                self.status_error(InitStatus(data.status.init_status))
+                self.ui.label_init_status.show()
+                self.ui.nk3_lineedit_init_status.show()
 
     def set_device_data(
         self, path: str, uuid: str, version: str, variant: str, init_status: str
@@ -91,9 +126,9 @@ class OverviewTab(QtUtilsMixIn, QWidget):
     def set_update_enabled(self, enabled: bool) -> None:
         tooltip = ""
         if enabled:
-            self.info_box.hide_status()
+            ...
         else:
-            self.info_box.set_status(
+            self.common_ui.info.info.emit(
                 "Please remove all Nitrokey 3 devices except the one you want to update."
             )
             tooltip = "Please remove all Nitrokey 3 devices except the one you want to update."
@@ -129,7 +164,18 @@ class OverviewTab(QtUtilsMixIn, QWidget):
     @Slot()
     def run_update(self) -> None:
         assert self.data
-        self.data.update(self, self.info_box)
+        # self.data.update(self, self.info_box)
+        self.update_btns_during_update(False)
+
+        self.trigger_update.emit(self.data)
+
+    @Slot(bool)
+    def device_updated(self, success: bool) -> None:
+        self.update_btns_during_update(True)
+        if success:
+            self.common_ui.info.info.emit("Nitrokey 3 successfully updated")
+        else:
+            self.common_ui.info.error.emit("Nitrokey 3 update failed")
 
     @Slot()
     def update_with_file(self) -> None:
@@ -140,4 +186,5 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         if fdialog.exec_():
             filenames = fdialog.selectedFiles()
             file = filenames[0]
-            self.data.update(self, self.info_box, image=file)
+
+            self.trigger_update_file.emit(self.data, file)

@@ -1,12 +1,25 @@
 from typing import Optional
 
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtCore import QObject, Slot
+from PySide6.QtCore import QObject, Signal, Slot
 
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
 
+class InfoUi(QObject):
+    error = Signal(str)
+    info = Signal(str)
+    pin_cached = Signal()
+    pin_cleared = Signal()
+    pin_pressed = Signal()
+
+    def __init__(self) -> None:
+        super().__init__()
+
+
 class InfoBox(QObject):
+    pin_pressed = Signal()
+
     def __init__(
         self,
         information_frame: QtWidgets.QWidget,
@@ -20,6 +33,7 @@ class InfoBox(QObject):
         self.information_frame.show()
 
         self.status = status
+        self.status.hide()
         self.device = device
 
         self.icon = icon
@@ -32,6 +46,10 @@ class InfoBox(QObject):
         )
         self.set_pin_icon(False)
         self.pin_icon.hide()
+        self.pin_icon.clicked.connect(self.pin_pressed)
+
+        # self.send_status.connect(lambda s: self.set_status(s))
+        # self.send_error_status.connect(self.set_error_status)
 
         # self.information_frame.setStyleSheet("background-color:#666666; border: 0;");
 
@@ -92,7 +110,11 @@ class InfoBox(QObject):
         self.hide_status()
         self.pin_icon.hide()
 
-    @Slot(bool)
+    @Slot()
+    def unset_pin_icon(self) -> None:
+        self.set_pin_icon(False)
+
+    @Slot()
     def set_pin_icon(self, pin_cached: bool = True) -> None:
         if pin_cached:
             self.pin_icon.setIcon(QtUtilsMixIn.get_qicon("dialpad.svg"))

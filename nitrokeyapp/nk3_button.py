@@ -1,3 +1,5 @@
+from typing import Optional
+
 from PySide6 import QtCore, QtGui, QtWidgets
 from qt_material import apply_stylesheet
 
@@ -11,15 +13,19 @@ class Nk3Button(QtWidgets.QPushButton):
         self,
         data: DeviceData,
     ) -> None:
-        super().__init__(
-            QtUtilsMixIn.get_qicon("nitrokey.svg"),
-            "Nitrokey 3: " f"{data.uuid_prefix}",
-        )
+        super().__init__(QtUtilsMixIn.get_qicon("nitrokey.svg"), data.name)
+
         self.data = data
+        self.bootloader_data: Optional[DeviceData] = None
+
         # needs to create button in the vertical navigation with the nitrokey type and serial number as text
         # set material stylesheet if no system theme is set
         if not self.style().objectName() or self.style().objectName() == "fusion":
             apply_stylesheet(self, theme=get_theme_path())
+
+        self.setCheckable(True)
+        self.setDefault(False)
+        self.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
 
         self.effect = QtWidgets.QGraphicsColorizeEffect(self)
         self.effect.setColor(QtGui.QColor(115, 215, 125))
@@ -61,6 +67,10 @@ class Nk3Button(QtWidgets.QPushButton):
 
     def fold(self) -> None:
         self.setText("")
+        self.setMinimumWidth(58)
+        self.setMaximumWidth(58)
 
     def unfold(self) -> None:
-        self.setText("Nitrokey 3: " f"{str(self.data.uuid)[:5]}")
+        self.setText(self.data.name)
+        self.setMinimumWidth(178)
+        self.setMaximumWidth(178)
