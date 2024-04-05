@@ -163,7 +163,7 @@ class VerifyPinJob(Job):
 
     @Slot(str)
     def trigger_error(self, msg: str) -> None:
-        self.common_ui.info.error.emit(self.__class__.__name__, Exception(msg))
+        self.common_ui.info.error.emit(msg)
         self.pin_verified.emit(False)
 
 
