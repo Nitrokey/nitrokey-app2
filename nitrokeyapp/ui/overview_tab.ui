@@ -24,7 +24,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QScrollArea" name="scrollArea_2">
+    <widget class="QScrollArea" name="___overview_space">
      <property name="autoFillBackground">
       <bool>false</bool>
      </property>
@@ -46,13 +46,13 @@
      <property name="widgetResizable">
       <bool>true</bool>
      </property>
-     <widget class="QWidget" name="scrollAreaWidgetContents_3">
+     <widget class="QWidget" name="___overview">
       <property name="geometry">
        <rect>
         <x>0</x>
         <y>0</y>
         <width>482</width>
-        <height>459</height>
+        <height>375</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -66,7 +66,7 @@
       </property>
       <layout class="QFormLayout" name="formLayout">
        <item row="0" column="0">
-        <widget class="QFrame" name="Nitrokey3">
+        <widget class="QFrame" name="___nk3_info_space">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -99,7 +99,7 @@
          </property>
          <layout class="QFormLayout" name="formLayout_4">
           <item row="0" column="0" colspan="2">
-           <widget class="QLabel" name="label_nk3">
+           <widget class="QLabel" name="___nk3_label">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -126,7 +126,7 @@
            </widget>
           </item>
           <item row="1" column="0">
-           <widget class="QLabel" name="label_uuid">
+           <widget class="QLabel" name="___uuid_label">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -148,7 +148,7 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QLabel" name="nk3_lineedit_uuid">
+           <widget class="QLabel" name="nk3_uuid">
             <property name="text">
              <string>TextLabel</string>
             </property>
@@ -158,7 +158,7 @@
            </widget>
           </item>
           <item row="2" column="0">
-           <widget class="QLabel" name="label_path">
+           <widget class="QLabel" name="___path_label">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -180,7 +180,7 @@
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QLabel" name="nk3_lineedit_path">
+           <widget class="QLabel" name="nk3_path">
             <property name="text">
              <string>TextLabel</string>
             </property>
@@ -190,7 +190,7 @@
            </widget>
           </item>
           <item row="3" column="0">
-           <widget class="QLabel" name="label_version">
+           <widget class="QLabel" name="___version_label">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -212,7 +212,7 @@
            </widget>
           </item>
           <item row="3" column="1">
-           <widget class="QLabel" name="nk3_lineedit_version">
+           <widget class="QLabel" name="nk3_version">
             <property name="text">
              <string>TextLabel</string>
             </property>
@@ -222,7 +222,7 @@
            </widget>
           </item>
           <item row="4" column="0">
-           <widget class="QLabel" name="label_variant">
+           <widget class="QLabel" name="___variant_label">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -244,7 +244,7 @@
            </widget>
           </item>
           <item row="4" column="1">
-           <widget class="QLabel" name="nk3_lineedit_variant">
+           <widget class="QLabel" name="nk3_variant">
             <property name="text">
              <string>TextLabel</string>
             </property>
@@ -254,7 +254,7 @@
            </widget>
           </item>
           <item row="5" column="0">
-           <widget class="QLabel" name="label_init_status">
+           <widget class="QLabel" name="status_label">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -276,9 +276,9 @@
            </widget>
           </item>
           <item row="5" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout">
+           <layout class="QHBoxLayout" name="status_space">
             <item>
-             <widget class="QLabel" name="nk3_lineedit_init_status">
+             <widget class="QLabel" name="nk3_status">
               <property name="text">
                <string>TextLabel</string>
               </property>
@@ -288,7 +288,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="warnNoticeIcon">
+             <widget class="QLabel" name="icon_warn_notice">
               <property name="sizePolicy">
                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
                 <horstretch>0</horstretch>
@@ -314,7 +314,7 @@
                <enum>Qt::AutoText</enum>
               </property>
               <property name="pixmap">
-               <pixmap>icons/icon_warning.svg</pixmap>
+               <pixmap>icons/warning.svg</pixmap>
               </property>
               <property name="scaledContents">
                <bool>true</bool>
@@ -328,7 +328,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="moreInfo">
+             <widget class="QLabel" name="more_info">
               <property name="text">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://docs.nitrokey.com/nitrokey3/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#c80636;&quot;&gt;More Info&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
@@ -369,11 +369,11 @@
            </spacer>
           </item>
           <item row="7" column="0" colspan="2">
-           <layout class="QHBoxLayout" name="buttonLayout_nk3">
+           <layout class="QHBoxLayout" name="___button_layout">
             <item>
-             <widget class="QPushButton" name="pushButtonUpdate">
+             <widget class="QPushButton" name="btn_update">
               <property name="text">
-               <string>Update</string>
+               <string>Check for Update</string>
               </property>
              </widget>
             </item>
@@ -383,7 +383,7 @@
         </widget>
        </item>
        <item row="1" column="0">
-        <widget class="QPushButton" name="more_options_btn">
+        <widget class="QPushButton" name="btn_more_options">
          <property name="text">
           <string>More Options</string>
          </property>
@@ -403,7 +403,7 @@
         </widget>
        </item>
        <item row="2" column="0">
-        <widget class="QFrame" name="more_options_frame">
+        <widget class="QFrame" name="more_options">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -430,7 +430,7 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QPushButton" name="update_with_file_btn">
+           <widget class="QPushButton" name="btn_update_with_file">
             <property name="text">
              <string>Update with local Firmware</string>
             </property>
