@@ -5,7 +5,8 @@
   * `/VERSION` (mind the final newline)
   * `pyproject.toml` 
   * `ci-scripts/linux/rpm/nitrokey-app2.spec` 
-  * `flatpak` (todo) 
+  * add flatpak meta-data in `meta/com.nitrokey.nitrokey-app2.metainfo.xml`, like this: `<release version="2.3" date="2024-04-19"/>`
+
 
 * create tag (`git tag -S -m "vX.Y.Z" vX.Y.Z` or in the web-ui)
 
