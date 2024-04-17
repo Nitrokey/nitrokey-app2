@@ -17,11 +17,12 @@ from pynitrokey.cli.exceptions import CliException
 from pynitrokey.helpers import Retries
 from pynitrokey.nk3 import list as list_nk3
 from pynitrokey.nk3 import open as open_nk3
-from pynitrokey.nk3.base import Nitrokey3Base
-from pynitrokey.nk3.bootloader import Nitrokey3Bootloader, Variant
+from pynitrokey.nk3.bootloader import Nitrokey3Bootloader
 from pynitrokey.nk3.device import Nitrokey3Device
 from pynitrokey.nk3.updates import Updater, UpdateUi
-from pynitrokey.nk3.utils import Version
+from pynitrokey.trussed.base import NitrokeyTrussedBase
+from pynitrokey.trussed.bootloader import Variant
+from pynitrokey.trussed.utils import Version
 from PySide6.QtCore import QCoreApplication
 
 if TYPE_CHECKING:
@@ -29,7 +30,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-T = TypeVar("T", bound=Nitrokey3Base)
+T = TypeVar("T", bound=NitrokeyTrussedBase)
 
 
 class UpdateGUI(UpdateUi):
@@ -156,7 +157,7 @@ class Nk3Context:
         logger.info(f"path: {path}")
         self.updating = False
 
-    def connect(self) -> Nitrokey3Base:
+    def connect(self) -> NitrokeyTrussedBase:
         device = open_nk3(self.path)
         # TODO: improve error handling
         if not device:

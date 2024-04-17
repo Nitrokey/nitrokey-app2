@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Dict, Optional
 
 from pynitrokey.nk3.secrets_app import SecretsApp, SecretsAppException
-from pynitrokey.nk3.utils import Uuid
+from pynitrokey.trussed.utils import Uuid
 from PySide6.QtCore import QObject, Signal, Slot
 from PySide6.QtWidgets import QWidget
 

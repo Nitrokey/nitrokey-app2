@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from pynitrokey.nk3.admin_app import InitStatus
+from pynitrokey.trussed.admin_app import InitStatus
 from PySide6.QtCore import QThread, Signal, Slot
 from PySide6.QtWidgets import QFileDialog, QWidget
 
