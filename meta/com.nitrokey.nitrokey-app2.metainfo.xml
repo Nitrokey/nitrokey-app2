@@ -17,7 +17,7 @@
 	  <category>Qt</category>
   </categories>
 	<releases>
-		<release version="2.1.5" date="2024-01-09"/>
+		<release version="2.3.0" date="2024-04-19"/>
   </releases>
   <provides>
 	  <binary>nitrokeyapp</binary>
@@ -34,7 +34,7 @@
   <url type="help">https://docs.nitrokey.com/software/nk-app2</url>
   <screenshots>
     <screenshot type="default">
-	    <image>https://github.com/Nitrokey/nitrokey-app2/raw/flatpak/meta/screenshot.png</image>
+			<image>https://github.com/Nitrokey/nitrokey-app2/blob/main/meta/screenshot.png?raw=true</image>
 			<caption>Main window</caption>
 		</screenshot>
   </screenshots>
