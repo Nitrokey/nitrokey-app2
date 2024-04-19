@@ -34,7 +34,7 @@ nitrokeyapp = "nitrokeyapp.__main__:main"
 python = ">=3.9,<3.13"
 pySide6 = ">=6.6.0"
 pyudev = "^0.24.1"
-pynitrokey = "0.4.45"
+pynitrokey = ">=0.4.46,<0.4.48"
 pywin32 = { version = "305", markers = "sys_platform =='win32'" }
 qt_material = "^2.14"
 
