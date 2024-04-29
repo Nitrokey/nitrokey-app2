@@ -51,6 +51,69 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         self.ui = self.load_ui("settings_tab.ui", self)
 
+        icon_visibility = self.get_qicon("visibility_off.svg")
+        icon_check = self.get_qicon("done.svg")
+        icon_false = self.get_qicon("close.svg")
+
+        loc = QLineEdit.ActionPosition.TrailingPosition
+        self.action_current_password_show = self.ui.current_password.addAction(icon_visibility, loc)
+        self.action_current_password_show.triggered.connect(self.act_current_password_show)
+
+        self.action_new_password_show = self.ui.new_password.addAction(icon_visibility, loc)
+        self.action_new_password_show.triggered.connect(self.act_new_password_show)
+
+        self.action_repeat_password_show = self.ui.repeat_password.addAction(icon_visibility, loc)
+        self.action_repeat_password_show.triggered.connect(self.act_repeat_password_show)
+
+        self.show_current_password_check = self.ui.current_password.addAction(icon_check, loc)
+        self.show_current_password_false = self.ui.current_password.addAction(icon_false, loc)
+
+        self.show_repeat_password_check = self.ui.repeat_password.addAction(icon_check, loc)
+        self.show_repeat_password_false = self.ui.repeat_password.addAction(icon_false, loc)
+
+
+    #    self.line_actions = [
+    #        self.action_current_password_show,
+    #        self.show_current_password_check,
+    #        self.show_current_password_false,
+    #        self.action_new_password_show,
+    #        self.action_repeat_password_show,
+    #    ]
+
+    def act_current_password_show(self) -> None:
+        self.set_current_password_show(self.ui.current_password.echoMode() == QLineEdit.Password, )  # type: ignore [attr-defined]
+
+    def act_new_password_show(self) -> None:
+        self.set_new_password_show(self.ui.new_password.echoMode() == QLineEdit.Password)  # type: ignore [attr-defined]
+
+    def act_repeat_password_show(self) -> None:
+        self.set_repeat_password_show(self.ui.repeat_password.echoMode() == QLineEdit.Password)  # type: ignore [attr-defined]
+
+
+    def set_current_password_show(self, show: bool = True) -> None:
+        icon_show = self.get_qicon("visibility.svg")
+        icon_hide = self.get_qicon("visibility_off.svg")
+        icon = icon_show if show else icon_hide
+        mode = QLineEdit.Normal if show else QLineEdit.Password  # type: ignore [attr-defined]
+        self.ui.current_password.setEchoMode(mode)
+        self.action_current_password_show.setIcon(icon)
+
+    def set_new_password_show(self, show: bool = True) -> None:
+        icon_show = self.get_qicon("visibility.svg")
+        icon_hide = self.get_qicon("visibility_off.svg")
+        icon = icon_show if show else icon_hide
+        mode = QLineEdit.Normal if show else QLineEdit.Password  # type: ignore [attr-defined]
+        self.ui.new_password.setEchoMode(mode)
+        self.action_new_password_show.setIcon(icon)
+
+    def set_repeat_password_show(self, show: bool = True) -> None:
+        icon_show = self.get_qicon("visibility.svg")
+        icon_hide = self.get_qicon("visibility_off.svg")
+        icon = icon_show if show else icon_hide
+        mode = QLineEdit.Normal if show else QLineEdit.Password  # type: ignore [attr-defined]
+        self.ui.repeat_password.setEchoMode(mode)
+        self.action_repeat_password_show.setIcon(icon)
+
     @property
     def title(self) -> str:
         return "Settings"
