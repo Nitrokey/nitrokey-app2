@@ -43,6 +43,7 @@ class ProgressBox(QObject):
 
     @Slot(int)
     def update(self, n: int, total: int) -> None:
+        self.progress_bar.show()
         value = self.progress_bar.value()
         if n >= total:
             self.progress_bar.setValue(100)
