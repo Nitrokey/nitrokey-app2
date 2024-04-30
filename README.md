@@ -2,6 +2,24 @@
 
 This application allows to manage Nitrokey 3 devices. To manage Nitrokey Pro and Nitrokey Storage devices, use the older [Nitrokey App](https://github.com/Nitrokey/nitrokey-app).
 
+## Installation
+
+These are the preferred installation methods for the following operating systems:
+
+### Windows
+
+Download and run the prebuilt `.msi` available inside [releases](https://github.com/Nitrokey/nitrokey-app2/releases).
+
+### Linux
+
+Flathub lists the [Nitrokey App2](https://flathub.org/apps/com.nitrokey.nitrokey-app2) to be used for an easy install within your prefered Linux distribution.
+
+
+### macOS
+
+Currently there is no official support for macOS, you might want to try installing through [pypi](https://pypi.org/project/nitrokeyapp/) using `pip` and/or `pipx`. 
+
+
 ## Features
 
 The following features are currently implemented.
