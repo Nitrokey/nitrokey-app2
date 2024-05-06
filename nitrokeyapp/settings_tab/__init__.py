@@ -7,7 +7,7 @@ from typing import Callable, Optional
 
 from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QGuiApplication
-from PySide6.QtWidgets import QLineEdit, QListWidgetItem, QWidget
+from PySide6.QtWidgets import QLineEdit, QListWidgetItem, QWidget, QTreeWidgetItem, QPushButton
 
 from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
@@ -51,6 +51,22 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         self.ui = self.load_ui("settings_tab.ui", self)
 
+        #Tree
+        parent_item = QTreeWidgetItem(self.ui.settings_tree, [""])
+        btn_fido2 = QPushButton('Fido2')
+        btn_fido2.pressed.connect(lambda: self.show_pin("FIDO2"))
+        self.ui.settings_tree.setItemWidget(parent_item, 0, btn_fido2)
+
+        parent_item = QTreeWidgetItem(self.ui.settings_tree, [""])
+        btn_pwManager = QPushButton('PasswordManager')
+        btn_pwManager.pressed.connect(lambda: self.show_pin("Password Manager"))
+        self.ui.settings_tree.setItemWidget(parent_item, 0, btn_pwManager)
+
+        parent_item = QTreeWidgetItem(self.ui.settings_tree, [""])
+        btn_otp = QPushButton('OTP')
+        btn_otp.pressed.connect(lambda: self.show_pin("OTP"))
+        self.ui.settings_tree.setItemWidget(parent_item, 0, btn_otp)
+
         icon_visibility = self.get_qicon("visibility_off.svg")
         icon_check = self.get_qicon("done.svg")
         icon_false = self.get_qicon("close.svg")
@@ -71,6 +87,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.show_repeat_password_check = self.ui.repeat_password.addAction(icon_check, loc)
         self.show_repeat_password_false = self.ui.repeat_password.addAction(icon_false, loc)
 
+        self.reset()
 
     #    self.line_actions = [
     #        self.action_current_password_show,
@@ -79,6 +96,39 @@ class SettingsTab(QtUtilsMixIn, QWidget):
     #        self.action_new_password_show,
     #        self.action_repeat_password_show,
     #    ]
+
+    def show_pin(self, pintype) -> None:
+        self.ui.settings_empty.hide()
+        self.ui.pinsettings_edit.hide()
+        self.ui.pinsettings_desc.show()
+
+        self.ui.btn_abort.hide()
+        self.ui.btn_reset.hide()
+        self.ui.btn_save.hide()
+        self.ui.btn_edit.show()
+        
+        self.ui.btn_edit.pressed.connect(lambda: self.edit_pin(pintype))
+
+        self.ui.pin_name.setText(pintype)
+
+        print(pintype)
+
+    def edit_pin(self, pintype) -> None:
+        self.ui.settings_empty.hide()
+        self.ui.pinsettings_desc.hide()
+        self.ui.pinsettings_edit.show()
+
+        self.ui.btn_edit.hide()
+        self.ui.btn_abort.show()
+        self.ui.btn_reset.show()
+        self.ui.btn_save.show()
+
+        self.ui.btn_abort.pressed.connect(lambda: self.show_pin(pintype))
+        self.ui.btn_save.pressed.connect(lambda: self.save_pin(pintype))
+        self.ui.btn_reset.pressed.connect(lambda: self.reset_pin(pintype))
+
+
+        self.ui.password_label.setText(pintype)
 
     def act_current_password_show(self) -> None:
         self.set_current_password_show(self.ui.current_password.echoMode() == QLineEdit.Password, )  # type: ignore [attr-defined]
@@ -127,7 +177,15 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         return self._worker
 
     def reset(self) -> None:
-        self.data = None
+#        self.data = None
+        self.ui.settings_empty.show()
+        self.ui.pinsettings_edit.hide()
+        self.ui.pinsettings_desc.hide()
+
+        self.ui.btn_abort.hide()
+        self.ui.btn_reset.hide()
+        self.ui.btn_save.hide()
+        self.ui.btn_edit.hide()
 
     def refresh(self, data: DeviceData, force: bool = False) -> None:
         if data == self.data and not force:
