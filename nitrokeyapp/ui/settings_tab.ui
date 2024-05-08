@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>811</width>
-    <height>527</height>
+    <height>570</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -127,26 +127,6 @@
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QPushButton" name="btn_edit">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="layoutDirection">
-             <enum>Qt::LeftToRight</enum>
-            </property>
-            <property name="text">
-             <string>Edit</string>
-            </property>
-            <property name="icon">
-             <iconset>
-              <normaloff>icons/edit.svg</normaloff>icons/edit.svg</iconset>
-            </property>
-           </widget>
-          </item>
          </layout>
         </widget>
        </item>
@@ -166,16 +146,11 @@
          </property>
          <column>
           <property name="text">
-           <string>Pin Settings</string>
-          </property>
-          <property name="font">
-           <font>
-            <bold>true</bold>
-           </font>
+           <string>Settings</string>
           </property>
           <property name="icon">
            <iconset>
-            <normaloff>icons/dialpad.svg</normaloff>icons/dialpad.svg</iconset>
+            <normaloff>icons/settings.svg</normaloff>icons/settings.svg</iconset>
           </property>
          </column>
         </widget>
@@ -183,7 +158,7 @@
        <item row="0" column="2">
         <widget class="QStackedWidget" name="settings_tab_space">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
            <horstretch>20</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -218,7 +193,7 @@
            <item>
             <widget class="QFrame" name="__pin_show_frame">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
@@ -274,16 +249,19 @@
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
                 </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::MinimumExpanding</enum>
+                </property>
                 <property name="sizeHint" stdset="0">
                  <size>
                   <width>20</width>
-                  <height>37</height>
+                  <height>40</height>
                  </size>
                 </property>
                </spacer>
               </item>
               <item>
-               <widget class="QPlainTextEdit" name="pin_description"/>
+               <widget class="QTextEdit" name="pin_description"/>
               </item>
               <item>
                <spacer name="verticalSpacer_2">
@@ -308,7 +286,7 @@
          </widget>
          <widget class="QWidget" name="pinsettings_edit">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -317,7 +295,7 @@
            <item>
             <widget class="QFrame" name="__credential_show_frame">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
