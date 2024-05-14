@@ -13,6 +13,7 @@ from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.worker import Worker
+#from .data import pin_check
 
 from .worker import SettingsWorker
 
@@ -57,6 +58,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         fido = QTreeWidgetItem(self.ui.settings_tree)
         pintype = SettingsTabState.Fido
+        fido.setExpanded(False)
         name = "FIDO2"
         desc = "FIDO2 is an authentication standard that enables secure and passwordless access to online services. It uses public key cryptography to provide strong authentication and protect against phishing and other security threats."
         
@@ -80,6 +82,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         otp = QTreeWidgetItem(self.ui.settings_tree)
         pintype = SettingsTabState.otp
+        otp.setExpanded(False)
         name = "OTP"
         desc = "One-Time Password (OTP) is a security mechanism that generates a unique password for each login session. This password is typically valid for only one login attempt or for a short period of time, adding an extra layer of security to the authentication process. OTPs are commonly used in two-factor authentication systems to verify the identity of users."
         
@@ -100,6 +103,10 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         otp.addChild(otp_pin)
 
         self.ui.settings_tree.itemClicked.connect(self.show)
+
+        self.ui.current_password.textChanged.connect(self.check_credential)
+        self.ui.new_password.textChanged.connect(self.check_credential)
+        self.ui.repeat_password.textChanged.connect(self.check_credential)
 
         self.reset()
 
@@ -124,6 +131,15 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.show_repeat_password_check = self.ui.repeat_password.addAction(icon_check, loc)
         self.show_repeat_password_false = self.ui.repeat_password.addAction(icon_false, loc)
 
+        self.action_current_password_show.setVisible(False)
+        self.action_new_password_show.setVisible(False)
+        self.action_repeat_password_show.setVisible(False)
+        self.show_current_password_check.setVisible(False)
+        self.show_current_password_false.setVisible(False)
+        self.show_repeat_password_check.setVisible(False)
+        self.show_repeat_password_false.setVisible(False)
+
+
 
     #    self.line_actions = [
     #        self.action_current_password_show,
@@ -134,12 +150,20 @@ class SettingsTab(QtUtilsMixIn, QWidget):
     #    ]
 
     def show(self, item) -> None:
-        print("show")
         pintype = item.data(1, 0)
         if pintype == SettingsTabState.Fido or pintype == SettingsTabState.otp:
             self.show_pin(item)
+            self.collapse_all_except(item)
+            item.setExpanded(True)
         else:
             self.edit_pin(item)
+
+    def collapse_all_except(self, item):
+        top_level_items = self.settings_tree.invisibleRootItem().takeChildren()
+        for top_level_item in top_level_items:
+            if top_level_item is not item.parent():
+                top_level_item.setExpanded(False)
+        self.settings_tree.invisibleRootItem().addChildren(top_level_items)
 
 
     def show_pin(self, item) -> None:
@@ -165,11 +189,15 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.pinsettings_desc.hide()
         self.ui.pinsettings_edit.show()
 
+        self.ui.current_password.clear()
+        self.ui.new_password.clear()
+        self.ui.repeat_password.clear()
+
         self.ui.btn_abort.show()
         self.ui.btn_reset.show()
         self.ui.btn_save.show()
 
-        self.ui.btn_abort.pressed.connect(lambda: self.show_pin(item))
+        self.ui.btn_abort.pressed.connect(lambda: self.abort(item))
         self.ui.btn_save.pressed.connect(lambda: self.save_pin(item))
         self.ui.btn_reset.pressed.connect(lambda: self.reset_pin(item))
 
@@ -178,6 +206,15 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.password_label.setText(name)
 
         self.field_btn()
+
+    def abort(self, item) -> None:
+        p_item = item.parent()
+        self.show(p_item)
+
+   # def reset(self) -> None:
+
+   # def save(self) -> None:
+
 
     def act_current_password_show(self) -> None:
         self.set_current_password_show(self.ui.current_password.echoMode() == QLineEdit.Password, )  # type: ignore [attr-defined]
@@ -248,3 +285,34 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.nk3_version.setText(version)
         self.ui.nk3_variant.setText(variant)
         self.ui.nk3_status.setText(init_status)
+
+    @Slot()
+    def check_credential(self) -> None:
+        current_password = self.ui.current_password.text()
+        new_password = self.ui.new_password.text()
+        repeat_password = self.ui.repeat_password.text()
+
+        if len(current_password) > 0:
+            self.action_current_password_show.setVisible(True)
+        else:
+            self.action_current_password_show.setVisible(False)
+
+        if len(new_password) > 0:
+            self.action_new_password_show.setVisible(True)
+        else:
+            self.action_new_password_show.setVisible(False)
+
+        if len(repeat_password) >0:
+            self.action_repeat_password_show.setVisible(True)
+        else:
+            self.action_repeat_password_show.setVisible(False)
+
+        if len(repeat_password) > 0 and new_password == repeat_password:
+            self.show_repeat_password_check.setVisible(True)
+            self.show_repeat_password_false.setVisible(False)
+        elif len(repeat_password) == 0 and len(new_password) == 0:
+            self.show_repeat_password_false.setVisible(False)
+            self.show_repeat_password_check.setVisible(False)
+        else:
+            self.show_repeat_password_false.setVisible(True)
+            self.show_repeat_password_check.setVisible(False)

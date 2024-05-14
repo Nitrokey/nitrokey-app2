@@ -164,7 +164,7 @@
           </sizepolicy>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="settings_empty">
           <layout class="QGridLayout" name="gridLayout_2">
@@ -358,7 +358,7 @@
                  </sizepolicy>
                 </property>
                 <property name="echoMode">
-                 <enum>QLineEdit::Normal</enum>
+                 <enum>QLineEdit::Password</enum>
                 </property>
                 <property name="dragEnabled">
                  <bool>false</bool>
