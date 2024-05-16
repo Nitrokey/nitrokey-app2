@@ -5,6 +5,10 @@ from enum import Enum
 from random import randbytes
 from typing import Callable, Optional
 
+from pynitrokey.fido2 import find
+from fido2.ctap2.pin import ClientPin, PinProtocol
+from pynitrokey.nk3.secrets_app import SecretsApp
+
 from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtWidgets import QLineEdit, QListWidgetItem, QWidget, QTreeWidgetItem
@@ -183,6 +187,11 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.pin_description.setText(desc)
         self.ui.pin_description.setReadOnly(True)
 
+        if pintype == SettingsTabState.Fido:
+            self.fido_status()
+        elif pintype == SettingsTabState.otp:
+            self.otp_status()
+
 
     def edit_pin(self, item) -> None:
         self.ui.settings_empty.hide()
@@ -207,13 +216,57 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         self.field_btn()
 
+    def fido_status(self) -> None:
+        ctaphid_raw_dev = self.data._device.device
+        fido2_client = find(raw_device=ctaphid_raw_dev)
+        self.ui.status_label.setText("pin ja" if fido2_client.has_pin() else "pin nein")
+
+    def otp_status(self) -> None:
+        secrets = SecretsApp(self.data._device)
+        status = secrets.select()
+        status_txt = str(status)    
+        self.ui.status_label.setText(status_txt)
+
     def abort(self, item) -> None:
         p_item = item.parent()
         self.show(p_item)
 
+    
+
    # def reset(self) -> None:
 
-   # def save(self) -> None:
+    def save_pin(self, item) -> None:
+        pintype = item.data(1, 0)
+        if pintype == SettingsTabState.FidoPw:
+            print(pintype)
+            ctaphid_raw_dev = self.data._device.device
+            fido2_client = find(raw_device=ctaphid_raw_dev)
+            client = fido2_client.client
+           # assert isinstance(fido2_client.ctap2, Ctap2)
+            client_pin = ClientPin(fido2_client.ctap2)
+            old_pin = self.ui.current_password.text()
+            new_pin = self.ui.repeat_password.text()
+            print(old_pin)
+            print(new_pin)
+
+            client_pin.change_pin(old_pin, new_pin)
+        else:
+            secrets = SecretsApp(self.data._device)
+            print(secrets)
+            old_pin = self.ui.current_password.text()
+            new_pin = self.ui.repeat_password.text()
+            print(type(old_pin))
+            print(type(new_pin))
+            print(old_pin)
+            print(new_pin)
+            secrets.change_pin_raw(old_pin, new_pin)
+            print(old_pin)
+            print(new_pin)
+
+        
+        
+        
+    #    or pintype == SettingsTabState.otp:
 
 
     def act_current_password_show(self) -> None:

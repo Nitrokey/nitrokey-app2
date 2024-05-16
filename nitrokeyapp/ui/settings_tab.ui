@@ -424,6 +424,9 @@
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
+                <property name="echoMode">
+                 <enum>QLineEdit::Password</enum>
+                </property>
                 <property name="placeholderText">
                  <string>&lt;empty&gt;</string>
                 </property>
