@@ -194,21 +194,26 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
 
     def edit_pin(self, item) -> None:
+        pintype = item.data(1, 0)
         self.ui.settings_empty.hide()
         self.ui.pinsettings_desc.hide()
         self.ui.pinsettings_edit.show()
 
-        self.ui.current_password.clear()
-        self.ui.new_password.clear()
-        self.ui.repeat_password.clear()
+        self.field_clear()
+
+        if self.fido_status() or self.otp_status():
+            self.show_current_password(True)
+        else:
+            self.show_current_password(False)
 
         self.ui.btn_abort.show()
-        self.ui.btn_reset.show()
+        self.ui.btn_reset.hide()
         self.ui.btn_save.show()
+        self.ui.btn_save.setEnabled(False)
 
         self.ui.btn_abort.pressed.connect(lambda: self.abort(item))
         self.ui.btn_save.pressed.connect(lambda: self.save_pin(item))
-        self.ui.btn_reset.pressed.connect(lambda: self.reset_pin(item))
+
 
         name = item.data(2, 0)
 
@@ -216,16 +221,27 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         self.field_btn()
 
-    def fido_status(self) -> None:
+    def fido_status(self) -> bool:
+        pin_status = bool
         ctaphid_raw_dev = self.data._device.device
         fido2_client = find(raw_device=ctaphid_raw_dev)
+        pin_status = fido2_client.has_pin()
         self.ui.status_label.setText("pin ja" if fido2_client.has_pin() else "pin nein")
+        return pin_status
 
-    def otp_status(self) -> None:
+    def otp_status(self) -> bool:
+        pin_status = bool
         secrets = SecretsApp(self.data._device)
         status = secrets.select()
+        if status.pin_attempt_counter is not None:
+            pin_status = True
+            print(pin_status)
+        else:
+            pin_status = False
+            print(pin_status)
         status_txt = str(status)    
         self.ui.status_label.setText(status_txt)
+        return pin_status
 
     def abort(self, item) -> None:
         p_item = item.parent()
@@ -238,7 +254,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
     def save_pin(self, item) -> None:
         pintype = item.data(1, 0)
         if pintype == SettingsTabState.FidoPw:
-            print(pintype)
+
             ctaphid_raw_dev = self.data._device.device
             fido2_client = find(raw_device=ctaphid_raw_dev)
             client = fido2_client.client
@@ -246,27 +262,20 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             client_pin = ClientPin(fido2_client.ctap2)
             old_pin = self.ui.current_password.text()
             new_pin = self.ui.repeat_password.text()
-            print(old_pin)
-            print(new_pin)
-
-            client_pin.change_pin(old_pin, new_pin)
+            if self.fido_status():
+                client_pin.change_pin(old_pin, new_pin)
+            else:
+                client_pin.set_pin(new_pin)
+            self.field_clear()
         else:
             secrets = SecretsApp(self.data._device)
-            print(secrets)
             old_pin = self.ui.current_password.text()
             new_pin = self.ui.repeat_password.text()
-            print(type(old_pin))
-            print(type(new_pin))
-            print(old_pin)
-            print(new_pin)
-            secrets.change_pin_raw(old_pin, new_pin)
-            print(old_pin)
-            print(new_pin)
-
-        
-        
-        
-    #    or pintype == SettingsTabState.otp:
+            if self.fido_status():
+                secrets.change_pin_raw(old_pin, new_pin)
+            else:
+                secrets.set_pin_raw(new_pin)
+            self.field_clear()
 
 
     def act_current_password_show(self) -> None:
@@ -339,21 +348,60 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.nk3_variant.setText(variant)
         self.ui.nk3_status.setText(init_status)
 
+    def field_clear(self) -> None:
+        self.ui.current_password.clear()
+        self.ui.new_password.clear()
+        self.ui.repeat_password.clear()
+
+    def show_current_password(self, show: bool) -> None:
+        if show:
+            self.ui.current_password.show()
+            self.ui.current_password_label.show()
+        else:
+            self.ui.current_password.hide()
+            self.ui.current_password_label.hide()
+
+
     @Slot()
-    def check_credential(self) -> None:
+    def check_credential(self, new: bool) -> None:
+        self.common_ui.info.info.emit("")
+
+        tool_Tip = "Credeantial cannot be saved:"
+        can_save = True
+
         current_password = self.ui.current_password.text()
         new_password = self.ui.new_password.text()
         repeat_password = self.ui.repeat_password.text()
 
-        if len(current_password) > 0:
+        if len(current_password) > 0 and len(current_password) <= 3:
+            can_save = False
             self.action_current_password_show.setVisible(True)
+            self.common_ui.info.info.emit("Current Password is too short")
+            tool_Tip = tool_Tip + "\n- Current Password is too short"
+        elif len(current_password) >= 4:
+            self.action_current_password_show.setVisible(True)
+            self.common_ui.info.info.emit("")
+            tool_Tip = tool_Tip + ""
         else:
+            can_save = False
             self.action_current_password_show.setVisible(False)
+            self.common_ui.info.info.emit("Enter your Current Password")
+            tool_Tip = tool_Tip + "\n- Enter your Current Password"
 
-        if len(new_password) > 0:
+        if len(new_password) > 0 and len(new_password) <= 3:
+            can_save = False
             self.action_new_password_show.setVisible(True)
+            self.common_ui.info.info.emit("New Password is too short")
+            tool_Tip = tool_Tip + "\n- New Password is too short"
+        elif len(new_password) >= 4:
+            self.action_new_password_show.setVisible(True)
+            self.common_ui.info.info.emit("")
+            tool_Tip = tool_Tip + ""
         else:
+            can_save = False
             self.action_new_password_show.setVisible(False)
+            self.common_ui.info.info.emit("Enter your New Password")
+            tool_Tip = tool_Tip + "\n- Enter your New Password"
 
         if len(repeat_password) >0:
             self.action_repeat_password_show.setVisible(True)
@@ -364,8 +412,23 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             self.show_repeat_password_check.setVisible(True)
             self.show_repeat_password_false.setVisible(False)
         elif len(repeat_password) == 0 and len(new_password) == 0:
+            can_save = False
             self.show_repeat_password_false.setVisible(False)
             self.show_repeat_password_check.setVisible(False)
-        else:
+        elif len(repeat_password) > 0 and new_password != repeat_password:
+            can_save = False
             self.show_repeat_password_false.setVisible(True)
             self.show_repeat_password_check.setVisible(False)
+            self.common_ui.info.info.emit("New Password and Repeat Password are not equal")
+            tool_Tip = tool_Tip + "\n- New Password and Repeat Password are not equal"
+        else:
+            can_save = False
+            self.show_repeat_password_false.setVisible(True)
+            self.show_repeat_password_check.setVisible(False)
+
+
+        self.ui.btn_save.setEnabled(can_save)
+        if can_save:
+            tool_Tip = "Credential Save"
+
+        self.ui.btn_save.setToolTip(tool_Tip)

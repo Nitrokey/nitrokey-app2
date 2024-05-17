@@ -456,7 +456,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <spacer name="verticalSpacer_3">
+               <spacer name="current_password_spacer">
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
                 </property>
