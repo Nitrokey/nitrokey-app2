@@ -1,56 +1,51 @@
-import binascii
 import logging
-from base64 import b32decode, b32encode
+import time
 from enum import Enum
-from random import randbytes
-from typing import Callable, Optional
+from typing import Optional, Any
 
-from pynitrokey.fido2 import find
-from fido2.ctap2.pin import ClientPin, PinProtocol
-from fido2.ctap2.base import Ctap2
-from fido2.client import ClientError as Fido2ClientError
-from pynitrokey.nk3.secrets_app import SecretsApp
-
-from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
-from PySide6.QtGui import QGuiApplication
-from PySide6.QtWidgets import QLineEdit, QListWidgetItem, QWidget, QTreeWidgetItem
+from pynitrokey.nk3.secrets_app import SelectResponse
+from PySide6.QtCore import QThread, Signal, Slot
+from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem, QWidget
 
 from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.worker import Worker
-#from .data import pin_check
 
 from .worker import SettingsWorker
 
 logger = logging.getLogger(__name__)
 
-class SettingsTabState(Enum):
-   Initial = 0
-   Fido = 1
-   FidoPw = 2
-   otp = 3
-   otpPw = 4
 
-   NotAvailable = 99
+class SettingsTabState(Enum):
+    Initial = 0
+    Fido = 1
+    FidoPw = 2
+    otp = 3
+    otpPw = 4
+
+    NotAvailable = 99
 
 
 class SettingsTab(QtUtilsMixIn, QWidget):
     # standard UI
-    #    busy_state_changed = Signal(bool)
+    busy_state_changed = Signal(bool)
     error = Signal(str, Exception)
     start_touch = Signal()
     stop_touch = Signal()
 
-    fido_state: bool = None
-    otp_state: bool = None
+    fido_state: bool
+    otp_state: bool
+    otp_counter: int
+    otp_version: str
+    otp_serial_nr: str
 
     # worker triggers
-    trigger_fido_status = Signal()
-    trigger_otp_status = Signal()
+    trigger_fido_status = Signal(DeviceData)
+    trigger_otp_status = Signal(DeviceData)
 
-    trigger_otp_change_pw = Signal(str, str)
-    trigger_fido_change_pw = Signal(str, str)
+    trigger_otp_change_pw = Signal(DeviceData, str, str)
+    trigger_fido_change_pw = Signal(DeviceData, str, str)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         QWidget.__init__(self, parent)
@@ -60,7 +55,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.common_ui = CommonUi()
 
         self.worker_thread = QThread()
-        self._worker = SettingsWorker(self.common_ui, self)
+        self._worker = SettingsWorker(self.common_ui)
         self._worker.moveToThread(self.worker_thread)
         self.worker_thread.start()
 
@@ -69,9 +64,14 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.trigger_otp_change_pw.connect(self._worker.otp_change_pw)
         self.trigger_fido_change_pw.connect(self._worker.fido_change_pw)
 
+        self._worker.status_fido.connect(self.handle_status_fido)
+        self._worker.status_otp.connect(self.handle_status_otp)
+        self._worker.info_otp.connect(self.handle_info_otp)
+   
+
         self.ui = self.load_ui("settings_tab.ui", self)
 
-        #Tree
+        # Tree
         pin_icon = self.get_qicon("dialpad.svg")
 
         fido = QTreeWidgetItem(self.ui.settings_tree)
@@ -79,12 +79,11 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         fido.setExpanded(False)
         name = "FIDO2"
         desc = "FIDO2 is an authentication standard that enables secure and passwordless access to online services. It uses public key cryptography to provide strong authentication and protect against phishing and other security threats."
-        
+
         fido.setText(0, name)
         fido.setData(1, 0, pintype)
         fido.setData(2, 0, name)
         fido.setData(3, 0, desc)
-
 
         fido_pin = QTreeWidgetItem()
         pintype = SettingsTabState.FidoPw
@@ -97,13 +96,12 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         fido_pin.setData(1, 0, pintype)
         fido_pin.setData(2, 0, name)
 
-
         otp = QTreeWidgetItem(self.ui.settings_tree)
         pintype = SettingsTabState.otp
         otp.setExpanded(False)
         name = "OTP"
         desc = "One-Time Password (OTP) is a security mechanism that generates a unique password for each login session. This password is typically valid for only one login attempt or for a short period of time, adding an extra layer of security to the authentication process. OTPs are commonly used in two-factor authentication systems to verify the identity of users."
-        
+
         otp.setText(0, name)
         otp.setData(1, 0, pintype)
         otp.setData(2, 0, name)
@@ -120,7 +118,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         otp_pin.setIcon(0, pin_icon)
         otp.addChild(otp_pin)
 
-        self.ui.settings_tree.itemClicked.connect(self.show)
+        self.ui.settings_tree.itemClicked.connect(self.show_widget)
 
         self.ui.current_password.textChanged.connect(self.check_credential)
         self.ui.new_password.textChanged.connect(self.check_credential)
@@ -137,17 +135,31 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.action_current_password_show = self.ui.current_password.addAction(icon_visibility, loc)
         self.action_current_password_show.triggered.connect(self.act_current_password_show)
 
-        self.action_new_password_show = self.ui.new_password.addAction(icon_visibility, loc)
+        self.action_new_password_show = self.ui.new_password.addAction(
+            icon_visibility, loc
+        )
         self.action_new_password_show.triggered.connect(self.act_new_password_show)
 
-        self.action_repeat_password_show = self.ui.repeat_password.addAction(icon_visibility, loc)
-        self.action_repeat_password_show.triggered.connect(self.act_repeat_password_show)
+        self.action_repeat_password_show = self.ui.repeat_password.addAction(
+            icon_visibility, loc
+        )
+        self.action_repeat_password_show.triggered.connect(
+            self.act_repeat_password_show
+        )
 
-        self.show_current_password_check = self.ui.current_password.addAction(icon_check, loc)
-        self.show_current_password_false = self.ui.current_password.addAction(icon_false, loc)
+        self.show_current_password_check = self.ui.current_password.addAction(
+            icon_check, loc
+        )
+        self.show_current_password_false = self.ui.current_password.addAction(
+            icon_false, loc
+        )
 
-        self.show_repeat_password_check = self.ui.repeat_password.addAction(icon_check, loc)
-        self.show_repeat_password_false = self.ui.repeat_password.addAction(icon_false, loc)
+        self.show_repeat_password_check = self.ui.repeat_password.addAction(
+            icon_check, loc
+        )
+        self.show_repeat_password_false = self.ui.repeat_password.addAction(
+            icon_false, loc
+        )
 
         self.action_current_password_show.setVisible(False)
         self.action_new_password_show.setVisible(False)
@@ -157,7 +169,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.show_repeat_password_check.setVisible(False)
         self.show_repeat_password_false.setVisible(False)
 
-    def show(self, item) -> None:
+    def show_widget(self, item: Any) -> None:
         pintype = item.data(1, 0)
         if pintype == SettingsTabState.Fido or pintype == SettingsTabState.otp:
             self.show_pin(item)
@@ -166,15 +178,16 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         else:
             self.edit_pin(item)
 
-    def collapse_all_except(self, item):
+    def collapse_all_except(self, item: Any):
         top_level_items = self.settings_tree.invisibleRootItem().takeChildren()
         for top_level_item in top_level_items:
             if top_level_item is not item.parent():
                 top_level_item.setExpanded(False)
         self.settings_tree.invisibleRootItem().addChildren(top_level_items)
 
-
-    def show_pin(self, item) -> None:
+    def show_pin(self, item: Any) -> None:
+        self.trigger_fido_status.emit(self.data)
+        self.trigger_otp_status.emit(self.data)
         self.ui.settings_empty.hide()
         self.ui.pinsettings_edit.hide()
         self.ui.pinsettings_desc.show()
@@ -182,7 +195,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_abort.hide()
         self.ui.btn_reset.hide()
         self.ui.btn_save.hide()
-        
+
         pintype = item.data(1, 0)
         name = item.data(2, 0)
         desc = item.data(3, 0)
@@ -190,30 +203,42 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.pin_name.setText(name)
         self.ui.pin_description.setText(desc)
         self.ui.pin_description.setReadOnly(True)
-
+        fido_state = self.fido_state
+        otp_state = self.otp_state
         if pintype == SettingsTabState.Fido:
-            self.trigger_fido_status.emit()
-            self.ui.status_label.setText("pin ja" if self.fido_state else "pin nein")
+            self.ui.status_label.setText(
+                "Fido2-Pin is set!" if self.fido_state else "Fido2-Pin is not set!"
+            )
         elif pintype == SettingsTabState.otp:
-            self.trigger_otp_status.emit()
-        #    status_txt = str(status)
-            self.ui.status_label.setText("pin ja" if self.otp_state else "pin nein")
+            if self.otp_state:
+                pin = "OTP-Pin is set!"
+            else:
+                pin = "OTP-Pin is not set!"
+            self.ui.status_label.setText(
+                f"\t{pin}\n\n"
+                f"\tVersion: {self.otp_version}\n"
+                f"\tPIN attempt counter: {self.otp_counter}\n"
+                f"\tSerial number: {self.otp_serial_nr}"
+            )
 
-
-    def edit_pin(self, item) -> None:
+    def edit_pin(self, item: Any) -> None:
         pintype = item.data(1, 0)
         self.ui.settings_empty.hide()
         self.ui.pinsettings_desc.hide()
         self.ui.pinsettings_edit.show()
         self.common_ui.info.info.emit("")
 
-
         self.field_clear()
 
-        self.trigger_otp_status.emit()
-        self.trigger_fido_status.emit()
-        if { self.fido_state and pintype == SettingsTabState.FidoPw or 
-        self.otp_state and pintype == SettingsTabState.otpPw}:
+        self.trigger_otp_status.emit(self.data)
+        self.trigger_fido_status.emit(self.data)
+
+        if (
+            self.fido_state
+            and pintype == SettingsTabState.FidoPw
+            or self.otp_state
+            and pintype == SettingsTabState.otpPw
+        ):
             self.show_current_password(True)
         else:
             self.show_current_password(False)
@@ -227,135 +252,29 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_abort.pressed.connect(lambda: self.abort(item))
         self.ui.btn_save.pressed.connect(lambda: self.save_pin(item))
 
-
         name = item.data(2, 0)
 
         self.ui.password_label.setText(name)
 
         self.field_btn()
 
-#    def fido_status(self) -> bool:
-#        pin_status: bool = False
-#        with self.data.open() as device:
-#            ctaphid_raw_dev = device.device
-#            fido2_client = find(raw_device=ctaphid_raw_dev)
-#            pin_status = fido2_client.has_pin()
-#            self.ui.status_label.setText("pin ja" if fido2_client.has_pin() else "pin nein")
-#        return pin_status
-
-
-#    def otp_status(self) -> bool:
-#        pin_status: bool = False
-#        with self.data.open() as device:
-#            secrets = SecretsApp(device)
-#            status = secrets.select()
-#            if status.pin_attempt_counter is not None:
-#                pin_status = True
-#            else:
-#                pin_status = False
-#
-#            is_set = status.pin_attempt_counter
-#            version = status.version
-#            serial_nr = status.serial_number
-#            status_txt = str(status)
-#            self.ui.status_label.setText(status_txt)
-#        return pin_status
-
-    def abort(self, item) -> None:
+    def abort(self, item: Any) -> None:
         p_item = item.parent()
-        self.show(p_item)
+        self.show_widget(p_item)
 
-    
-    
-
-   # def reset(self) -> None:
-
-
-
-   # def reset(self) -> None:
-
-    def save_pin(self, item) -> None:
+    def save_pin(self, item: Any) -> None:
         pintype = item.data(1, 0)
         old_pin = self.ui.current_password.text()
         new_pin = self.ui.repeat_password.text()
-        
-        if pintype == SettingsTabState.FidoPw:
-            self.trigger_fido_change_pw.emit(old_pin, new_pin)
-            self.field_clear()
-            self.common_ui.info.info.emit("done - please use new pin to verify key")
 
-#            fido_state = self.fido_status()
-#            with self.data.open() as device:
-#                ctaphid_raw_dev = device.device
-#                fido2_client = find(raw_device=ctaphid_raw_dev)
-#                client = fido2_client.client
-#                assert isinstance(fido2_client.ctap2, Ctap2)
-#                client_pin = ClientPin(fido2_client.ctap2)
-#
-#                try:
-#                    if fido_state:
-#                        client_pin.change_pin(old_pin, new_pin)
-#                        self.field_clear()
-#                        self.common_ui.info.info.emit("done - please use new pin to verify key")
-#                    else:
-#                        client_pin.set_pin(new_pin)
-#                except Exception as e:
-#                    logger.info(f"fido2 change_pin failed: {e}")
-#                    # error 0x31
-#                    if "PIN_INVALID" in cause:
-#                    local_critical(
-#                        "your key has a different PIN. Please try to remember it :)", e
-#                    )
-#
-#                # error 0x34 (power cycle helps)
-#                if "PIN_AUTH_BLOCKED" in cause:
-#                    local_critical(
-#                        "your key's PIN auth is blocked due to too many incorrect attempts.",
-#                        "please plug it out and in again, then again!",
-#                        "please be careful, after too many incorrect attempts, ",
-#                        "   the key will fully block.",
-#                        e,
-#                    )
-#
-#                # error 0x32 (only reset helps)
-#                if "PIN_BLOCKED" in cause:
-#                    local_critical(
-#                        "your key's PIN is blocked. ",
-#                        "to use it again, you need to fully reset it.",
-#                        "you can do this using: `nitropy fido2 reset`",
-#                        e,
-#                    )
-#
-#                # error 0x01
-#                if "INVALID_COMMAND" in cause:
-#                    local_critical(
-#                        "error getting credential, is your key in bootloader mode?",
-#                        "try: `nitropy fido2 util program aux leave-bootloader`",
-#                        e,
-#                    )
-#
-#                # pin required error
-#                if "PIN required" in str(e):
-#                    local_critical("your key has a PIN set - pass it using `--pin <PIN>`", e)
-#
-#                local_critical("unexpected Fido2Client (CTAP) error", e)
-#                    print(e)
-        else:
-            self.trigger_otp_change_pw.emit(old_pin, new_pin)
-                 # otp_state = self.otp_status()
-                 # with self.data.open() as device:
-                 #     secrets = SecretsApp(device)
-                 #     old_pin = self.ui.current_password.text()
-                 #     new_pin = self.ui.repeat_password.text()
-                 #     try:
-                 #         if otp_state:
-                 #             secrets.change_pin_raw(old_pin, new_pin)
-                 #         else:
-                 #             secrets.set_pin_raw(new_pin)
-                 #     except Exception as e:
-                 #         logger.info(f"otp change_pin failed: {e}")
-                 #         print(e)
+        if pintype == SettingsTabState.FidoPw:
+            self.trigger_fido_change_pw.emit(self.data, old_pin, new_pin)
+            self.field_clear()
+            self.abort(item)
             self.common_ui.info.info.emit("done - please use new pin to verify key")
+        else:
+            self.trigger_otp_change_pw.emit(self.data, old_pin, new_pin)
+            self.abort(item)
             self.field_clear()
 
     def act_current_password_show(self) -> None:
@@ -366,7 +285,6 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
     def act_repeat_password_show(self) -> None:
         self.set_repeat_password_show(self.ui.repeat_password.echoMode() == QLineEdit.Password)  # type: ignore [attr-defined]
-
 
     def set_current_password_show(self, show: bool = True) -> None:
         icon_show = self.get_qicon("visibility.svg")
@@ -442,19 +360,25 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             self.ui.current_password_label.hide()
 
     @Slot(bool)
-    def status_fido(self, fido_state: bool) -> None:
+    def handle_status_fido(self, fido_state: bool) -> None:
         self.fido_state = fido_state
 
     @Slot(bool)
-    def status_otp(self, otp_state: bool) -> None:
+    def handle_status_otp(self, otp_state: bool) -> None:
         self.otp_state = otp_state
 
-   # @Slot()
-   # def info_otp(self, info: status) -> None:
-   #     is_set = info.pin_attempt_counter
-   #     version = info.version
-   #     serial_nr = info.serial_number
-
+    @Slot(SelectResponse)
+    def handle_info_otp(self, status: SelectResponse) -> None:
+        self.otp_counter = status.pin_attempt_counter
+        self.otp_version = status.version_str()
+        self.otp_serial_nr = (
+            status.serial_number.hex()
+        )
+        #    self.ui.status_label.setText("Fido2-Pin is set!\n" if self.otp_state else "Fido2-Pin is not set !\n"
+        #                                  f"\tVersion: {version}\n"
+        #                                  f"\tPIN attempt counter: {is_set}\n"
+        #                                  f"\tSerial number: {serial_nr}\n")
+        print(self.otp_counter, self.otp_version, self.otp_serial_nr)
 
     @Slot()
     def check_credential(self, new: bool) -> None:
@@ -462,7 +386,6 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         tool_Tip = "Credeantial cannot be saved:"
         can_save = True
-
 
         new_password = self.ui.new_password.text()
         repeat_password = self.ui.repeat_password.text()
@@ -475,7 +398,6 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.action_repeat_password_show.setVisible(False)
         self.show_repeat_password_check.setVisible(False)
         self.show_repeat_password_false.setVisible(False)
-        
 
         if self.ui.current_password.isHidden():
             pass
@@ -483,23 +405,22 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             if current_password_len <= 3:
                 can_save = False
             if current_password_len == 0:
-            #    self.common_ui.info.info.emit("Enter your Current Password")
                 tool_Tip = tool_Tip + "\n- Enter your Current Password"
             if current_password_len >= 1:
                 self.action_current_password_show.setVisible(True)
-            if current_password_len >= 1 and current_password_len <=3:
+            if current_password_len >= 1 and current_password_len <= 3:
                 self.common_ui.info.info.emit("Current Password is too short")
                 tool_Tip = tool_Tip + "\n- Current Password is too short"
-                
+
         if new_password_len <= 3:
             can_save = False
         if new_password_len == 0:
             tool_Tip = tool_Tip + "\n- Enter your New Password"
         if new_password_len == 0 and current_password_len >= 4:
             self.common_ui.info.info.emit("Enter your New Password")
-        if new_password_len >=1:
+        if new_password_len >= 1:
             self.action_new_password_show.setVisible(True)
-        if new_password_len >=1 and new_password_len <= 3:
+        if new_password_len >= 1 and new_password_len <= 3:
             can_save = False
             self.common_ui.info.info.emit("New Password is too short")
             tool_Tip = tool_Tip + "\n- New Password is too short"
@@ -507,9 +428,9 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         if repeat_password_len == 0:
             can_save = False
             tool_Tip = tool_Tip + "\n- Repeat your New Password"
-        if repeat_password_len >=1:
+        if repeat_password_len >= 1:
             self.action_repeat_password_show.setVisible(True)
-        if repeat_password_len >=1 and repeat_password != new_password:
+        if repeat_password_len >= 1 and repeat_password != new_password:
             can_save = False
             self.common_ui.info.info.emit("Repeat Password are not equal")
             tool_Tip = tool_Tip + "\n- Repeat Password are not equal"
