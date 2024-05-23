@@ -42,8 +42,15 @@ class SettingsTab(QtUtilsMixIn, QWidget):
     start_touch = Signal()
     stop_touch = Signal()
 
+    fido_state: bool = None
+    otp_state: bool = None
+
     # worker triggers
-#    trigger_otp_change_pw = Signal(DeviceData, str, str)
+    trigger_fido_status = Signal()
+    trigger_otp_status = Signal()
+
+    trigger_otp_change_pw = Signal(str, str)
+    trigger_fido_change_pw = Signal(str, str)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         QWidget.__init__(self, parent)
@@ -53,11 +60,14 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.common_ui = CommonUi()
 
         self.worker_thread = QThread()
-        self._worker = SettingsWorker(self.common_ui, self.data)
+        self._worker = SettingsWorker(self.common_ui, self)
         self._worker.moveToThread(self.worker_thread)
         self.worker_thread.start()
 
-#        self.trigger_otp_change_pw.connect(self._worker.otp_change_pw)
+        self.trigger_fido_status.connect(self._worker.fido_status)
+        self.trigger_otp_status.connect(self._worker.otp_status)
+        self.trigger_otp_change_pw.connect(self._worker.otp_change_pw)
+        self.trigger_fido_change_pw.connect(self._worker.fido_change_pw)
 
         self.ui = self.load_ui("settings_tab.ui", self)
 
@@ -182,9 +192,12 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.pin_description.setReadOnly(True)
 
         if pintype == SettingsTabState.Fido:
-            self.fido_status()
+            self.trigger_fido_status.emit()
+            self.ui.status_label.setText("pin ja" if self.fido_state else "pin nein")
         elif pintype == SettingsTabState.otp:
-            self.otp_status()
+            self.trigger_otp_status.emit()
+        #    status_txt = str(status)
+            self.ui.status_label.setText("pin ja" if self.otp_state else "pin nein")
 
 
     def edit_pin(self, item) -> None:
@@ -197,7 +210,10 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         self.field_clear()
 
-        if self.fido_status() and pintype == SettingsTabState.FidoPw or self.otp_status() and pintype == SettingsTabState.otpPw:
+        self.trigger_otp_status.emit()
+        self.trigger_fido_status.emit()
+        if { self.fido_state and pintype == SettingsTabState.FidoPw or 
+        self.otp_state and pintype == SettingsTabState.otpPw}:
             self.show_current_password(True)
         else:
             self.show_current_password(False)
@@ -218,32 +234,32 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         self.field_btn()
 
-    def fido_status(self) -> bool:
-        pin_status: bool = False
-        with self.data.open() as device:
-            ctaphid_raw_dev = device.device
-            fido2_client = find(raw_device=ctaphid_raw_dev)
-            pin_status = fido2_client.has_pin()
-            self.ui.status_label.setText("pin ja" if fido2_client.has_pin() else "pin nein")
-        return pin_status
+#    def fido_status(self) -> bool:
+#        pin_status: bool = False
+#        with self.data.open() as device:
+#            ctaphid_raw_dev = device.device
+#            fido2_client = find(raw_device=ctaphid_raw_dev)
+#            pin_status = fido2_client.has_pin()
+#            self.ui.status_label.setText("pin ja" if fido2_client.has_pin() else "pin nein")
+#        return pin_status
 
 
-    def otp_status(self) -> bool:
-        pin_status: bool = False
-        with self.data.open() as device:
-            secrets = SecretsApp(device)
-            status = secrets.select()
-            if status.pin_attempt_counter is not None:
-                pin_status = True
-            else:
-                pin_status = False
-
-            is_set = status.pin_attempt_counter
-            version = status.version
-            serial_nr = status.serial_number
-            status_txt = str(status)
-            self.ui.status_label.setText(status_txt)
-        return pin_status
+#    def otp_status(self) -> bool:
+#        pin_status: bool = False
+#        with self.data.open() as device:
+#            secrets = SecretsApp(device)
+#            status = secrets.select()
+#            if status.pin_attempt_counter is not None:
+#                pin_status = True
+#            else:
+#                pin_status = False
+#
+#            is_set = status.pin_attempt_counter
+#            version = status.version
+#            serial_nr = status.serial_number
+#            status_txt = str(status)
+#            self.ui.status_label.setText(status_txt)
+#        return pin_status
 
     def abort(self, item) -> None:
         p_item = item.parent()
@@ -260,27 +276,31 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
     def save_pin(self, item) -> None:
         pintype = item.data(1, 0)
+        old_pin = self.ui.current_password.text()
+        new_pin = self.ui.repeat_password.text()
         
-
         if pintype == SettingsTabState.FidoPw:
-            fido_state = self.fido_status()
-            with self.data.open() as device:
-                ctaphid_raw_dev = device.device
-                fido2_client = find(raw_device=ctaphid_raw_dev)
-                client = fido2_client.client
-                assert isinstance(fido2_client.ctap2, Ctap2)
-                client_pin = ClientPin(fido2_client.ctap2)
-                old_pin = self.ui.current_password.text()
-                new_pin = self.ui.repeat_password.text()
-                try:
-                    if fido_state:
-                        client_pin.change_pin(old_pin, new_pin)
-                        self.field_clear()
-                        self.common_ui.info.info.emit("done - please use new pin to verify key")
-                    else:
-                        client_pin.set_pin(new_pin)
-                except Exception as e:
-                    logger.info(f"fido2 change_pin failed: {e}")
+            self.trigger_fido_change_pw.emit(old_pin, new_pin)
+            self.field_clear()
+            self.common_ui.info.info.emit("done - please use new pin to verify key")
+
+#            fido_state = self.fido_status()
+#            with self.data.open() as device:
+#                ctaphid_raw_dev = device.device
+#                fido2_client = find(raw_device=ctaphid_raw_dev)
+#                client = fido2_client.client
+#                assert isinstance(fido2_client.ctap2, Ctap2)
+#                client_pin = ClientPin(fido2_client.ctap2)
+#
+#                try:
+#                    if fido_state:
+#                        client_pin.change_pin(old_pin, new_pin)
+#                        self.field_clear()
+#                        self.common_ui.info.info.emit("done - please use new pin to verify key")
+#                    else:
+#                        client_pin.set_pin(new_pin)
+#                except Exception as e:
+#                    logger.info(f"fido2 change_pin failed: {e}")
 #                    # error 0x31
 #                    if "PIN_INVALID" in cause:
 #                    local_critical(
@@ -319,22 +339,23 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 #                    local_critical("your key has a PIN set - pass it using `--pin <PIN>`", e)
 #
 #                local_critical("unexpected Fido2Client (CTAP) error", e)
-                    print(e)
+#                    print(e)
         else:
-#            self.trigger_otp_change_pw.emit(DeviceData, old_pin, new_pin)
-            otp_state = self.otp_status()
-            with self.data.open() as device:
-                secrets = SecretsApp(device)
-                old_pin = self.ui.current_password.text()
-                new_pin = self.ui.repeat_password.text()
-                try:
-                    if otp_state:
-                        secrets.change_pin_raw(old_pin, new_pin)
-                    else:
-                        secrets.set_pin_raw(new_pin)
-                except Exception as e:
-                    logger.info(f"otp change_pin failed: {e}")
-                    print(e)
+            self.trigger_otp_change_pw.emit(old_pin, new_pin)
+                 # otp_state = self.otp_status()
+                 # with self.data.open() as device:
+                 #     secrets = SecretsApp(device)
+                 #     old_pin = self.ui.current_password.text()
+                 #     new_pin = self.ui.repeat_password.text()
+                 #     try:
+                 #         if otp_state:
+                 #             secrets.change_pin_raw(old_pin, new_pin)
+                 #         else:
+                 #             secrets.set_pin_raw(new_pin)
+                 #     except Exception as e:
+                 #         logger.info(f"otp change_pin failed: {e}")
+                 #         print(e)
+            self.common_ui.info.info.emit("done - please use new pin to verify key")
             self.field_clear()
 
     def act_current_password_show(self) -> None:
@@ -419,6 +440,20 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         else:
             self.ui.current_password.hide()
             self.ui.current_password_label.hide()
+
+    @Slot(bool)
+    def status_fido(self, fido_state: bool) -> None:
+        self.fido_state = fido_state
+
+    @Slot(bool)
+    def status_otp(self, otp_state: bool) -> None:
+        self.otp_state = otp_state
+
+   # @Slot()
+   # def info_otp(self, info: status) -> None:
+   #     is_set = info.pin_attempt_counter
+   #     version = info.version
+   #     serial_nr = info.serial_number
 
 
     @Slot()
