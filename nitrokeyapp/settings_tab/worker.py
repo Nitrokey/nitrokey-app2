@@ -22,8 +22,6 @@ class SettingsWorker(Job):
     status_fido = Signal(bool)
     status_otp = Signal(bool)
     info_otp = Signal(SelectResponse)
-    finish = Signal()
-
 
     def __init__(self, common_ui: CommonUi) -> None:
         super().__init__(common_ui)
@@ -67,7 +65,6 @@ class SettingsWorker(Job):
                     client_pin.change_pin(old_pin, new_pin)
                 else:
                     client_pin.set_pin(new_pin)
-                self.finish.emit()
             except Exception as e:
                 self.trigger_error(f"fido2 change_pin failed: {e}")
         self.busy_state_changed.emit(False)
@@ -84,7 +81,6 @@ class SettingsWorker(Job):
                         secrets.change_pin_raw(old_pin, new_pin)
                     else:
                         secrets.set_pin_raw(new_pin)
-                self.finish.emit()
             except SecretsAppException as e:
                 self.trigger_error(f"PIN validation failed: {e}")
             self.busy_state_changed.emit(False)

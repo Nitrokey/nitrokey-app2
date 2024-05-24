@@ -1,7 +1,6 @@
 import logging
-import time
 from enum import Enum
-from typing import Optional, Any
+from typing import Any, Optional
 
 from pynitrokey.nk3.secrets_app import SelectResponse
 from PySide6.QtCore import QThread, Signal, Slot
@@ -34,11 +33,11 @@ class SettingsTab(QtUtilsMixIn, QWidget):
     start_touch = Signal()
     stop_touch = Signal()
 
-    fido_state: bool
-    otp_state: bool
-    otp_counter: int
-    otp_version: str
-    otp_serial_nr: str
+    #    fido_state: bool
+    #    otp_state: bool
+    #    otp_counter: int
+    #    otp_version: str
+    #    otp_serial_nr: str
 
     # worker triggers
     trigger_fido_status = Signal(DeviceData)
@@ -67,9 +66,14 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self._worker.status_fido.connect(self.handle_status_fido)
         self._worker.status_otp.connect(self.handle_status_otp)
         self._worker.info_otp.connect(self.handle_info_otp)
-   
 
         self.ui = self.load_ui("settings_tab.ui", self)
+
+        self.fido_state: bool
+        self.otp_state: bool
+        self.otp_counter: Optional[int]
+        self.otp_version: Optional[str]
+        self.otp_serial_nr: Optional[str]
 
         # Tree
         pin_icon = self.get_qicon("dialpad.svg")
@@ -132,8 +136,12 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         icon_false = self.get_qicon("close.svg")
 
         loc = QLineEdit.ActionPosition.TrailingPosition
-        self.action_current_password_show = self.ui.current_password.addAction(icon_visibility, loc)
-        self.action_current_password_show.triggered.connect(self.act_current_password_show)
+        self.action_current_password_show = self.ui.current_password.addAction(
+            icon_visibility, loc
+        )
+        self.action_current_password_show.triggered.connect(
+            self.act_current_password_show
+        )
 
         self.action_new_password_show = self.ui.new_password.addAction(
             icon_visibility, loc
@@ -178,12 +186,12 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         else:
             self.edit_pin(item)
 
-    def collapse_all_except(self, item: Any):
-        top_level_items = self.settings_tree.invisibleRootItem().takeChildren()
+    def collapse_all_except(self, item: Any) -> None:
+        top_level_items = self.ui.settings_tree.invisibleRootItem().takeChildren()
         for top_level_item in top_level_items:
             if top_level_item is not item.parent():
                 top_level_item.setExpanded(False)
-        self.settings_tree.invisibleRootItem().addChildren(top_level_items)
+        self.ui.settings_tree.invisibleRootItem().addChildren(top_level_items)
 
     def show_pin(self, item: Any) -> None:
         self.trigger_fido_status.emit(self.data)
@@ -203,12 +211,14 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.pin_name.setText(name)
         self.ui.pin_description.setText(desc)
         self.ui.pin_description.setReadOnly(True)
-        fido_state = self.fido_state
-        otp_state = self.otp_state
+        #       fido_state = self.fido_state
+        #       otp_state = self.otp_state
         if pintype == SettingsTabState.Fido:
-            self.ui.status_label.setText(
-                "Fido2-Pin is set!" if self.fido_state else "Fido2-Pin is not set!"
-            )
+            if self.fido_state:
+                pin = "Fido2-Pin is set!"
+            else:
+                pin = "Fido2-Pin is not set!"
+            self.ui.status_label.setText(f"\t{pin}\n\n\n\n")
         elif pintype == SettingsTabState.otp:
             if self.otp_state:
                 pin = "OTP-Pin is set!"
@@ -278,7 +288,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             self.field_clear()
 
     def act_current_password_show(self) -> None:
-        self.set_current_password_show(self.ui.current_password.echoMode() == QLineEdit.Password, )  # type: ignore [attr-defined]
+        self.set_current_password_show(self.ui.current_password.echoMode() == QLineEdit.Password)  # type: ignore [attr-defined]
 
     def act_new_password_show(self) -> None:
         self.set_new_password_show(self.ui.new_password.echoMode() == QLineEdit.Password)  # type: ignore [attr-defined]
@@ -371,14 +381,9 @@ class SettingsTab(QtUtilsMixIn, QWidget):
     def handle_info_otp(self, status: SelectResponse) -> None:
         self.otp_counter = status.pin_attempt_counter
         self.otp_version = status.version_str()
-        self.otp_serial_nr = (
-            status.serial_number.hex()
-        )
-        #    self.ui.status_label.setText("Fido2-Pin is set!\n" if self.otp_state else "Fido2-Pin is not set !\n"
-        #                                  f"\tVersion: {version}\n"
-        #                                  f"\tPIN attempt counter: {is_set}\n"
-        #                                  f"\tSerial number: {serial_nr}\n")
-        print(self.otp_counter, self.otp_version, self.otp_serial_nr)
+        if status.serial_number is not None:
+            self.otp_serial_nr = status.serial_number.hex()
+        # print(self.otp_counter, self.otp_version, self.otp_serial_nr)
 
     @Slot()
     def check_credential(self, new: bool) -> None:
