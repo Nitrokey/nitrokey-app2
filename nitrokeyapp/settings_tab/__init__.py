@@ -359,7 +359,8 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             f"\t{pin}\n\n"
             f"\tVersion: {self.otp_version}\n"
             f"\tPIN attempt counter: {self.otp_counter}\n"
-            f"\tSerial number: {self.otp_serial_nr}")
+            f"\tSerial number: {self.otp_serial_nr}"
+        )
 
     @Slot()
     def check_credential(self, new: bool) -> None:
