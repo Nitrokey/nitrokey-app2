@@ -1,6 +1,6 @@
 import logging
 from enum import Enum
-from typing import Any, Optional
+from typing import Optional
 
 from pynitrokey.nk3.secrets_app import SelectResponse
 from PySide6.QtCore import QThread, Signal, Slot
@@ -33,12 +33,6 @@ class SettingsTab(QtUtilsMixIn, QWidget):
     start_touch = Signal()
     stop_touch = Signal()
 
-    #    fido_state: bool
-    #    otp_state: bool
-    #    otp_counter: int
-    #    otp_version: str
-    #    otp_serial_nr: str
-
     # worker triggers
     trigger_fido_status = Signal(DeviceData)
     trigger_otp_status = Signal(DeviceData)
@@ -64,16 +58,9 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.trigger_fido_change_pw.connect(self._worker.fido_change_pw)
 
         self._worker.status_fido.connect(self.handle_status_fido)
-        self._worker.status_otp.connect(self.handle_status_otp)
         self._worker.info_otp.connect(self.handle_info_otp)
 
         self.ui = self.load_ui("settings_tab.ui", self)
-
-        self.fido_state: bool
-        self.otp_state: bool
-        self.otp_counter: Optional[int]
-        self.otp_version: Optional[str]
-        self.otp_serial_nr: Optional[str]
 
         # Tree
         pin_icon = self.get_qicon("dialpad.svg")
@@ -177,7 +164,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.show_repeat_password_check.setVisible(False)
         self.show_repeat_password_false.setVisible(False)
 
-    def show_widget(self, item: Any) -> None:
+    def show_widget(self, item: QTreeWidgetItem) -> None:
         pintype = item.data(1, 0)
         if pintype == SettingsTabState.Fido or pintype == SettingsTabState.otp:
             self.show_pin(item)
@@ -186,16 +173,14 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         else:
             self.edit_pin(item)
 
-    def collapse_all_except(self, item: Any) -> None:
+    def collapse_all_except(self, item: QTreeWidgetItem) -> None:
         top_level_items = self.ui.settings_tree.invisibleRootItem().takeChildren()
         for top_level_item in top_level_items:
             if top_level_item is not item.parent():
                 top_level_item.setExpanded(False)
         self.ui.settings_tree.invisibleRootItem().addChildren(top_level_items)
 
-    def show_pin(self, item: Any) -> None:
-        self.trigger_fido_status.emit(self.data)
-        self.trigger_otp_status.emit(self.data)
+    def show_pin(self, item: QTreeWidgetItem) -> None:
         self.ui.settings_empty.hide()
         self.ui.pinsettings_edit.hide()
         self.ui.pinsettings_desc.show()
@@ -211,27 +196,12 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.pin_name.setText(name)
         self.ui.pin_description.setText(desc)
         self.ui.pin_description.setReadOnly(True)
-        #       fido_state = self.fido_state
-        #       otp_state = self.otp_state
         if pintype == SettingsTabState.Fido:
-            if self.fido_state:
-                pin = "Fido2-Pin is set!"
-            else:
-                pin = "Fido2-Pin is not set!"
-            self.ui.status_label.setText(f"\t{pin}\n\n\n\n")
+            self.trigger_fido_status.emit(self.data)
         elif pintype == SettingsTabState.otp:
-            if self.otp_state:
-                pin = "OTP-Pin is set!"
-            else:
-                pin = "OTP-Pin is not set!"
-            self.ui.status_label.setText(
-                f"\t{pin}\n\n"
-                f"\tVersion: {self.otp_version}\n"
-                f"\tPIN attempt counter: {self.otp_counter}\n"
-                f"\tSerial number: {self.otp_serial_nr}"
-            )
+            self.trigger_otp_status.emit(self.data)
 
-    def edit_pin(self, item: Any) -> None:
+    def edit_pin(self, item: QTreeWidgetItem) -> None:
         pintype = item.data(1, 0)
         self.ui.settings_empty.hide()
         self.ui.pinsettings_desc.hide()
@@ -240,18 +210,10 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         self.field_clear()
 
-        self.trigger_otp_status.emit(self.data)
-        self.trigger_fido_status.emit(self.data)
-
-        if (
-            self.fido_state
-            and pintype == SettingsTabState.FidoPw
-            or self.otp_state
-            and pintype == SettingsTabState.otpPw
-        ):
-            self.show_current_password(True)
-        else:
-            self.show_current_password(False)
+        if pintype == SettingsTabState.FidoPw:
+            self.trigger_fido_status.emit(self.data)
+        elif pintype == SettingsTabState.otpPw:
+            self.trigger_otp_status.emit(self.data)
 
         self.ui.btn_abort.show()
         self.ui.btn_reset.hide()
@@ -268,11 +230,11 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         self.field_btn()
 
-    def abort(self, item: Any) -> None:
+    def abort(self, item: QTreeWidgetItem) -> None:
         p_item = item.parent()
         self.show_widget(p_item)
 
-    def save_pin(self, item: Any) -> None:
+    def save_pin(self, item: QTreeWidgetItem) -> None:
         pintype = item.data(1, 0)
         old_pin = self.ui.current_password.text()
         new_pin = self.ui.repeat_password.text()
@@ -372,18 +334,32 @@ class SettingsTab(QtUtilsMixIn, QWidget):
     @Slot(bool)
     def handle_status_fido(self, fido_state: bool) -> None:
         self.fido_state = fido_state
-
-    @Slot(bool)
-    def handle_status_otp(self, otp_state: bool) -> None:
-        self.otp_state = otp_state
+        if self.fido_state:
+            pin = "Fido2-Pin is set!"
+            self.show_current_password(True)
+        else:
+            pin = "Fido2-Pin is not set!"
+            self.show_current_password(False)
+        self.ui.status_label.setText(f"\t{pin}\n\n\n\n")
 
     @Slot(SelectResponse)
-    def handle_info_otp(self, status: SelectResponse) -> None:
+    def handle_info_otp(self, otp_state: bool, status: SelectResponse) -> None:
+        self.otp_state = otp_state
         self.otp_counter = status.pin_attempt_counter
         self.otp_version = status.version_str()
         if status.serial_number is not None:
             self.otp_serial_nr = status.serial_number.hex()
-        # print(self.otp_counter, self.otp_version, self.otp_serial_nr)
+        if self.otp_state:
+            pin = "OTP-Pin is set!"
+            self.show_current_password(True)
+        else:
+            pin = "OTP-Pin is not set!"
+            self.show_current_password(False)
+        self.ui.status_label.setText(
+            f"\t{pin}\n\n"
+            f"\tVersion: {self.otp_version}\n"
+            f"\tPIN attempt counter: {self.otp_counter}\n"
+            f"\tSerial number: {self.otp_serial_nr}")
 
     @Slot()
     def check_credential(self, new: bool) -> None:

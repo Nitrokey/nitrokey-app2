@@ -20,8 +20,7 @@ logger = logging.getLogger(__name__)
 class SettingsWorker(Job):
     busy_state_changed = Signal(bool)
     status_fido = Signal(bool)
-    status_otp = Signal(bool)
-    info_otp = Signal(SelectResponse)
+    info_otp = Signal(bool, SelectResponse)
 
     def __init__(self, common_ui: CommonUi) -> None:
         super().__init__(common_ui)
@@ -46,8 +45,7 @@ class SettingsWorker(Job):
                 pin_status = True
             else:
                 pin_status = False
-            self.status_otp.emit(pin_status)
-            self.info_otp.emit(status)
+            self.info_otp.emit(pin_status, status)
         return pin_status
 
     @Slot(DeviceData, str, str)
