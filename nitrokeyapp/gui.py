@@ -22,6 +22,7 @@ from nitrokeyapp.progress_box import ProgressBox
 from nitrokeyapp.prompt_box import PromptBox
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.secrets_tab import SecretsTab
+from nitrokeyapp.settings_tab import SettingsTab
 from nitrokeyapp.touch import TouchIndicator
 
 # import wizards and stuff
@@ -91,8 +92,13 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         self.overview_tab = OverviewTab(self)
         self.secrets_tab = SecretsTab(self)
+        self.settings_tab = SettingsTab(self)
 
-        self.views: list[DeviceView] = [self.overview_tab, self.secrets_tab]
+        self.views: list[DeviceView] = [
+            self.overview_tab,
+            self.secrets_tab,
+            self.settings_tab,
+        ]
         for view in self.views:
             if view.worker:
 
