@@ -1,0 +1,132 @@
+name: Continuous delivery - macOS (ARM64)
+
+on:
+  release:
+    types: [prereleased, released]
+
+jobs:
+  version-check:
+    name: Check versioning
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install required packages
+        run: brew install python@3.9 poetry swig
+      - name: Create virtual environment
+        run: |
+          poetry env use python3.9
+          poetry install
+      - name: Check version tag format
+        run: |
+          VERSION_TAG="${{ github.event.release.tag_name }}"
+          if [[ $VERSION_TAG =~ ^v[0-9]+.[0-9]+.[0-9]+$ ]]; then exit 0; else exit 1; fi
+      - name: Check if version tag and package version are equal
+        run: |
+          VERSION_TAG="${{ github.event.release.tag_name }}"
+          PACKAGE_VERSION="v"$($(poetry env info --path)/bin/python -c "from nitrokeyapp import __version__; print(__version__)")
+          if [ $VERSION_TAG == $PACKAGE_VERSION ]; then exit 0; else exit 1; fi
+  build-onedir:
+    name: Build onedir
+    runs-on: macos-latest
+    needs: version-check
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install required packages
+        run: brew install python@3.9 poetry swig
+      - name: Create virtual environment
+        run: |
+          poetry env use python3.9
+          poetry install
+      - name: Build onedir
+        run: |
+          source $(poetry env info --path)/bin/activate
+          pyinstaller ci-scripts/macOS/pyinstaller/nitrokey-app-onedir_arm64.spec
+      - name: Set application metadata
+        run: |
+          plutil \
+            -replace CFBundleShortVersionString \
+            -string "${GITHUB_REF_NAME:1}" \
+            dist/nitrokey-app2.app/Contents/Info.plist
+          plutil \
+            -replace CFBundleDisplayName \
+            -string "Nitrokey-App 2" \
+            dist/nitrokey-app2.app/Contents/Info.plist
+          plutil \
+            -replace CFBundleName \
+            -string "Nitrokey-App 2" \
+            dist/nitrokey-app2.app/Contents/Info.plist
+          plutil \
+            -insert CFBundleLocalizations \
+            -array \
+            dist/nitrokey-app2.app/Contents/Info.plist
+          plutil \
+            -insert CFBundleLocalizations \
+            -string "en" \
+            -append dist/nitrokey-app2.app/Contents/Info.plist
+      - name: Create application archive
+        run: tar -c -C dist -f nitrokey-app2-onedir-app.tar nitrokey-app2.app
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nitrokey-app2-onedir-app-arm64
+          path: nitrokey-app2-onedir-app.tar
+  build-pkg-installer:
+    name: Build PKG installer
+    runs-on: macos-latest
+    needs: build-onedir
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nitrokey-app2-onedir-app-arm64
+      - name: Extract application archive
+        run: tar -x -f nitrokey-app2-onedir-app.tar
+      - name: Build PKG component installer
+        run: |
+          pkgbuild \
+            --identifier com.nitrokey.nitrokey-app2 \
+            --version "${GITHUB_REF_NAME:1}" \
+            --root nitrokey-app2.app \
+            --install-location /Applications/Nitrokey-App\ 2.app \
+            app2.pkg
+      - name: Create distribution file
+        run: |
+          productbuild --synthesize \
+            --product ci-scripts/macos/pkg/requirements_arm64.plist \
+            --package app2.pkg \
+            distribution.plist
+      - name: Create PKG product installer
+        run: |
+          productbuild \
+            --distribution distribution.plist \
+            --package-path app2.pkg \
+            nitrokey-app2.pkg
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nitrokey-app-pkg-arm64
+          path: nitrokey-app2.pkg
+  publish-pkg-installer:
+    name: Publish PKG installer
+    runs-on: macos-latest
+    needs: build-pkg-installer
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nitrokey-app-pkg-arm64
+      - name: Rename installer
+        run: |
+          mv \
+            nitrokey-app2.pkg \
+            nitrokey-app2-${{ github.event.release.tag_name }}-arm64.pkg
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: nitrokey-app2-${{ github.event.release.tag_name }}-arm64.pkg
