@@ -5,8 +5,6 @@ PYTHON=python3
 VENV=$(shell poetry env info --path)
 VENV_BIN=$(VENV)/bin
 VENV_PYTHON=$(VENV_BIN)/$(PYTHON)
-UI_FILES_PATH=nitrokeyapp/ui
-UI_FILES = $(wildcard $(UI_FILES_PATH)/*.ui)
 
 ALL: init build
 
