@@ -1,15 +1,13 @@
 import logging
-import platform
 import webbrowser
+from time import sleep
 from types import TracebackType
-from typing import Optional, Type
-
-if platform.system() == "Linux":
-    import pyudev
+from typing import Dict, Optional, Type
 
 from PySide6 import QtWidgets
 from PySide6.QtCore import Qt, Signal, Slot
 from PySide6.QtGui import QCursor
+from usbmonitor import USBMonitor
 
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.device_manager import DeviceManager
@@ -27,35 +25,27 @@ from nitrokeyapp.touch import TouchIndicator
 
 # import wizards and stuff
 from nitrokeyapp.welcome_tab import WelcomeTab
-from nitrokeyapp.windows_notification import WindowsUSBNotifi
 
 logger = logging.getLogger(__name__)
 
 
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     trigger_handle_exception = Signal(object, BaseException, object)
-    sig_device_change = Signal(object)
+    trigger_add_device = Signal(DeviceData)
+    trigger_remove_device = Signal(DeviceData)
 
     def __init__(self, qt_app: QtWidgets.QApplication, log_file: str):
         QtWidgets.QMainWindow.__init__(self)
         QtUtilsMixIn.__init__(self)
 
-        # linux
-        if platform.system() == "Linux":
-            # start monitoring usb
-            self.context = pyudev.Context()
-            self.monitor = pyudev.Monitor.from_netlink(self.context)
-            self.monitor.filter_by(subsystem="usb")
-            # pyudev.pyside6 integration doesn't work properly
-            self.observer = pyudev.MonitorObserver(
-                self.monitor, lambda action, device: self.sig_device_change.emit(action)
-            )
-            self.observer.start()
-
-        # windows
-        if platform.system() == "Windows":
-            logger.info("OS:Windows")
-            WindowsUSBNotifi(self.detect_added_devices, self.detect_removed_devices)
+        # start monitoring usb
+        monitor = USBMonitor()
+        monitor.start_monitoring(
+            on_connect=self.detect_added_devices,
+            on_disconnect=self.detect_removed_devices,
+        )
+        self.trigger_add_device.connect(self.add_device)
+        self.trigger_remove_device.connect(self.remove_device)
 
         # self.devices: list[DeviceData] = []
         self.device_manager = DeviceManager()
@@ -137,7 +127,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         # set some spacing between Nitrokey buttons
         self.ui.nitrokeyButtonsLayout.setSpacing(8)
-        self.sig_device_change.connect(self.device_connect)
 
         self.help_btn.clicked.connect(
             lambda: webbrowser.open("https://docs.nitrokey.com/nitrokey3")
@@ -163,8 +152,17 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.l_insert_nitrokey.show()
         self.overview_tab.set_update_enabled(device_count <= 1)
 
-    def detect_added_devices(self) -> None:
-        devs = self.device_manager.add()
+    def detect_added_devices(
+        self,
+        device_id: Optional[str] = None,
+        device_info: Optional[Dict[str, str]] = None,
+    ) -> None:
+        # retry for up to 2secs
+        for tries in range(8):
+            devs = self.device_manager.add()
+            if devs:
+                break
+            sleep(0.25)
 
         # show device as the connection might been updated
         if len(devs) == 0 and self.selected_device:
@@ -176,30 +174,30 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         # add as nk3 device
         logger.info(f"nk3 connected: {devs}")
-        desc = ", ".join(
-            (str(dev.uuid) if not dev.is_bootloader else "NK3 (BL)") for dev in devs
-        )
 
-        self.info_box.set_status(f"Nitrokey 3 added: {desc}")
         for dev in devs:
-            self.add_device(dev)
+            self.trigger_add_device.emit(dev)
 
-    def detect_removed_devices(self) -> None:
+    def detect_removed_devices(
+        self,
+        device_id: Optional[str] = None,
+        device_info: Optional[Dict[str, str]] = None,
+    ) -> None:
         devs = self.device_manager.remove()
         if not devs:
             logger.info("failed removing device")
             return
 
-        desc = ", ".join(
-            (str(dev.uuid) if not dev.is_bootloader else "NK3 (BL)") for dev in devs
-        )
-        self.info_box.set_status(f"Nitrokey 3 removed: {desc}")
         logger.info(f"nk3 disconnected: {devs}")
         for dev in devs:
-            self.remove_device(dev)
+            self.trigger_remove_device.emit(dev)
 
+    @Slot(DeviceData)
     def add_device(self, data: DeviceData) -> None:
         self.toggle_update_btn()
+
+        desc = str(data.uuid) if not data.is_bootloader else "NK3 (BL)"
+        self.info_box.set_status(f"Nitrokey 3 added: {desc}")
 
         button = Nk3Button(data)
         button.clicked.connect(lambda: self.show_device(data))
@@ -211,11 +209,16 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         self.l_insert_nitrokey.hide()
 
+    @Slot(DeviceData)
     def remove_device(self, data: DeviceData) -> None:
         self.toggle_update_btn()
         if self.selected_device == data:
             self.selected_device = None
             self.hide_device()
+
+        desc = str(data.uuid) if not data.is_bootloader else "NK3 (BL)"
+
+        self.info_box.set_status(f"Nitrokey 3 removed: {desc}")
 
         def remove_button(btn: Nk3Button) -> None:
             self.ui.nitrokeyButtonsLayout.removeWidget(button)
