@@ -47,7 +47,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         # self.ui === self -> this tricks mypy due to monkey-patching self
         self.ui = self.load_ui("overview_tab.ui", self)
 
-        self.is_qubesos = self.test_qubesos()
+        self.is_qubesos = shutil.which("qubesdb-read") is not None
 
         self.ui.btn_update_with_file.clicked.connect(self.update_with_file)
         self.ui.btn_more_options.clicked.connect(self.more_options)
@@ -177,13 +177,6 @@ class OverviewTab(QtUtilsMixIn, QWidget):
     def hide_more_options(self) -> None:
         self.ui.btn_more_options.setIcon(QtUtilsMixIn.get_qicon("right_arrow.svg"))
         self.ui.frame_more_options.setFixedHeight(0)
-
-    def test_qubesos(self) -> bool:
-        if shutil.which("qubesdb-read /qubes-vm-type"):
-            is_qubesos = True
-        else:
-            is_qubesos = False
-        return is_qubesos
 
     @Slot(bool)
     def run_update(self) -> None:

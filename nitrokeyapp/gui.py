@@ -40,8 +40,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         QtWidgets.QMainWindow.__init__(self)
         QtUtilsMixIn.__init__(self)
 
-        #      self.trigger_qubesos.connect(self.iojojoij)
-
         # linux
         if platform.system() == "Linux":
             # start monitoring usb
