@@ -299,10 +299,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         view = self.views[self.tabs.currentIndex()]
         view.refresh(self.selected_device)
 
-        if idx == 0:
-            self.info_box.pin_icon.hide()
-        else:
+        if idx == 1:
             self.info_box.pin_icon.show()
+        else:
+            self.info_box.pin_icon.hide()
 
     # main-window callbacks
     @Slot()
