@@ -271,13 +271,13 @@ files = [
 
 [[package]]
 name = "certifi"
-version = "2024.2.2"
+version = "2024.6.2"
 description = "Python package for providing Mozilla's CA Bundle."
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "certifi-2024.2.2-py3-none-any.whl", hash = "sha256:dc383c07b76109f368f6106eee2b593b04a011ea4d55f652c6ca24a754d1cdd1"},
-    {file = "certifi-2024.2.2.tar.gz", hash = "sha256:0569859f95fc761b18b45ef421b1290a0f65f147e92a1e5eb3e635f9a5e4e66f"},
+    {file = "certifi-2024.6.2-py3-none-any.whl", hash = "sha256:ddc6c8ce995e6987e7faf5e3f1b02b302836a0e5d98ece18392cb1a36c72ad56"},
+    {file = "certifi-2024.6.2.tar.gz", hash = "sha256:3cd43f1c6fa7dedc5899d69d3ad0398fd018ad1a17fba83ddaf78aa46c747516"},
 ]
 
 [[package]]
@@ -875,13 +875,13 @@ colors = ["colorama (>=0.4.6)"]
 
 [[package]]
 name = "jinja2"
-version = "3.1.3"
+version = "3.1.4"
 description = "A very fast and expressive template engine."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "Jinja2-3.1.3-py3-none-any.whl", hash = "sha256:7d6d50dd97d52cbc355597bd845fabfbac3f551e1f99619e39a35ce8c370b5fa"},
-    {file = "Jinja2-3.1.3.tar.gz", hash = "sha256:ac8bd6544d4bb2c9792bf3a159e80bba8fda7f07e81bc3aed565432d5925ba90"},
+    {file = "jinja2-3.1.4-py3-none-any.whl", hash = "sha256:bc5dd2abb727a5319567b7a813e6a2e7318c39f4f487cfe6c89c6f9c7d25197d"},
+    {file = "jinja2-3.1.4.tar.gz", hash = "sha256:4a3aee7acbbe7303aede8e9648d13b8bf88a429282aa6122a993f0ac800cb369"},
 ]
 
 [package.dependencies]
@@ -1008,13 +1008,13 @@ files = [
 
 [[package]]
 name = "libusbsio"
-version = "2.1.11"
+version = "2.1.12"
 description = "Python wrapper around NXP LIBUSBSIO library"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "libusbsio-2.1.11-py3-none-any.whl", hash = "sha256:42105b165c4956f69c92637484acdaeadf68e3c2e23e6aee4741cd9b549dfd37"},
-    {file = "libusbsio-2.1.11.tar.gz", hash = "sha256:7d2e81f4aedccbe8a3c327b002c7750dd374abdf1ef6d54780728e653af9124d"},
+    {file = "libusbsio-2.1.12-py3-none-any.whl", hash = "sha256:284637214c7804748fc7d26757134a3e6591c2b69b5b8a45d5d2eb4495b67e1b"},
+    {file = "libusbsio-2.1.12.tar.gz", hash = "sha256:45d521c229413b0835f5acb73e8df3b31aa5055f454f2ddbb490db3b8604292f"},
 ]
 
 [[package]]
@@ -1185,13 +1185,13 @@ icu = ["PyICU (>=1.0.0)"]
 
 [[package]]
 name = "nethsm"
-version = "1.0.0"
+version = "1.1.0"
 description = "Python Library to manage NetHSM(s)."
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "nethsm-1.0.0-py3-none-any.whl", hash = "sha256:bc55a7619c15c5a148a0e9050930e5f1d8e027df846f6136b90fc27a754aecc4"},
-    {file = "nethsm-1.0.0.tar.gz", hash = "sha256:b0436e49d038a58b7cbf6c3646f0e47102d808ff55d2f64e7563a590d062dffa"},
+    {file = "nethsm-1.1.0-py3-none-any.whl", hash = "sha256:f81b6523884d494a76aed49838d92663cae3e984688700a5ba1f914e255de2af"},
+    {file = "nethsm-1.1.0.tar.gz", hash = "sha256:0908617874340657f39ca8e839246f6c3b67953beffd22ed97419677b2d44adf"},
 ]
 
 [package.dependencies]
@@ -1202,7 +1202,7 @@ typing_extensions = ">=4.3.0,<4.4.0"
 urllib3 = ">=2.0,<2.1"
 
 [package.extras]
-dev = ["black (>=22.1.0,<23)", "cryptography", "docker", "flake8", "flit (>=3.2,<4)", "ipython", "isort", "mypy (>=1.4,<1.5)", "pycryptodome", "pyinstaller (==5.9.0)", "pyinstaller-versionfile (==2.1.1)", "pytest", "pytest-cov", "pytest-reporter-html1", "pyyaml", "requests", "types-python-dateutil", "types-requests"]
+dev = ["black (>=22.1.0,<23)", "cryptography", "docker", "flake8", "flit (>=3.2,<4)", "ipython", "isort", "mypy (>=1.4,<1.5)", "podman (>=5,<6)", "pycryptodome", "pyinstaller (==5.9.0)", "pyinstaller-versionfile (==2.1.1)", "pytest", "pytest-cov", "pytest-reporter-html1", "pyyaml", "requests", "types-python-dateutil", "types-requests"]
 
 [[package]]
 name = "nkdfu"
@@ -1237,13 +1237,13 @@ asn1crypto = ">=1.5.1"
 
 [[package]]
 name = "packaging"
-version = "24.0"
+version = "24.1"
 description = "Core utilities for Python packages"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "packaging-24.0-py3-none-any.whl", hash = "sha256:2ddfb553fdf02fb784c234c7ba6ccc288296ceabec964ad2eae3777778130bc5"},
-    {file = "packaging-24.0.tar.gz", hash = "sha256:eb82c5e3e56209074766e6885bb04b8c38a0c015d0a30036ebe7ece34c9989e9"},
+    {file = "packaging-24.1-py3-none-any.whl", hash = "sha256:5b8f2217dbdbd2f7f384c41c628544e6d52f2d0f53c6d0c3ea61aa5d1d7ff124"},
+    {file = "packaging-24.1.tar.gz", hash = "sha256:026ed72c8ed3fcce5bf8950572258698927fd1dbda10a5e981cdf0ac37f4f002"},
 ]
 
 [[package]]
@@ -1270,18 +1270,19 @@ files = [
 
 [[package]]
 name = "platformdirs"
-version = "4.2.0"
-description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
+version = "4.2.2"
+description = "A small Python package for determining appropriate platform-specific dirs, e.g. a `user data dir`."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "platformdirs-4.2.0-py3-none-any.whl", hash = "sha256:0614df2a2f37e1a662acbd8e2b25b92ccf8632929bc6d43467e17fe89c75e068"},
-    {file = "platformdirs-4.2.0.tar.gz", hash = "sha256:ef0cc731df711022c174543cb70a9b5bd22e5a9337c8624ef2c2ceb8ddad8768"},
+    {file = "platformdirs-4.2.2-py3-none-any.whl", hash = "sha256:2d7a1657e36a80ea911db832a8a6ece5ee53d8de21edd5cc5879af6530b1bfee"},
+    {file = "platformdirs-4.2.2.tar.gz", hash = "sha256:38b7b51f512eed9e84a22788b4bce1de17c0adb134d6becb09836e37d8654cd3"},
 ]
 
 [package.extras]
 docs = ["furo (>=2023.9.10)", "proselint (>=0.13)", "sphinx (>=7.2.6)", "sphinx-autodoc-typehints (>=1.25.2)"]
 test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=7.4.3)", "pytest-cov (>=4.1)", "pytest-mock (>=3.12)"]
+type = ["mypy (>=1.8)"]
 
 [[package]]
 name = "prettytable"
@@ -1405,23 +1406,23 @@ files = [
 
 [[package]]
 name = "pyinstaller"
-version = "6.6.0"
+version = "6.8.0"
 description = "PyInstaller bundles a Python application and all its dependencies into a single package."
 optional = false
 python-versions = "<3.13,>=3.8"
 files = [
-    {file = "pyinstaller-6.6.0-py3-none-macosx_10_13_universal2.whl", hash = "sha256:d2705efe79f8749526f65c4bce70ae88eea8b6adfb051f123122e86542fe3802"},
-    {file = "pyinstaller-6.6.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:2aa771693ee3e0a899be3e9d946a24eab9896a98d0d4035f05a22f1193004cfb"},
-    {file = "pyinstaller-6.6.0-py3-none-manylinux2014_i686.whl", hash = "sha256:1fc15e8cebf76361568359a40926aa5746fc0a84ca365fb2ac6caeea014a2cd3"},
-    {file = "pyinstaller-6.6.0-py3-none-manylinux2014_ppc64le.whl", hash = "sha256:7c4a55a5d872c118bc7a5e641c2df46ad18585c002d96adad129b4ee8c104463"},
-    {file = "pyinstaller-6.6.0-py3-none-manylinux2014_s390x.whl", hash = "sha256:97197593344f11f3dd2bdadbab14c61fbc4cdf9cc692a89b047cb671764c1824"},
-    {file = "pyinstaller-6.6.0-py3-none-manylinux2014_x86_64.whl", hash = "sha256:00d81ddeee97710245a7ed03b0f9d5a4daf6c3a07adf978487b10991e1e20470"},
-    {file = "pyinstaller-6.6.0-py3-none-musllinux_1_1_aarch64.whl", hash = "sha256:b7cab21db6fcfbdab47ee960239d1b44cd95383a4463177bd592613941d67959"},
-    {file = "pyinstaller-6.6.0-py3-none-musllinux_1_1_x86_64.whl", hash = "sha256:00996d2090734d9ae4a1e53ed40351b07d593c37118d3e0d435bbcfa8db9edee"},
-    {file = "pyinstaller-6.6.0-py3-none-win32.whl", hash = "sha256:cfe3ed214601de0723cb660994b44934efacb77a1cf0e4cc5133da996bcf36ce"},
-    {file = "pyinstaller-6.6.0-py3-none-win_amd64.whl", hash = "sha256:e2f55fbbdf8a99ea84b39bc5669a68624473c303486d7eb2cd9063b339f0aa28"},
-    {file = "pyinstaller-6.6.0-py3-none-win_arm64.whl", hash = "sha256:abbd591967593dab264bcc3bcb2466c0a1582f19a112e37e916c4212069c7933"},
-    {file = "pyinstaller-6.6.0.tar.gz", hash = "sha256:be6bc2c3073d3e84fb7148d3af33ce9b6a7f01cfb154e06314cd1d4c05798a32"},
+    {file = "pyinstaller-6.8.0-py3-none-macosx_10_13_universal2.whl", hash = "sha256:5ff6bc2784c1026f8e2f04aa3760cbed41408e108a9d4cf1dd52ee8351a3f6e1"},
+    {file = "pyinstaller-6.8.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:39ac424d2ee2457d2ab11a5091436e75a0cccae207d460d180aa1fcbbafdd528"},
+    {file = "pyinstaller-6.8.0-py3-none-manylinux2014_i686.whl", hash = "sha256:355832a3acc7de90a255ecacd4b9f9e166a547a79c8905d49f14e3a75c1acdb9"},
+    {file = "pyinstaller-6.8.0-py3-none-manylinux2014_ppc64le.whl", hash = "sha256:6303c7a009f47e6a96ef65aed49f41e36ece8d079b9193ca92fe807403e5fe80"},
+    {file = "pyinstaller-6.8.0-py3-none-manylinux2014_s390x.whl", hash = "sha256:2b71509468c811968c0b5decb5bbe85b6292ea52d7b1f26313d2aabb673fa9a5"},
+    {file = "pyinstaller-6.8.0-py3-none-manylinux2014_x86_64.whl", hash = "sha256:ff31c5b99e05a4384bbe2071df67ec8b2b347640a375eae9b40218be2f1754c6"},
+    {file = "pyinstaller-6.8.0-py3-none-musllinux_1_1_aarch64.whl", hash = "sha256:000c36b13fe4cd8d0d8c2bc855b1ddcf39867b5adf389e6b5ca45b25fa3e619d"},
+    {file = "pyinstaller-6.8.0-py3-none-musllinux_1_1_x86_64.whl", hash = "sha256:fe0af018d7d5077180e3144ada89a4da5df8d07716eb7e9482834a56dc57a4e8"},
+    {file = "pyinstaller-6.8.0-py3-none-win32.whl", hash = "sha256:d257f6645c7334cbd66f38a4fac62c3ad614cc46302b2b5d9f8cc48c563bce0e"},
+    {file = "pyinstaller-6.8.0-py3-none-win_amd64.whl", hash = "sha256:81cccfa9b16699b457f4788c5cc119b50f3cd4d0db924955f15c33f2ad27a50d"},
+    {file = "pyinstaller-6.8.0-py3-none-win_arm64.whl", hash = "sha256:1c3060a263758cf7f0144ab4c016097b20451b2469d468763414665db1bb743d"},
+    {file = "pyinstaller-6.8.0.tar.gz", hash = "sha256:3f4b6520f4423fe19bcc2fd63ab7238851ae2bdcbc98f25bc5d2f97cc62012e9"},
 ]
 
 [package.dependencies]
@@ -1430,7 +1431,7 @@ importlib-metadata = {version = ">=4.6", markers = "python_version < \"3.10\""}
 macholib = {version = ">=1.8", markers = "sys_platform == \"darwin\""}
 packaging = ">=22.0"
 pefile = {version = ">=2022.5.30", markers = "sys_platform == \"win32\""}
-pyinstaller-hooks-contrib = ">=2024.3"
+pyinstaller-hooks-contrib = ">=2024.6"
 pywin32-ctypes = {version = ">=0.2.1", markers = "sys_platform == \"win32\""}
 setuptools = ">=42.0.0"
 
@@ -1440,13 +1441,13 @@ hook-testing = ["execnet (>=1.5.0)", "psutil", "pytest (>=2.7.3)"]
 
 [[package]]
 name = "pyinstaller-hooks-contrib"
-version = "2024.4"
+version = "2024.7"
 description = "Community maintained hooks for PyInstaller"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyinstaller_hooks_contrib-2024.4-py2.py3-none-any.whl", hash = "sha256:3c521e3c710de74a4d6eeebf5b7b76c3e5b332fea8fa0baafa42c94b73908c0e"},
-    {file = "pyinstaller_hooks_contrib-2024.4.tar.gz", hash = "sha256:3aad23ec9298ce675432397cda539e11a8bf77341a314e48b4da4c787ed67e8a"},
+    {file = "pyinstaller_hooks_contrib-2024.7-py2.py3-none-any.whl", hash = "sha256:8bf0775771fbaf96bcd2f4dfd6f7ae6c1dd1b1efe254c7e50477b3c08e7841d8"},
+    {file = "pyinstaller_hooks_contrib-2024.7.tar.gz", hash = "sha256:fd5f37dcf99bece184e40642af88be16a9b89613ecb958a8bd1136634fc9fac5"},
 ]
 
 [package.dependencies]
@@ -1609,54 +1610,54 @@ cp2110 = ["hidapi"]
 
 [[package]]
 name = "pyside6"
-version = "6.7.0"
+version = "6.7.1"
 description = "Python bindings for the Qt cross-platform application and UI framework"
 optional = false
 python-versions = "<3.13,>=3.9"
 files = [
-    {file = "PySide6-6.7.0-cp39-abi3-macosx_11_0_universal2.whl", hash = "sha256:4e2f4ddb1d342ffd12558101c30095338da0db34c203e0d17de03e45c7762286"},
-    {file = "PySide6-6.7.0-cp39-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:64d6b5751f8d04aedc5e8ea53ddc6613b392919056511a988b790fd3a00f7d01"},
-    {file = "PySide6-6.7.0-cp39-abi3-manylinux_2_31_aarch64.whl", hash = "sha256:edc541e37dcf41626a30e82bcdb061592a45424c0558f26523ac5140ec34b448"},
-    {file = "PySide6-6.7.0-cp39-abi3-win_amd64.whl", hash = "sha256:190fb017b7f144b375f1a06b518b1241a78c15e7a073708a255d229687bc905a"},
+    {file = "PySide6-6.7.1-cp39-abi3-macosx_11_0_universal2.whl", hash = "sha256:fb50aad5023ca6f4a4e62079aa57258f72cff65e33100849dab85087017f3041"},
+    {file = "PySide6-6.7.1-cp39-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:45a539286e3a8afafd3ebc6b3391d587ce86293564ecba3a994e335dc68fe599"},
+    {file = "PySide6-6.7.1-cp39-abi3-manylinux_2_31_aarch64.whl", hash = "sha256:98ac591d8b54844f366fe806e92437487f31250b24aaf647bd192f958e4d2afb"},
+    {file = "PySide6-6.7.1-cp39-abi3-win_amd64.whl", hash = "sha256:ea088381d99b53950c87510fd42801a3b6e21d15e7a9ff6c69f96a34a9030fbc"},
 ]
 
 [package.dependencies]
-PySide6-Addons = "6.7.0"
-PySide6-Essentials = "6.7.0"
-shiboken6 = "6.7.0"
+PySide6-Addons = "6.7.1"
+PySide6-Essentials = "6.7.1"
+shiboken6 = "6.7.1"
 
 [[package]]
 name = "pyside6-addons"
-version = "6.7.0"
+version = "6.7.1"
 description = "Python bindings for the Qt cross-platform application and UI framework (Addons)"
 optional = false
 python-versions = "<3.13,>=3.9"
 files = [
-    {file = "PySide6_Addons-6.7.0-cp39-abi3-macosx_11_0_universal2.whl", hash = "sha256:a87645f0f2dcb2ebe4035ae53ccf329fe503ed394c9f0830de3bfc7205c14f63"},
-    {file = "PySide6_Addons-6.7.0-cp39-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:888df2a916f1d59984e2f351e7d5850da0a04103e39501eb7d6a9b150e7431e6"},
-    {file = "PySide6_Addons-6.7.0-cp39-abi3-manylinux_2_31_aarch64.whl", hash = "sha256:0716410d3591c144be2fda3a6443fe13a7a88b4d91b45b05fd955782ac19613d"},
-    {file = "PySide6_Addons-6.7.0-cp39-abi3-win_amd64.whl", hash = "sha256:d1712336b33b5a5784bbce4c9b1af984057ff1dc4fafbaf241c090ee9bc3788d"},
+    {file = "PySide6_Addons-6.7.1-cp39-abi3-macosx_11_0_universal2.whl", hash = "sha256:f360baa915fbd0be9beb3439e937d8accbaa56dd03c4b95f4c869d679343eb3e"},
+    {file = "PySide6_Addons-6.7.1-cp39-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:e9fbfc31e0de5075ee98d92cdbd7ccd274e4ac25100c890ae5bddfc8804a304c"},
+    {file = "PySide6_Addons-6.7.1-cp39-abi3-manylinux_2_31_aarch64.whl", hash = "sha256:e7de1210580217cf605c5ac8cb0f21ebcc51b261e6f9c90908eb596991607789"},
+    {file = "PySide6_Addons-6.7.1-cp39-abi3-win_amd64.whl", hash = "sha256:58c91a27aba1190f48200d7ec6b12422b955b1ca3f68e82fc97081561d77ba4f"},
 ]
 
 [package.dependencies]
-PySide6-Essentials = "6.7.0"
-shiboken6 = "6.7.0"
+PySide6-Essentials = "6.7.1"
+shiboken6 = "6.7.1"
 
 [[package]]
 name = "pyside6-essentials"
-version = "6.7.0"
+version = "6.7.1"
 description = "Python bindings for the Qt cross-platform application and UI framework (Essentials)"
 optional = false
 python-versions = "<3.13,>=3.9"
 files = [
-    {file = "PySide6_Essentials-6.7.0-cp39-abi3-macosx_11_0_universal2.whl", hash = "sha256:d229dae03b1825cc93deac785898b71576957d9fb97b1007897f30604ca5ecd1"},
-    {file = "PySide6_Essentials-6.7.0-cp39-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:e013238fe40596b804068e34ac173514943a41bf8e5fbb4edfc7c30b00431bd5"},
-    {file = "PySide6_Essentials-6.7.0-cp39-abi3-manylinux_2_31_aarch64.whl", hash = "sha256:412db37d56982c1ad1e6536daaefe760177a9ab897ae147b926a7d6c8befcdd4"},
-    {file = "PySide6_Essentials-6.7.0-cp39-abi3-win_amd64.whl", hash = "sha256:8489bd692380f79455955101194bfcf0cd6444825a1ef198907b4de1f976d8b4"},
+    {file = "PySide6_Essentials-6.7.1-cp39-abi3-macosx_11_0_universal2.whl", hash = "sha256:a527ec6d36533ad1ef04209b01d3d3d0286e0caaf26ec0fb0db601abbe738aac"},
+    {file = "PySide6_Essentials-6.7.1-cp39-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:b2d70dc4376c1b1ff5b2988a428a0ed5a889173ce9a0b56803468063d0ef7c75"},
+    {file = "PySide6_Essentials-6.7.1-cp39-abi3-manylinux_2_31_aarch64.whl", hash = "sha256:b1cc7eadccd2a3a6cf4bc789b874bd316714b8c5191ade4a710b952bd0d2cc81"},
+    {file = "PySide6_Essentials-6.7.1-cp39-abi3-win_amd64.whl", hash = "sha256:9a42670f1288759abef1bb1ce948f05acc2cc07a88df14e06467a9c43405b616"},
 ]
 
 [package.dependencies]
-shiboken6 = "6.7.0"
+shiboken6 = "6.7.1"
 
 [[package]]
 name = "pyside6-stubs"
@@ -1692,13 +1693,13 @@ six = ">=1.5"
 
 [[package]]
 name = "pyudev"
-version = "0.24.1"
+version = "0.24.3"
 description = "A libudev binding"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyudev-0.24.1-py3-none-any.whl", hash = "sha256:da7e977be15fb5eccf8797b8e2176cd5b4f39288707cdcb39d1cabe7c8793e2b"},
-    {file = "pyudev-0.24.1.tar.gz", hash = "sha256:75e54d37218f5ac45b0da1f0fd9cc5e526a3cac3ef1cfad410cf7ab338b01471"},
+    {file = "pyudev-0.24.3-py3-none-any.whl", hash = "sha256:e8246f0a014fe370119ba2bc781bfbe62c0298d0d6b39c94e83102a8a3f56960"},
+    {file = "pyudev-0.24.3.tar.gz", hash = "sha256:2e945427a21674893bb97632401db62139d91cea1ee96137cc7b07ad22198fc7"},
 ]
 
 [[package]]
@@ -1930,31 +1931,30 @@ files = [
 
 [[package]]
 name = "setuptools"
-version = "69.5.1"
+version = "70.0.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "setuptools-69.5.1-py3-none-any.whl", hash = "sha256:c636ac361bc47580504644275c9ad802c50415c7522212252c033bd15f301f32"},
-    {file = "setuptools-69.5.1.tar.gz", hash = "sha256:6c1fccdac05a97e598fb0ae3bbed5904ccb317337a51139dcd51453611bbb987"},
+    {file = "setuptools-70.0.0-py3-none-any.whl", hash = "sha256:54faa7f2e8d2d11bcd2c07bed282eef1046b5c080d1c32add737d7b5817b1ad4"},
+    {file = "setuptools-70.0.0.tar.gz", hash = "sha256:f211a66637b8fa059bb28183da127d4e86396c991a942b028c6650d4319c3fd0"},
 ]
 
 [package.extras]
-docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier"]
-testing = ["build[virtualenv]", "filelock (>=3.4.0)", "importlib-metadata", "ini2toml[lite] (>=0.9)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "mypy (==1.9)", "packaging (>=23.2)", "pip (>=19.1)", "pytest (>=6,!=8.1.1)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-home (>=0.5)", "pytest-mypy", "pytest-perf", "pytest-ruff (>=0.2.1)", "pytest-timeout", "pytest-xdist (>=3)", "tomli", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel"]
-testing-integration = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "packaging (>=23.2)", "pytest", "pytest-enabler", "pytest-xdist", "tomli", "virtualenv (>=13.0.0)", "wheel"]
+docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "pyproject-hooks (!=1.1)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier"]
+testing = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "importlib-metadata", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "mypy (==1.9)", "packaging (>=23.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.1)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-home (>=0.5)", "pytest-mypy", "pytest-perf", "pytest-ruff (>=0.2.1)", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel"]
 
 [[package]]
 name = "shiboken6"
-version = "6.7.0"
+version = "6.7.1"
 description = "Python/C++ bindings helper module"
 optional = false
 python-versions = "<3.13,>=3.9"
 files = [
-    {file = "shiboken6-6.7.0-cp39-abi3-macosx_11_0_universal2.whl", hash = "sha256:32c53afea91a3c9f85b1908e50a1f96974e4d78bc63ee8dafa346fc0707a9786"},
-    {file = "shiboken6-6.7.0-cp39-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:7887ba7ecfddb09ee9966325c1e229a17f3f444b0257b77cb7838792287d3e05"},
-    {file = "shiboken6-6.7.0-cp39-abi3-manylinux_2_31_aarch64.whl", hash = "sha256:5ac384f4f4c0bc5bdd7e6b9b1d36798c063107943a122ea6d123947321bcf315"},
-    {file = "shiboken6-6.7.0-cp39-abi3-win_amd64.whl", hash = "sha256:1a65d4c046454ee78a2ce4d6c7268846a3bdff31f59d88638b9383f62938f4b8"},
+    {file = "shiboken6-6.7.1-cp39-abi3-macosx_11_0_universal2.whl", hash = "sha256:80aa412a45d984592a865f95a6d0e39b70e41ef251d11a39880802454d9d87c8"},
+    {file = "shiboken6-6.7.1-cp39-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:6322b7a6232fc93eac0b11489007734438ae1e6213429fd6d7521d04072c2f87"},
+    {file = "shiboken6-6.7.1-cp39-abi3-manylinux_2_31_aarch64.whl", hash = "sha256:ec53bfcc4bb762bc845548410e17a09447837a3f20102efb4f91c12688648091"},
+    {file = "shiboken6-6.7.1-cp39-abi3-win_amd64.whl", hash = "sha256:a023ac2dc24c9325dbd0698bb7c21057e2361e92a2e187009820433342c882a0"},
 ]
 
 [[package]]
@@ -2073,13 +2073,13 @@ files = [
 
 [[package]]
 name = "tqdm"
-version = "4.66.2"
+version = "4.66.4"
 description = "Fast, Extensible Progress Meter"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "tqdm-4.66.2-py3-none-any.whl", hash = "sha256:1ee4f8a893eb9bef51c6e35730cebf234d5d0b6bd112b0271e10ed7c24a02bd9"},
-    {file = "tqdm-4.66.2.tar.gz", hash = "sha256:6cd52cdf0fef0e0f543299cfc96fec90d7b8a7e88745f411ec33eb44d5ed3531"},
+    {file = "tqdm-4.66.4-py3-none-any.whl", hash = "sha256:b75ca56b413b030bc3f00af51fd2c1a1a5eac6a0c1cca83cbb37a5c52abce644"},
+    {file = "tqdm-4.66.4.tar.gz", hash = "sha256:e4d936c9de8727928f3be6079590e97d9abfe8d39a590be678eb5919ffc186bb"},
 ]
 
 [package.dependencies]
@@ -2120,6 +2120,22 @@ socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
 zstd = ["zstandard (>=0.18.0)"]
 
 [[package]]
+name = "usb-monitor"
+version = "1.21"
+description = "USBMonitor is an easy-to-use cross-platform library for USB device monitoring that simplifies tracking of connections, disconnections, and examination of connected device attributes on Windows, Linux and MacOs, freeing the user from platform-specific details or incompatibilities."
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "usb_monitor-1.21-py3-none-any.whl", hash = "sha256:1bd785f765f393ed49e5e2ef2107d9a687b8000e0016fdb77f2014f7586781dd"},
+    {file = "usb_monitor-1.21.tar.gz", hash = "sha256:33e05499b3714167142c51027b14e7a79e4466227acb76d8084b52c2a2a57409"},
+]
+
+[package.dependencies]
+pyudev = {version = "*", markers = "platform_system == \"Linux\""}
+pywin32 = {version = "*", markers = "platform_system == \"Windows\""}
+wmi = {version = "*", markers = "platform_system == \"Windows\""}
+
+[[package]]
 name = "wcwidth"
 version = "0.2.13"
 description = "Measures the displayed width of unicode strings in a terminal"
@@ -2145,21 +2161,42 @@ files = [
 test = ["pytest (>=6.0.0)", "setuptools (>=65)"]
 
 [[package]]
+name = "wmi"
+version = "1.5.1"
+description = "Windows Management Instrumentation"
+optional = false
+python-versions = "*"
+files = [
+    {file = "WMI-1.5.1-py2.py3-none-any.whl", hash = "sha256:1d6b085e5c445141c475476000b661f60fff1aaa19f76bf82b7abb92e0ff4942"},
+    {file = "WMI-1.5.1.tar.gz", hash = "sha256:b6a6be5711b1b6c8d55bda7a8befd75c48c12b770b9d227d31c1737dbf0d40a6"},
+]
+
+[package.dependencies]
+pywin32 = "*"
+
+[package.extras]
+all = ["pytest", "sphinx", "twine", "wheel"]
+dev = ["pytest", "sphinx", "twine", "wheel"]
+docs = ["sphinx"]
+package = ["twine", "wheel"]
+tests = ["pytest"]
+
+[[package]]
 name = "zipp"
-version = "3.18.1"
+version = "3.19.2"
 description = "Backport of pathlib-compatible object wrapper for zip files"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "zipp-3.18.1-py3-none-any.whl", hash = "sha256:206f5a15f2af3dbaee80769fb7dc6f249695e940acca08dfb2a4769fe61e538b"},
-    {file = "zipp-3.18.1.tar.gz", hash = "sha256:2884ed22e7d8961de1c9a05142eb69a247f120291bc0206a00a7642f09b5b715"},
+    {file = "zipp-3.19.2-py3-none-any.whl", hash = "sha256:f091755f667055f2d02b32c53771a7a6c8b47e1fdbc4b72a8b9072b3eef8015c"},
+    {file = "zipp-3.19.2.tar.gz", hash = "sha256:bf1dcf6450f873a13e952a29504887c89e6de7506209e5b1bcc3460135d4de19"},
 ]
 
 [package.extras]
-docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
-testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy", "pytest-ruff (>=0.2.1)"]
+doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
+test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more-itertools", "pytest (>=6,!=8.1.*)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy", "pytest-ruff (>=0.2.1)"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.13"
-content-hash = "0cbcb1c4548b266b1722fc404fa30fcad00fb12174053b7ec00e20fd541701da"
+content-hash = "ed92060590e48fcad0ee5470666a8cb92a1c4d84cbc6daf132b8f8d6455b7e11"

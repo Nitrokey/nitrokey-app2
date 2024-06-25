@@ -37,6 +37,7 @@ pyudev = "^0.24.1"
 pynitrokey = ">=0.4.46,<0.4.48"
 pywin32 = { version = "305", markers = "sys_platform =='win32'" }
 qt_material = "^2.14"
+usb-monitor = "^1.21"
 
 [tool.poetry.group.dev.dependencies]
 PySide6-stubs = "^6.4.2"
@@ -85,5 +86,6 @@ module = [
   "ruamel.*",
   "tlv8.*",
   "qt_material.*",
+	"usbmonitor.*",
 ]
 ignore_missing_imports = true
