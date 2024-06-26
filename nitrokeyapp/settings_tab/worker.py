@@ -157,10 +157,41 @@ class SaveOtpPinJob(Job):
     def trigger_error(self, msg: str) -> None:
         self.common_ui.info.error.emit(msg)
 
+class ResetFido(Job):
+
+    def __init__(
+        self,
+        common_ui: CommonUi,
+        data: DeviceData,
+    ) -> None:
+        super().__init__(common_ui)
+
+        self.data = data
+
+    def run(self) -> None:
+        with self.data.open() as device:
+            ctaphid_raw_dev = device.device
+            fido2_client = find(raw_device=ctaphid_raw_dev)
+            assert isinstance(fido2_client.ctap2, Ctap2)
+            client_pin = ClientPin(fido2_client.ctap2)
+
+            try:
+                if fido_state:
+                    client_pin.change_pin(self.old_pin, self.new_pin)
+                else:
+                    client_pin.set_pin(self.new_pin)
+            except Exception as e:
+                self.trigger_error(f"fido2 change_pin failed: {e}")
+
+#class ResetOtp(Job):
+
+
 
 class SettingsWorker(Worker):
     change_pw_fido = Signal()
     change_pw_otp = Signal()
+    reset_fido = Signal()
+    reset_otp = Signal()
     status_fido = Signal(bool)
     info_otp = Signal(bool, SelectResponse)
 
@@ -189,4 +220,16 @@ class SettingsWorker(Worker):
     def otp_change_pw(self, data: DeviceData, old_pin: str, new_pin: str) -> None:
         job = SaveOtpPinJob(self.common_ui, data, old_pin, new_pin)
         job.change_pw_otp.connect(self.change_pw_otp)
+        self.run(job)
+
+    @Slot(DeviceData)
+    def fido_reset(self, data: DeviceData) -> None:
+        job = ResetFido(self.common_ui, data)
+        job.reset_fido.connect(self.reset_fido)
+        self.run(job)
+
+    @Slot(DeviceData)
+    def otp_reset(self, data: DeviceData) -> None:
+        job = ResetOtp(self.common_ui, data)
+        job.reset_otp.connect(self.reset_otp)
         self.run(job)

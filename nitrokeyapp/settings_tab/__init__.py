@@ -20,8 +20,10 @@ class SettingsTabState(Enum):
     Initial = 0
     Fido = 1
     FidoPw = 2
-    otp = 3
-    otpPw = 4
+    FidoRst = 3
+    otp = 4
+    otpPw = 5
+    otpRst = 6
 
     NotAvailable = 99
 
@@ -40,6 +42,9 @@ class SettingsTab(QtUtilsMixIn, QWidget):
     trigger_otp_change_pw = Signal(DeviceData, str, str)
     trigger_fido_change_pw = Signal(DeviceData, str, str)
 
+    trigger_fido_reset = Signal(DeviceData)
+    trigger_otp_reset = Signal(DeviceData)
+
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         QWidget.__init__(self, parent)
         QtUtilsMixIn.__init__(self)
@@ -56,6 +61,8 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.trigger_otp_status.connect(self._worker.otp_status)
         self.trigger_otp_change_pw.connect(self._worker.otp_change_pw)
         self.trigger_fido_change_pw.connect(self._worker.fido_change_pw)
+        self.trigger_fido_reset.connect(self._worker.fido_reset)
+        self.trigger_otp_reset.connect(self._worker.otp_reset)
 
         self._worker.status_fido.connect(self.handle_status_fido)
         self._worker.info_otp.connect(self.handle_info_otp)
@@ -64,6 +71,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         # Tree
         pin_icon = self.get_qicon("dialpad.svg")
+        rst_icon = self.get_qicon("refresh.svg")
 
         fido = QTreeWidgetItem(self.ui.settings_tree)
         pintype = SettingsTabState.Fido
@@ -87,6 +95,19 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         fido_pin.setData(1, 0, pintype)
         fido_pin.setData(2, 0, name)
 
+        fido_rst = QTreeWidgetItem()
+        pintype = SettingsTabState.FidoRst
+        name = "Reset"
+        desc = "During a FIDO reset, the password is not set. All previously set credentials are removed. This means that any existing authentication data, such as passwords, or other authentication factors are deleted. After the reset, the user will need to re-register or re-enroll their authentication credentials to access the system or service again."
+
+        fido_rst.setIcon(0, rst_icon)
+        fido.addChild(fido_rst)
+
+        fido_rst.setText(0, name)
+        fido_rst.setData(1, 0, pintype)
+        fido_rst.setData(2, 0, name)
+        fido_rst.setData(3, 0, desc)
+
         otp = QTreeWidgetItem(self.ui.settings_tree)
         pintype = SettingsTabState.otp
         otp.setExpanded(False)
@@ -108,6 +129,20 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         otp_pin.setIcon(0, pin_icon)
         otp.addChild(otp_pin)
+
+        otp_rst = QTreeWidgetItem()
+        pintype = SettingsTabState.otpRst
+        name = "Reset"
+        desc = "During a password reset, the password is no longer set. All passwords (TOTP/HTOTP/HMAC) secrets are removed. This means that any existing credentials in the password store will be deleted."
+
+        otp_rst.setIcon(0, rst_icon)
+        otp.addChild(otp_rst)
+
+        otp_rst.setText(0, name)
+        otp_rst.setData(1, 0, pintype)
+        otp_rst.setData(2, 0, name)
+        otp_rst.setData(3, 0, desc)
+
 
         self.ui.settings_tree.itemClicked.connect(self.show_widget)
 
@@ -170,8 +205,10 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             self.show_pin(item)
             self.collapse_all_except(item)
             item.setExpanded(True)
-        else:
+        elif pintype == SettingsTabState.FidoPw or pintype == SettingsTabState.otpPw:
             self.edit_pin(item)
+        elif pintype == SettingsTabState.FidoRst or pintype == SettingsTabState.otpRst:
+            self.rst(item)
 
     def collapse_all_except(self, item: QTreeWidgetItem) -> None:
         top_level_items = self.ui.settings_tree.invisibleRootItem().takeChildren()
@@ -252,6 +289,41 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         self.field_btn()
 
+    def rst(self, item: QTreeWidgetItem) -> None:
+        pintype = item.data(1, 0)
+        name = item.data(2, 0)
+        desc = item.data(3, 0)
+
+        self.show_otp_status(False)
+        self.show_current_password(False)
+
+        self.ui.settings_frame.show()
+        self.show_current_password(False)
+        self.ui.new_password_label.hide()
+        self.ui.new_password.hide()
+        self.ui.repeat_password_label.hide()
+        self.ui.repeat_password.hide()
+
+        self.ui.status_label.show()
+        self.ui.info_label.show()
+
+        self.ui.btn_abort.show()
+        self.ui.btn_reset.show()
+        self.ui.btn_save.hide()
+
+        if pintype == SettingsTabState.FidoRst:
+            self.trigger_fido_status.emit(self.data)
+        elif pintype == SettingsTabState.otpRst:
+            self.trigger_otp_status.emit(self.data)
+            self.show_otp_status(True)
+        self.show_current_password(False)
+
+        self.ui.password_label.setText(name)
+        self.ui.info_label.setText(desc)
+
+        self.ui.btn_abort.pressed.connect(lambda: self.abort(item))
+        self.ui.btn_reset.pressed.connect(lambda: self.reset_pin(item))
+
     def settings_empty(self) -> None:
         self.ui.settings_frame.hide()
         self.show_otp_status(False)
@@ -287,6 +359,14 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             self.trigger_otp_change_pw.emit(self.data, old_pin, new_pin)
             self.abort(item)
             self.field_clear()
+
+    def reset_pin(self, item: QTreeWidgetItem) -> None:
+        pintype = item.data(1, 0)
+
+        if pintype == SettingsTabState.FidoRst:
+            self.trigger_fido_reset.emit(self.data)
+        elif pintype == SettingsTabState.otpRst:
+            self.trigger_otp_reset.emit(self.data)
 
     def act_current_password_show(self) -> None:
         self.set_current_password_show(self.ui.current_password.echoMode() == QLineEdit.Password)  # type: ignore [attr-defined]
