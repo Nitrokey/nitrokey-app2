@@ -41,8 +41,8 @@ class CheckFidoPinStatus(Job):
         return
 
 
-class CheckOtpInfo(Job):
-    info_otp = Signal(bool, SelectResponse)
+class CheckPasswordsInfo(Job):
+    info_passwords = Signal(bool, SelectResponse)
 
     def __init__(
         self,
@@ -53,7 +53,7 @@ class CheckOtpInfo(Job):
 
         self.data = data
 
-        self.info_otp.connect(lambda _: self.finished.emit())
+        self.info_passwords.connect(lambda _: self.finished.emit())
 
     def run(self) -> None:
         pin_status: bool = False
@@ -64,7 +64,7 @@ class CheckOtpInfo(Job):
                 pin_status = True
             else:
                 pin_status = False
-            self.info_otp.emit(pin_status, status)
+            self.info_passwords.emit(pin_status, status)
         return
 
 
@@ -111,8 +111,8 @@ class SaveFidoPinJob(Job):
                 self.trigger_error(f"fido2 change_pin failed: {e}")
 
 
-class SaveOtpPinJob(Job):
-    change_pw_otp = Signal()
+class SavePasswordsPinJob(Job):
+    change_pw_passwords = Signal()
 
     def __init__(
         self,
@@ -127,7 +127,7 @@ class SaveOtpPinJob(Job):
         self.old_pin = old_pin
         self.new_pin = new_pin
 
-        self.change_pw_otp.connect(lambda _: self.finished.emit())
+        self.change_pw_passwords.connect(lambda _: self.finished.emit())
 
     def check(self) -> bool:
         pin_status: bool = False
@@ -141,12 +141,12 @@ class SaveOtpPinJob(Job):
         return pin_status
 
     def run(self) -> None:
-        otp_state = self.check()
+        passwords_state = self.check()
         with self.data.open() as device:
             secrets = SecretsApp(device)
             try:
                 with self.touch_prompt():
-                    if otp_state:
+                    if passwords_state:
                         secrets.change_pin_raw(self.old_pin, self.new_pin)
                     else:
                         secrets.set_pin_raw(self.new_pin)
@@ -158,11 +158,73 @@ class SaveOtpPinJob(Job):
         self.common_ui.info.error.emit(msg)
 
 
+class ResetFido(Job):
+    reset_fido = Signal()
+
+    def __init__(
+        self,
+        common_ui: CommonUi,
+        data: DeviceData,
+    ) -> None:
+        super().__init__(common_ui)
+
+        self.data = data
+
+        self.reset_fido.connect(lambda _: self.finished.emit())
+
+    def run(self) -> None:
+        with self.data.open() as device:
+            ctaphid_raw_dev = device.device
+            fido2_client = find(raw_device=ctaphid_raw_dev)
+
+            try:
+                with self.touch_prompt():
+                    fido2_client.reset()
+                    self.common_ui.info.info.emit("FIDO2 function reset successfully!")
+            except Exception as e:
+                a = str(e)
+                if a == "CTAP error: 0x30 - NOT_ALLOWED":
+                    self.common_ui.info.error.emit(
+                        "Device connected for more than 10 sec. Re-plugging for reset!"
+                    )
+                else:
+                    self.trigger_error(f"fido2 reset failed: {e}")
+
+
+class ResetPasswords(Job):
+    reset_passwords = Signal()
+
+    def __init__(
+        self,
+        common_ui: CommonUi,
+        data: DeviceData,
+    ) -> None:
+        super().__init__(common_ui)
+
+        self.data = data
+
+        self.reset_passwords.connect(lambda _: self.finished.emit())
+
+    def run(self) -> None:
+        with self.data.open() as device:
+            secrets = SecretsApp(device)
+            try:
+                with self.touch_prompt():
+                    secrets.reset()
+                    self.common_ui.info.info.emit(
+                        "PASSWORDS function reset successfully!"
+                    )
+            except SecretsAppException as e:
+                self.trigger_error(f"Passwords reset failed: {e}")
+
+
 class SettingsWorker(Worker):
     change_pw_fido = Signal()
-    change_pw_otp = Signal()
+    change_pw_passwords = Signal()
+    reset_fido = Signal()
+    reset_passwords = Signal()
     status_fido = Signal(bool)
-    info_otp = Signal(bool, SelectResponse)
+    info_passwords = Signal(bool, SelectResponse)
 
     def __init__(self, common_ui: CommonUi) -> None:
         super().__init__(common_ui)
@@ -174,9 +236,9 @@ class SettingsWorker(Worker):
         self.run(job)
 
     @Slot(DeviceData)
-    def otp_status(self, data: DeviceData) -> None:
-        job = CheckOtpInfo(self.common_ui, data)
-        job.info_otp.connect(self.info_otp)
+    def passwords_status(self, data: DeviceData) -> None:
+        job = CheckPasswordsInfo(self.common_ui, data)
+        job.info_passwords.connect(self.info_passwords)
         self.run(job)
 
     @Slot(DeviceData, str, str)
@@ -186,7 +248,19 @@ class SettingsWorker(Worker):
         self.run(job)
 
     @Slot(DeviceData, str, str)
-    def otp_change_pw(self, data: DeviceData, old_pin: str, new_pin: str) -> None:
-        job = SaveOtpPinJob(self.common_ui, data, old_pin, new_pin)
-        job.change_pw_otp.connect(self.change_pw_otp)
+    def passwords_change_pw(self, data: DeviceData, old_pin: str, new_pin: str) -> None:
+        job = SavePasswordsPinJob(self.common_ui, data, old_pin, new_pin)
+        job.change_pw_passwords.connect(self.change_pw_passwords)
+        self.run(job)
+
+    @Slot(DeviceData)
+    def fido_reset(self, data: DeviceData) -> None:
+        job = ResetFido(self.common_ui, data)
+        job.reset_fido.connect(self.reset_fido)
+        self.run(job)
+
+    @Slot(DeviceData)
+    def passwords_reset(self, data: DeviceData) -> None:
+        job = ResetPasswords(self.common_ui, data)
+        job.reset_passwords.connect(self.reset_passwords)
         self.run(job)
