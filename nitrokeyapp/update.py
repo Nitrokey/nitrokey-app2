@@ -34,11 +34,12 @@ T = TypeVar("T", bound=NitrokeyTrussedBase)
 
 
 class UpdateGUI(UpdateUi):
-    def __init__(self, common_ui: "CommonUi") -> None:
+    def __init__(self, common_ui: "CommonUi", is_qubesos: bool) -> None:
         super().__init__()
 
         self._version_printed = False
         self.common_ui = common_ui
+        self.is_qubesos = is_qubesos
 
         # blocking wait, set by parent during confirm-prompt
         self.await_confirmation: Optional[bool] = None
@@ -75,13 +76,25 @@ class UpdateGUI(UpdateUi):
         logger.info("OK clicked (confirm download)")
 
     def confirm_update(self, current: Optional[Version], new: Version) -> None:
-        res = self.run_confirm_dialog(
-            "Nitrokey 3 Firmware Update",
-            "Please do not remove the Nitrokey 3 or insert any other "
-            + "Nitrokey 3 devices during the update. Doing so may "
-            + "damage the Nitrokey 3. Do you want to perform the "
-            + "firmware update now?",
-        )
+        if self.is_qubesos:
+            res = self.run_confirm_dialog(
+                "Nitrokey 3 Firmware Update",
+                "Please do not remove the Nitrokey 3 or insert any other "
+                + "Nitrokey 3 devices during the update. Doing so may "
+                + "damage the Nitrokey 3.\n\n"
+                + "QubesOS is detected!\n\n"
+                + "After the touch prompt, the Nitrokey3 will be loaded into the bootloader. The Nitrokey must then be reattach to the current Qube.\n\n"
+                + "Do you want to perform the firmware update now?",
+            )
+
+        else:
+            res = self.run_confirm_dialog(
+                "Nitrokey 3 Firmware Update",
+                "Please do not remove the Nitrokey 3 or insert any other "
+                + "Nitrokey 3 devices during the update. Doing so may "
+                + "damage the Nitrokey 3. Do you want to perform the "
+                + "firmware update now?",
+            )
         if not res:
             logger.info("Cancel clicked (confirm update)")
             raise self.abort("Abort: canceled by user (confirm update)")
@@ -193,7 +206,7 @@ class Nk3Context:
 
     def await_device(
         self,
-        retries: Optional[int] = 30,
+        retries: Optional[int] = 90,
         callback: Optional[Callable[[int, int], None]] = None,
     ) -> Nitrokey3Device:
         assert isinstance(retries, int)
@@ -201,7 +214,7 @@ class Nk3Context:
 
     def await_bootloader(
         self,
-        retries: Optional[int] = 30,
+        retries: Optional[int] = 90,
         callback: Optional[Callable[[int, int], None]] = None,
     ) -> Nitrokey3Bootloader:
         assert isinstance(retries, int)

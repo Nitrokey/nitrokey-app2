@@ -18,16 +18,18 @@ class UpdateDevice(Job):
         self,
         common_ui: CommonUi,
         data: DeviceData,
+        is_qubesos: bool,
     ) -> None:
         super().__init__(common_ui)
 
         self.data = data
 
         self.image: Optional[str] = None
+        self.is_qubesos = is_qubesos
 
         self.device_updated.connect(lambda _: self.finished.emit())
 
-        self.update_gui = UpdateGUI(self.common_ui)
+        self.update_gui = UpdateGUI(self.common_ui, self.is_qubesos)
         self.common_ui.prompt.confirmed.connect(self.cancel_busy_wait)
 
     def run(self) -> None:
@@ -54,15 +56,17 @@ class OverviewWorker(Worker):
     def __init__(self, common_ui: CommonUi) -> None:
         super().__init__(common_ui)
 
-    @Slot(DeviceData)
-    def update_device(self, data: DeviceData) -> None:
-        job = UpdateDevice(self.common_ui, data)
+    @Slot(DeviceData, bool)
+    def update_device(self, data: DeviceData, is_qubesos: bool) -> None:
+        job = UpdateDevice(self.common_ui, data, is_qubesos)
         job.device_updated.connect(self.device_updated)
         self.run(job)
 
     @Slot(DeviceData, str)
-    def update_device_file(self, data: DeviceData, filename: str) -> None:
-        job = UpdateDevice(self.common_ui, data)
+    def update_device_file(
+        self, data: DeviceData, filename: str, is_qubesos: bool
+    ) -> None:
+        job = UpdateDevice(self.common_ui, data, is_qubesos)
         job.image = filename
         job.device_updated.connect(self.device_updated)
         self.run(job)

@@ -1,4 +1,5 @@
 import logging
+import shutil
 from typing import Optional
 
 from pynitrokey.trussed.admin_app import InitStatus
@@ -20,8 +21,8 @@ class OverviewTab(QtUtilsMixIn, QWidget):
     busy_state_changed = Signal(bool)
 
     # worker triggers
-    trigger_update = Signal(DeviceData)
-    trigger_update_file = Signal(DeviceData, str)
+    trigger_update = Signal(DeviceData, bool)
+    trigger_update_file = Signal(DeviceData, str, bool)
 
     def __init__(
         self,
@@ -45,6 +46,8 @@ class OverviewTab(QtUtilsMixIn, QWidget):
 
         # self.ui === self -> this tricks mypy due to monkey-patching self
         self.ui = self.load_ui("overview_tab.ui", self)
+
+        self.is_qubesos = shutil.which("qubesdb-read") is not None
 
         self.ui.btn_update_with_file.clicked.connect(self.update_with_file)
         self.ui.btn_more_options.clicked.connect(self.more_options)
@@ -175,13 +178,13 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         self.ui.btn_more_options.setIcon(QtUtilsMixIn.get_qicon("right_arrow.svg"))
         self.ui.frame_more_options.setFixedHeight(0)
 
-    @Slot()
+    @Slot(bool)
     def run_update(self) -> None:
         assert self.data
         # self.data.update(self, self.info_box)
         self.update_btns_during_update(False)
 
-        self.trigger_update.emit(self.data)
+        self.trigger_update.emit(self.data, self.is_qubesos)
 
     @Slot(bool)
     def device_updated(self, success: bool) -> None:
@@ -201,4 +204,4 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             filenames = fdialog.selectedFiles()
             file = filenames[0]
 
-            self.trigger_update_file.emit(self.data, file)
+            self.trigger_update_file.emit(self.data, file, self.is_qubesos)
