@@ -206,7 +206,7 @@ class Nk3Context:
 
     def await_device(
         self,
-        retries: Optional[int] = 30,
+        retries: Optional[int] = 90,
         callback: Optional[Callable[[int, int], None]] = None,
     ) -> Nitrokey3Device:
         assert isinstance(retries, int)
@@ -214,7 +214,7 @@ class Nk3Context:
 
     def await_bootloader(
         self,
-        retries: Optional[int] = 30,
+        retries: Optional[int] = 90,
         callback: Optional[Callable[[int, int], None]] = None,
     ) -> Nitrokey3Bootloader:
         assert isinstance(retries, int)
