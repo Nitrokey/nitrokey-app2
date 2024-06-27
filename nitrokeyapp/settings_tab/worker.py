@@ -158,6 +158,7 @@ class SaveOtpPinJob(Job):
         self.common_ui.info.error.emit(msg)
 
 class ResetFido(Job):
+    reset_fido = Signal()
 
     def __init__(
         self,
@@ -168,20 +169,17 @@ class ResetFido(Job):
 
         self.data = data
 
+        self.reset_fido.connect(lambda _: self.finished.emit())
+
     def run(self) -> None:
         with self.data.open() as device:
             ctaphid_raw_dev = device.device
             fido2_client = find(raw_device=ctaphid_raw_dev)
-            assert isinstance(fido2_client.ctap2, Ctap2)
-            client_pin = ClientPin(fido2_client.ctap2)
 
             try:
-                if fido_state:
-                    client_pin.change_pin(self.old_pin, self.new_pin)
-                else:
-                    client_pin.set_pin(self.new_pin)
+                fido2_client.reset()
             except Exception as e:
-                self.trigger_error(f"fido2 change_pin failed: {e}")
+                self.trigger_error(f"fido2 reset failed: {e}")
 
 #class ResetOtp(Job):
 
