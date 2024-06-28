@@ -180,14 +180,35 @@ class ResetFido(Job):
                 with self.touch_prompt():
                     fido2_client.reset()
             except Exception as e:
-                print(e)
-                if e == "CTAP error: 0x30 - NOT_ALLOWED":
+#                print(e)
+#                if e == "CTAP error: 0x30 - NOT_ALLOWED":
+                if e == 0X30:
                     self.trigger_error("Please replug your Nitrokey FIDO2 now!")
                 else:
                     self.trigger_error(f"fido2 reset failed: {e}")
 
-#class ResetOtp(Job):
+class ResetOtp(Job):
+    reset_otp = Signal()
 
+    def __init__(
+        self,
+        common_ui: CommonUi,
+        data: DeviceData,
+    ) -> None:
+        super().__init__(common_ui)
+
+        self.data = data
+
+        self.reset_otp.connect(lambda _: self.finished.emit())
+
+def run(self) -> None:
+        with self.data.open() as device:
+            secrets = SecretsApp(device)
+            try:
+                with self.touch_prompt():
+                    secrets.reset()
+            except SecretsAppException as e:
+                self.trigger_error(f"Passwords reset failed: {e}")
 
 
 class SettingsWorker(Worker):
