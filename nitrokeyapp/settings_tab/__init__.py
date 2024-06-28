@@ -230,6 +230,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         self.ui.status_label.show()
         self.ui.info_label.show()
+        self.ui.warning_label.hide()
 
         self.ui.btn_abort.hide()
         self.ui.btn_reset.hide()
@@ -264,6 +265,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         self.ui.status_label.hide()
         self.ui.info_label.hide()
+        self.ui.warning_label.hide()
 
         self.common_ui.info.info.emit("")
 
@@ -311,8 +313,11 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_reset.show()
         self.ui.btn_save.hide()
 
+        self.ui.warning_label.setText("Reset for FIDO2 is only possible 10secs after plugging in the device.")
+
         if pintype == SettingsTabState.FidoRst:
             self.trigger_fido_status.emit(self.data)
+            self.ui.warning_label.show()
         elif pintype == SettingsTabState.otpRst:
             self.trigger_otp_status.emit(self.data)
             self.show_otp_status(True)

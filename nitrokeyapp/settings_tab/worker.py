@@ -177,9 +177,14 @@ class ResetFido(Job):
             fido2_client = find(raw_device=ctaphid_raw_dev)
 
             try:
-                fido2_client.reset()
+                with self.touch_prompt():
+                    fido2_client.reset()
             except Exception as e:
-                self.trigger_error(f"fido2 reset failed: {e}")
+                print(e)
+                if e == "CTAP error: 0x30 - NOT_ALLOWED":
+                    self.trigger_error("Please replug your Nitrokey FIDO2 now!")
+                else:
+                    self.trigger_error(f"fido2 reset failed: {e}")
 
 #class ResetOtp(Job):
 
