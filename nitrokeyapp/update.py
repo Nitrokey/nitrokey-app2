@@ -102,6 +102,9 @@ class UpdateGUI(UpdateUi):
         logger.info("OK clicked (confirm update)")
         self.common_ui.touch.start.emit()
 
+    def pre_bootloader_hint(self) -> None:
+        self.common_ui.info.info.emit("Device is in bootloader mode")
+
     def confirm_update_same_version(self, version: Version) -> None:
         res = self.run_confirm_dialog(
             "Nitrokey 3 Firmware Update",
