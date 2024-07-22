@@ -6,7 +6,6 @@ Summary:        Graphical application to manage Nitrokey 3 devices
 License:		Apache-2.0
 URL:			https://github.com/nitrokey/%{name}
 Vendor:			Nitrokey
-BuildArch:		x86_64
 
 Source0:		%{URL}/archive/refs/tags/v%{version}.tar.gz
 
