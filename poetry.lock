@@ -45,21 +45,6 @@ files = [
 ]
 
 [[package]]
-name = "astunparse"
-version = "1.6.3"
-description = "An AST unparser for Python"
-optional = false
-python-versions = "*"
-files = [
-    {file = "astunparse-1.6.3-py2.py3-none-any.whl", hash = "sha256:c2652417f2c8b5bb325c885ae329bdf3f86424075c4fd1a128674bc6fba4b8e8"},
-    {file = "astunparse-1.6.3.tar.gz", hash = "sha256:5ad93a8456f0d084c3456d059fd9a92cce667963232cbf763eac3bc5b7940872"},
-]
-
-[package.dependencies]
-six = ">=1.6.1,<2.0"
-wheel = ">=0.23.0,<1.0"
-
-[[package]]
 name = "bincopy"
 version = "20.0.0"
 description = "Mangling of various file formats that conveys binary information (Motorola S-Record, Intel HEX and binary files)."
@@ -208,17 +193,17 @@ files = [
 
 [[package]]
 name = "bitstring"
-version = "4.1.4"
+version = "4.2.3"
 description = "Simple construction, analysis and modification of binary data."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "bitstring-4.1.4-py3-none-any.whl", hash = "sha256:da46c4d6f8f3fb75a85566fdd33d5083ba8b8f268ed76f34eefe5a00da426192"},
-    {file = "bitstring-4.1.4.tar.gz", hash = "sha256:94f3f1c45383ebe8fd4a359424ffeb75c2f290760ae8fcac421b44f89ac85213"},
+    {file = "bitstring-4.2.3-py3-none-any.whl", hash = "sha256:20ed0036e2fcf0323acb0f92f0b7b178516a080f3e91061470aa019ac4ede404"},
+    {file = "bitstring-4.2.3.tar.gz", hash = "sha256:e0c447af3fda0d114f77b88c2d199f02f97ee7e957e6d719f40f41cf15fbb897"},
 ]
 
 [package.dependencies]
-bitarray = ">=2.8.0,<3.0.0"
+bitarray = ">=2.9.0,<3.0.0"
 
 [[package]]
 name = "black"
@@ -460,44 +445,27 @@ files = [
 
 [[package]]
 name = "click"
-version = "8.1.3"
+version = "8.1.7"
 description = "Composable command line interface toolkit"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "click-8.1.3-py3-none-any.whl", hash = "sha256:bb4d8133cb15a609f44e8213d9b391b0809795062913b383c62be0ee95b1db48"},
-    {file = "click-8.1.3.tar.gz", hash = "sha256:7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e"},
+    {file = "click-8.1.7-py3-none-any.whl", hash = "sha256:ae74fb96c20a0277a1d615f1e4d73c8414f5a98db8b799a7931d1582f3390c28"},
+    {file = "click-8.1.7.tar.gz", hash = "sha256:ca9853ad459e787e2192211578cc907e7594e294c7ccc834310722b41b9ca6de"},
 ]
 
 [package.dependencies]
 colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
-name = "click-aliases"
-version = "1.0.1"
-description = "Enable aliases for Click"
-optional = false
-python-versions = "*"
-files = [
-    {file = "click-aliases-1.0.1.tar.gz", hash = "sha256:f48012077e0788eb02f4f8ee458fef3601873fec6c998e9ea8b4554394e705a3"},
-    {file = "click_aliases-1.0.1-py2.py3-none-any.whl", hash = "sha256:229ecab12a97d1d5ce3f1fd7ce16da0e4333a24ebe3b34d8b7a6d0a1d2cfab90"},
-]
-
-[package.dependencies]
-click = "*"
-
-[package.extras]
-dev = ["coveralls", "flake8", "flake8-import-order", "pytest", "pytest-cov", "tox-travis", "wheel"]
-
-[[package]]
 name = "click-command-tree"
-version = "1.1.1"
+version = "1.2.0"
 description = "click plugin to show the command tree of your CLI"
 optional = false
 python-versions = "*"
 files = [
-    {file = "click-command-tree-1.1.1.tar.gz", hash = "sha256:f1ba9c386174dff2fd29949b02a7e1ff7f0a85fca11e737d219eaa60014699a0"},
-    {file = "click_command_tree-1.1.1-py3-none-any.whl", hash = "sha256:d3739a9a344c6d033d47b02842aa31ca7e45fc9e641f9cb6afd1d065802ebd3e"},
+    {file = "click_command_tree-1.2.0-1-py3-none-any.whl", hash = "sha256:5213397dc01241db0e7757d34363cd74161027c6141d75973bc1ae65b659449f"},
+    {file = "click_command_tree-1.2.0.tar.gz", hash = "sha256:3e7f5db9f3eccc2eccab40f7979355efe6d5123c958b748dee9c242a38364d6c"},
 ]
 
 [package.dependencies]
@@ -655,13 +623,13 @@ gmpy2 = ["gmpy2"]
 
 [[package]]
 name = "fastjsonschema"
-version = "2.19.1"
+version = "2.20.0"
 description = "Fastest Python implementation of JSON schema"
 optional = false
 python-versions = "*"
 files = [
-    {file = "fastjsonschema-2.19.1-py3-none-any.whl", hash = "sha256:3672b47bc94178c9f23dbb654bf47440155d4db9df5f7bc47643315f9c405cd0"},
-    {file = "fastjsonschema-2.19.1.tar.gz", hash = "sha256:e3126a94bdc4623d3de4485f8d468a12f02a67921315ddc87836d6e456dc789d"},
+    {file = "fastjsonschema-2.20.0-py3-none-any.whl", hash = "sha256:5875f0b0fa7a0043a91e93a9b8f793bcbbba9691e7fd83dca95c28ba26d21f0a"},
+    {file = "fastjsonschema-2.20.0.tar.gz", hash = "sha256:3d48fc5300ee96f5d116f10fe6f28d938e6008f59a6a025c2649475b87f76a23"},
 ]
 
 [package.extras]
@@ -683,20 +651,6 @@ cryptography = ">=2.6,<35 || >35,<45"
 
 [package.extras]
 pcsc = ["pyscard (>=1.9,<3)"]
-
-[[package]]
-name = "fire"
-version = "0.6.0"
-description = "A library for automatically generating command line interfaces."
-optional = false
-python-versions = "*"
-files = [
-    {file = "fire-0.6.0.tar.gz", hash = "sha256:54ec5b996ecdd3c0309c800324a0703d6da512241bc73b553db959d98de0aa66"},
-]
-
-[package.dependencies]
-six = "*"
-termcolor = "*"
 
 [[package]]
 name = "flake8"
@@ -1020,19 +974,6 @@ files = [
 importlib-resources = "*"
 
 [[package]]
-name = "libusb1"
-version = "3.1.0"
-description = "Pure-python wrapper for libusb-1.0"
-optional = false
-python-versions = "*"
-files = [
-    {file = "libusb1-3.1.0-py3-none-any.whl", hash = "sha256:9d9f16e2c199cab91f48ead585d3f5ec7e8e4be428a25ddfed22abf786fa9b3a"},
-    {file = "libusb1-3.1.0-py3-none-win32.whl", hash = "sha256:bc7874302565721f443a27d8182fcc7152e5b560523f12f1377b130f473e4a0c"},
-    {file = "libusb1-3.1.0-py3-none-win_amd64.whl", hash = "sha256:77a06ecfb3d002d7c2ce369e28d0138b292fe8db8a3d102b73fda231a716dd35"},
-    {file = "libusb1-3.1.0.tar.gz", hash = "sha256:4ee9b0a55f8bd0b3ea7017ae919a6c1f439af742c4a4b04543c5fd7af89b828c"},
-]
-
-[[package]]
 name = "libusbsio"
 version = "2.1.12"
 description = "Python wrapper around NXP LIBUSBSIO library"
@@ -1210,27 +1151,6 @@ fast = ["fastnumbers (>=2.0.0)"]
 icu = ["PyICU (>=1.0.0)"]
 
 [[package]]
-name = "nethsm"
-version = "1.2.1"
-description = "Python Library to manage NetHSM(s)."
-optional = false
-python-versions = ">=3.9"
-files = [
-    {file = "nethsm-1.2.1-py3-none-any.whl", hash = "sha256:889d8641841b93fcf712f6f876ccd2854d07b3d40eef9deaf4979e59383a15a9"},
-    {file = "nethsm-1.2.1.tar.gz", hash = "sha256:10fc462450861a5de9df22e533b347ef1b44552db0a118a028984be7b0348001"},
-]
-
-[package.dependencies]
-certifi = "*"
-cryptography = ">=41.0"
-python-dateutil = "*"
-typing_extensions = ">=4.3.0,<4.4.0"
-urllib3 = ">=2.0,<2.1"
-
-[package.extras]
-dev = ["black (>=22.1.0,<23)", "cryptography", "docker", "flake8", "flit (>=3.2,<4)", "ipython", "isort", "mypy (>=1.4,<1.5)", "podman (>=5,<6)", "pycryptodome", "pytest", "pytest-cov", "pytest-reporter-html1", "pyyaml", "requests (<2.32.0)", "types-python-dateutil", "types-requests"]
-
-[[package]]
 name = "nitrokey"
 version = "0.1.0"
 description = "Nitrokey Python SDK"
@@ -1250,23 +1170,6 @@ requests = ">=2,<3"
 semver = ">=3,<4"
 spsdk = ">=2,<2.3"
 tlv8 = ">=0.10,<0.11"
-
-[[package]]
-name = "nkdfu"
-version = "0.2"
-description = "DFU tool for updating Nitrokeys' firmware"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "nkdfu-0.2-py3-none-any.whl", hash = "sha256:a7e8105b80c4e26c3d02cdec2993f5bc62b49867cb138d31cddb0247e62ce6e7"},
-    {file = "nkdfu-0.2.tar.gz", hash = "sha256:f25f75ddd382c47285b6943cde9f51577b1496ed284f93d58b5e054ae609f5f8"},
-]
-
-[package.dependencies]
-fire = "*"
-intelhex = ">=2.3.0"
-libusb1 = ">=1.9.3"
-tqdm = "*"
 
 [[package]]
 name = "oscrypto"
@@ -1317,35 +1220,36 @@ files = [
 
 [[package]]
 name = "platformdirs"
-version = "4.1.0"
-description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
+version = "4.2.2"
+description = "A small Python package for determining appropriate platform-specific dirs, e.g. a `user data dir`."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "platformdirs-4.1.0-py3-none-any.whl", hash = "sha256:11c8f37bcca40db96d8144522d925583bdb7a31f7b0e37e3ed4318400a8e2380"},
-    {file = "platformdirs-4.1.0.tar.gz", hash = "sha256:906d548203468492d432bcb294d4bc2fff751bf84971fbb2c10918cc206ee420"},
+    {file = "platformdirs-4.2.2-py3-none-any.whl", hash = "sha256:2d7a1657e36a80ea911db832a8a6ece5ee53d8de21edd5cc5879af6530b1bfee"},
+    {file = "platformdirs-4.2.2.tar.gz", hash = "sha256:38b7b51f512eed9e84a22788b4bce1de17c0adb134d6becb09836e37d8654cd3"},
 ]
 
 [package.extras]
-docs = ["furo (>=2023.7.26)", "proselint (>=0.13)", "sphinx (>=7.1.1)", "sphinx-autodoc-typehints (>=1.24)"]
-test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=7.4)", "pytest-cov (>=4.1)", "pytest-mock (>=3.11.1)"]
+docs = ["furo (>=2023.9.10)", "proselint (>=0.13)", "sphinx (>=7.2.6)", "sphinx-autodoc-typehints (>=1.25.2)"]
+test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=7.4.3)", "pytest-cov (>=4.1)", "pytest-mock (>=3.12)"]
+type = ["mypy (>=1.8)"]
 
 [[package]]
 name = "prettytable"
-version = "3.9.0"
+version = "3.10.2"
 description = "A simple Python library for easily displaying tabular data in a visually appealing ASCII table format"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "prettytable-3.9.0-py3-none-any.whl", hash = "sha256:a71292ab7769a5de274b146b276ce938786f56c31cf7cea88b6f3775d82fe8c8"},
-    {file = "prettytable-3.9.0.tar.gz", hash = "sha256:f4ed94803c23073a90620b201965e5dc0bccf1760b7a7eaf3158cab8aaffdf34"},
+    {file = "prettytable-3.10.2-py3-none-any.whl", hash = "sha256:1cbfdeb4bcc73976a778a0fb33cb6d752e75396f16574dcb3e2d6332fd93c76a"},
+    {file = "prettytable-3.10.2.tar.gz", hash = "sha256:29ec6c34260191d42cd4928c28d56adec360ac2b1208a26c7e4f14b90cc8bc84"},
 ]
 
 [package.dependencies]
 wcwidth = "*"
 
 [package.extras]
-tests = ["pytest", "pytest-cov", "pytest-lazy-fixture"]
+tests = ["pytest", "pytest-cov", "pytest-lazy-fixtures"]
 
 [[package]]
 name = "protobuf"
@@ -1534,43 +1438,6 @@ psutil = ">=5.2.2"
 six = "*"
 
 [[package]]
-name = "pynitrokey"
-version = "0.4.48"
-description = "Python Library for Nitrokey devices."
-optional = false
-python-versions = ">=3.9"
-files = [
-    {file = "pynitrokey-0.4.48-py3-none-any.whl", hash = "sha256:204af349252e52e2724c7a234b009389ef0942f8c0af3b5b5babca9f163c3688"},
-    {file = "pynitrokey-0.4.48.tar.gz", hash = "sha256:4e5f5e5521053a7423e021ec86facb5a497d3a44850e2bda8423d0d104d88294"},
-]
-
-[package.dependencies]
-certifi = ">=14.5.14"
-cffi = "*"
-click = ">=8.0,<=8.1.3"
-click-aliases = "*"
-cryptography = ">=41.0.4,<44"
-ecdsa = "*"
-fido2 = ">=1.1.2,<2"
-intelhex = "*"
-nethsm = ">=1.1.0,<2"
-nkdfu = "*"
-protobuf = ">=3.17.3,<4.0.0"
-pyserial = "*"
-python-dateutil = ">=2.7.0,<2.8.0"
-pyusb = "*"
-requests = "*"
-semver = "*"
-spsdk = ">=2.0,<2.2"
-tlv8 = "*"
-tqdm = "*"
-typing_extensions = ">=4.3.0,<4.4.0"
-
-[package.extras]
-dev = ["black (>=22.1.0,<23)", "flake8", "flit (>=3.2,<4)", "ipython", "isort", "mypy (>=1.4,<1.5)", "oath", "pyinstaller (>=6.5.0,<6.6.0)", "pyinstaller-versionfile (==2.1.1)", "pytest", "pytest-reporter-html1", "types-requests", "types-tqdm"]
-pcsc = ["pyscard (>=2.0.0,<3)"]
-
-[[package]]
 name = "pyocd"
 version = "0.36.0"
 description = "Cortex-M debugger for Python"
@@ -1723,20 +1590,6 @@ PySide6 = ">=6.0"
 
 [package.extras]
 dev = ["pytest"]
-
-[[package]]
-name = "python-dateutil"
-version = "2.7.5"
-description = "Extensions to the standard Python datetime module"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
-files = [
-    {file = "python-dateutil-2.7.5.tar.gz", hash = "sha256:88f9287c0174266bb0d8cedd395cfba9c58e87e5ad86b2ce58859bc11be3cf02"},
-    {file = "python_dateutil-2.7.5-py2.py3-none-any.whl", hash = "sha256:063df5763652e21de43de7d9e00ccf239f953a832941e37be541614732cdfc93"},
-]
-
-[package.dependencies]
-six = ">=1.5"
 
 [[package]]
 name = "pyudev"
@@ -1996,6 +1849,28 @@ doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-
 test = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "importlib-metadata", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "jaraco.test", "mypy (==1.11.*)", "packaging (>=23.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.*)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-home (>=0.5)", "pytest-mypy", "pytest-perf", "pytest-ruff (<0.4)", "pytest-ruff (>=0.2.1)", "pytest-ruff (>=0.3.2)", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel (>=0.44.0)"]
 
 [[package]]
+name = "setuptools-scm"
+version = "8.1.0"
+description = "the blessed package to manage your versions by scm tags"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "setuptools_scm-8.1.0-py3-none-any.whl", hash = "sha256:897a3226a6fd4a6eb2f068745e49733261a21f70b1bb28fce0339feb978d9af3"},
+    {file = "setuptools_scm-8.1.0.tar.gz", hash = "sha256:42dea1b65771cba93b7a515d65a65d8246e560768a66b9106a592c8e7f26c8a7"},
+]
+
+[package.dependencies]
+packaging = ">=20"
+setuptools = "*"
+tomli = {version = ">=1", markers = "python_version < \"3.11\""}
+typing-extensions = {version = "*", markers = "python_version < \"3.10\""}
+
+[package.extras]
+docs = ["entangled-cli (>=2.0,<3.0)", "mkdocs", "mkdocs-entangled-plugin", "mkdocs-material", "mkdocstrings[python]", "pygments"]
+rich = ["rich"]
+test = ["build", "pytest", "rich", "typing-extensions", "wheel"]
+
+[[package]]
 name = "shiboken6"
 version = "6.7.2"
 description = "Python/C++ bindings helper module"
@@ -2043,63 +1918,50 @@ files = [
 
 [[package]]
 name = "spsdk"
-version = "2.1.1"
+version = "2.2.1"
 description = "Open Source Secure Provisioning SDK for NXP MCU/MPU"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "spsdk-2.1.1-py3-none-any.whl", hash = "sha256:70fcba60c5eb692c67e82c2d81ce3d9bab2fb3f286e7a11be0f9b6d2cd06f268"},
-    {file = "spsdk-2.1.1.tar.gz", hash = "sha256:2251c370d7493729295a551564c206381a06e830e366f2f5fd3154172cd10f21"},
+    {file = "spsdk-2.2.1-py3-none-any.whl", hash = "sha256:b4255a51360933e4d1d74caea4638bf86ab70f6e02bc9e6aa76593f67efc51af"},
+    {file = "spsdk-2.2.1.tar.gz", hash = "sha256:3c2a69e68842192a5a0f407a3433f018350f7e983772ccd56acf91b4e6e67687"},
 ]
 
 [package.dependencies]
 asn1crypto = ">=1.2,<1.6"
-astunparse = ">=1.6,<1.7"
 bincopy = ">=17.14.5,<20.1"
-bitstring = ">=3.1,<4.2"
-click = ">=7.1,<8.1.4 || >8.1.4,<8.1.6"
-click-command-tree = "<1.2"
+bitstring = ">=3.1,<4.3"
+click = ">=7.1,<8.1.4 || >8.1.4,<8.2"
+click-command-tree = "<1.3"
 click-option-group = ">=0.3.0,<0.6"
 colorama = ">=0.4.6,<0.5"
 crcmod = "<1.8"
 cryptography = ">=42.0.0,<42.1"
 deepmerge = "<1.2"
-fastjsonschema = ">=2.15.1,<2.20"
+fastjsonschema = ">=2.15.1,<2.21"
 hexdump = "<3.4"
-libusbsio = ">=2.1.11,<2.2"
+libusbsio = ">=2.1.12,<2.2"
 oscrypto = "<1.4"
-platformdirs = ">=3.9.1,<4.2"
-prettytable = ">=3.0.0,<3.10"
-pylink-square = ">=1.0,<1.3"
+packaging = ">=23.2,<24.2"
+platformdirs = ">=3.9.1,<4.3"
+prettytable = ">=3.0.0,<3.11"
 pyocd = ">=0.35.1,<0.37"
 pyocd-pemicro = ">=1.1.5,<1.2"
-pypemicro = ">=0.1.11,<0.2"
 pyserial = ">=3.1,<3.6"
 requests = ">=2.0,<2.32"
 "ruamel.yaml" = ">=0.17,<0.19"
+setuptools-scm = "<8.2"
 sly = "<0.6"
-typing-extensions = "<4.10"
+typing-extensions = "<4.12"
 
 [package.extras]
-all = ["asn1tools (>=0.160,<1)", "flask", "ftd2xx", "gmssl (>=3.2,<4)", "ipython", "notebook", "pyftdi", "pylibftdi", "pyscard (==2.0.2)", "requests", "swig"]
+all = ["asn1tools (>=0.160,<1)", "flask", "ftd2xx", "gmssl (>=3.2,<4)", "ipython", "notebook", "pyftdi", "pylibftdi", "pyscard (==2.0.2)", "python-can (<4.4)", "requests", "spsdk-pqc (>=0.3,<1.0)"]
+can = ["python-can (<4.4)"]
 dk6 = ["ftd2xx", "pyftdi", "pylibftdi"]
 examples = ["flask", "ipython", "notebook", "requests"]
 oscca = ["asn1tools (>=0.160,<1)", "gmssl (>=3.2,<4)"]
-tp = ["pyscard (==2.0.2)", "swig"]
-
-[[package]]
-name = "termcolor"
-version = "2.4.0"
-description = "ANSI color formatting for output in terminal"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "termcolor-2.4.0-py3-none-any.whl", hash = "sha256:9297c0df9c99445c2412e832e882a7884038a25617c60cea2ad69488d4040d63"},
-    {file = "termcolor-2.4.0.tar.gz", hash = "sha256:aab9e56047c8ac41ed798fa36d892a37aca6b3e9159f3e0c24bc64a9b3ac7b7a"},
-]
-
-[package.extras]
-tests = ["pytest", "pytest-cov"]
+pqc = ["spsdk-pqc (>=0.3,<1.0)"]
+tp = ["pyscard (==2.0.2)"]
 
 [[package]]
 name = "tlv8"
@@ -2123,50 +1985,30 @@ files = [
 ]
 
 [[package]]
-name = "tqdm"
-version = "4.66.5"
-description = "Fast, Extensible Progress Meter"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "tqdm-4.66.5-py3-none-any.whl", hash = "sha256:90279a3770753eafc9194a0364852159802111925aa30eb3f9d85b0e805ac7cd"},
-    {file = "tqdm-4.66.5.tar.gz", hash = "sha256:e1020aef2e5096702d8a025ac7d16b1577279c9d63f8375b63083e9a5f0fcbad"},
-]
-
-[package.dependencies]
-colorama = {version = "*", markers = "platform_system == \"Windows\""}
-
-[package.extras]
-dev = ["pytest (>=6)", "pytest-cov", "pytest-timeout", "pytest-xdist"]
-notebook = ["ipywidgets (>=6)"]
-slack = ["slack-sdk"]
-telegram = ["requests"]
-
-[[package]]
 name = "typing-extensions"
-version = "4.3.0"
-description = "Backported and Experimental Type Hints for Python 3.7+"
+version = "4.11.0"
+description = "Backported and Experimental Type Hints for Python 3.8+"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "typing_extensions-4.3.0-py3-none-any.whl", hash = "sha256:25642c956049920a5aa49edcdd6ab1e06d7e5d467fc00e0506c44ac86fbfca02"},
-    {file = "typing_extensions-4.3.0.tar.gz", hash = "sha256:e6d2677a32f47fc7eb2795db1dd15c1f34eff616bcaf2cfb5e997f854fa1c4a6"},
+    {file = "typing_extensions-4.11.0-py3-none-any.whl", hash = "sha256:c1f94d72897edaf4ce775bb7558d5b79d8126906a14ea5ed1635921406c0387a"},
+    {file = "typing_extensions-4.11.0.tar.gz", hash = "sha256:83f085bd5ca59c80295fc2a82ab5dac679cbe02b9f33f7d83af68e241bea51b0"},
 ]
 
 [[package]]
 name = "urllib3"
-version = "2.0.7"
+version = "2.2.2"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "urllib3-2.0.7-py3-none-any.whl", hash = "sha256:fdb6d215c776278489906c2f8916e6e7d4f5a9b602ccbcfdf7f016fc8da0596e"},
-    {file = "urllib3-2.0.7.tar.gz", hash = "sha256:c97dfde1f7bd43a71c8d2a58e369e9b2bf692d1334ea9f9cae55add7d0dd0f84"},
+    {file = "urllib3-2.2.2-py3-none-any.whl", hash = "sha256:a448b2f64d686155468037e1ace9f2d2199776e17f0a46610480d311f73e3472"},
+    {file = "urllib3-2.2.2.tar.gz", hash = "sha256:dd505485549a7a552833da5e6063639d0d177c04f23bc3864e41e5dc5f612168"},
 ]
 
 [package.extras]
 brotli = ["brotli (>=1.0.9)", "brotlicffi (>=0.8.0)"]
-secure = ["certifi", "cryptography (>=1.9)", "idna (>=2.0.0)", "pyopenssl (>=17.1.0)", "urllib3-secure-extra"]
+h2 = ["h2 (>=4,<5)"]
 socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
 zstd = ["zstandard (>=0.18.0)"]
 
@@ -2196,20 +2038,6 @@ files = [
     {file = "wcwidth-0.2.13-py2.py3-none-any.whl", hash = "sha256:3da69048e4540d84af32131829ff948f1e022c1c6bdb8d6102117aac784f6859"},
     {file = "wcwidth-0.2.13.tar.gz", hash = "sha256:72ea0c06399eb286d978fdedb6923a9eb47e1c486ce63e9b4e64fc18303972b5"},
 ]
-
-[[package]]
-name = "wheel"
-version = "0.44.0"
-description = "A built-package format for Python"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "wheel-0.44.0-py3-none-any.whl", hash = "sha256:2376a90c98cc337d18623527a97c31797bd02bad0033d41547043a1cbfbe448f"},
-    {file = "wheel-0.44.0.tar.gz", hash = "sha256:a29c3f2817e95ab89aa4660681ad547c0e9547f20e75b0562fe7723c9a2a9d49"},
-]
-
-[package.extras]
-test = ["pytest (>=6.0.0)", "setuptools (>=65)"]
 
 [[package]]
 name = "wmi"
@@ -2254,4 +2082,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.13"
-content-hash = "bc9cdc4957c66203b9d0e4494d548e0811111db29bd6c2874205b76bf0e62f68"
+content-hash = "5b6c2560ef741afa7f17ce64e4441c37388ef2f2ce6a10e5ddc2bf5edb3f5dc1"
