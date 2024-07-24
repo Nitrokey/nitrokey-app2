@@ -2,12 +2,12 @@ import logging
 
 from fido2.ctap2.base import Ctap2
 from fido2.ctap2.pin import ClientPin
-from pynitrokey.fido2 import find
-from pynitrokey.nk3.secrets_app import (
+from nitrokey.nk3.secrets_app import (
     SecretsApp,
     SecretsAppException,
     SelectResponse,
 )
+from pynitrokey.fido2 import find
 from PySide6.QtCore import Signal, Slot
 
 from nitrokeyapp.common_ui import CommonUi

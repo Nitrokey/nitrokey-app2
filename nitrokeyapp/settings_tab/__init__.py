@@ -2,7 +2,7 @@ import logging
 from enum import Enum
 from typing import Optional
 
-from pynitrokey.nk3.secrets_app import SelectResponse
+from nitrokey.nk3.secrets_app import SelectResponse
 from PySide6.QtCore import QThread, Signal, Slot
 from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem, QWidget
 

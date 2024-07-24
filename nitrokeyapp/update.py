@@ -13,16 +13,12 @@ from typing import (
 )
 
 # Nitrokey 3
-from pynitrokey.cli.exceptions import CliException
+from nitrokey.nk3 import NK3, NK3Bootloader
+from nitrokey.nk3 import list as list_nk3
+from nitrokey.nk3 import open as open_nk3
+from nitrokey.nk3.updates import Updater, UpdateUi
+from nitrokey.trussed import TrussedBase, Variant, Version
 from pynitrokey.helpers import Retries
-from pynitrokey.nk3 import list as list_nk3
-from pynitrokey.nk3 import open as open_nk3
-from pynitrokey.nk3.bootloader import Nitrokey3Bootloader
-from pynitrokey.nk3.device import Nitrokey3Device
-from pynitrokey.nk3.updates import Updater, UpdateUi
-from pynitrokey.trussed.base import NitrokeyTrussedBase
-from pynitrokey.trussed.bootloader import Variant
-from pynitrokey.trussed.utils import Version
 from PySide6.QtCore import QCoreApplication
 
 if TYPE_CHECKING:
@@ -30,7 +26,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-T = TypeVar("T", bound=NitrokeyTrussedBase)
+T = TypeVar("T", bound=TrussedBase)
 
 
 class UpdateGUI(UpdateUi):
@@ -45,10 +41,10 @@ class UpdateGUI(UpdateUi):
         self.await_confirmation: Optional[bool] = None
 
     def error(self, *msgs: Any) -> Exception:
-        return CliException(*msgs)
+        return Exception(*msgs)
 
     def abort(self, *msgs: Any) -> Exception:
-        return CliException(*msgs, support_hint=False)
+        return Exception(*msgs)
 
     def abort_downgrade(self, current: Version, image: Version) -> Exception:
         self._print_firmware_versions(current, image)
@@ -173,7 +169,7 @@ class Nk3Context:
         logger.info(f"path: {path}")
         self.updating = False
 
-    def connect(self) -> NitrokeyTrussedBase:
+    def connect(self) -> TrussedBase:
         device = open_nk3(self.path)
         # TODO: improve error handling
         if not device:
@@ -200,29 +196,29 @@ class Nk3Context:
                 logger.debug(f"No {name} device found, continuing")
                 continue
             if len(devices) > 1:
-                raise CliException(f"Multiple {name} devices found")
+                raise Exception(f"Multiple {name} devices found")
             if callback:
                 callback(100, 100)
             return devices[0]
 
-        raise CliException(f"No {name} device found")
+        raise Exception(f"No {name} device found")
 
     def await_device(
         self,
         retries: Optional[int] = 90,
         callback: Optional[Callable[[int, int], None]] = None,
-    ) -> Nitrokey3Device:
+    ) -> NK3:
         assert isinstance(retries, int)
-        return self._await("Nitrokey 3", Nitrokey3Device, retries, callback)
+        return self._await("Nitrokey 3", NK3, retries, callback)
 
     def await_bootloader(
         self,
         retries: Optional[int] = 90,
         callback: Optional[Callable[[int, int], None]] = None,
-    ) -> Nitrokey3Bootloader:
+    ) -> NK3Bootloader:
         assert isinstance(retries, int)
         # mypy does not allow abstract types here, but this is still valid
-        return self._await("Nitrokey 3 bootloader", Nitrokey3Bootloader, retries, callback)  # type: ignore
+        return self._await("Nitrokey 3 bootloader", NK3Bootloader, retries, callback)  # type: ignore
 
     def update(
         self,

@@ -31,6 +31,7 @@ packages = [
 nitrokeyapp = "nitrokeyapp.__main__:main"
 
 [tool.poetry.dependencies]
+nitrokey = "^0.1"
 python = ">=3.9,<3.13"
 pySide6 = ">=6.6.0"
 pyudev = "^0.24.1"

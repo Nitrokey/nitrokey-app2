@@ -1,8 +1,8 @@
 import webbrowser
 from typing import Optional
 
-from pynitrokey.trussed.utils import Version
-from pynitrokey.updates import Release, Repository
+from nitrokey.trussed import Version
+from nitrokey.updates import Release, Repository
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QWidget
 
