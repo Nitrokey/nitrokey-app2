@@ -1231,6 +1231,27 @@ urllib3 = ">=2.0,<2.1"
 dev = ["black (>=22.1.0,<23)", "cryptography", "docker", "flake8", "flit (>=3.2,<4)", "ipython", "isort", "mypy (>=1.4,<1.5)", "podman (>=5,<6)", "pycryptodome", "pytest", "pytest-cov", "pytest-reporter-html1", "pyyaml", "requests (<2.32.0)", "types-python-dateutil", "types-requests"]
 
 [[package]]
+name = "nitrokey"
+version = "0.1.0"
+description = "Nitrokey Python SDK"
+optional = false
+python-versions = "<4.0,>=3.9"
+files = [
+    {file = "nitrokey-0.1.0-py3-none-any.whl", hash = "sha256:e4e2006e3edf601c87a960ff4e5f2294f9c03afe0053548eaf0e3f02e7bafb30"},
+    {file = "nitrokey-0.1.0.tar.gz", hash = "sha256:743b0406327e11eab08474aae0d6eec1f29e95b733bae84c495839b0c4c1f51c"},
+]
+
+[package.dependencies]
+ecdsa = ">=0.19,<0.20"
+fido2 = ">=1.1.2,<2.0.0"
+protobuf = ">=3.17.3,<4.0.0"
+pyserial = ">=3.5,<4.0"
+requests = ">=2,<3"
+semver = ">=3,<4"
+spsdk = ">=2,<2.3"
+tlv8 = ">=0.10,<0.11"
+
+[[package]]
 name = "nkdfu"
 version = "0.2"
 description = "DFU tool for updating Nitrokeys' firmware"
@@ -2233,4 +2254,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.13"
-content-hash = "4ec65b4cf77f3813a9baf8ca8a1c80daf3ed3e073190e96622ef4c0b4872d8ad"
+content-hash = "bc9cdc4957c66203b9d0e4494d548e0811111db29bd6c2874205b76bf0e62f68"

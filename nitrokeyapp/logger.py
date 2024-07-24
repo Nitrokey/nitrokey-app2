@@ -44,7 +44,7 @@ def log_environment() -> None:
     logger.info(f"Python version: {platform.python_version()}")
     pymodules = [
         "nitrokeyapp",
-        "pynitrokey",
+        "nitrokey",
         "cryptography",
         "ecdsa",
         "fido2",

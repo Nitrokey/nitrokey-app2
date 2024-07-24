@@ -1,4 +1,4 @@
-"""Experimental Nitrokey GUI Application - based on pynitrokey"""
+"""Experimental Nitrokey GUI Application - based on the Nitrokey Python SDK"""
 
 import importlib.metadata
 import pathlib

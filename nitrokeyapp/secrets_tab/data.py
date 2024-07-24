@@ -3,8 +3,8 @@ from datetime import datetime
 from enum import Enum, auto, unique
 from typing import Optional, Union
 
-from pynitrokey.nk3.secrets_app import Kind as RawKind
-from pynitrokey.nk3.secrets_app import ListItem, PasswordSafeEntry, SecretsApp
+from nitrokey.nk3.secrets_app import Kind as RawKind
+from nitrokey.nk3.secrets_app import ListItem, PasswordSafeEntry, SecretsApp
 
 # TODO: these could be moved into pynitrokey
 
