@@ -7,7 +7,6 @@ from nitrokey.nk3.secrets_app import (
     SecretsAppException,
     SelectResponse,
 )
-from pynitrokey.fido2 import find
 from PySide6.QtCore import Signal, Slot
 
 from nitrokeyapp.common_ui import CommonUi
@@ -34,9 +33,8 @@ class CheckFidoPinStatus(Job):
     def run(self) -> None:
         pin_status: bool = False
         with self.data.open() as device:
-            ctaphid_raw_dev = device.device
-            fido2_client = find(raw_device=ctaphid_raw_dev)
-            pin_status = fido2_client.has_pin()
+            ctap2 = Ctap2(device.device)
+            pin_status = ctap2.info.options["clientPin"]
         self.status_fido.emit(pin_status)
         return
 
@@ -89,18 +87,15 @@ class SaveFidoPinJob(Job):
     def check(self) -> bool:
         pin_status: bool = False
         with self.data.open() as device:
-            ctaphid_raw_dev = device.device
-            fido2_client = find(raw_device=ctaphid_raw_dev)
-            pin_status = fido2_client.has_pin()
+            ctap2 = Ctap2(device.device)
+            pin_status = ctap2.info.options["clientPin"]
         return pin_status
 
     def run(self) -> None:
         fido_state = self.check()
         with self.data.open() as device:
-            ctaphid_raw_dev = device.device
-            fido2_client = find(raw_device=ctaphid_raw_dev)
-            assert isinstance(fido2_client.ctap2, Ctap2)
-            client_pin = ClientPin(fido2_client.ctap2)
+            ctap2 = Ctap2(device.device)
+            client_pin = ClientPin(ctap2)
 
             try:
                 if fido_state:
@@ -174,12 +169,11 @@ class ResetFido(Job):
 
     def run(self) -> None:
         with self.data.open() as device:
-            ctaphid_raw_dev = device.device
-            fido2_client = find(raw_device=ctaphid_raw_dev)
+            ctap2 = Ctap2(device.device)
 
             try:
                 with self.touch_prompt():
-                    fido2_client.reset()
+                    ctap2.reset()
                     self.common_ui.info.info.emit("FIDO2 function reset successfully!")
             except Exception as e:
                 a = str(e)
