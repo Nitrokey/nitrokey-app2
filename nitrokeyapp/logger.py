@@ -42,15 +42,7 @@ def log_environment() -> None:
     logger.info(f"Timestamp: {datetime.now()}")
     logger.info(f"OS: {platform.uname()}")
     logger.info(f"Python version: {platform.python_version()}")
-    pymodules = [
-        "nitrokeyapp",
-        "nitrokey",
-        "cryptography",
-        "ecdsa",
-        "fido2",
-        "pyusb",
-        "spsdk",
-    ]
+    pymodules = ["nitrokeyapp", "nitrokey", "cryptography", "ecdsa", "fido2"]
     for x in pymodules:
         logger.info(f"{x} version: {package_version(x)}")
 
