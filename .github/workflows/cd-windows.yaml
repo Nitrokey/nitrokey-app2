@@ -144,11 +144,11 @@ jobs:
         run: |
           mv `
             nitrokey-app.exe `
-            nitrokey-app-${{ github.event.release.tag_name }}-x64-windows-binary.exe
+            nitrokey-app-${{ github.event.release.tag_name }}-x64-windows-binary_unsigned.exe
       - name: Publish release
         uses: softprops/action-gh-release@v1
         with:
-          files: nitrokey-app-${{ github.event.release.tag_name }}-x64-windows-binary.exe
+          files: nitrokey-app-${{ github.event.release.tag_name }}-x64-windows-binary_unsigned.exe
   publish-msi-installer:
     name: Publish MSI installer
     runs-on: windows-latest
@@ -164,8 +164,8 @@ jobs:
         run: |
           mv `
             nitrokey-app.msi `
-            nitrokey-app-${{ github.event.release.tag_name }}-x64-windows-installer.msi
+            nitrokey-app-${{ github.event.release.tag_name }}-x64-windows-installer_unsigned.msi
       - name: Publish release
         uses: softprops/action-gh-release@v1
         with:
-          files: nitrokey-app-${{ github.event.release.tag_name }}-x64-windows-installer.msi
+          files: nitrokey-app-${{ github.event.release.tag_name }}-x64-windows-installer_unsigned.msi
