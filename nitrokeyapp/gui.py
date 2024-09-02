@@ -5,7 +5,7 @@ from types import TracebackType
 from typing import Dict, Optional, Type
 
 from PySide6 import QtWidgets
-from PySide6.QtCore import Qt, Signal, Slot
+from PySide6.QtCore import QEvent, Qt, Signal, Slot
 from PySide6.QtGui import QCursor
 from usbmonitor import USBMonitor
 
@@ -344,3 +344,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         dialog = ErrorDialog(self.log_file, self)
         dialog.set_exception(ty, e, tb)
+
+    def closeEvent(self, event: QEvent) -> None:
+        self.overview_tab.worker_thread.quit()
+        self.settings_tab.worker_thread.quit()
+        self.secrets_tab.worker_thread.quit()
+        event.accept()
