@@ -137,16 +137,19 @@ class SavePasswordsPinJob(Job):
 
     def run(self) -> None:
         passwords_state = self.check()
-        with self.data.open() as device:
-            secrets = SecretsApp(device)
-            try:
-                with self.touch_prompt():
+        print(passwords_state)
+        print(self.old_pin)
+        print(self.new_pin)
+        with self.touch_prompt():
+            with self.data.open() as device:
+                secrets = SecretsApp(device)
+                try:
                     if passwords_state:
                         secrets.change_pin_raw(self.old_pin, self.new_pin)
                     else:
                         secrets.set_pin_raw(self.new_pin)
-            except SecretsAppException as e:
-                self.trigger_error(f"PIN validation failed: {e}")
+                except SecretsAppException as e:
+                    self.trigger_error(f"PIN validation failed: {e}")
 
     @Slot(str)
     def trigger_error(self, msg: str) -> None:
@@ -174,7 +177,9 @@ class ResetFido(Job):
             try:
                 with self.touch_prompt():
                     ctap2.reset()
-                    self.common_ui.info.info.emit("FIDO2 function reset successfully!")
+                    self.common_ui.info.info.emit(
+                        "FIDO2 function reset successfully!"
+                    )
             except Exception as e:
                 a = str(e)
                 if a == "CTAP error: 0x30 - NOT_ALLOWED":
@@ -236,13 +241,17 @@ class SettingsWorker(Worker):
         self.run(job)
 
     @Slot(DeviceData, str, str)
-    def fido_change_pw(self, data: DeviceData, old_pin: str, new_pin: str) -> None:
+    def fido_change_pw(
+        self, data: DeviceData, old_pin: str, new_pin: str
+    ) -> None:
         job = SaveFidoPinJob(self.common_ui, data, old_pin, new_pin)
         job.change_pw_fido.connect(self.change_pw_fido)
         self.run(job)
 
     @Slot(DeviceData, str, str)
-    def passwords_change_pw(self, data: DeviceData, old_pin: str, new_pin: str) -> None:
+    def passwords_change_pw(
+        self, data: DeviceData, old_pin: str, new_pin: str
+    ) -> None:
         job = SavePasswordsPinJob(self.common_ui, data, old_pin, new_pin)
         job.change_pw_passwords.connect(self.change_pw_passwords)
         self.run(job)

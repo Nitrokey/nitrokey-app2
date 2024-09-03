@@ -59,7 +59,9 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         self.trigger_fido_status.connect(self._worker.fido_status)
         self.trigger_passwords_status.connect(self._worker.passwords_status)
-        self.trigger_passwords_change_pw.connect(self._worker.passwords_change_pw)
+        self.trigger_passwords_change_pw.connect(
+            self._worker.passwords_change_pw
+        )
         self.trigger_fido_change_pw.connect(self._worker.fido_change_pw)
         self.trigger_fido_reset.connect(self._worker.fido_reset)
         self.trigger_passwords_reset.connect(self._worker.passwords_reset)
@@ -68,6 +70,9 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self._worker.info_passwords.connect(self.handle_info_passwords)
 
         self.ui = self.load_ui("settings_tab.ui", self)
+
+        self.ui.btn_abort.pressed.connect(self.abort)
+        self.ui.btn_save.pressed.connect(self.save_pin)
 
         # Tree
         pin_icon = self.get_qicon("dialpad.svg")
@@ -149,6 +154,8 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.new_password.textChanged.connect(self.check_credential)
         self.ui.repeat_password.textChanged.connect(self.check_credential)
 
+        self.active_item = None
+
         self.reset()
 
     def field_btn(self) -> None:
@@ -167,7 +174,9 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.action_new_password_show = self.ui.new_password.addAction(
             icon_visibility, loc
         )
-        self.action_new_password_show.triggered.connect(self.act_new_password_show)
+        self.action_new_password_show.triggered.connect(
+            self.act_new_password_show
+        )
 
         self.action_repeat_password_show = self.ui.repeat_password.addAction(
             icon_visibility, loc
@@ -199,8 +208,12 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.show_repeat_password_false.setVisible(False)
 
     def show_widget(self, item: QTreeWidgetItem) -> None:
+        self.active_item = item
         pintype = item.data(1, 0)
-        if pintype == SettingsTabState.Fido or pintype == SettingsTabState.passwords:
+        if (
+            pintype == SettingsTabState.Fido
+            or pintype == SettingsTabState.passwords
+        ):
             self.show_pin(item)
             self.collapse_all_except(item)
             item.setExpanded(True)
@@ -213,10 +226,12 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             pintype == SettingsTabState.FidoRst
             or pintype == SettingsTabState.passwordsRst
         ):
-            self.rst(item)
+            self.rst()
 
     def collapse_all_except(self, item: QTreeWidgetItem) -> None:
-        top_level_items = self.ui.settings_tree.invisibleRootItem().takeChildren()
+        top_level_items = (
+            self.ui.settings_tree.invisibleRootItem().takeChildren()
+        )
         for top_level_item in top_level_items:
             if top_level_item is not item.parent():
                 top_level_item.setExpanded(False)
@@ -287,19 +302,20 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_save.setEnabled(False)
         self.ui.btn_save.setToolTip("Credeantial cannot be saved")
 
-        self.ui.btn_abort.pressed.connect(lambda: self.abort(item))
-        self.ui.btn_save.pressed.connect(lambda: self.save_pin(item))
-
         name = item.data(2, 0)
 
         self.ui.password_label.setText(name)
 
         self.field_btn()
 
-    def rst(self, item: QTreeWidgetItem) -> None:
-        pintype = item.data(1, 0)
-        name = item.data(2, 0)
-        desc = item.data(3, 0)
+    def rst(self) -> None:
+
+        if self.active_item is None:
+            return
+
+        pintype = self.active_item.data(1, 0)
+        name = self.active_item.data(2, 0)
+        desc = self.active_item.data(3, 0)
 
         self.show_passwords_status(False)
         self.show_current_password(False)
@@ -333,8 +349,8 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.password_label.setText(name)
         self.ui.info_label.setText(desc)
 
-        self.ui.btn_abort.pressed.connect(lambda: self.abort(item))
-        self.ui.btn_reset.pressed.connect(lambda: self.reset_pin(item))
+        self.ui.btn_abort.pressed.connect(self.abort)
+        self.ui.btn_reset.pressed.connect(self.reset_pin)
 
     def settings_empty(self) -> None:
         self.ui.settings_frame.hide()
@@ -353,23 +369,26 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_reset.hide()
         self.ui.btn_save.hide()
 
-    def abort(self, item: QTreeWidgetItem) -> None:
-        p_item = item.parent()
+    def abort(self) -> None:
+        p_item = self.active_item.parent()
+        self.active_item = None
         self.show_widget(p_item)
 
-    def save_pin(self, item: QTreeWidgetItem) -> None:
-        pintype = item.data(1, 0)
+    def save_pin(self) -> None:
+        pintype = self.active_item.data(1, 0)
         old_pin = self.ui.current_password.text()
         new_pin = self.ui.repeat_password.text()
 
         if pintype == SettingsTabState.FidoPw:
             self.trigger_fido_change_pw.emit(self.data, old_pin, new_pin)
             self.field_clear()
-            self.abort(item)
-            self.common_ui.info.info.emit("done - please use new pin to verify key")
+            self.abort()
+            self.common_ui.info.info.emit(
+                "done - please use new pin to verify key"
+            )
         else:
             self.trigger_passwords_change_pw.emit(self.data, old_pin, new_pin)
-            self.abort(item)
+            self.abort()
             self.field_clear()
 
     def reset_pin(self, item: QTreeWidgetItem) -> None:
@@ -377,11 +396,11 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         if pintype == SettingsTabState.FidoRst:
             self.trigger_fido_reset.emit(self.data)
-            self.abort(item)
+            self.abort()
             self.field_clear()
         elif pintype == SettingsTabState.passwordsRst:
             self.trigger_passwords_reset.emit(self.data)
-            self.abort(item)
+            self.abort()
             self.field_clear()
 
     def act_current_password_show(self) -> None:
@@ -442,7 +461,12 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.data = data
 
     def set_device_data(
-        self, path: str, uuid: str, version: str, variant: str, init_status: str
+        self,
+        path: str,
+        uuid: str,
+        version: str,
+        variant: str,
+        init_status: str,
     ) -> None:
         self.ui.nk3_path.setText(path)
         self.ui.nk3_uuid.setText(uuid)
