@@ -1,12 +1,10 @@
 import logging
 from typing import List, Optional
 
-from pynitrokey import nk3
-from pynitrokey.nk3.device import Nitrokey3Device
-from pynitrokey.trussed.admin_app import Status
-from pynitrokey.trussed.base import NitrokeyTrussedBase
-from pynitrokey.trussed.device import NitrokeyTrussedDevice
-from pynitrokey.trussed.utils import Uuid, Version
+from nitrokey import nk3
+from nitrokey.nk3 import NK3
+from nitrokey.trussed import TrussedBase, TrussedDevice, Uuid, Version
+from nitrokey.trussed.admin_app import Status
 
 from nitrokeyapp.update import Nk3Context, UpdateGUI
 
@@ -14,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class DeviceData:
-    def __init__(self, device: NitrokeyTrussedBase) -> None:
+    def __init__(self, device: TrussedBase) -> None:
         self.path = device.path
         self.updating = False
 
@@ -36,18 +34,18 @@ class DeviceData:
 
     @property
     def is_bootloader(self) -> bool:
-        return not isinstance(self._device, NitrokeyTrussedDevice)
+        return not isinstance(self._device, TrussedDevice)
 
     @property
     def status(self) -> Status:
-        assert isinstance(self._device, NitrokeyTrussedDevice)
+        assert isinstance(self._device, TrussedDevice)
         if not self._status:
             self._status = self._device.admin.status()
         return self._status
 
     @property
     def version(self) -> Version:
-        assert isinstance(self._device, NitrokeyTrussedDevice)
+        assert isinstance(self._device, TrussedDevice)
         if not self._version:
             self._version = self._device.admin.version()
 
@@ -55,7 +53,7 @@ class DeviceData:
 
     @property
     def uuid(self) -> Optional[Uuid]:
-        assert isinstance(self._device, NitrokeyTrussedDevice)
+        assert isinstance(self._device, TrussedDevice)
         if not self._uuid:
             self._uuid = self._device.uuid()
         return self._uuid
@@ -66,11 +64,11 @@ class DeviceData:
         The prefix of the UUID that is constant even when switching between
         stable and test firmware.
         """
-        assert isinstance(self._device, NitrokeyTrussedDevice)
+        assert isinstance(self._device, TrussedDevice)
         return str(self.uuid)[:5]
 
-    def open(self) -> Nitrokey3Device:
-        device = Nitrokey3Device.open(self.path)
+    def open(self) -> NK3:
+        device = NK3.open(self.path)
         if device:
             return device
         else:
