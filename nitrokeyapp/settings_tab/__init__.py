@@ -154,7 +154,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.new_password.textChanged.connect(self.check_credential)
         self.ui.repeat_password.textChanged.connect(self.check_credential)
 
-        self.active_item = None
+        self.active_item: Optional[QTreeWidgetItem] = None
 
         self.reset()
 
@@ -370,11 +370,13 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_save.hide()
 
     def abort(self) -> None:
+        assert isinstance(self.active_item, QTreeWidgetItem)
         p_item = self.active_item.parent()
         self.active_item = None
         self.show_widget(p_item)
 
     def save_pin(self) -> None:
+        assert isinstance(self.active_item, QTreeWidgetItem)
         pintype = self.active_item.data(1, 0)
         old_pin = self.ui.current_password.text()
         new_pin = self.ui.repeat_password.text()
