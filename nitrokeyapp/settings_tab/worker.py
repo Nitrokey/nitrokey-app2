@@ -1,6 +1,6 @@
 import logging
 
-from fido2.ctap2.base import Ctap2
+from fido2.ctap2.base import Ctap2, Info
 from fido2.ctap2.pin import ClientPin
 from nitrokey.nk3.secrets_app import (
     SecretsApp,
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class CheckFidoPinStatus(Job):
-    status_fido = Signal(bool)
+    status_fido = Signal(Info, int)
 
     def __init__(
         self,
@@ -28,15 +28,21 @@ class CheckFidoPinStatus(Job):
 
         self.data = data
 
-        self.status_fido.connect(lambda _: self.finished.emit())
+        self.status_fido.connect(lambda _a, _b: self.finished.emit())
 
     def run(self) -> None:
-        pin_status: bool = False
+        # pin_status: bool = False
         with self.data.open() as device:
             ctap2 = Ctap2(device.device)
-            pin_status = ctap2.info.options["clientPin"]
-        self.status_fido.emit(pin_status)
-        return
+            # pin_status = ctap2.info.options["clientPin"]
+
+            c_pin = ClientPin(ctap2)
+            try:
+                pin_retries = c_pin.get_pin_retries()[0]
+            except:
+                pin_retries = -1
+
+            self.status_fido.emit(ctap2.info, pin_retries)
 
 
 class CheckPasswordsInfo(Job):
@@ -82,7 +88,7 @@ class SaveFidoPinJob(Job):
         self.old_pin = old_pin
         self.new_pin = new_pin
 
-        self.change_pw_fido.connect(lambda _: self.finished.emit())
+        self.change_pw_fido.connect(lambda: self.finished.emit())
 
     def check(self) -> bool:
         pin_status: bool = False
@@ -102,8 +108,10 @@ class SaveFidoPinJob(Job):
                     client_pin.change_pin(self.old_pin, self.new_pin)
                 else:
                     client_pin.set_pin(self.new_pin)
+                    self.common_ui.info.info.emit("FIDO2 PIN changed!")
             except Exception as e:
                 self.trigger_error(f"fido2 change_pin failed: {e}")
+        self.change_pw_fido.emit()
 
 
 class SavePasswordsPinJob(Job):
@@ -122,7 +130,7 @@ class SavePasswordsPinJob(Job):
         self.old_pin = old_pin
         self.new_pin = new_pin
 
-        self.change_pw_passwords.connect(lambda _: self.finished.emit())
+        self.change_pw_passwords.connect(lambda: self.finished.emit())
 
     def check(self) -> bool:
         pin_status: bool = False
@@ -137,9 +145,6 @@ class SavePasswordsPinJob(Job):
 
     def run(self) -> None:
         passwords_state = self.check()
-        print(passwords_state)
-        print(self.old_pin)
-        print(self.new_pin)
         with self.touch_prompt():
             with self.data.open() as device:
                 secrets = SecretsApp(device)
@@ -148,8 +153,11 @@ class SavePasswordsPinJob(Job):
                         secrets.change_pin_raw(self.old_pin, self.new_pin)
                     else:
                         secrets.set_pin_raw(self.new_pin)
+                    self.common_ui.info.info.emit("Passwords PIN changed!")
                 except SecretsAppException as e:
                     self.trigger_error(f"PIN validation failed: {e}")
+
+        self.change_pw_passwords.emit()
 
     @Slot(str)
     def trigger_error(self, msg: str) -> None:
@@ -168,7 +176,7 @@ class ResetFido(Job):
 
         self.data = data
 
-        self.reset_fido.connect(lambda _: self.finished.emit())
+        self.reset_fido.connect(lambda: self.finished.emit())
 
     def run(self) -> None:
         with self.data.open() as device:
@@ -188,6 +196,7 @@ class ResetFido(Job):
                     )
                 else:
                     self.trigger_error(f"fido2 reset failed: {e}")
+        self.reset_fido.emit()
 
 
 class ResetPasswords(Job):
@@ -202,7 +211,7 @@ class ResetPasswords(Job):
 
         self.data = data
 
-        self.reset_passwords.connect(lambda _: self.finished.emit())
+        self.reset_passwords.connect(lambda: self.finished.emit())
 
     def run(self) -> None:
         with self.data.open() as device:
@@ -215,6 +224,7 @@ class ResetPasswords(Job):
                     )
             except SecretsAppException as e:
                 self.trigger_error(f"Passwords reset failed: {e}")
+        self.reset_passwords.emit()
 
 
 class SettingsWorker(Worker):
@@ -222,7 +232,7 @@ class SettingsWorker(Worker):
     change_pw_passwords = Signal()
     reset_fido = Signal()
     reset_passwords = Signal()
-    status_fido = Signal(bool)
+    status_fido = Signal(Info, int)
     info_passwords = Signal(bool, SelectResponse)
 
     def __init__(self, common_ui: CommonUi) -> None:
