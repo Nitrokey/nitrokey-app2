@@ -1,6 +1,6 @@
 import logging
 from enum import Enum
-from typing import Optional
+from typing import Optional, Dict
 
 from nitrokey.nk3.secrets_app import SelectResponse
 from PySide6.QtCore import QThread, Signal, Slot
@@ -26,6 +26,57 @@ class SettingsTabState(Enum):
     passwordsRst = 6
 
     NotAvailable = 99
+
+
+PIN_ICON = QtUtilsMixIn.get_qicon("dialpad.svg")
+RESET_ICON = QtUtilsMixIn.get_qicon("refresh.svg")
+SHOW_ICON = QtUtilsMixIn.get_qicon("visibility.svg")
+HIDE_ICON = QtUtilsMixIn.get_qicon("visibility_off.svg")
+
+SETTINGS: Dict[SettingsTabState, Dict] = {
+    SettingsTabState.Fido: {
+        "parent": None,
+        "icon": None,
+        "name": "FIDO2",
+        "desc": "FIDO2 is an authentication standard that enables secure "
+        + "and passwordless access to online services. It uses public "
+        + "key cryptography to provide strong authentication and "
+        + "protect against phishing and other security threats.",
+    },
+    SettingsTabState.FidoPw: {
+        "parent": SettingsTabState.Fido,
+        "icon": PIN_ICON,
+        "name": "Pin Change",
+    },
+    SettingsTabState.FidoRst: {
+        "parent": SettingsTabState.Fido,
+        "icon": RESET_ICON,
+        "name": "Factory Reset",
+        "desc": "During a FIDO reset, the password is not set. All "
+        + "previously set credentials are removed. This means that "
+        + "any existing authentication data, such as passwords, or other "
+        + "authentication factors are deleted. After the reset, the user "
+        + "will need to re-register or re-enroll their authentication "
+        + "credentials to access the system or service again.",
+    },
+    SettingsTabState.passwords: {
+        "parent": None,
+        "icon": None,
+        "name": "Passwords",
+        "desc": "---- insert generic passwords text here ----",
+    },
+    SettingsTabState.passwordsPw: {
+        "parent": SettingsTabState.passwords,
+        "icon": PIN_ICON,
+        "name": "Pin Change",
+    },
+    SettingsTabState.passwordsRst: {
+        "parent": SettingsTabState.passwords,
+        "icon": RESET_ICON,
+        "name": "Factory Reset",
+        "desc": "---- insert passwords reset text here ----",
+    },
+}
 
 
 class SettingsTab(QtUtilsMixIn, QWidget):
@@ -74,79 +125,97 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_abort.pressed.connect(self.abort)
         self.ui.btn_save.pressed.connect(self.save_pin)
 
-        # Tree
-        pin_icon = self.get_qicon("dialpad.svg")
-        rst_icon = self.get_qicon("refresh.svg")
+        self.items = {}
 
-        fido = QTreeWidgetItem(self.ui.settings_tree)
-        pintype = SettingsTabState.Fido
-        fido.setExpanded(False)
-        name = "FIDO2"
-        desc = "FIDO2 is an authentication standard that enables secure and passwordless access to online services. It uses public key cryptography to provide strong authentication and protect against phishing and other security threats."
+        # top-lvl items
+        for state, data in SETTINGS.items():
+            if data.get("parent") is None:
+                item = QTreeWidgetItem(self.ui.settings_tree)
+                item.setText(0, data["name"])
+                item.setData(1, 0, state)
+                self.items[state] = item
 
-        fido.setText(0, name)
-        fido.setData(1, 0, pintype)
-        fido.setData(2, 0, name)
-        fido.setData(3, 0, desc)
+        # sub-items
+        for state, data in SETTINGS.items():
+            if data.get("parent") is not None:
+                item = QTreeWidgetItem(self.items[data["parent"]])
+                item.setText(0, data["name"])
+                item.setData(1, 0, state)
+                self.items[state] = item
 
-        fido_pin = QTreeWidgetItem()
-        pintype = SettingsTabState.FidoPw
-        name = "Pin Settings"
+        # # Tree
+        # pin_icon = self.get_qicon("dialpad.svg")
+        # rst_icon = self.get_qicon("refresh.svg")
 
-        fido_pin.setIcon(0, pin_icon)
-        fido.addChild(fido_pin)
+        # fido = QTreeWidgetItem(self.ui.settings_tree)
+        # pintype = SettingsTabState.Fido
+        # fido.setExpanded(False)
+        # name = "FIDO2"
+        # desc = "FIDO2 is an authentication standard that enables secure and passwordless access to online services. It uses public key cryptography to provide strong authentication and protect against phishing and other security threats."
 
-        fido_pin.setText(0, name)
-        fido_pin.setData(1, 0, pintype)
-        fido_pin.setData(2, 0, name)
+        # fido.setText(0, name)
+        # fido.setData(1, 0, pintype)
+        # fido.setData(2, 0, name)
+        # fido.setData(3, 0, desc)
 
-        fido_rst = QTreeWidgetItem()
-        pintype = SettingsTabState.FidoRst
-        name = "Reset"
-        desc = "During a FIDO reset, the password is not set. All previously set credentials are removed. This means that any existing authentication data, such as passwords, or other authentication factors are deleted. After the reset, the user will need to re-register or re-enroll their authentication credentials to access the system or service again."
+        # fido_pin = QTreeWidgetItem()
+        # pintype = SettingsTabState.FidoPw
+        # name = "Pin Settings"
 
-        fido_rst.setIcon(0, rst_icon)
-        fido.addChild(fido_rst)
+        # fido_pin.setIcon(0, pin_icon)
+        # fido.addChild(fido_pin)
 
-        fido_rst.setText(0, name)
-        fido_rst.setData(1, 0, pintype)
-        fido_rst.setData(2, 0, name)
-        fido_rst.setData(3, 0, desc)
+        # fido_pin.setText(0, name)
+        # fido_pin.setData(1, 0, pintype)
+        # fido_pin.setData(2, 0, name)
 
-        passwords = QTreeWidgetItem(self.ui.settings_tree)
-        pintype = SettingsTabState.passwords
-        passwords.setExpanded(False)
-        name = "Passwords"
-        desc = "One-Time Password (OTP) is a security mechanism that generates a unique password for each login session. This password is typically valid for only one login attempt or for a short period of time, adding an extra layer of security to the authentication process. OTPs are commonly used in two-factor authentication systems to verify the identity of users."
+        # fido_rst = QTreeWidgetItem()
+        # pintype = SettingsTabState.FidoRst
+        # name = "Reset"
+        # desc = "During a FIDO reset, the password is not set. All previously set credentials are removed. This means that any existing authentication data, such as passwords, or other authentication factors are deleted. After the reset, the user will need to re-register or re-enroll their authentication credentials to access the system or service again."
 
-        passwords.setText(0, name)
-        passwords.setData(1, 0, pintype)
-        passwords.setData(2, 0, name)
-        passwords.setData(3, 0, desc)
+        # fido_rst.setIcon(0, rst_icon)
+        # fido.addChild(fido_rst)
 
-        passwords_pin = QTreeWidgetItem()
-        pintype = SettingsTabState.passwordsPw
-        name = "Pin Settings"
+        # fido_rst.setText(0, name)
+        # fido_rst.setData(1, 0, pintype)
+        # fido_rst.setData(2, 0, name)
+        # fido_rst.setData(3, 0, desc)
 
-        passwords_pin.setText(0, name)
-        passwords_pin.setData(1, 0, pintype)
-        passwords_pin.setData(2, 0, name)
+        # passwords = QTreeWidgetItem(self.ui.settings_tree)
+        # pintype = SettingsTabState.passwords
+        # passwords.setExpanded(False)
+        # name = "Passwords"
+        # desc = "One-Time Password (OTP) is a security mechanism that generates a unique password for each login session. This password is typically valid for only one login attempt or for a short period of time, adding an extra layer of security to the authentication process. OTPs are commonly used in two-factor authentication systems to verify the identity of users."
 
-        passwords_pin.setIcon(0, pin_icon)
-        passwords.addChild(passwords_pin)
+        # passwords.setText(0, name)
+        # passwords.setData(1, 0, pintype)
+        # passwords.setData(2, 0, name)
+        # passwords.setData(3, 0, desc)
 
-        passwords_rst = QTreeWidgetItem()
-        pintype = SettingsTabState.passwordsRst
-        name = "Reset"
-        desc = "During a password reset, the password is no longer set. All passwords (TOTP/HTOTP/HMAC) secrets are removed. This means that any existing credentials in the password store will be deleted."
+        # passwords_pin = QTreeWidgetItem()
+        # pintype = SettingsTabState.passwordsPw
+        # name = "Pin Settings"
 
-        passwords_rst.setIcon(0, rst_icon)
-        passwords.addChild(passwords_rst)
+        # passwords_pin.setText(0, name)
+        # passwords_pin.setData(1, 0, pintype)
+        # passwords_pin.setData(2, 0, name)
 
-        passwords_rst.setText(0, name)
-        passwords_rst.setData(1, 0, pintype)
-        passwords_rst.setData(2, 0, name)
-        passwords_rst.setData(3, 0, desc)
+        # passwords_pin.setIcon(0, pin_icon)
+        # passwords.addChild(passwords_pin)
+
+        # passwords_rst = QTreeWidgetItem()
+        # pintype = SettingsTabState.passwordsRst
+        # name = "Reset"
+        # desc = "During a password reset, the password is no longer set. All passwords (TOTP/HTOTP/HMAC) secrets are removed. This means that any existing credentials in the password store will be deleted."
+
+        # passwords_rst.setIcon(0, rst_icon)
+        # passwords.addChild(passwords_rst)
+
+        # passwords_rst.setText(0, name)
+        # passwords_rst.setData(1, 0, pintype)
+        # passwords_rst.setData(2, 0, name)
+        # passwords_rst.setData(3, 0, desc)
 
         self.ui.settings_tree.itemClicked.connect(self.show_widget)
 
@@ -157,6 +226,30 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.active_item: Optional[QTreeWidgetItem] = None
 
         self.reset()
+
+    @property
+    def title(self) -> str:
+        return "Settings"
+
+    @property
+    def widget(self) -> QWidget:
+        return self.ui
+
+    @property
+    def worker(self) -> Optional[Worker]:
+        return self._worker
+
+    def reset(self) -> None:
+        self.view_settings_empty()
+        self.ui.btn_abort.hide()
+        self.ui.btn_reset.hide()
+        self.ui.btn_save.hide()
+
+    def refresh(self, data: DeviceData, force: bool = False) -> None:
+        if data == self.data and not force:
+            return
+        self.reset()
+        self.data = data
 
     def field_btn(self) -> None:
         icon_visibility = self.get_qicon("visibility_off.svg")
@@ -209,24 +302,17 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
     def show_widget(self, item: QTreeWidgetItem) -> None:
         self.active_item = item
-        pintype = item.data(1, 0)
-        if (
-            pintype == SettingsTabState.Fido
-            or pintype == SettingsTabState.passwords
-        ):
-            self.show_pin(item)
+        sta = item.data(1, 0) if item else None
+        if sta in [SettingsTabState.Fido, SettingsTabState.passwords]:
+            self.view_show_pin(item)
             self.collapse_all_except(item)
             item.setExpanded(True)
-        elif (
-            pintype == SettingsTabState.FidoPw
-            or pintype == SettingsTabState.passwordsPw
-        ):
-            self.edit_pin(item)
-        elif (
-            pintype == SettingsTabState.FidoRst
-            or pintype == SettingsTabState.passwordsRst
-        ):
-            self.rst()
+        elif sta in [SettingsTabState.FidoPw, SettingsTabState.passwordsPw]:
+            self.view_edit_pin(item)
+        elif sta in [SettingsTabState.FidoRst, SettingsTabState.passwordsRst]:
+            self.view_reset(item)
+        else:
+            self.view_settings_empty()
 
     def collapse_all_except(self, item: QTreeWidgetItem) -> None:
         top_level_items = (
@@ -237,7 +323,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
                 top_level_item.setExpanded(False)
         self.ui.settings_tree.invisibleRootItem().addChildren(top_level_items)
 
-    def show_pin(self, item: QTreeWidgetItem) -> None:
+    def view_show_pin(self, item: QTreeWidgetItem) -> None:
         self.show_passwords_status(False)
         self.show_current_password(False)
 
@@ -256,21 +342,28 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_reset.hide()
         self.ui.btn_save.hide()
 
-        pintype = item.data(1, 0)
-        name = item.data(2, 0)
-        desc = item.data(3, 0)
+        # pintype = item.data(1, 0)
+        # name = item.data(2, 0)
+        # desc = item.data(3, 0)
+
+        state = item.data(1, 0)
+        tmpl = SETTINGS[state]
+
+        name = tmpl.get("name")
+        desc = tmpl.get("desc")
 
         self.ui.password_label.setText(name)
         self.ui.info_label.setText(desc)
-        if pintype == SettingsTabState.Fido:
+        if state == SettingsTabState.Fido:
             self.trigger_fido_status.emit(self.data)
-        elif pintype == SettingsTabState.passwords:
+        elif state == SettingsTabState.passwords:
             self.trigger_passwords_status.emit(self.data)
             self.show_passwords_status(True)
         self.show_current_password(False)
 
-    def edit_pin(self, item: QTreeWidgetItem) -> None:
-        pintype = item.data(1, 0)
+    def view_edit_pin(self, item: QTreeWidgetItem) -> None:
+        state = item.data(1, 0)
+        tmpl = SETTINGS[state]
 
         self.show_passwords_status(False)
         self.show_current_password(False)
@@ -291,31 +384,26 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         self.field_clear()
 
-        if pintype == SettingsTabState.FidoPw:
+        if state == SettingsTabState.FidoPw:
             self.trigger_fido_status.emit(self.data)
-        elif pintype == SettingsTabState.passwordsPw:
+        elif state == SettingsTabState.passwordsPw:
             self.trigger_passwords_status.emit(self.data)
 
         self.ui.btn_abort.show()
         self.ui.btn_reset.hide()
         self.ui.btn_save.show()
         self.ui.btn_save.setEnabled(False)
-        self.ui.btn_save.setToolTip("Credeantial cannot be saved")
+        self.ui.btn_save.setToolTip("Cannot save")
 
-        name = item.data(2, 0)
-
-        self.ui.password_label.setText(name)
+        self.ui.password_label.setText(tmpl.get("name"))
 
         self.field_btn()
 
-    def rst(self) -> None:
-
-        if self.active_item is None:
-            return
-
-        pintype = self.active_item.data(1, 0)
-        name = self.active_item.data(2, 0)
-        desc = self.active_item.data(3, 0)
+    def view_reset(self, item: QTreeWidgetItem) -> None:
+        state = item.data(1, 0)
+        tmpl = SETTINGS[state]
+        name = tmpl.get("name")
+        desc = tmpl.get("desc")
 
         self.show_passwords_status(False)
         self.show_current_password(False)
@@ -335,13 +423,14 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_save.hide()
 
         self.ui.warning_label.setText(
-            "Reset for FIDO2 is only possible 10 sec after plugging in the device."
+            "**Reset for FIDO2 is only possible 10secs "
+            + "after plugging in the device.**"
         )
 
-        if pintype == SettingsTabState.FidoRst:
+        if state == SettingsTabState.FidoRst:
             self.trigger_fido_status.emit(self.data)
             self.ui.warning_label.show()
-        elif pintype == SettingsTabState.passwordsRst:
+        elif state == SettingsTabState.passwordsRst:
             self.trigger_passwords_status.emit(self.data)
             self.show_passwords_status(True)
         self.show_current_password(False)
@@ -352,7 +441,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_abort.pressed.connect(self.abort)
         self.ui.btn_reset.pressed.connect(self.reset_pin)
 
-    def settings_empty(self) -> None:
+    def view_settings_empty(self) -> None:
         self.ui.settings_frame.hide()
         self.show_passwords_status(False)
 
@@ -370,8 +459,9 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_save.hide()
 
     def abort(self) -> None:
-        assert isinstance(self.active_item, QTreeWidgetItem)
-        p_item = self.active_item.parent()
+        p_item = None
+        if isinstance(self.active_item, QTreeWidgetItem):
+            p_item = self.active_item.parent()
         self.active_item = None
         self.show_widget(p_item)
 
@@ -406,61 +496,37 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             self.field_clear()
 
     def act_current_password_show(self) -> None:
-        self.set_current_password_show(self.ui.current_password.echoMode() == QLineEdit.Password)  # type: ignore [attr-defined]
+        mode = self.ui.current_password.echoMode()
+        show = mode == QLineEdit.Password  # type: ignore [attr-defined]
+        self.set_current_password_show(show)
 
     def act_new_password_show(self) -> None:
-        self.set_new_password_show(self.ui.new_password.echoMode() == QLineEdit.Password)  # type: ignore [attr-defined]
+        mode = self.ui.new_password.echoMode()
+        show = mode == QLineEdit.Password  # type: ignore [attr-defined]
+        self.set_new_password_show(show)
 
     def act_repeat_password_show(self) -> None:
-        self.set_repeat_password_show(self.ui.repeat_password.echoMode() == QLineEdit.Password)  # type: ignore [attr-defined]
+        mode = self.ui.repeat_password.echoMode()
+        show = mode == QLineEdit.Password  # type: ignore [attr-defined]
+        self.set_repeat_password_show(show)
 
     def set_current_password_show(self, show: bool = True) -> None:
-        icon_show = self.get_qicon("visibility.svg")
-        icon_hide = self.get_qicon("visibility_off.svg")
-        icon = icon_show if show else icon_hide
+        icon = SHOW_ICON if show else HIDE_ICON
         mode = QLineEdit.Normal if show else QLineEdit.Password  # type: ignore [attr-defined]
         self.ui.current_password.setEchoMode(mode)
         self.action_current_password_show.setIcon(icon)
 
     def set_new_password_show(self, show: bool = True) -> None:
-        icon_show = self.get_qicon("visibility.svg")
-        icon_hide = self.get_qicon("visibility_off.svg")
-        icon = icon_show if show else icon_hide
+        icon = SHOW_ICON if show else HIDE_ICON
         mode = QLineEdit.Normal if show else QLineEdit.Password  # type: ignore [attr-defined]
         self.ui.new_password.setEchoMode(mode)
         self.action_new_password_show.setIcon(icon)
 
     def set_repeat_password_show(self, show: bool = True) -> None:
-        icon_show = self.get_qicon("visibility.svg")
-        icon_hide = self.get_qicon("visibility_off.svg")
-        icon = icon_show if show else icon_hide
+        icon = SHOW_ICON if show else HIDE_ICON
         mode = QLineEdit.Normal if show else QLineEdit.Password  # type: ignore [attr-defined]
         self.ui.repeat_password.setEchoMode(mode)
         self.action_repeat_password_show.setIcon(icon)
-
-    @property
-    def title(self) -> str:
-        return "Settings"
-
-    @property
-    def widget(self) -> QWidget:
-        return self.ui
-
-    @property
-    def worker(self) -> Optional[Worker]:
-        return self._worker
-
-    def reset(self) -> None:
-        self.settings_empty()
-        self.ui.btn_abort.hide()
-        self.ui.btn_reset.hide()
-        self.ui.btn_save.hide()
-
-    def refresh(self, data: DeviceData, force: bool = False) -> None:
-        if data == self.data and not force:
-            return
-        self.reset()
-        self.data = data
 
     def set_device_data(
         self,
