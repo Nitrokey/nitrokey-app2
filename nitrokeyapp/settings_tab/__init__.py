@@ -1,13 +1,11 @@
 import logging
 from enum import Enum
-from typing import Optional, Dict, Tuple, List
+from typing import Dict, List, Optional, Tuple
 
 from fido2.ctap2.base import Info
-
+from nitrokey.nk3.secrets_app import SelectResponse
 from PySide6.QtCore import QThread, Signal, Slot
 from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem, QWidget
-
-from nitrokey.nk3.secrets_app import SelectResponse
 
 from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
@@ -19,14 +17,15 @@ from .worker import SettingsWorker
 logger = logging.getLogger(__name__)
 
 
-class SettingsTabState(Enum):
+class State(Enum):
     Initial = 0
     Fido = 1
-    FidoPw = 2
-    FidoRst = 3
-    passwords = 4
-    passwordsPw = 5
-    passwordsRst = 6
+    FidoPin = 2
+    FidoReset = 3
+
+    Passwords = 4
+    PasswordsPin = 5
+    PasswordsReset = 6
 
     NotAvailable = 99
 
@@ -36,8 +35,8 @@ RESET_ICON = QtUtilsMixIn.get_qicon("refresh.svg")
 SHOW_ICON = QtUtilsMixIn.get_qicon("visibility.svg")
 HIDE_ICON = QtUtilsMixIn.get_qicon("visibility_off.svg")
 
-SETTINGS: Dict[SettingsTabState, Dict] = {
-    SettingsTabState.Fido: {
+SETTINGS: Dict[State, Dict] = {
+    State.Fido: {
         "parent": None,
         "icon": None,
         "name": "FIDO2",
@@ -46,13 +45,13 @@ SETTINGS: Dict[SettingsTabState, Dict] = {
         + "key cryptography to provide strong authentication and "
         + "protect against phishing and other security threats.",
     },
-    SettingsTabState.FidoPw: {
-        "parent": SettingsTabState.Fido,
+    State.FidoPin: {
+        "parent": State.Fido,
         "icon": PIN_ICON,
         "name": "Pin Change",
     },
-    SettingsTabState.FidoRst: {
-        "parent": SettingsTabState.Fido,
+    State.FidoReset: {
+        "parent": State.Fido,
         "icon": RESET_ICON,
         "name": "Factory Reset",
         "desc": "During a FIDO reset, the password is not set. All "
@@ -62,7 +61,7 @@ SETTINGS: Dict[SettingsTabState, Dict] = {
         + "will need to re-register or re-enroll their authentication "
         + "credentials to access the system or service again.",
     },
-    SettingsTabState.passwords: {
+    State.Passwords: {
         "parent": None,
         "icon": None,
         "name": "Passwords",
@@ -70,13 +69,13 @@ SETTINGS: Dict[SettingsTabState, Dict] = {
         + "be stored and managed. Supported are: Plain usernames using a "
         + "password, HOTPs, TOTPs, ReverseHOTPs and HMAC.",
     },
-    SettingsTabState.passwordsPw: {
-        "parent": SettingsTabState.passwords,
+    State.PasswordsPin: {
+        "parent": State.Passwords,
         "icon": PIN_ICON,
         "name": "Pin Change",
     },
-    SettingsTabState.passwordsRst: {
-        "parent": SettingsTabState.passwords,
+    State.PasswordsReset: {
+        "parent": State.Passwords,
         "icon": RESET_ICON,
         "name": "Factory Reset",
         "desc": "This operation will unevitably remove all your credentials "
@@ -117,9 +116,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         # outgoing signals
         self.trigger_fido_status.connect(self._worker.fido_status)
         self.trigger_passwords_status.connect(self._worker.passwords_status)
-        self.trigger_passwords_change_pw.connect(
-            self._worker.passwords_change_pw
-        )
+        self.trigger_passwords_change_pw.connect(self._worker.passwords_change_pw)
         self.trigger_fido_change_pw.connect(self._worker.fido_change_pw)
         self.trigger_fido_reset.connect(self._worker.fido_reset)
         self.trigger_passwords_reset.connect(self._worker.passwords_reset)
@@ -137,8 +134,8 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui = self.load_ui("settings_tab.ui", self)
 
         self.ui.btn_abort.pressed.connect(self.abort)
-        self.ui.btn_save.pressed.connect(self.save_pin)
-        self.ui.btn_reset.pressed.connect(self.reset_pin)
+        self.ui.btn_save.pressed.connect(self.save_action)
+        self.ui.btn_reset.pressed.connect(self.reset_action)
 
         self.items = {}
 
@@ -209,9 +206,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.action_new_password_show = self.ui.new_password.addAction(
             icon_visibility, loc
         )
-        self.action_new_password_show.triggered.connect(
-            self.act_new_password_show
-        )
+        self.action_new_password_show.triggered.connect(self.act_new_password_show)
 
         self.action_repeat_password_show = self.ui.repeat_password.addAction(
             icon_visibility, loc
@@ -249,27 +244,23 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             return
 
         sta = item.data(1, 0)
-        if sta in [SettingsTabState.Fido, SettingsTabState.passwords]:
+        if sta in [State.Fido, State.Passwords]:
             self.view_overview(item)
             self.collapse_all_except(item)
             item.setExpanded(True)
-        elif sta in [SettingsTabState.FidoPw, SettingsTabState.passwordsPw]:
+        elif sta in [State.FidoPin, State.PasswordsPin]:
             self.view_edit_pin(item)
-        elif sta in [SettingsTabState.FidoRst, SettingsTabState.passwordsRst]:
+        elif sta in [State.FidoReset, State.PasswordsReset]:
             self.view_reset(item)
 
     def collapse_all_except(self, item: QTreeWidgetItem) -> None:
-        top_level_items = (
-            self.ui.settings_tree.invisibleRootItem().takeChildren()
-        )
+        top_level_items = self.ui.settings_tree.invisibleRootItem().takeChildren()
         for top_level_item in top_level_items:
             if top_level_item is not item.parent():
                 top_level_item.setExpanded(False)
         self.ui.settings_tree.invisibleRootItem().addChildren(top_level_items)
 
-    def update_status_form(
-        self, data: Optional[List[Tuple[str, str]]] = None
-    ) -> None:
+    def update_status_form(self, data: Optional[List[Tuple[str, str]]] = None) -> None:
         if data is not None:
             self.ui.status_form.show()
         else:
@@ -303,23 +294,21 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         state = item.data(1, 0)
         tmpl = SETTINGS[state]
-
         name = tmpl.get("name")
         desc = tmpl.get("desc")
 
         self.ui.headline_label.setText(name)
         self.ui.info_label.setText(desc)
 
-        if state == SettingsTabState.Fido:
+        if state == State.Fido:
             self.trigger_fido_status.emit(self.data)
-        elif state == SettingsTabState.passwords:
+        elif state == State.Passwords:
             self.trigger_passwords_status.emit(self.data)
 
     def view_edit_pin(self, item: QTreeWidgetItem) -> None:
         state = item.data(1, 0)
         tmpl = SETTINGS[state]
 
-        # self.show_passwords_status(False)
         self.show_current_password(False)
 
         self.ui.settings_frame.show()
@@ -329,13 +318,11 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.warning_label.hide()
         self.ui.info_label.hide()
 
-        # self.common_ui.info.info.emit("")
-
         self.field_clear()
 
-        if state == SettingsTabState.FidoPw:
+        if state == State.FidoPin:
             self.trigger_fido_status.emit(self.data)
-        elif state == SettingsTabState.passwordsPw:
+        elif state == State.PasswordsPin:
             self.trigger_passwords_status.emit(self.data)
 
         self.ui.btn_abort.show()
@@ -345,12 +332,16 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_save.setEnabled(False)
         self.ui.btn_save.setToolTip("Cannot save")
 
-        self.ui.headline_label.setText(tmpl.get("name"))
+        name = SETTINGS[SETTINGS[state]["parent"]]["name"]
+        name += " | " + tmpl["name"]
+        self.ui.headline_label.setText(name)
 
     def view_reset(self, item: QTreeWidgetItem) -> None:
         state = item.data(1, 0)
         tmpl = SETTINGS[state]
-        name = tmpl.get("name")
+
+        name = SETTINGS[SETTINGS[state]["parent"]]["name"]
+        name += " | " + tmpl["name"]
         desc = tmpl.get("desc")
 
         self.ui.settings_frame.show()
@@ -368,10 +359,10 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             + "after plugging in the device.**"
         )
 
-        if state == SettingsTabState.FidoRst:
+        if state == State.FidoReset:
             self.trigger_fido_status.emit(self.data)
             self.ui.warning_label.show()
-        elif state == SettingsTabState.passwordsRst:
+        elif state == State.PasswordsReset:
             self.trigger_passwords_status.emit(self.data)
 
         self.ui.headline_label.setText(name)
@@ -391,36 +382,30 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.active_item = None
         self.show_widget(p_item)
 
-    def save_pin(self) -> None:
+    def save_action(self) -> None:
         assert isinstance(self.active_item, QTreeWidgetItem)
         state = self.active_item.data(1, 0)
         old_pin = self.ui.current_password.text()
         new_pin = self.ui.repeat_password.text()
 
-        if state == SettingsTabState.FidoPw:
+        if state == State.FidoPin:
             self.trigger_fido_change_pw.emit(self.data, old_pin, new_pin)
             self.field_clear()
-            # self.abort()
-            self.common_ui.info.info.emit(
-                "done - please use new pin to verify key"
-            )
-        elif state == SettingsTabState.passwordsPw:
+            self.common_ui.info.info.emit("done - please use new pin to verify key")
+        elif state == State.PasswordsPin:
             self.trigger_passwords_change_pw.emit(self.data, old_pin, new_pin)
-            # self.abort()
             self.field_clear()
 
-    def reset_pin(self) -> None:
+    def reset_action(self) -> None:
         assert isinstance(self.active_item, QTreeWidgetItem)
         state = self.active_item.data(1, 0)
 
-        if state == SettingsTabState.FidoRst:
+        if state == State.FidoReset:
             self.trigger_fido_reset.emit(self.data)
-            # self.abort()
-            # self.field_clear()
-        elif state == SettingsTabState.passwordsRst:
+            self.abort()
+        elif state == State.PasswordsReset:
             self.trigger_passwords_reset.emit(self.data)
-            # self.abort()
-            # self.field_clear()
+            self.abort()
 
     def act_current_password_show(self) -> None:
         mode = self.ui.current_password.echoMode()
@@ -485,22 +470,6 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             self.ui.current_password.setEnabled(False)
             self.ui.current_password.setPlaceholderText("<No PIN Set>")
 
-    def show_passwords_status(self, show: bool) -> None:
-        if show:
-            self.ui.version_label.show()
-            self.ui.version.show()
-            self.ui.counter_label.show()
-            self.ui.counter.show()
-            self.ui.serial_label.show()
-            self.ui.serial.show()
-        else:
-            self.ui.version_label.hide()
-            self.ui.version.hide()
-            self.ui.counter_label.hide()
-            self.ui.counter.hide()
-            self.ui.serial_label.hide()
-            self.ui.serial.hide()
-
     @Slot(Info, int)
     def handle_status_fido(self, fido_state: Info, pin_retries: int) -> None:
         if self.active_item is None:
@@ -509,7 +478,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         state = self.active_item.data(1, 0)
         has_pin = fido_state.options["clientPin"]
 
-        if state in [SettingsTabState.Fido, SettingsTabState.FidoRst]:
+        if state in [State.Fido, State.FidoReset]:
 
             self.update_status_form(
                 [
@@ -522,22 +491,20 @@ class SettingsTab(QtUtilsMixIn, QWidget):
                     ("Extensions", ", ".join(fido_state.extensions)),
                 ]
             )
-        elif state == SettingsTabState.FidoPw:
+        elif state == State.FidoPin:
             self.show_current_password(has_pin)
             self.ui.status_form.hide()
 
     @Slot(SelectResponse)
-    def handle_info_passwords(
-        self, pin_set: bool, status: SelectResponse
-    ) -> None:
+    def handle_info_passwords(self, pin_set: bool, status: SelectResponse) -> None:
 
         if self.active_item is None:
             return
 
         state = self.active_item.data(1, 0)
         if state in [
-            SettingsTabState.passwords,
-            SettingsTabState.passwordsRst,
+            State.Passwords,
+            State.PasswordsReset,
         ]:
 
             data = [
@@ -551,7 +518,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             self.update_status_form(data)
             self.show_current_password(pin_set)
 
-        elif state == SettingsTabState.passwordsRst:
+        elif state == State.PasswordsReset:
             self.show_current_password(pin_set)
             self.ui.status_form.hide()
 
@@ -560,9 +527,9 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         if self.active_item is None:
             return
         state = self.active_item.data(1, 0)
-        if state == SettingsTabState.FidoRst:
+        if state == State.FidoReset:
             self.trigger_fido_status.emit(self.data)
-        elif state == SettingsTabState.passwordsRst:
+        elif state == State.PasswordsReset:
             self.trigger_passwords_status.emit(self.data)
 
     @Slot()
@@ -570,9 +537,9 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         if self.active_item is None:
             return
         state = self.active_item.data(1, 0)
-        if state == SettingsTabState.FidoPw:
+        if state == State.FidoPin:
             self.trigger_fido_status.emit(self.data)
-        elif state == SettingsTabState.passwordsPw:
+        elif state == State.PasswordsPin:
             self.trigger_passwords_status.emit(self.data)
 
     @Slot(bool)
