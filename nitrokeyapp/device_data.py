@@ -39,10 +39,10 @@ class DeviceData:
     @property
     def is_too_old(self) -> bool:
         try:
-            self.name
-            self.version
-            self.status
-            self.status.variant
+            assert self.name
+            assert self.version
+            assert self.status
+            assert self.status.variant
             return False
 
         except Exception:
