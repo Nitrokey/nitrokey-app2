@@ -37,6 +37,18 @@ class DeviceData:
         return not isinstance(self._device, TrussedDevice)
 
     @property
+    def is_too_old(self) -> bool:
+        try:
+            self.name
+            self.version
+            self.status
+            self.status.variant
+            return False
+
+        except Exception:
+            return True
+
+    @property
     def status(self) -> Status:
         assert isinstance(self._device, TrussedDevice)
         if not self._status:

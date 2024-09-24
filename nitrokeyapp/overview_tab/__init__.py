@@ -78,6 +78,22 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         self.data = data
         self.hide_more_options()
 
+        # catch too old firmware
+        if data.is_too_old:
+            self.set_device_data(
+                str(data.path),
+                "n/a",
+                "n/a",
+                "Update Your Nitrokey 3 for full functionality",
+                "n/a",
+            )
+            self.ui.status_label.hide()
+            self.ui.nk3_status.hide()
+            self.ui.more_info.hide()
+            self.ui.nk3_label.setText("Nitrokey 3 (old firmware)")
+            self.status_error(InitStatus(0))
+            return
+
         if data.is_bootloader:
             self.set_device_data(
                 str(data.path),
@@ -110,7 +126,12 @@ class OverviewTab(QtUtilsMixIn, QWidget):
                 self.ui.nk3_status.show()
 
     def set_device_data(
-        self, path: str, uuid: str, version: str, variant: str, init_status: str
+        self,
+        path: str,
+        uuid: str,
+        version: str,
+        variant: str,
+        init_status: str,
     ) -> None:
         self.ui.nk3_path.setText(path)
         self.ui.nk3_uuid.setText(uuid)
