@@ -12,21 +12,26 @@
     </p>
   </description>
   <categories>
-	  <category>Office</category>
-	  <category>Security</category>
-	  <category>Qt</category>
+    <category>Office</category>
+    <category>Security</category>
+    <category>Qt</category>
   </categories>
-	<releases>
-		<release version="2.3.1" date="2024-07-19"/>
+  <releases>
+    <release version="2.3.1" date="2024-07-19"/>
   </releases>
   <provides>
-	  <binary>nitrokeyapp</binary>
-         <modalias>usb:v20A0p4108d*</modalias> <!-- Nitrokey 3 -->
-         <modalias>usb:v20A0p42ddd*</modalias> <!-- Nitrokey 3xn Bootloader  -->
-         <modalias>usb:v20A0p42e8d*</modalias> <!-- Nitrokey 3am Bootloader -->
-         <modalias>usb:v20A0p42f3d*</modalias> <!-- Nitrokey Passkey -->
-         <modalias>usb:v20A0p42f4d*</modalias> <!-- Nitrokey Passkey Bootloader-->
-	</provides>
+    <binary>nitrokeyapp</binary>
+    <modalias>usb:v20A0p4108d*</modalias>
+    <!-- Nitrokey 3 -->
+    <modalias>usb:v20A0p42ddd*</modalias>
+    <!-- Nitrokey 3xn Bootloader  -->
+    <modalias>usb:v20A0p42e8d*</modalias>
+    <!-- Nitrokey 3am Bootloader -->
+    <modalias>usb:v20A0p42f3d*</modalias>
+    <!-- Nitrokey Passkey -->
+    <modalias>usb:v20A0p42f4d*</modalias>
+    <!-- Nitrokey Passkey Bootloader-->
+  </provides>
   <content_rating type="oars-1.1"/>
   <launchable type="desktop-id">com.nitrokey.nitrokey-app2.desktop</launchable>
   <url type="homepage">https://www.nitrokey.com/</url>
@@ -34,9 +39,9 @@
   <url type="help">https://docs.nitrokey.com/software/nk-app2</url>
   <screenshots>
     <screenshot type="default">
-			<image>https://github.com/Nitrokey/nitrokey-app2/blob/main/meta/screenshot.png?raw=true</image>
-			<caption>Main window</caption>
-		</screenshot>
+      <image>https://github.com/Nitrokey/nitrokey-app2/blob/main/meta/screenshot.png?raw=true</image>
+      <caption>Main window</caption>
+    </screenshot>
   </screenshots>
   <developer_name>Nitrokey GmbH</developer_name>
   <update_contact>info_AT_nitrokey.com</update_contact>
