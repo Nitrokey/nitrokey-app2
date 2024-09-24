@@ -46,7 +46,6 @@ jobs:
       - name: Build onedir
         run: |
           Invoke-Expression "$(poetry env info --path)\Scripts\Activate.ps1"
-          make build-ui
           pyinstaller ci-scripts/windows/pyinstaller/nitrokey-app-onedir.spec
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -74,7 +73,6 @@ jobs:
       - name: Build onefile
         run: |
           Invoke-Expression "$(poetry env info --path)\Scripts\Activate.ps1"
-          make build-ui
           pyinstaller ci-scripts/windows/pyinstaller/nitrokey-app-onefile.spec
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

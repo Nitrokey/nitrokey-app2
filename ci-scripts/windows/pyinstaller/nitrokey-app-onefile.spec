@@ -5,7 +5,6 @@ import os
 venv_path = os.popen('poetry env info --path').read().rstrip()
 
 datas = [
-    (venv_path + '\\Lib\\site-packages\\pynitrokey\\VERSION', 'pynitrokey'),
     (venv_path + '\\Lib\\site-packages\\fido2\\public_suffix_list.dat', 'fido2'),
     ('..\\..\\..\\nitrokeyapp\\ui', 'nitrokeyapp\\ui'),
     ('..\\..\\..\\LICENSE', '.')
@@ -13,9 +12,7 @@ datas = [
 datas += copy_metadata('ecdsa')
 datas += copy_metadata('fido2')
 datas += copy_metadata('nitrokeyapp')
-datas += copy_metadata('pynitrokey')
-datas += copy_metadata('pyusb')
-datas += copy_metadata('spsdk')
+datas += copy_metadata('nitrokey')
 
 
 block_cipher = None
@@ -24,10 +21,7 @@ block_cipher = None
 a = Analysis(
     ['..\\..\\..\\nitrokeyapp\\__main__.py'],
     pathex=[],
-    binaries=[
-        (venv_path + '\\Lib\\site-packages\\libusbsio\\bin\\x64\\libusbsio.dll', 'libusbsio'),
-        (venv_path + '\\Lib\\site-packages\\usb1\\libusb-1.0.dll', '.')
-    ],
+    binaries=[],
     datas=datas,
     hiddenimports=[],
     hookspath=[],
