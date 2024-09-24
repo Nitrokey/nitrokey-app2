@@ -282,6 +282,11 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.info_box.set_device(data.name)
         self.tabs.show()
         self.tabs.setCurrentIndex(0)
+
+        if self.selected_device.is_too_old:
+            self.tabs.setTabEnabled(1, False)
+            self.tabs.setTabEnabled(2, False)
+
         self.show_navigation()
         self.welcome_widget.hide()
 
