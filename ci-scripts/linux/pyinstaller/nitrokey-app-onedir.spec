@@ -8,16 +8,13 @@ python_version = str(sys.version_info[0]) + '.' + str(sys.version_info[1])
 
 datas = [
     (venv_path + '/lib/python' + python_version + '/site-packages/fido2/public_suffix_list.dat', 'fido2'),
-    (venv_path + '/lib/python' + python_version + '/site-packages/pynitrokey/VERSION', 'pynitrokey'),
     ('../../../nitrokeyapp/ui', 'nitrokeyapp/ui'),
     ('../../../LICENSE', '.')
 ]
 datas += copy_metadata('ecdsa')
 datas += copy_metadata('fido2')
 datas += copy_metadata('nitrokeyapp')
-datas += copy_metadata('pynitrokey')
-datas += copy_metadata('pyusb')
-datas += copy_metadata('spsdk')
+datas += copy_metadata('nitrokey')
 
 
 block_cipher = None
@@ -26,9 +23,7 @@ block_cipher = None
 a = Analysis(
     ['../../../nitrokeyapp/__main__.py'],
     pathex=[],
-    binaries=[
-        (venv_path + '/lib/python' + python_version + '/site-packages/libusbsio/bin/linux_x86_64/libusbsio.so', 'libusbsio')
-    ],
+    binaries=[],
     datas=datas,
     hiddenimports=[],
     hookspath=[],
