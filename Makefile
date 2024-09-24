@@ -6,6 +6,8 @@ VENV=$(shell poetry env info --path)
 VENV_BIN=$(VENV)/bin
 VENV_PYTHON=$(VENV_BIN)/$(PYTHON)
 
+PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
+
 ALL: init build
 
 # setup environment
@@ -15,7 +17,6 @@ update-venv:
 ifeq (, $(shell which poetry))
 $(error "No poetry in $(PATH)")
 endif
-	export PYTHON_KEYRING_BACKEND=keyring.backends.fail.Keyring
 	poetry env use $(PYTHON)
 	poetry install --sync --without=deploy
 
