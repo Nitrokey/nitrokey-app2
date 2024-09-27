@@ -17,8 +17,8 @@
     <category>Qt</category>
   </categories>
   <releases>
-    <release version="2.3.1" date="2024-07-19"/>
     <release version="2.3.2" date="2024-09-24"/>
+    <release version="2.3.1" date="2024-07-19"/>
   </releases>
   <provides>
     <binary>nitrokeyapp</binary>

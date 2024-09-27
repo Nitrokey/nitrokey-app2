@@ -77,3 +77,13 @@ jobs:
         run: make init
       - name: Check code static typing
         run: make check-typing
+  lint-flatpak-metadata:
+    name: Check flatpak metadata
+    runs-on: ubuntu-latest
+    container: ghcr.io/flathub/flatpak-builder-lint:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Check appstream metadata
+        run: flatpak-builder-lint appstream meta/com.nitrokey.nitrokey-app2.metainfo.xml
+
