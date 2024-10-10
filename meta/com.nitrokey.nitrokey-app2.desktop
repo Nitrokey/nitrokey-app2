@@ -7,4 +7,4 @@ Exec=nitrokeyapp
 Icon=com.nitrokey.nitrokey-app2
 Type=Application
 Categories=Utility;Security;Qt;
-Keywords=Nitrokey;OpenPGP;smart card;
+Keywords=Nitrokey;OpenPGP;smart card;Password;FIDO
