@@ -81,14 +81,22 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.trigger_check_device.connect(self._worker.check_device)
         self.trigger_delete_credential.connect(self._worker.delete_credential)
         self.trigger_generate_otp.connect(self._worker.generate_otp)
-        self.trigger_refresh_credentials.connect(self._worker.refresh_credentials)
+        self.trigger_refresh_credentials.connect(
+            self._worker.refresh_credentials
+        )
         self.trigger_get_credential.connect(self._worker.get_credential)
         self.trigger_edit_credential.connect(self._worker.edit_credential)
 
-        self._worker.pin_cache.pin_cleared.connect(self.common_ui.info.pin_cleared)
-        self._worker.pin_cache.pin_cleared.connect(lambda: self.uncheck_checkbox(True))
+        self._worker.pin_cache.pin_cleared.connect(
+            self.common_ui.info.pin_cleared
+        )
+        self._worker.pin_cache.pin_cleared.connect(
+            lambda: self.uncheck_checkbox(True)
+        )
 
-        self._worker.pin_cache.pin_cached.connect(self.common_ui.info.pin_cached)
+        self._worker.pin_cache.pin_cached.connect(
+            self.common_ui.info.pin_cached
+        )
         self.common_ui.info.pin_pressed.connect(self._worker.pin_cache.clear)
 
         self._worker.credential_added.connect(self.credential_added)
@@ -99,8 +107,12 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self._worker.otp_generated.connect(self.otp_generated)
         self._worker.uncheck_checkbox.connect(self.uncheck_checkbox)
 
-        self._worker.received_credential.connect(self.handle_receive_credential)
-        self.next_credential_receiver: Optional[Callable[[Credential], None]] = None
+        self._worker.received_credential.connect(
+            self.handle_receive_credential
+        )
+        self.next_credential_receiver: Optional[
+            Callable[[Credential], None]
+        ] = None
 
         self.data: Optional[DeviceData] = None
         self.active_credential: Optional[Credential] = None
@@ -133,7 +145,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             lambda: self.act_copy_line_edit(self.ui.password)
         )
 
-        self.action_password_show = self.ui.password.addAction(icon_visibility, loc)
+        self.action_password_show = self.ui.password.addAction(
+            icon_visibility, loc
+        )
         self.action_password_show.triggered.connect(self.act_password_show)
 
         self.action_comment_copy = self.ui.comment.addAction(icon_copy, loc)
@@ -181,12 +195,16 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.username.textChanged.connect(self.check_credential)
         self.ui.password.textChanged.connect(self.check_credential)
         self.ui.otp.textChanged.connect(self.check_credential)
-        self.ui.select_algorithm.currentIndexChanged.connect(self.check_credential)
+        self.ui.select_algorithm.currentIndexChanged.connect(
+            self.check_credential
+        )
         self.ui.comment.textChanged.connect(self.check_credential)
 
         self.ui.btn_refresh.pressed.connect(self.refresh_credential_list)
         self.ui.is_protected.stateChanged.connect(self.refresh_credential_list)
-        self.ui.secrets_list.currentItemChanged.connect(self.credential_changed)
+        self.ui.secrets_list.currentItemChanged.connect(
+            self.credential_changed
+        )
         self.ui.secrets_list.itemClicked.connect(self.credential_clicked)
 
         self.ui.btn_delete.pressed.connect(self.delete_credential)
@@ -281,7 +299,10 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         active_item = None
         for credential in credentials:
             item = self.add_credential(credential)
-            if self.active_credential and credential.id == self.active_credential.id:
+            if (
+                self.active_credential
+                and credential.id == self.active_credential.id
+            ):
                 active_item = item
         self.ui.secrets_list.sortItems()
         if active_item:
@@ -378,7 +399,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.action_username_copy.setEnabled(False)
 
         if credential.password:
-            self.ui.password.setText(credential.password.decode(errors="replace"))
+            self.ui.password.setText(
+                credential.password.decode(errors="replace")
+            )
             self.action_password_copy.setEnabled(True)
             self.action_password_show.setEnabled(True)
         else:
@@ -387,7 +410,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.action_password_show.setEnabled(False)
 
         if credential.comment:
-            self.ui.comment.setText(credential.comment.decode(errors="replace"))
+            self.ui.comment.setText(
+                credential.comment.decode(errors="replace")
+            )
             self.action_comment_copy.setEnabled(True)
         else:
             self.ui.comment.clear()
@@ -414,7 +439,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
             self.ui.otp.show()
             self.ui.otp.setReadOnly(True)
-            self.ui.algorithm.setText(str(credential.otp or credential.other) + ":")
+            self.ui.algorithm.setText(
+                str(credential.otp or credential.other) + ":"
+            )
             self.ui.otp.setPlaceholderText("<hidden>")
 
             if credential.otp:
@@ -466,12 +493,16 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.ui.username.clear()
 
         if credential.password:
-            self.ui.password.setText(credential.password.decode(errors="replace"))
+            self.ui.password.setText(
+                credential.password.decode(errors="replace")
+            )
         else:
             self.ui.password.clear()
 
         if credential.comment:
-            self.ui.comment.setText(credential.comment.decode(errors="replace"))
+            self.ui.comment.setText(
+                credential.comment.decode(errors="replace")
+            )
         else:
             self.ui.comment.clear()
         self.ui.name.setReadOnly(False)
@@ -513,7 +544,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             else:
                 self.ui.algorithm_show.show()
                 self.ui.algorithm_edit.hide()
-                self.ui.algorithm.setText(str(credential.otp or credential.other) + ":")
+                self.ui.algorithm.setText(
+                    str(credential.otp or credential.other) + ":"
+                )
                 self.action_otp_edit.setVisible(False)
                 self.ui.otp.setPlaceholderText("<cannot edit>")
 
@@ -664,11 +697,15 @@ class SecretsTab(QtUtilsMixIn, QWidget):
                     self.common_ui.info.info.emit(
                         "The HMAC-Secret is not 32 chars long"
                     )
-                    tool_Tip = tool_Tip + "\n- The HMAC-Secret is not 32 chars long"
+                    tool_Tip = (
+                        tool_Tip + "\n- The HMAC-Secret is not 32 chars long"
+                    )
             else:
                 self.hide_hmac_view()
 
-            if algo != "None" and len(check_secret) != len(check_secret.encode()):
+            if algo != "None" and len(check_secret) != len(
+                check_secret.encode()
+            ):
                 can_save = False
                 self.common_ui.info.info.emit("Invalid character in Secret")
                 tool_Tip = tool_Tip + "\n- Invalid character in Secret"
@@ -755,7 +792,10 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     def hide_hmac_view(self) -> None:
 
-        if self.active_credential is None and self.ui.name_label.text() == "HmacSlot2":
+        if (
+            self.active_credential is None
+            and self.ui.name_label.text() == "HmacSlot2"
+        ):
             self.ui.name_label.clear()
             self.ui.name_label.hide()
             self.ui.name.clear()
@@ -811,7 +851,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     @Slot(QListWidgetItem, QListWidgetItem)
     def credential_changed(
-        self, current: Optional[QListWidgetItem], old: Optional[QListWidgetItem]
+        self,
+        current: Optional[QListWidgetItem],
+        old: Optional[QListWidgetItem],
     ) -> None:
         if current and self.data:
             pass

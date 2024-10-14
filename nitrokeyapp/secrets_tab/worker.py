@@ -251,7 +251,9 @@ class EditCredentialJob(Job):
         else:
             # new secret, new id -> create new, delete old
             if self.old_cred_id != self.credential.id:
-                self.add_credential(self.credential, self.secret, self.old_cred_id)
+                self.add_credential(
+                    self.credential, self.secret, self.old_cred_id
+                )
 
             # new secret, same id -> rename old, create new, delete renamed-old
             else:
@@ -311,7 +313,9 @@ class EditCredentialJob(Job):
         with self.data.open() as device:
             secrets = SecretsApp(device)
             with self.touch_prompt():
-                secrets.update_credential(cred_id=from_cred_id, new_name=new_cred_id)
+                secrets.update_credential(
+                    cred_id=from_cred_id, new_name=new_cred_id
+                )
 
         return new_cred_id
 
@@ -572,7 +576,9 @@ class ListCredentialsJob(Job):
             verify_pin_job = VerifyPinJob(
                 self.common_ui, self.pin_cache, self.pin_ui, self.data
             )
-            verify_pin_job.pin_verified.connect(self.list_protected_credentials)
+            verify_pin_job.pin_verified.connect(
+                self.list_protected_credentials
+            )
             self.spawn(verify_pin_job)
         else:
             with self.data.open() as device:
@@ -686,7 +692,9 @@ class SecretsWorker(Worker):
         self.run(job)
 
     @Slot(DeviceData, Credential)
-    def delete_credential(self, data: DeviceData, credential: Credential) -> None:
+    def delete_credential(
+        self, data: DeviceData, credential: Credential
+    ) -> None:
         job = DeleteCredentialJob(
             self.common_ui,
             self.pin_cache,
@@ -710,7 +718,9 @@ class SecretsWorker(Worker):
         self.run(job)
 
     @Slot(DeviceData, bool)
-    def refresh_credentials(self, data: DeviceData, pin_protected: bool) -> None:
+    def refresh_credentials(
+        self, data: DeviceData, pin_protected: bool
+    ) -> None:
         job = ListCredentialsJob(
             self.common_ui,
             self.pin_cache,
