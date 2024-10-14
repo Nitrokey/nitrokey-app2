@@ -544,8 +544,14 @@ class GenerateOtpJob(Job):
                     RuntimeError(f"Unexpected OTP kind: {self.credential.otp}")
                 )
 
-            with self.touch_prompt():
-                otp = secrets.calculate(self.credential.id, challenge).decode()
+            try:
+                with self.touch_prompt():
+                    otp = secrets.calculate(
+                        self.credential.id, challenge
+                    ).decode()
+            except SecretsAppException as e:
+                self.trigger_exception(e)
+                return
 
             self.otp_generated.emit(OtpData(otp, validity))
 
