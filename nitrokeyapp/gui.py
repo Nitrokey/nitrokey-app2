@@ -98,17 +98,29 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 view.common_ui.touch.stop.connect(self.touch_dialog.stop)
 
                 view.common_ui.info.info.connect(self.info_box.set_status)
-                view.common_ui.info.error.connect(self.info_box.set_error_status)
-                view.common_ui.info.pin_cached.connect(self.info_box.set_pin_icon)
-                view.common_ui.info.pin_cleared.connect(self.info_box.unset_pin_icon)
-                self.info_box.pin_pressed.connect(view.common_ui.info.pin_pressed)
+                view.common_ui.info.error.connect(
+                    self.info_box.set_error_status
+                )
+                view.common_ui.info.pin_cached.connect(
+                    self.info_box.set_pin_icon
+                )
+                view.common_ui.info.pin_cleared.connect(
+                    self.info_box.unset_pin_icon
+                )
+                self.info_box.pin_pressed.connect(
+                    view.common_ui.info.pin_pressed
+                )
 
                 view.common_ui.prompt.confirm.connect(self.prompt_box.confirm)
-                self.prompt_box.confirmed.connect(view.common_ui.prompt.confirmed)
+                self.prompt_box.confirmed.connect(
+                    view.common_ui.prompt.confirmed
+                )
 
                 view.common_ui.progress.start.connect(self.progress_box.show)
                 view.common_ui.progress.stop.connect(self.progress_box.hide)
-                view.common_ui.progress.progress.connect(self.progress_box.update)
+                view.common_ui.progress.progress.connect(
+                    self.progress_box.update
+                )
 
         # main window widgets
         self.home_button = self.ui.btn_home
@@ -286,6 +298,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         if self.selected_device.is_too_old:
             self.tabs.setTabEnabled(1, False)
             self.tabs.setTabEnabled(2, False)
+        else:
+            self.tabs.setTabEnabled(1, True)
+            self.tabs.setTabEnabled(2, True)
 
         self.show_navigation()
         self.welcome_widget.hide()
