@@ -4,4 +4,7 @@ import importlib.metadata
 import pathlib
 import sys
 
-__version__ = importlib.metadata.version(__name__)
+try:
+    __version__ = importlib.metadata.version(__name__)
+except Exception:
+    __version__ = "dev-version"
