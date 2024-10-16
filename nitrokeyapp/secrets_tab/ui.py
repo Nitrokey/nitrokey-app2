@@ -20,8 +20,7 @@ class PinUi(QObject):
         pin, ok = QInputDialog.getText(
             self.parent_widget,
             "Enter Passwords PIN",
-            "Please enter the Passwords PIN (remaining retries: "
-            f"{attempts}):",
+            "Please enter the Passwords PIN (remaining retries: " f"{attempts}):",
             QLineEdit.EchoMode.Password,
         )
         if ok and pin:

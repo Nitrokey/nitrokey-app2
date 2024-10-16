@@ -192,16 +192,12 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             self.hide_more_options()
 
     def show_more_options(self) -> None:
-        self.ui.btn_more_options.setIcon(
-            QtUtilsMixIn.get_qicon("down_arrow.svg")
-        )
+        self.ui.btn_more_options.setIcon(QtUtilsMixIn.get_qicon("down_arrow.svg"))
         oSize = self.ui.frame_more_options.sizeHint()
         self.ui.frame_more_options.setFixedHeight(oSize.height())
 
     def hide_more_options(self) -> None:
-        self.ui.btn_more_options.setIcon(
-            QtUtilsMixIn.get_qicon("right_arrow.svg")
-        )
+        self.ui.btn_more_options.setIcon(QtUtilsMixIn.get_qicon("right_arrow.svg"))
         self.ui.frame_more_options.setFixedHeight(0)
 
     @Slot(bool)

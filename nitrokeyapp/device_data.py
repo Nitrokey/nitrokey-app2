@@ -88,9 +88,7 @@ class DeviceData:
             return device
         else:
             # TODO: improve error handling
-            raise RuntimeError(
-                f"Failed to open device {self.uuid} at {self.path}"
-            )
+            raise RuntimeError(f"Failed to open device {self.uuid} at {self.path}")
 
     def update(
         self,

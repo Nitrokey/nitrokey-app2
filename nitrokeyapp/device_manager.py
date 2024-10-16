@@ -1,5 +1,5 @@
 import logging
-from typing import List, Iterator
+from typing import Iterator, List
 
 from nitrokeyapp.device_data import DeviceData
 

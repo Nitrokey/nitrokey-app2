@@ -116,9 +116,7 @@ class Credential:
             credentials.append(cls.from_list_item(item))
         return credentials
 
-    def extend_with_password_safe_entry(
-        self, item: PasswordSafeEntry
-    ) -> "Credential":
+    def extend_with_password_safe_entry(self, item: PasswordSafeEntry) -> "Credential":
         if item.login:
             self.login = item.login
         if item.password:

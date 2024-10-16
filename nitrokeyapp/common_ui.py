@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from PySide6.QtCore import Signal, QObject
+from PySide6.QtCore import QObject, Signal
 
 from nitrokeyapp.information_box import InfoUi
 from nitrokeyapp.progress_box import ProgressUi

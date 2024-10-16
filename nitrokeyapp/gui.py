@@ -97,33 +97,19 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 view.common_ui.touch.stop.connect(self.touch_dialog.stop)
 
                 view.common_ui.info.info.connect(self.info_box.set_status)
-                view.common_ui.info.error.connect(
-                    self.info_box.set_error_status
-                )
-                view.common_ui.info.pin_cached.connect(
-                    self.info_box.set_pin_icon
-                )
-                view.common_ui.info.pin_cleared.connect(
-                    self.info_box.unset_pin_icon
-                )
-                self.info_box.pin_pressed.connect(
-                    view.common_ui.info.pin_pressed
-                )
+                view.common_ui.info.error.connect(self.info_box.set_error_status)
+                view.common_ui.info.pin_cached.connect(self.info_box.set_pin_icon)
+                view.common_ui.info.pin_cleared.connect(self.info_box.unset_pin_icon)
+                self.info_box.pin_pressed.connect(view.common_ui.info.pin_pressed)
 
                 view.common_ui.prompt.confirm.connect(self.prompt_box.confirm)
-                self.prompt_box.confirmed.connect(
-                    view.common_ui.prompt.confirmed
-                )
+                self.prompt_box.confirmed.connect(view.common_ui.prompt.confirmed)
 
                 view.common_ui.progress.start.connect(self.progress_box.show)
                 view.common_ui.progress.stop.connect(self.progress_box.hide)
-                view.common_ui.progress.progress.connect(
-                    self.progress_box.update
-                )
+                view.common_ui.progress.progress.connect(self.progress_box.update)
 
-                view.common_ui.gui.refresh_devices.connect(
-                    self.refresh_devices
-                )
+                view.common_ui.gui.refresh_devices.connect(self.refresh_devices)
 
         # main window widgets
         self.home_button = self.ui.btn_home
@@ -204,7 +190,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         """update device button view based on `self.device_manager` contents"""
 
         for widget in self.device_buttons:
-            widget.setParent(None)
+            widget.setParent(None)  # type: ignore [call-overload]
             widget.destroy()
         self.device_buttons.clear()
 

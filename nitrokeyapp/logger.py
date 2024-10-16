@@ -18,9 +18,7 @@ log_to_console = "NKAPP_LOG" in os.environ
 
 @contextmanager
 def init_logging() -> Generator[str, None, None]:
-    log_file = NamedTemporaryFile(
-        prefix="nitrokey-app2.", suffix=".log", delete=False
-    )
+    log_file = NamedTemporaryFile(prefix="nitrokey-app2.", suffix=".log", delete=False)
     log_format = "%(relativeCreated)-8d %(levelname)6s %(name)10s %(message)s"
 
     try:
@@ -33,9 +31,7 @@ def init_logging() -> Generator[str, None, None]:
         if log_to_console:
             handlers.append(console_handler)  # type: ignore
 
-        logging.basicConfig(
-            format=log_format, level=logging.DEBUG, handlers=handlers
-        )
+        logging.basicConfig(format=log_format, level=logging.DEBUG, handlers=handlers)
 
         yield log_file.name
     finally:

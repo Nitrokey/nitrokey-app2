@@ -1,4 +1,4 @@
-from typing import Optional, Callable
+from typing import Callable, Optional
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
@@ -73,15 +73,11 @@ class Nk3Button(QtWidgets.QToolButton):
         self.effect.setStrength(0)
 
     def fold(self) -> None:
-        self.setText(
-            self.data.uuid_prefix if not self.data.is_bootloader else "BL"
-        )
+        self.setText(self.data.uuid_prefix if not self.data.is_bootloader else "BL")
         self.setMinimumWidth(58)
         self.setMaximumWidth(58)
         self.setIconSize(QtCore.QSize(40, 40))
-        self.setToolButtonStyle(
-            QtCore.Qt.ToolButtonStyle.ToolButtonTextUnderIcon
-        )
+        self.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
 
     def unfold(self) -> None:
         self.setChecked(False)
@@ -89,6 +85,4 @@ class Nk3Button(QtWidgets.QToolButton):
         self.setMinimumWidth(178)
         self.setMaximumWidth(178)
         self.setIconSize(QtCore.QSize(32, 32))
-        self.setToolButtonStyle(
-            QtCore.Qt.ToolButtonStyle.ToolButtonTextBesideIcon
-        )
+        self.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonTextBesideIcon)

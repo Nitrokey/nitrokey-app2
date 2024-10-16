@@ -11,9 +11,7 @@ from nitrokeyapp.logger import init_logging, log_environment
 
 @contextmanager
 def exception_handler(
-    hook: Callable[
-        [Type[BaseException], BaseException, Optional[TracebackType]], Any
-    ],
+    hook: Callable[[Type[BaseException], BaseException, Optional[TracebackType]], Any],
 ) -> Generator[None, None, None]:
     old_hook = sys.excepthook
     sys.excepthook = hook
