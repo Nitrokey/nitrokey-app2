@@ -31,8 +31,7 @@ logger = logging.getLogger(__name__)
 
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     trigger_handle_exception = Signal(object, BaseException, object)
-    trigger_add_device = Signal(DeviceData)
-    trigger_remove_device = Signal(DeviceData)
+    trigger_update_devices = Signal()
 
     def __init__(self, qt_app: QtWidgets.QApplication, log_file: str):
         QtWidgets.QMainWindow.__init__(self)
@@ -44,8 +43,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             on_connect=self.detect_added_devices,
             on_disconnect=self.detect_removed_devices,
         )
-        self.trigger_add_device.connect(self.add_device)
-        self.trigger_remove_device.connect(self.remove_device)
+
+        self.trigger_update_devices.connect(self.update_devices)
 
         # self.devices: list[DeviceData] = []
         self.device_manager = DeviceManager()
@@ -159,7 +158,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.detect_added_devices()
 
     def toggle_update_btn(self) -> None:
-        device_count = self.device_manager.count()
+        device_count = len(self.device_manager)
         if device_count == 0:
             self.l_insert_nitrokey.show()
         self.overview_tab.set_update_enabled(device_count <= 1)
@@ -187,8 +186,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # add as nk3 device
         logger.info(f"nk3 connected: {devs}")
 
-        for dev in devs:
-            self.trigger_add_device.emit(dev)
+        self.trigger_update_devices.emit()
 
     def detect_removed_devices(
         self,
@@ -201,63 +199,36 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             return
 
         logger.info(f"nk3 disconnected: {devs}")
-        for dev in devs:
-            self.trigger_remove_device.emit(dev)
+        self.trigger_update_devices.emit()
 
-    @Slot(DeviceData)
-    def add_device(self, data: DeviceData) -> None:
-        self.toggle_update_btn()
+    @Slot()
+    def update_devices(self) -> None:
+        for widget in self.device_buttons:
+            widget.setParent(None)
+            widget.destroy()
+        self.device_buttons.clear()
 
-        desc = str(data.uuid) if not data.is_bootloader else "NK3 (BL)"
-        self.info_box.set_status(f"Nitrokey 3 added: {desc}")
+        for device_data in self.device_manager:
+            btn = Nk3Button(device_data, self.show_device)
+            self.device_buttons.append(btn)
+            self.ui.nitrokeyButtonsLayout.addWidget(btn)
 
-        button = Nk3Button(data)
-        button.clicked.connect(lambda: self.show_device(data))
-        self.ui.nitrokeyButtonsLayout.addWidget(button)
-        self.device_buttons.append(button)
+            if not self.selected_device:
+                self.selected_device = device_data
 
-        if not self.selected_device:
-            self.selected_device = data
-
-        self.l_insert_nitrokey.hide()
-
-    @Slot(DeviceData)
-    def remove_device(self, data: DeviceData) -> None:
-        self.toggle_update_btn()
-        if self.selected_device == data:
-            self.selected_device = None
-            self.hide_device()
-
-        desc = str(data.uuid) if not data.is_bootloader else "NK3 (BL)"
-
-        self.info_box.set_status(f"Nitrokey 3 removed: {desc}")
-
-        def remove_button(btn: Nk3Button) -> None:
-            self.ui.nitrokeyButtonsLayout.removeWidget(button)
-            self.device_buttons.remove(button)
-            button.destroy()
-
-        for button in self.device_buttons:
-            if button.data.is_bootloader:
-                if button.data.path == data.path:
-                    remove_button(button)
-            elif button.data.uuid == data.uuid:
-                remove_button(button)
-
-        if self.device_manager.count() == 0:
+        if len(self.device_manager) > 0:
+            self.l_insert_nitrokey.hide()
+            self.hide_navigation()
+            if self.selected_device:
+                self.show_device(self.selected_device)
+            self.toggle_update_btn()
+        else:
             self.l_insert_nitrokey.show()
+            self.hide_device()
 
     def init_gui(self) -> None:
         self.hide_device()
         self.detect_added_devices()
-        device_count = self.device_manager.count()
-        if device_count == 1:
-            data = self.device_manager._devices[0]
-            self.show_device(data)
-            self.hide_navigation()
-        else:
-            self.show_navigation()
-            self.hide_device()
         self.overview_tab.busy_state_changed.connect(self.set_busy)
 
     def show_navigation(self) -> None:

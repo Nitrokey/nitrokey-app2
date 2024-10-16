@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Callable
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
@@ -8,8 +8,7 @@ from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
 class Nk3Button(QtWidgets.QToolButton):
     def __init__(
-        self,
-        data: DeviceData,
+        self, data: DeviceData, on_click: Callable[[DeviceData], None]
     ) -> None:
         super().__init__()
 
@@ -18,13 +17,15 @@ class Nk3Button(QtWidgets.QToolButton):
         self.data = data
         self.bootloader_data: Optional[DeviceData] = None
 
+        self.clicked.connect(lambda: on_click(self.data))
+
         self.setCheckable(True)
         self.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
 
         self.setStyleSheet(
             """
             QToolButton { background-color: none; border: none; margin: 0;
-               margin-top: 8px; padding: 0.25em; border-radius: 6px; text-align: right;
+               margin-top: 8px; padding: 0.25em; border-radius: 6px;
                 font: bold; font-size: 10px; border: 1px solid palette(button);
             }
             QToolButton:checked { background-color: palette(button);
@@ -72,7 +73,9 @@ class Nk3Button(QtWidgets.QToolButton):
         self.effect.setStrength(0)
 
     def fold(self) -> None:
-        self.setText(self.data.uuid_prefix)
+        self.setText(
+            self.data.uuid_prefix if not self.data.is_bootloader else "BL"
+        )
         self.setMinimumWidth(58)
         self.setMaximumWidth(58)
         self.setIconSize(QtCore.QSize(40, 40))
