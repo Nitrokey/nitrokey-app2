@@ -189,6 +189,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def update_devices(self) -> None:
         """update device button view based on `self.device_manager` contents"""
 
+        # always clear right view on update_devices
+        self.hide_device()
+        self.selected_device = None
+
         for widget in self.device_buttons:
             widget.setParent(None)  # type: ignore [call-overload]
             widget.destroy()
@@ -210,7 +214,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.toggle_update_btn()
         else:
             self.l_insert_nitrokey.show()
-            self.hide_device()
 
     def init_gui(self) -> None:
         self.hide_device()
