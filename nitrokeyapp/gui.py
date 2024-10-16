@@ -254,7 +254,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         if device_count == 1:
             data = self.device_manager._devices[0]
             self.show_device(data)
-
+            self.hide_navigation()
+        else:
+            self.show_navigation()
+            self.hide_device()
         self.overview_tab.busy_state_changed.connect(self.set_busy)
 
     def show_navigation(self) -> None:
