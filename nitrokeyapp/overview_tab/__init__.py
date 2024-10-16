@@ -106,6 +106,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             self.ui.nk3_status.hide()
             self.ui.more_info.hide()
             self.ui.nk3_label.setText("Nitrokey 3 Bootloader")
+            self.status_error(InitStatus(0))
 
         else:
             assert data.status.variant
@@ -191,12 +192,16 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             self.hide_more_options()
 
     def show_more_options(self) -> None:
-        self.ui.btn_more_options.setIcon(QtUtilsMixIn.get_qicon("down_arrow.svg"))
+        self.ui.btn_more_options.setIcon(
+            QtUtilsMixIn.get_qicon("down_arrow.svg")
+        )
         oSize = self.ui.frame_more_options.sizeHint()
         self.ui.frame_more_options.setFixedHeight(oSize.height())
 
     def hide_more_options(self) -> None:
-        self.ui.btn_more_options.setIcon(QtUtilsMixIn.get_qicon("right_arrow.svg"))
+        self.ui.btn_more_options.setIcon(
+            QtUtilsMixIn.get_qicon("right_arrow.svg")
+        )
         self.ui.frame_more_options.setFixedHeight(0)
 
     @Slot(bool)
@@ -214,6 +219,8 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             self.common_ui.info.info.emit("Nitrokey 3 successfully updated")
         else:
             self.common_ui.info.error.emit("Nitrokey 3 update failed")
+
+        self.common_ui.gui.refresh_devices.emit()
 
     @Slot()
     def update_with_file(self) -> None:

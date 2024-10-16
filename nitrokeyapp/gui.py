@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     trigger_handle_exception = Signal(object, BaseException, object)
     trigger_update_devices = Signal()
+    trigger_refresh_devices = Signal()
 
     def __init__(self, qt_app: QtWidgets.QApplication, log_file: str):
         QtWidgets.QMainWindow.__init__(self)
@@ -46,7 +47,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         self.trigger_update_devices.connect(self.update_devices)
 
-        # self.devices: list[DeviceData] = []
         self.device_manager = DeviceManager()
         self.device_buttons: list[Nk3Button] = []
         self.selected_device: Optional[DeviceData] = None
@@ -121,6 +121,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                     self.progress_box.update
                 )
 
+                view.common_ui.gui.refresh_devices.connect(
+                    self.refresh_devices
+                )
+
         # main window widgets
         self.home_button = self.ui.btn_home
         self.help_btn = self.ui.btn_dial_help
@@ -147,16 +151,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.init_gui()
         self.show()
 
-    @Slot(object)
-    def device_connect(self, action: str) -> None:
-        if action == "remove":
-            logger.info("device removed event")
-            self.detect_removed_devices()
-
-        elif action == "bind":
-            logger.info("device bind event")
-            self.detect_added_devices()
-
     def toggle_update_btn(self) -> None:
         device_count = len(self.device_manager)
         if device_count == 0:
@@ -174,10 +168,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             if devs:
                 break
             sleep(0.25)
-
-        # show device as the connection might been updated
-        if len(devs) == 0 and self.selected_device:
-            self.show_device(self.selected_device)
 
         if not devs:
             logger.info("failed adding device")
@@ -202,7 +192,17 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.trigger_update_devices.emit()
 
     @Slot()
+    def refresh_devices(self) -> None:
+        """clear `self.device_manager` and fully refresh devices"""
+        self.selected_device = None
+        self.device_manager.clear()
+
+        self.detect_added_devices()
+
+    @Slot()
     def update_devices(self) -> None:
+        """update device button view based on `self.device_manager` contents"""
+
         for widget in self.device_buttons:
             widget.setParent(None)
             widget.destroy()
@@ -229,7 +229,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def init_gui(self) -> None:
         self.hide_device()
         self.detect_added_devices()
-        self.overview_tab.busy_state_changed.connect(self.set_busy)
 
     def show_navigation(self) -> None:
         for btn in self.device_buttons:

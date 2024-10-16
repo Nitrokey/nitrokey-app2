@@ -39,6 +39,9 @@ class DeviceManager:
     def __len__(self) -> int:
         return len(self._devices)
 
+    def clear(self) -> None:
+        self._devices = []
+
     def add(self) -> List[DeviceData]:
         try:
             all_devs = DeviceData.list()
@@ -70,11 +73,14 @@ class DeviceManager:
             # typical case
             matched = False
             for my_dev in self._devices:
-                if match(my_dev, candidate):
-                    my_dev.path = candidate.path
-                    my_dev._device = candidate._device
-                    matched = True
-                    break
+                try:
+                    if match(my_dev, candidate):
+                        my_dev.path = candidate.path
+                        my_dev._device = candidate._device
+                        matched = True
+                        break
+                except Exception:
+                    return []
 
             if matched:
                 continue
