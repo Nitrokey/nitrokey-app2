@@ -31,8 +31,8 @@ logger = logging.getLogger(__name__)
 
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     trigger_handle_exception = Signal(object, BaseException, object)
-    trigger_add_device = Signal(DeviceData)
-    trigger_remove_device = Signal(DeviceData)
+    trigger_update_devices = Signal()
+    trigger_refresh_devices = Signal()
 
     def __init__(self, qt_app: QtWidgets.QApplication, log_file: str):
         QtWidgets.QMainWindow.__init__(self)
@@ -44,10 +44,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             on_connect=self.detect_added_devices,
             on_disconnect=self.detect_removed_devices,
         )
-        self.trigger_add_device.connect(self.add_device)
-        self.trigger_remove_device.connect(self.remove_device)
 
-        # self.devices: list[DeviceData] = []
+        self.trigger_update_devices.connect(self.update_devices)
+
         self.device_manager = DeviceManager()
         self.device_buttons: list[Nk3Button] = []
         self.selected_device: Optional[DeviceData] = None
@@ -110,6 +109,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 view.common_ui.progress.stop.connect(self.progress_box.hide)
                 view.common_ui.progress.progress.connect(self.progress_box.update)
 
+                view.common_ui.gui.refresh_devices.connect(self.refresh_devices)
+
         # main window widgets
         self.home_button = self.ui.btn_home
         self.help_btn = self.ui.btn_dial_help
@@ -136,18 +137,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.init_gui()
         self.show()
 
-    @Slot(object)
-    def device_connect(self, action: str) -> None:
-        if action == "remove":
-            logger.info("device removed event")
-            self.detect_removed_devices()
-
-        elif action == "bind":
-            logger.info("device bind event")
-            self.detect_added_devices()
-
     def toggle_update_btn(self) -> None:
-        device_count = self.device_manager.count()
+        device_count = len(self.device_manager)
         if device_count == 0:
             self.l_insert_nitrokey.show()
         self.overview_tab.set_update_enabled(device_count <= 1)
@@ -164,10 +155,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
                 break
             sleep(0.25)
 
-        # show device as the connection might been updated
-        if len(devs) == 0 and self.selected_device:
-            self.show_device(self.selected_device)
-
         if not devs:
             logger.info("failed adding device")
             return
@@ -175,8 +162,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # add as nk3 device
         logger.info(f"nk3 connected: {devs}")
 
-        for dev in devs:
-            self.trigger_add_device.emit(dev)
+        self.trigger_update_devices.emit()
 
     def detect_removed_devices(
         self,
@@ -189,61 +175,49 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             return
 
         logger.info(f"nk3 disconnected: {devs}")
-        for dev in devs:
-            self.trigger_remove_device.emit(dev)
+        self.trigger_update_devices.emit()
 
-    @Slot(DeviceData)
-    def add_device(self, data: DeviceData) -> None:
-        self.toggle_update_btn()
+    @Slot()
+    def refresh_devices(self) -> None:
+        """clear `self.device_manager` and fully refresh devices"""
+        self.selected_device = None
+        self.device_manager.clear()
 
-        desc = str(data.uuid) if not data.is_bootloader else "NK3 (BL)"
-        self.info_box.set_status(f"Nitrokey 3 added: {desc}")
+        self.detect_added_devices()
 
-        button = Nk3Button(data)
-        button.clicked.connect(lambda: self.show_device(data))
-        self.ui.nitrokeyButtonsLayout.addWidget(button)
-        self.device_buttons.append(button)
+    @Slot()
+    def update_devices(self) -> None:
+        """update device button view based on `self.device_manager` contents"""
 
-        if not self.selected_device:
-            self.selected_device = data
+        # always clear right view on update_devices
+        self.hide_device()
+        self.selected_device = None
 
-        self.l_insert_nitrokey.hide()
+        for widget in self.device_buttons:
+            widget.setParent(None)  # type: ignore [call-overload]
+            widget.destroy()
+        self.device_buttons.clear()
 
-    @Slot(DeviceData)
-    def remove_device(self, data: DeviceData) -> None:
-        self.toggle_update_btn()
-        if self.selected_device == data:
-            self.selected_device = None
-            self.hide_device()
+        for device_data in self.device_manager:
+            btn = Nk3Button(device_data, self.show_device)
+            self.device_buttons.append(btn)
+            self.ui.nitrokeyButtonsLayout.addWidget(btn)
 
-        desc = str(data.uuid) if not data.is_bootloader else "NK3 (BL)"
+            if not self.selected_device:
+                self.selected_device = device_data
 
-        self.info_box.set_status(f"Nitrokey 3 removed: {desc}")
-
-        def remove_button(btn: Nk3Button) -> None:
-            self.ui.nitrokeyButtonsLayout.removeWidget(button)
-            self.device_buttons.remove(button)
-            button.destroy()
-
-        for button in self.device_buttons:
-            if button.data.is_bootloader:
-                if button.data.path == data.path:
-                    remove_button(button)
-            elif button.data.uuid == data.uuid:
-                remove_button(button)
-
-        if self.device_manager.count() == 0:
+        if len(self.device_manager) > 0:
+            self.l_insert_nitrokey.hide()
+            self.hide_navigation()
+            if self.selected_device:
+                self.show_device(self.selected_device)
+            self.toggle_update_btn()
+        else:
             self.l_insert_nitrokey.show()
 
     def init_gui(self) -> None:
         self.hide_device()
         self.detect_added_devices()
-        device_count = self.device_manager.count()
-        if device_count == 1:
-            data = self.device_manager._devices[0]
-            self.show_device(data)
-
-        self.overview_tab.busy_state_changed.connect(self.set_busy)
 
     def show_navigation(self) -> None:
         for btn in self.device_buttons:
@@ -286,6 +260,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         if self.selected_device.is_too_old:
             self.tabs.setTabEnabled(1, False)
             self.tabs.setTabEnabled(2, False)
+        else:
+            self.tabs.setTabEnabled(1, True)
+            self.tabs.setTabEnabled(2, True)
 
         self.show_navigation()
         self.welcome_widget.hide()

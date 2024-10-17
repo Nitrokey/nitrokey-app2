@@ -106,6 +106,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             self.ui.nk3_status.hide()
             self.ui.more_info.hide()
             self.ui.nk3_label.setText("Nitrokey 3 Bootloader")
+            self.status_error(InitStatus(0))
 
         else:
             assert data.status.variant
@@ -214,6 +215,8 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             self.common_ui.info.info.emit("Nitrokey 3 successfully updated")
         else:
             self.common_ui.info.error.emit("Nitrokey 3 update failed")
+
+        self.common_ui.gui.refresh_devices.emit()
 
     @Slot()
     def update_with_file(self) -> None:

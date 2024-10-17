@@ -113,7 +113,12 @@ class UpdateGUI(UpdateUi):
         logger.info("OK clicked (confirm same version)")
 
     def confirm_extra_information(self, txt: List[str]) -> None:
-        pass
+        res = self.run_confirm_dialog("Confirm extra information", " ".join(txt))
+        if not res:
+            logger.info("Cancel clicked (confirm extra info)")
+            raise self.abort("Abort: canceled by user (confirm extra info)")
+
+        logger.info("OK clicked (confirm same version)")
 
     def abort_pynitrokey_version(
         self, current: Version, required: Version
@@ -148,7 +153,9 @@ class UpdateGUI(UpdateUi):
         yield self.common_ui.progress.progress.emit
 
     @contextmanager
-    def finalization_progress_bar(self) -> Iterator[Callable[[int, int], None]]:
+    def finalization_progress_bar(
+        self,
+    ) -> Iterator[Callable[[int, int], None]]:
         self.common_ui.progress.start.emit("Finalization")
         yield self.common_ui.progress.progress.emit
 

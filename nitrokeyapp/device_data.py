@@ -2,7 +2,7 @@ import logging
 from typing import List, Optional
 
 from nitrokey import nk3
-from nitrokey.nk3 import NK3
+from nitrokey.nk3 import NK3, NK3Bootloader
 from nitrokey.trussed import TrussedBase, TrussedDevice, Uuid, Version
 from nitrokey.trussed.admin_app import Status
 
@@ -34,10 +34,13 @@ class DeviceData:
 
     @property
     def is_bootloader(self) -> bool:
-        return not isinstance(self._device, TrussedDevice)
+        return isinstance(self._device, NK3Bootloader)
 
     @property
     def is_too_old(self) -> bool:
+        if self.is_bootloader:
+            return False
+
         try:
             assert self.name
             assert self.version

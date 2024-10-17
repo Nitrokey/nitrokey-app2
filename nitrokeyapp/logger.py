@@ -44,7 +44,10 @@ def log_environment() -> None:
     logger.info(f"Python version: {platform.python_version()}")
     pymodules = ["nitrokeyapp", "nitrokey", "cryptography", "ecdsa", "fido2"]
     for x in pymodules:
-        logger.info(f"{x} version: {package_version(x)}")
+        try:
+            logger.info(f"{x} version: {package_version(x)}")
+        except Exception:
+            logger.info(f"{x} version: n/a")
 
 
 def save_log(log_file: str, parent: QWidget) -> None:

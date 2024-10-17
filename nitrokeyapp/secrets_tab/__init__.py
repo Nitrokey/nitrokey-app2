@@ -811,7 +811,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     @Slot(QListWidgetItem, QListWidgetItem)
     def credential_changed(
-        self, current: Optional[QListWidgetItem], old: Optional[QListWidgetItem]
+        self,
+        current: Optional[QListWidgetItem],
+        old: Optional[QListWidgetItem],
     ) -> None:
         if current and self.data:
             pass

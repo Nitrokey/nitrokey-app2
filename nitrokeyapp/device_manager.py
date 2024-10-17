@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import Iterator, List
 
 from nitrokeyapp.device_data import DeviceData
 
@@ -32,8 +32,15 @@ class DeviceManager:
     def __init__(self) -> None:
         self._devices: List[DeviceData] = []
 
-    def count(self) -> int:
+    def __iter__(self) -> Iterator[DeviceData]:
+        for item in self._devices:
+            yield item
+
+    def __len__(self) -> int:
         return len(self._devices)
+
+    def clear(self) -> None:
+        self._devices = []
 
     def add(self) -> List[DeviceData]:
         try:
@@ -66,11 +73,15 @@ class DeviceManager:
             # typical case
             matched = False
             for my_dev in self._devices:
-                if match(my_dev, candidate):
-                    my_dev.path = candidate.path
-                    my_dev._device = candidate._device
-                    matched = True
-                    break
+                try:
+                    if match(my_dev, candidate):
+                        my_dev.path = candidate.path
+                        my_dev._device = candidate._device
+                        matched = True
+                        break
+                except Exception:
+                    return []
+
             if matched:
                 continue
 
