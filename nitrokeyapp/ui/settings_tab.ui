@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>600</height>
+    <height>601</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -58,6 +58,11 @@
            <width>180</width>
            <height>0</height>
           </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+          </font>
          </property>
          <attribute name="headerVisible">
           <bool>false</bool>
@@ -112,6 +117,11 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>Abort</string>
             </property>
@@ -129,6 +139,11 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>Reset</string>
             </property>
@@ -145,6 +160,11 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
             </property>
             <property name="text">
              <string>Save</string>
@@ -259,6 +279,12 @@
              </property>
              <item row="0" column="0">
               <widget class="QLabel" name="label_0">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;label 0&gt;</string>
                </property>
@@ -269,6 +295,11 @@
              </item>
              <item row="0" column="1">
               <widget class="QLabel" name="value_0">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;value 0&gt;</string>
                </property>
@@ -276,6 +307,12 @@
              </item>
              <item row="1" column="0">
               <widget class="QLabel" name="label_1">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;label 1&gt;</string>
                </property>
@@ -286,6 +323,11 @@
              </item>
              <item row="1" column="1">
               <widget class="QLabel" name="value_1">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;value 1&gt;</string>
                </property>
@@ -293,6 +335,12 @@
              </item>
              <item row="2" column="0">
               <widget class="QLabel" name="label_2">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;label 2&gt;</string>
                </property>
@@ -303,6 +351,11 @@
              </item>
              <item row="2" column="1">
               <widget class="QLabel" name="value_2">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;value 2&gt;</string>
                </property>
@@ -310,6 +363,12 @@
              </item>
              <item row="3" column="0">
               <widget class="QLabel" name="label_3">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;label 3&gt;</string>
                </property>
@@ -320,6 +379,11 @@
              </item>
              <item row="3" column="1">
               <widget class="QLabel" name="value_3">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;value 3&gt;</string>
                </property>
@@ -327,6 +391,12 @@
              </item>
              <item row="4" column="0">
               <widget class="QLabel" name="label_4">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;label 4&gt;</string>
                </property>
@@ -337,6 +407,11 @@
              </item>
              <item row="4" column="1">
               <widget class="QLabel" name="value_4">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;value 4&gt;</string>
                </property>
@@ -344,6 +419,12 @@
              </item>
              <item row="5" column="0">
               <widget class="QLabel" name="label_5">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;label 5&gt;</string>
                </property>
@@ -354,6 +435,11 @@
              </item>
              <item row="5" column="1">
               <widget class="QLabel" name="value_5">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;value 5&gt;</string>
                </property>
@@ -367,6 +453,12 @@
             <layout class="QFormLayout" name="pin_form_layout">
              <item row="0" column="0">
               <widget class="QLabel" name="current_password_label">
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
                 <string>Current PIN:</string>
                </property>
@@ -382,6 +474,11 @@
                  <horstretch>8</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
                </property>
                <property name="echoMode">
                 <enum>QLineEdit::EchoMode::Password</enum>
@@ -399,6 +496,12 @@
              </item>
              <item row="1" column="0">
               <widget class="QLabel" name="new_password_label">
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
                 <string>New PIN:</string>
                </property>
@@ -409,6 +512,12 @@
              </item>
              <item row="2" column="0">
               <widget class="QLabel" name="repeat_password_label">
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="layoutDirection">
                 <enum>Qt::LayoutDirection::LeftToRight</enum>
                </property>
@@ -427,6 +536,11 @@
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
                </property>
                <property name="echoMode">
                 <enum>QLineEdit::EchoMode::Password</enum>
@@ -450,6 +564,11 @@
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="echoMode">
                 <enum>QLineEdit::EchoMode::Password</enum>
                </property>
@@ -468,6 +587,11 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
             </property>
             <property name="text">
              <string>[warning message box]</string>
@@ -500,6 +624,11 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
             </property>
             <property name="text">
              <string>[info message box]</string>

@@ -227,8 +227,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.ui.vertical_navigation.setMaximumWidth(80)
         self.ui.btn_dial_help.hide()
 
-        self.ui.main_logo.setMaximumWidth(48)
-        self.ui.main_logo.setMaximumHeight(48)
+        self.ui.main_logo.setMaximumWidth(64)
+        self.ui.main_logo.setMaximumHeight(64)
         self.ui.main_logo.setMinimumWidth(48)
         self.ui.main_logo.setMinimumHeight(48)
 
