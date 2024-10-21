@@ -227,7 +227,7 @@
                </font>
               </property>
               <property name="text">
-               <string>This application allows you to administrate your Nitrokey 3:</string>
+               <string>This application allows you to administrate your Nitrokey 3</string>
               </property>
              </widget>
             </item>

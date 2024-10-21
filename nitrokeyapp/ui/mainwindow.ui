@@ -547,6 +547,11 @@
     </item>
     <item row="1" column="1">
      <widget class="QProgressBar" name="progress_bar">
+      <property name="font">
+       <font>
+        <pointsize>11</pointsize>
+       </font>
+      </property>
       <property name="value">
        <number>0</number>
       </property>

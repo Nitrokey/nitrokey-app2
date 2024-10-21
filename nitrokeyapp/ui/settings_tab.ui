@@ -455,7 +455,7 @@
               <widget class="QLabel" name="current_password_label">
                <property name="font">
                 <font>
-                 <pointsize>10</pointsize>
+                 <pointsize>11</pointsize>
                  <bold>true</bold>
                 </font>
                </property>
@@ -477,7 +477,7 @@
                </property>
                <property name="font">
                 <font>
-                 <pointsize>10</pointsize>
+                 <pointsize>11</pointsize>
                 </font>
                </property>
                <property name="echoMode">
@@ -498,7 +498,7 @@
               <widget class="QLabel" name="new_password_label">
                <property name="font">
                 <font>
-                 <pointsize>10</pointsize>
+                 <pointsize>11</pointsize>
                  <bold>true</bold>
                 </font>
                </property>
@@ -514,7 +514,7 @@
               <widget class="QLabel" name="repeat_password_label">
                <property name="font">
                 <font>
-                 <pointsize>10</pointsize>
+                 <pointsize>11</pointsize>
                  <bold>true</bold>
                 </font>
                </property>
@@ -539,7 +539,7 @@
                </property>
                <property name="font">
                 <font>
-                 <pointsize>10</pointsize>
+                 <pointsize>11</pointsize>
                 </font>
                </property>
                <property name="echoMode">
@@ -566,7 +566,7 @@
                </property>
                <property name="font">
                 <font>
-                 <pointsize>10</pointsize>
+                 <pointsize>11</pointsize>
                 </font>
                </property>
                <property name="echoMode">
