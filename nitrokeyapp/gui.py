@@ -271,6 +271,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         view = self.views[self.tabs.currentIndex()]
         view.refresh(data, force=True)
 
+        for btn in self.device_buttons:
+            btn.set_stylesheet_small()
+
     def hide_device(self) -> None:
         self.selected_device = None
 
@@ -278,6 +281,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.tabs.hide()
         self.hide_navigation()
         self.welcome_widget.show()
+
+        for btn in self.device_buttons:
+            btn.set_stylesheet_big()
 
     @Slot(int)
     def tab_changed(self, idx: int) -> None:
