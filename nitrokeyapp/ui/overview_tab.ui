@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
-    <height>477</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -51,8 +51,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>488</width>
-        <height>465</height>
+        <width>800</width>
+        <height>600</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -65,6 +65,15 @@
        <string notr="true"/>
       </property>
       <layout class="QFormLayout" name="formLayout">
+       <property name="leftMargin">
+        <number>4</number>
+       </property>
+       <property name="bottomMargin">
+        <number>4</number>
+       </property>
+       <property name="horizontalSpacing">
+        <number>3</number>
+       </property> 
        <item row="0" column="0">
         <widget class="QFrame" name="___nk3_info_space">
          <property name="enabled">
