@@ -51,8 +51,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>792</width>
-        <height>592</height>
+        <width>788</width>
+        <height>588</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -334,6 +334,11 @@
            <layout class="QHBoxLayout" name="status_space">
             <item>
              <widget class="QLabel" name="nk3_status">
+              <property name="font">
+               <font>
+                <pointsize>11</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>TextLabel</string>
               </property>
@@ -355,6 +360,11 @@
                 <width>18</width>
                 <height>18</height>
                </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>11</pointsize>
+               </font>
               </property>
               <property name="toolTip">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;An error occurred during device initialization. &lt;br/&gt;Click &lt;span style=&quot; font-weight:600; text-decoration: underline; color:#c81435;&quot;&gt;More Info&lt;/span&gt; for more information and contact support if the error persists.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -384,6 +394,11 @@
             </item>
             <item>
              <widget class="QLabel" name="more_info">
+              <property name="font">
+               <font>
+                <pointsize>11</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://docs.nitrokey.com/nitrokey3/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#c80636;&quot;&gt;More Info&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
