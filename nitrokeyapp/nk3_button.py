@@ -22,18 +22,8 @@ class Nk3Button(QtWidgets.QToolButton):
         self.setCheckable(True)
         self.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
 
-        self.setStyleSheet(
-            """
-            QToolButton { background-color: none; border: none; margin: 0;
-               margin-top: 8px; padding: 0.25em; border-radius: 6px;
-                font: bold; font-size: 10px; border: 1px solid palette(button);
-            }
-            QToolButton:checked { background-color: palette(button);
-                 border: 1px outset palette(shadow);
-                 font: bold; font-size: 10px;
-            }
-        """
-        )
+        self.set_stylesheet_small()
+
         self.effect = QtWidgets.QGraphicsColorizeEffect(self)
         self.effect.setColor(QtGui.QColor(115, 215, 125))
         self.effect.setStrength(0)
@@ -62,6 +52,34 @@ class Nk3Button(QtWidgets.QToolButton):
         anims.addAnimation(anim2)
 
         self.animation = anims
+
+    def set_stylesheet_big(self) -> None:
+        self.setStyleSheet(
+            """
+            QToolButton { background-color: none; border: none; margin: 0;
+               margin-top: 8px; padding: 0.25em; border-radius: 6px;
+                font: bold; font-size: 12px; border: 1px solid palette(button);
+            }
+            QToolButton:checked { background-color: palette(button);
+                 border: 1px outset palette(shadow);
+                 font: bold; font-size: 10px;
+            }
+        """
+        )
+
+    def set_stylesheet_small(self) -> None:
+        self.setStyleSheet(
+            """
+            QToolButton { background-color: none; border: none; margin: 0;
+               margin-top: 8px; padding: 0.25em; border-radius: 6px;
+                font: bold; font-size: 10px; border: 1px solid palette(button);
+            }
+            QToolButton:checked { background-color: palette(button);
+                 border: 1px outset palette(shadow);
+                 font: bold; font-size: 10px;
+            }
+        """
+        )
 
     def start_touch(self) -> None:
         self.animation.start()

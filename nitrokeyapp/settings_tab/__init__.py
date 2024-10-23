@@ -271,7 +271,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             d_obj = getattr(self.ui, f"value_{idx}")
 
             if data is not None and len(data) > idx:
-                l_obj.setText(f"**{data[idx][0]}:**")
+                l_obj.setText(f"{data[idx][0]}: ")
                 d_obj.setText(data[idx][1])
                 l_obj.show()
                 d_obj.show()
