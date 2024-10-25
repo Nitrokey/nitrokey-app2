@@ -31,7 +31,7 @@ packages = [
 nitrokeyapp = "nitrokeyapp.__main__:main"
 
 [tool.poetry.dependencies]
-nitrokey = "^0.2.0rc1"
+nitrokey = "^0.2.2"
 python = ">=3.9,<3.13"
 pySide6 = ">=6.6.0"
 pywin32 = { version = "305", markers = "sys_platform =='win32'" }
