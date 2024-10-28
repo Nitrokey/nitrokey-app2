@@ -23,6 +23,12 @@
    <string notr="true"/>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_3">
+   <property name="leftMargin">
+     <number>4</number>
+   </property>
+   <property name="topMargin">
+     <number>4</number>
+   </property>
    <item>
     <widget class="QStackedWidget" name="settings_tab">
      <property name="currentIndex">
@@ -44,6 +50,9 @@
        </property>
        <property name="horizontalSpacing">
         <number>3</number>
+       </property>
+       <property name="topMargin">
+        <number>4</number>
        </property>
        <item row="0" column="0">
         <widget class="QTreeWidget" name="settings_tree">

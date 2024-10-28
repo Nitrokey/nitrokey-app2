@@ -23,6 +23,12 @@
    <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="leftMargin">
+     <number>4</number>
+   </property>
+   <property name="topMargin">
+     <number>0</number>
+   </property>   
    <item>
     <widget class="QScrollArea" name="___overview_space">
      <property name="autoFillBackground">
@@ -51,8 +57,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>788</width>
-        <height>588</height>
+        <width>800</width>
+        <height>600</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -72,6 +78,9 @@
         <number>4</number>
        </property>
        <property name="bottomMargin">
+        <number>4</number>
+       </property>
+       <property name="topMargin">
         <number>4</number>
        </property>
        <item row="0" column="0">
