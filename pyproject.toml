@@ -32,7 +32,7 @@ nitrokeyapp = "nitrokeyapp.__main__:main"
 
 [tool.poetry.dependencies]
 nitrokey = "^0.2.2"
-python = ">=3.9,<3.13"
+python = ">=3.9,<3.14"
 pySide6 = ">=6.6.0"
 pywin32 = { version = "305", markers = "sys_platform =='win32'" }
 usb-monitor = "^1.21"
