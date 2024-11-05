@@ -86,4 +86,41 @@ jobs:
         uses: actions/checkout@v4
       - name: Check appstream metadata
         run: flatpak-builder-lint appstream meta/com.nitrokey.nitrokey-app2.metainfo.xml
-
+  check-version-accordance-rpm-spec:
+    name: Check for version accordance with RPM specification file
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install required packages
+        run: |
+          dnf makecache
+          dnf install -y gcc make poetry python python-pip python3-devel rpm-build systemd-devel which
+      - name: Create virtual environment
+        run: make init
+      - name: Check versions
+        shell: bash
+        run: |
+          PACKAGE_VERSION=$(poetry version --short)
+          RPM_VERSION=$(rpmspec -q --qf "%{version}" ci-scripts/linux/rpm/nitrokey-app2.spec)
+          if [ $PACKAGE_VERSION == $RPM_VERSION ]; then exit 0; else exit 1; fi
+  check-version-accordance-flatpak-metadata:
+    name: Check for version accordance with Flatpak metadata file
+    runs-on: ubuntu-latest
+    container: python:3.9-slim
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install required packages
+        run: |
+          apt update
+          apt install -y make python3-poetry
+      - name: Create virtual environment
+        run: make init
+      - name: Check versions
+        shell: bash
+        run: |
+          PACKAGE_VERSION=$(poetry version --short)
+          FLATPAK_VERSION=$(python -c "import xml.etree.ElementTree as ET; print(ET.parse('meta/com.nitrokey.nitrokey-app2.metainfo.xml').getroot().find('releases')[0].get('version'))")
+          if [ $PACKAGE_VERSION == $FLATPAK_VERSION ]; then exit 0; else exit 1; fi
