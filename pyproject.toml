@@ -80,10 +80,6 @@ module = [
   "win32api.*",
   "win32con.*",
   "win32gui.*",
-  "pyudev.*",
-  "ruamel.*",
-  "tlv8.*",
-  "qt_material.*",
-	"usbmonitor.*",
+  "usbmonitor.*",
 ]
 ignore_missing_imports = true
