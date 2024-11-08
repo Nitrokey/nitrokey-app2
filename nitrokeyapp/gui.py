@@ -227,10 +227,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.ui.vertical_navigation.setMaximumWidth(80)
         self.ui.btn_dial_help.hide()
 
-        self.ui.main_logo.setMaximumWidth(48)
-        self.ui.main_logo.setMaximumHeight(48)
-        self.ui.main_logo.setMinimumWidth(48)
-        self.ui.main_logo.setMinimumHeight(48)
+        self.ui.main_logo.setFixedWidth(64)
+        self.ui.main_logo.setFixedHeight(64)
+        self.ui.main_logo.setContentsMargins(0, 0, 0, 0)
 
     def hide_navigation(self) -> None:
         for btn in self.device_buttons:
@@ -240,10 +239,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.ui.vertical_navigation.setMaximumWidth(200)
         self.ui.btn_dial_help.show()
 
-        self.ui.main_logo.setMaximumWidth(120)
-        self.ui.main_logo.setMaximumHeight(120)
-        self.ui.main_logo.setMinimumWidth(64)
-        self.ui.main_logo.setMinimumHeight(64)
+        self.ui.main_logo.setFixedWidth(190)
+        self.ui.main_logo.setFixedHeight(200)
+        self.ui.main_logo.setContentsMargins(30, 40, 40, 40)
 
     def show_device(self, data: DeviceData) -> None:
         self.selected_device = data
@@ -271,6 +269,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         view = self.views[self.tabs.currentIndex()]
         view.refresh(data, force=True)
 
+        for btn in self.device_buttons:
+            btn.set_stylesheet_small()
+
     def hide_device(self) -> None:
         self.selected_device = None
 
@@ -278,6 +279,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.tabs.hide()
         self.hide_navigation()
         self.welcome_widget.show()
+
+        for btn in self.device_buttons:
+            btn.set_stylesheet_big()
 
     @Slot(int)
     def tab_changed(self, idx: int) -> None:

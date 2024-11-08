@@ -652,7 +652,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         if self.ui.select_algorithm.isEnabled():
             if algo == "None":
                 self.ui.otp.setReadOnly(True)
-                self.ui.otp.setPlaceholderText("<Select Algorithm>")
+                self.ui.otp.setPlaceholderText("<select algorithm>")
             else:
                 self.ui.otp.setReadOnly(False)
                 self.ui.otp.setPlaceholderText("<empty>")

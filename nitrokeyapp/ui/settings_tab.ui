@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>811</width>
-    <height>616</height>
+    <width>800</width>
+    <height>601</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -23,6 +23,12 @@
    <string notr="true"/>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_3">
+   <property name="leftMargin">
+    <number>4</number>
+   </property>
+   <property name="topMargin">
+    <number>4</number>
+   </property>
    <item>
     <widget class="QStackedWidget" name="settings_tab">
      <property name="currentIndex">
@@ -36,6 +42,24 @@
        </sizepolicy>
       </property>
       <layout class="QGridLayout" name="gridLayout">
+       <property name="leftMargin">
+        <number>4</number>
+       </property>
+       <property name="topMargin">
+        <number>4</number>
+       </property>
+       <property name="rightMargin">
+        <number>6</number>
+       </property>
+       <property name="bottomMargin">
+        <number>4</number>
+       </property>
+       <property name="horizontalSpacing">
+        <number>4</number>
+       </property>
+       <property name="verticalSpacing">
+        <number>6</number>
+       </property>
        <item row="0" column="0">
         <widget class="QTreeWidget" name="settings_tree">
          <property name="sizePolicy">
@@ -50,6 +74,26 @@
            <height>0</height>
           </size>
          </property>
+         <property name="maximumSize">
+          <size>
+           <width>260</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>260</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+          </font>
+         </property>
+         <attribute name="headerVisible">
+          <bool>false</bool>
+         </attribute>
          <column>
           <property name="text">
            <string>Settings</string>
@@ -100,6 +144,11 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>Abort</string>
             </property>
@@ -117,6 +166,11 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>Reset</string>
             </property>
@@ -133,6 +187,11 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
             </property>
             <property name="text">
              <string>Save</string>
@@ -171,16 +230,16 @@
            <number>0</number>
           </property>
           <item>
-           <spacer name="__horizontal_spacer">
+           <spacer name="__horizontalSpacer2">
             <property name="orientation">
              <enum>Qt::Orientation::Horizontal</enum>
             </property>
             <property name="sizeType">
-             <enum>QSizePolicy::Policy::MinimumExpanding</enum>
+             <enum>QSizePolicy::Policy::Fixed</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>260</width>
+              <width>258</width>
               <height>20</height>
              </size>
             </property>
@@ -247,6 +306,12 @@
              </property>
              <item row="0" column="0">
               <widget class="QLabel" name="label_0">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;label 0&gt;</string>
                </property>
@@ -257,6 +322,11 @@
              </item>
              <item row="0" column="1">
               <widget class="QLabel" name="value_0">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;value 0&gt;</string>
                </property>
@@ -264,6 +334,12 @@
              </item>
              <item row="1" column="0">
               <widget class="QLabel" name="label_1">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;label 1&gt;</string>
                </property>
@@ -274,6 +350,11 @@
              </item>
              <item row="1" column="1">
               <widget class="QLabel" name="value_1">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;value 1&gt;</string>
                </property>
@@ -281,6 +362,12 @@
              </item>
              <item row="2" column="0">
               <widget class="QLabel" name="label_2">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;label 2&gt;</string>
                </property>
@@ -291,6 +378,11 @@
              </item>
              <item row="2" column="1">
               <widget class="QLabel" name="value_2">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;value 2&gt;</string>
                </property>
@@ -298,6 +390,12 @@
              </item>
              <item row="3" column="0">
               <widget class="QLabel" name="label_3">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;label 3&gt;</string>
                </property>
@@ -308,6 +406,11 @@
              </item>
              <item row="3" column="1">
               <widget class="QLabel" name="value_3">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;value 3&gt;</string>
                </property>
@@ -315,6 +418,12 @@
              </item>
              <item row="4" column="0">
               <widget class="QLabel" name="label_4">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;label 4&gt;</string>
                </property>
@@ -325,6 +434,11 @@
              </item>
              <item row="4" column="1">
               <widget class="QLabel" name="value_4">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;value 4&gt;</string>
                </property>
@@ -332,6 +446,12 @@
              </item>
              <item row="5" column="0">
               <widget class="QLabel" name="label_5">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;label 5&gt;</string>
                </property>
@@ -342,6 +462,11 @@
              </item>
              <item row="5" column="1">
               <widget class="QLabel" name="value_5">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>&lt;value 5&gt;</string>
                </property>
@@ -355,6 +480,12 @@
             <layout class="QFormLayout" name="pin_form_layout">
              <item row="0" column="0">
               <widget class="QLabel" name="current_password_label">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
                 <string>Current PIN:</string>
                </property>
@@ -370,6 +501,11 @@
                  <horstretch>8</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                </font>
                </property>
                <property name="echoMode">
                 <enum>QLineEdit::EchoMode::Password</enum>
@@ -387,6 +523,12 @@
              </item>
              <item row="1" column="0">
               <widget class="QLabel" name="new_password_label">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
                 <string>New PIN:</string>
                </property>
@@ -397,6 +539,12 @@
              </item>
              <item row="2" column="0">
               <widget class="QLabel" name="repeat_password_label">
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="layoutDirection">
                 <enum>Qt::LayoutDirection::LeftToRight</enum>
                </property>
@@ -415,6 +563,11 @@
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                </font>
                </property>
                <property name="echoMode">
                 <enum>QLineEdit::EchoMode::Password</enum>
@@ -438,6 +591,11 @@
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
+               <property name="font">
+                <font>
+                 <pointsize>11</pointsize>
+                </font>
+               </property>
                <property name="echoMode">
                 <enum>QLineEdit::EchoMode::Password</enum>
                </property>
@@ -456,6 +614,11 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
             </property>
             <property name="text">
              <string>[warning message box]</string>
@@ -488,6 +651,11 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
             </property>
             <property name="text">
              <string>[info message box]</string>
