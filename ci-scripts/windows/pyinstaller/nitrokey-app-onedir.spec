@@ -9,7 +9,6 @@ datas = [
     ('..\\..\\..\\nitrokeyapp\\ui', 'nitrokeyapp\\ui'),
     ('..\\..\\..\\LICENSE', '.')
 ]
-datas += copy_metadata('ecdsa')
 datas += copy_metadata('fido2')
 datas += copy_metadata('nitrokeyapp')
 datas += copy_metadata('nitrokey')
