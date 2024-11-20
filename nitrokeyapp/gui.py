@@ -130,7 +130,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.ui.nitrokeyButtonsLayout.setSpacing(8)
 
         self.help_btn.clicked.connect(
-            lambda: webbrowser.open("https://docs.nitrokey.com/nitrokey3")
+            lambda: webbrowser.open("https://docs.nitrokey.com/nitrokeys/nitrokey3/")
         )
         self.home_button.clicked.connect(self.home_button_pressed)
 
