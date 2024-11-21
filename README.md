@@ -1,6 +1,6 @@
 # Nitrokey App 2
 
-This application allows to manage Nitrokey 3 devices. To manage Nitrokey Pro and Nitrokey Storage devices, use the older [Nitrokey App](https://github.com/Nitrokey/nitrokey-app).
+This application allows to manage Nitrokey 3 and Nitrokey Passkey devices. To manage Nitrokey Pro and Nitrokey Storage devices, use the older [Nitrokey App](https://github.com/Nitrokey/nitrokey-app).
 
 ## Installation
 
@@ -28,6 +28,9 @@ The following features are currently implemented.
 - Passwords
     - TOTP
     - HOTP
+- Set PIN
+    - FIDO2
+    - Passwords
 
 ## Download
 
