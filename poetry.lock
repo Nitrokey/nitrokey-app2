@@ -1165,13 +1165,13 @@ zstd = ["zstandard (>=0.18.0)"]
 
 [[package]]
 name = "usb-monitor"
-version = "1.21"
+version = "1.23"
 description = "USBMonitor is an easy-to-use cross-platform library for USB device monitoring that simplifies tracking of connections, disconnections, and examination of connected device attributes on Windows, Linux and MacOs, freeing the user from platform-specific details or incompatibilities."
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "usb_monitor-1.21-py3-none-any.whl", hash = "sha256:1bd785f765f393ed49e5e2ef2107d9a687b8000e0016fdb77f2014f7586781dd"},
-    {file = "usb_monitor-1.21.tar.gz", hash = "sha256:33e05499b3714167142c51027b14e7a79e4466227acb76d8084b52c2a2a57409"},
+    {file = "usb_monitor-1.23-py3-none-any.whl", hash = "sha256:4753747dedf862bcdbd3c339c59a0d7ea9e133091e38bc3f8f3133dc217776bd"},
+    {file = "usb_monitor-1.23.tar.gz", hash = "sha256:ef1677d092cf76e634cb6487588edfbd91c1dbb15b34500c7331cc5e769797cf"},
 ]
 
 [package.dependencies]
