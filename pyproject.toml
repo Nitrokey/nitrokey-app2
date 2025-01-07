@@ -1,38 +1,38 @@
 [build-system]
-requires = ["poetry-core>=1.3.2"]
+requires = ["poetry-core>=2,<3"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.poetry]
+[project]
 name = "nitrokeyapp"
 version = "2.3.3"
 description = "Graphical application to manage Nitrokey devices"
 authors = [
-  "Nitrokey <pypi@nitrokey.com>",
+  { name = "Nitrokey", email = "pypi@nitrokey.com" },
 ]
 license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/nitrokey/nitrokey-app2"
 documentation = "https://docs.nitrokey.com/software/nk-app2/"
-classifiers=[
-  "License :: OSI Approved :: Apache Software License",
-  "Intended Audience :: Developers",
-  "Intended Audience :: End Users/Desktop",
-  "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
+requires-python = ">=3.9,<3.14"
+dynamic = [
+  "classifiers",
+  "dependencies",
 ]
 packages = [
   {include = "nitrokeyapp"}
 ]
 
-[tool.poetry.scripts]
+[project.scripts]
 nitrokeyapp = "nitrokeyapp.__main__:main"
+
+[tool.poetry]
+classifiers = [
+  "Intended Audience :: Developers",
+  "Intended Audience :: End Users/Desktop",
+]
 
 [tool.poetry.dependencies]
 nitrokey = "^0.2.3"
-python = ">=3.9,<3.14"
 pySide6 = ">=6.6.0"
 pywin32 = { version = "305", markers = "sys_platform =='win32'" }
 usb-monitor = "^1.21"
