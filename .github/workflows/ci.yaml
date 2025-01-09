@@ -27,7 +27,8 @@ jobs:
       - name: Install required packages
         run: |
           apt update
-          apt install -y python3-poetry make
+          apt install -y make
+          pip install poetry
       - name: Create virtual environment
         run: make init
       - name: Check code format
@@ -42,7 +43,8 @@ jobs:
       - name: Install required packages
         run: |
           apt update
-          apt install -y python3-poetry make
+          apt install -y make
+          pip install poetry
       - name: Create virtual environment
         run: make init
       - name: Check code import format
@@ -57,7 +59,8 @@ jobs:
       - name: Install required packages
         run: |
           apt update
-          apt install -y python3-poetry make
+          apt install -y make
+          pip install poetry
       - name: Create virtual environment
         run: make init
       - name: Check code style
@@ -72,7 +75,8 @@ jobs:
       - name: Install required packages
         run: |
           apt update
-          apt install -y python3-poetry make libglib2.0-dev
+          apt install -y make libglib2.0-dev
+          pip install poetry
       - name: Create virtual environment
         run: make init
       - name: Check code static typing
@@ -96,7 +100,8 @@ jobs:
       - name: Install required packages
         run: |
           dnf makecache
-          dnf install -y gcc make poetry python python-pip python3-devel rpm-build systemd-devel which
+          dnf install -y gcc make python python-pip python3-devel rpm-build systemd-devel which
+          pip install poetry
       - name: Create virtual environment
         run: make init
       - name: Check versions
@@ -115,7 +120,8 @@ jobs:
       - name: Install required packages
         run: |
           apt update
-          apt install -y make python3-poetry
+          apt install -y make
+          pip install poetry
       - name: Create virtual environment
         run: make init
       - name: Check versions
