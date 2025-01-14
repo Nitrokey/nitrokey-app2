@@ -1,7 +1,7 @@
 import logging
 from typing import List, Optional
 
-from nitrokey import nk3
+from nitrokey import nk3, nkpk
 from nitrokey.nk3 import NK3, NK3Bootloader
 from nitrokey.trussed import TrussedBase, TrussedDevice, Uuid, Version
 from nitrokey.trussed.admin_app import Status
@@ -35,7 +35,9 @@ class DeviceData:
 
     @classmethod
     def list(cls) -> List["DeviceData"]:
-        return [cls(dev) for dev in nk3.list()]
+        nk3_devices = [cls(dev) for dev in nk3.list()]
+        nkpk_devices = [cls(dev) for dev in nkpk.list()]
+        return nk3_devices + nkpk_devices
 
     @property
     def name(self) -> str:
