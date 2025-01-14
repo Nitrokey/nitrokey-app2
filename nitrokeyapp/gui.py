@@ -159,8 +159,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             logger.info("failed adding device")
             return
 
-        # add as nk3 device
-        logger.info(f"nk3 connected: {devs}")
+        logger.info(f"Connected devices: {devs}")
 
         self.trigger_update_devices.emit()
 
