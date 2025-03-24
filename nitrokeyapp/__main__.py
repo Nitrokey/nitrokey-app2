@@ -1,3 +1,4 @@
+import signal
 import sys
 from contextlib import contextmanager
 from types import TracebackType
@@ -7,6 +8,8 @@ from PySide6 import QtWidgets
 
 from nitrokeyapp.gui import GUI
 from nitrokeyapp.logger import init_logging, log_environment
+
+signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
 @contextmanager
