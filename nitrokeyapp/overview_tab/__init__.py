@@ -148,8 +148,10 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             self.ui.icon_warn_notice.hide()
             self.ui.more_info.hide()
 
-    def set_update_enabled(self, enabled: bool) -> None:
-        tooltip = ""
+    def set_update_enabled(self, enabled: bool, tooltip: Optional[str] = None) -> None:
+        if not tooltip:
+            tooltip = ""
+
         if enabled:
             ...
         else:
@@ -163,6 +165,8 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         self.ui.btn_update.setToolTip(tooltip)
         self.ui.btn_more_options.setEnabled(enabled)
         self.ui.btn_more_options.setToolTip(tooltip)
+        self.ui.btn_update_with_file.setEnabled(enabled)
+        self.ui.btn_update_with_file.setToolTip(tooltip)
 
     def update_btns_during_update(self, enabled: bool) -> None:
         tooltip = ""

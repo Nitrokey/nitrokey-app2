@@ -1,4 +1,5 @@
 import logging
+import sys
 import webbrowser
 from time import sleep
 from types import TracebackType
@@ -141,7 +142,14 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         device_count = len(self.device_manager)
         if device_count == 0:
             self.l_insert_nitrokey.show()
-        self.overview_tab.set_update_enabled(device_count <= 1)
+        if sys.platform == 'nt':
+            from win32com.shell.shell import IsUserAnAdmin
+            if IsUserAnAdmin():
+                self.overview_tab.set_update_enabled(device_count <= 1)
+            else:
+                self.overview_tab.set_update_enabled(False, "Updates are only possible with elevated priviliges. Please start the application with administrative rights.")
+        else:
+            self.overview_tab.set_update_enabled(device_count <= 1)
 
     def detect_added_devices(
         self,
