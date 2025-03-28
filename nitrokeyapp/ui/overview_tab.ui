@@ -459,6 +459,9 @@
               <property name="text">
                <string>Check for Update</string>
               </property>
+              <property name="enabled">
+                <bool>False</bool>
+	      </property>
              </widget>
             </item>
            </layout>
@@ -528,6 +531,9 @@
             <property name="text">
              <string>Update with local Firmware</string>
             </property>
+            <property name="enabled">
+	      <bool>False</bool>
+	    </property>
            </widget>
           </item>
          </layout>
