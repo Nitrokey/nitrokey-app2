@@ -23,6 +23,7 @@ def exception_handler(
 
 def main() -> None:
     app = QtWidgets.QApplication(sys.argv)
+    app.setDesktopFileName("com.nitrokey.nitrokey-app2")
 
     with init_logging() as log_file:
         log_environment()
