@@ -16,7 +16,7 @@ from typing import (
 from nitrokey.nk3 import NK3, NK3Bootloader
 from nitrokey.nk3 import list as list_nk3
 from nitrokey.nk3 import open as open_nk3
-from nitrokey.nk3.updates import Updater, UpdateUi
+from nitrokey.nk3.updates import Updater, UpdateUi, Warning
 from nitrokey.trussed import TrussedBase, Variant, Version
 from PySide6.QtCore import QCoreApplication
 
@@ -44,6 +44,19 @@ class UpdateGUI(UpdateUi):
 
     def abort(self, *msgs: Any) -> Exception:
         return Exception(*msgs)
+
+    def raise_warning(self, warning: Warning) -> Exception:
+        return Exception(warning.message)
+
+    def show_warning(self, warning: Warning) -> None:
+        res = self.run_confirm_dialog(
+            "DANGER - You can ignore this warning by pressing ok", warning.message
+        )
+        if not res:
+            logger.info("Cancel clicked (during warning)")
+            raise self.abort("Warning dialog canceled")
+
+        logger.info("OK clicked (warning dialog)")
 
     def abort_downgrade(self, current: Version, image: Version) -> Exception:
         self._print_firmware_versions(current, image)
@@ -233,7 +246,6 @@ class Nk3Context:
         version: Optional[str] = None,
         ignore_pynitrokey_version: bool = False,
     ) -> None:
-
         with self.connect() as device:
             updater = Updater(
                 ui,

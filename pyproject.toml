@@ -13,7 +13,7 @@ license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/nitrokey/nitrokey-app2"
 documentation = "https://docs.nitrokey.com/software/nk-app2/"
-requires-python = ">=3.9,<3.14"
+requires-python = ">=3.9.2,<3.14"
 dynamic = [
   "classifiers",
   "dependencies",
@@ -32,7 +32,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-nitrokey = "^0.2.3"
+nitrokey = "^0.3.2"
 pySide6 = ">=6.6.0"
 pywin32 = { version = "305", markers = "sys_platform =='win32'" }
 usb-monitor = "^1.21"
