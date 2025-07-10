@@ -50,19 +50,50 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: nitrokey-app-onedir
+          name: nitrokey-app-onedir-unsigned
+          path: dist/nitrokey-app
+  sign-onedir:
+    name: Sign onedir
+    runs-on:
+      group: "Windows Software Signing"
+      labels: ["self-hosted", "Linux", "X64"]
+    needs: build-onedir
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nitrokey-app-onedir-unsigned
+          path: dist/nitrokey-app
+      - name: Sign the artifact
+        run: |
+          mv dist/nitrokey-app/nitrokey-app.exe nitrokey-app_unsigned.exe
+          osslsigncode \
+            sign \
+            -provider /usr/lib/x86_64-linux-gnu/engines-3/pkcs11.so \
+            -pkcs11module /usr/lib/x86_64-linux-gnu/opensc-pkcs11.so \
+            -pkcs11cert "${{ secrets.PKCS11_CERT_URI_WINDOWS }}" \
+            -key "${{ secrets.PKCS11_KEY_URI_WINDOWS }}" \
+            -h sha256 \
+            -ts "http://ts.ssl.com" \
+            -in nitrokey-app_unsigned.exe
+            -out nitrokey-app_signed.exe
+          mv nitrokey-app_signed.exe dist/nitrokey-app/nitrokey-app.exe
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nitrokey-app-onedir-signed
           path: dist/nitrokey-app
   build-msi-installer:
     name: Build MSI installer
     runs-on: windows-latest
-    needs: build-onedir
+    needs: sign-onedir
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: nitrokey-app-onedir
+          name: nitrokey-app-onedir-signed
           path: dist/nitrokey-app
       - name: Create sources file
         run: |
@@ -98,25 +129,54 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: nitrokey-app-installer
+          name: nitrokey-app-installer-unsigned
+          path: nitrokey-app.msi
+  sign-msi-installer:
+    name: Sign MSI installer
+    runs-on:
+      group: "Windows Software Signing"
+      labels: ["self-hosted", "Linux", "X64"]
+    needs: build-msi-installer
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nitrokey-app-installer-unsigned
+      - name: Sign the artifact
+        run: |
+          mv nitrokey-app.msi nitrokey-app_unsigned.msi
+          osslsigncode \
+            sign \
+            -provider /usr/lib/x86_64-linux-gnu/engines-3/pkcs11.so \
+            -pkcs11module /usr/lib/x86_64-linux-gnu/opensc-pkcs11.so \
+            -pkcs11cert "${{ secrets.PKCS11_CERT_URI_WINDOWS }}" \
+            -key "${{ secrets.PKCS11_KEY_URI_WINDOWS }}" \
+            -h sha256 \
+            -ts "http://ts.ssl.com" \
+            -in nitrokey-app_unsigned.msi
+            -out nitrokey-app.msi
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nitrokey-app-installer-signed
           path: nitrokey-app.msi
   publish-msi-installer:
     name: Publish MSI installer
     runs-on: windows-latest
-    needs: build-msi-installer
+    needs: sign-msi-installer
     permissions:
       contents: write
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: nitrokey-app-installer
+          name: nitrokey-app-installer-signed
       - name: Rename installer
         run: |
           mv `
             nitrokey-app.msi `
-            nitrokey-app-${{ github.event.release.tag_name }}-x64-windows-installer_unsigned.msi
+            nitrokey-app-${{ github.event.release.tag_name }}-x64-windows-installer.msi
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
-          files: nitrokey-app-${{ github.event.release.tag_name }}-x64-windows-installer_unsigned.msi
+          files: nitrokey-app-${{ github.event.release.tag_name }}-x64-windows-installer.msi
