@@ -52,33 +52,6 @@ jobs:
         with:
           name: nitrokey-app-onedir
           path: dist/nitrokey-app
-  build-onefile:
-    name: Build onefile
-    runs-on: windows-latest
-    needs: version-check
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Install required packages
-        run: choco install poetry --source python
-      - name: Create virtual environment
-        run: poetry install
-      - name: Create Windows version info file
-        run: |
-          Invoke-Expression "$(poetry env info --path)\Scripts\Activate.ps1"
-          create-version-file `
-            --outfile .\ci-scripts\windows\pyinstaller\file_version_info.txt `
-            --version "$(python -c 'from nitrokeyapp import __version__; print(__version__)')" `
-            .\ci-scripts\windows\pyinstaller\file_version_info_metadata.yaml
-      - name: Build onefile
-        run: |
-          Invoke-Expression "$(poetry env info --path)\Scripts\Activate.ps1"
-          pyinstaller ci-scripts/windows/pyinstaller/nitrokey-app-onefile.spec
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: nitrokey-app-onefile
-          path: dist/nitrokey-app.exe
   build-msi-installer:
     name: Build MSI installer
     runs-on: windows-latest
@@ -127,26 +100,6 @@ jobs:
         with:
           name: nitrokey-app-installer
           path: nitrokey-app.msi
-  publish-binary:
-    name: Publish binary
-    runs-on: windows-latest
-    needs: build-onefile
-    permissions:
-      contents: write
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: nitrokey-app-onefile
-      - name: Rename binary
-        run: |
-          mv `
-            nitrokey-app.exe `
-            nitrokey-app-${{ github.event.release.tag_name }}-x64-windows-binary_unsigned.exe
-      - name: Publish release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: nitrokey-app-${{ github.event.release.tag_name }}-x64-windows-binary_unsigned.exe
   publish-msi-installer:
     name: Publish MSI installer
     runs-on: windows-latest
