@@ -21,6 +21,18 @@ class DeviceData:
         self._version: Optional[Version] = None
         self._device = device
 
+    def __repr__(self) -> str:
+        fields = {
+            "path": self.path,
+            "is_bootloader": self.is_bootloader,
+            "uuid": self._uuid,
+            "status": self._status,
+            "version": self._version,
+            "updating": self.updating,
+        }
+        fields_str = ", ".join([f"{key}={value}" for key, value in fields.items()])
+        return f"DeviceData({fields_str})"
+
     @classmethod
     def list(cls) -> List["DeviceData"]:
         return [cls(dev) for dev in nk3.list()]
