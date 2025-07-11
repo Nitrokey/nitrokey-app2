@@ -1,10 +1,6 @@
 .PHONY: clean 
 
 PACKAGE_NAME=nitrokeyapp
-PYTHON=python3
-VENV=$(shell poetry env info --path)
-VENV_BIN=$(VENV)/bin
-VENV_PYTHON=$(VENV_BIN)/$(PYTHON)
 
 PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
 
@@ -17,7 +13,6 @@ update-venv:
 ifeq (, $(shell which poetry))
 $(error "No poetry in $(PATH)")
 endif
-	poetry env use $(PYTHON)
 	poetry install --sync --without=deploy
 
 # clean environment
@@ -27,7 +22,7 @@ semi-clean:
 	rm -rf dist/
 
 clean: semi-clean
-	rm -rf $(VENV)
+	poetry env remove --all
 	rm -rf .mypy_cache
 
 # build
@@ -35,26 +30,26 @@ build:
 	poetry build
 
 build-pyinstaller-onefile:
-	$(VENV_BIN)/pyinstaller ci-scripts/linux/pyinstaller/nitrokey-app-onefile.spec
+	poetry run pyinstaller ci-scripts/linux/pyinstaller/nitrokey-app-onefile.spec
 
 build-pyinstaller-onedir:
-	$(VENV_BIN)/pyinstaller ci-scripts/linux/pyinstaller/nitrokey-app-onedir.spec
+	poetry run pyinstaller ci-scripts/linux/pyinstaller/nitrokey-app-onedir.spec
 
 # code checks
 check-format:
-	$(VENV_PYTHON) -m black --check $(PACKAGE_NAME)/
+	poetry run black --check $(PACKAGE_NAME)/
 
 check-import-sorting:
-	$(VENV_PYTHON) -m isort --check-only $(PACKAGE_NAME)/
+	poetry run isort --check-only $(PACKAGE_NAME)/
 
 check-style:
-	$(VENV_PYTHON) -m flake8 $(PACKAGE_NAME)/
+	poetry run flake8 $(PACKAGE_NAME)/
 
 check-typing:
-	$(VENV_PYTHON) -m mypy $(PACKAGE_NAME)/
+	poetry run mypy $(PACKAGE_NAME)/
 
 check: check-format check-import-sorting check-style check-typing
 
 fix:
-	$(VENV_PYTHON) -m black $(PACKAGE_NAME)/
-	$(VENV_PYTHON) -m isort $(PACKAGE_NAME)/
+	poetry run black $(PACKAGE_NAME)/
+	poetry run isort $(PACKAGE_NAME)/
