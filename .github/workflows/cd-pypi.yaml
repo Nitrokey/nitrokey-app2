@@ -1,46 +1,64 @@
 name: Continuous delivery - PyPI
 
 on:
+  push:
+    branches: [main]
+  pull_request:
   release:
-    types: [released]
+    types: [published]
+  workflow_dispatch:
+
+env:
+  POETRY_SPEC: poetry >=2,<3
 
 jobs:
-  version-check:
-    name: Check versioning
+  check-package-version:
+    name: Check package version
     runs-on: ubuntu-latest
     container: python:3.9-slim
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Install required packages
+      - name: Install poetry
+        run: pip install "${POETRY_SPEC}"
+      - name: Check package version format
+        shell: bash
         run: |
-          apt update
-          apt install -y python3-poetry
-      - name: Create virtual envrionment
-        run: make init
-      - name: Check version tag format
+          PACKAGE_VERSION=$(poetry version --short)
+          echo "PACKAGE_VERSION = $PACKAGE_VERSION"
+          if [[ $PACKAGE_VERSION =~ ^[0-9]+.[0-9]+.[0-9]+(-rc\.[1-9])?$ ]]; then exit 0; else exit 1; fi
+  check-tag-version:
+    name: Check tag version
+    runs-on: ubuntu-latest
+    container: python:3.9-slim
+    if: github.event_name == 'release'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install poetry
+        run: pip install "${POETRY_SPEC}"
+      - name: Check tag version
         shell: bash
         run: |
           VERSION_TAG="${{ github.event.release.tag_name }}"
-          if [[ $VERSION_TAG =~ ^v[0-9]+.[0-9]+.[0-9]+$ ]]; then exit 0; else exit 1; fi
-      - name: Check if version tag and package version are equal
-        shell: bash
-        run: |
-          VERSION_TAG="${{ github.event.release.tag_name }}"
-          PACKAGE_VERSION="v"$($(poetry env info --path)/bin/python -c "from nitrokeyapp import __version__; print(__version__)")
+          PACKAGE_VERSION="v"$(poetry version --short)
+          echo "VERSION_TAG = $VERSION_TAG"
+          echo "PACKAGE_VERSION = $PACKAGE_VERSION"
           if [ $VERSION_TAG == $PACKAGE_VERSION ]; then exit 0; else exit 1; fi
   build:
     name: Build
     runs-on: ubuntu-latest
     container: python:3.9-slim
-    needs: version-check
+    needs: check-package-version
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Install required packages
         run: |
           apt update
-          apt install -y binutils gcc libglib2.0-dev libpcsclite-dev libusb-1.0-0 make python3-poetry swig
+          apt install -y binutils gcc libglib2.0-dev libpcsclite-dev libusb-1.0-0 make swig
+      - name: Install poetry
+        run: pip install "${POETRY_SPEC}"
       - name: Create virtual environment
         run: make init
       - name: Build
@@ -50,27 +68,46 @@ jobs:
         with:
           name: nitrokeyapp-pypi
           path: dist
-  publish-binary:
-    name: Publish
+  publish-testpypi:
+    name: Publish to TestPyPI
     runs-on: ubuntu-latest
-    container: python:3.9-slim
     needs: build
-    env:
-      POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
-      POETRY_PYPI_URL: https://upload.pypi.org/legacy/
+    if: github.event_name == 'release' || github.ref == 'refs/heads/main'
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/nitrokeyapp
+    permissions:
+      id-token: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Download artifact
+      - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           name: nitrokeyapp-pypi
           path: dist
-      - name: Install required packages
-        run: |
-          apt update
-          apt install -y python3-poetry
-      - name: Configure PyPI repository
-        run: poetry config repositories.pypi $POETRY_PYPI_URL
-      - name: Publish release
-        run: poetry publish -r pypi
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          skip-existing: true
+  publish-pypi:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    needs: [build, check-tag-version]
+    if: github.event_name == 'release'
+    environment:
+      name: pypi
+      url: https://pypi.org/p/nitrokeyapp
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: nitrokeyapp-pypi
+          path: dist
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
