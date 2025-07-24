@@ -45,6 +45,8 @@
       <caption>Main window</caption>
     </screenshot>
   </screenshots>
-  <developer_name>Nitrokey GmbH</developer_name>
+  <developer id="com.nitrokey">
+    <name>Nitrokey GmbH</name>
+  </developer>
   <update_contact>info_AT_nitrokey.com</update_contact>
 </component>
