@@ -36,7 +36,7 @@
   </provides>
   <content_rating type="oars-1.1"/>
   <launchable type="desktop-id">com.nitrokey.nitrokey-app2.desktop</launchable>
-  <url type="homepage">https://www.nitrokey.com/</url>
+  <url type="homepage">https://www.nitrokey.com/about</url>
   <url type="bugtracker">https://github.com/Nitrokey/nitrokey-app2/issues</url>
   <url type="help">https://docs.nitrokey.com/software/nk-app2</url>
   <screenshots>
@@ -45,6 +45,8 @@
       <caption>Main window</caption>
     </screenshot>
   </screenshots>
-  <developer_name>Nitrokey GmbH</developer_name>
+  <developer id="com.nitrokey">
+    <name>Nitrokey GmbH</name>
+  </developer>
   <update_contact>info_AT_nitrokey.com</update_contact>
 </component>
