@@ -1,10 +1,11 @@
 name: Continuous integration
 on:
   push:
-    branches-ignore:
-      - "main"
+    branches:
+      - main
   pull_request:
-
+  workflow_dispatch:
+    
 jobs:
   pyproject-lock-file-check:
     name: Check pyproject syntax
