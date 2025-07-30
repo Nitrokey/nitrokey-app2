@@ -19,8 +19,8 @@ Follow the steps below meticulously to avoid a broken release.
       Click "Draft a new release".
       In the dropdown field "Choose a tag" select "Create a new tag".
       Enter the version string in the form `vX.Y.Z`.
-   Fill the fields title and description.
-   Set the checkbox "Set as a pre-release" and create the release.
+      Fill the fields title and description.
+      Set the checkbox "Set as a pre-release" and create the release.
 3. Wait for the pipelines to succeed.
    At this point the tag and release can still be removed.
 4. Download the Windows artifacts ending in `_unsigned.exe` and `_unsigned.msi`.
