@@ -4,6 +4,9 @@ on:
   release:
     types: [prereleased, released]
 
+env:
+  POETRY_SPEC: poetry >=2,<3
+
 jobs:
   version-check:
     name: Check versioning
@@ -15,7 +18,8 @@ jobs:
       - name: Install required packages
         run: |
           apt update
-          apt install -y python3-poetry
+          apt install -y make
+          pip install "${POETRY_SPEC}"
       - name: Create virtual environment
         run: make init
       - name: Check version tag format
@@ -58,8 +62,8 @@ jobs:
             libatk1.0-dev \
             libpangocairo-1.0-0 \
             libpango1.0-dev \
-            make \
-            python3-poetry
+            make
+          pip install "${POETRY_SPEC}"
       - name: Create virtual environment
         run: |
           poetry env use python3.9
