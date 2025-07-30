@@ -75,7 +75,7 @@ jobs:
             -key "${{ secrets.PKCS11_KEY_URI_WINDOWS }}" \
             -h sha256 \
             -ts "http://ts.ssl.com" \
-            -in nitrokey-app_unsigned.exe
+            -in nitrokey-app_unsigned.exe \
             -out nitrokey-app_signed.exe
           mv nitrokey-app_signed.exe dist/nitrokey-app/nitrokey-app.exe
       - name: Upload artifact
@@ -153,7 +153,7 @@ jobs:
             -key "${{ secrets.PKCS11_KEY_URI_WINDOWS }}" \
             -h sha256 \
             -ts "http://ts.ssl.com" \
-            -in nitrokey-app_unsigned.msi
+            -in nitrokey-app_unsigned.msi \
             -out nitrokey-app.msi
       - name: Upload artifact
         uses: actions/upload-artifact@v4
