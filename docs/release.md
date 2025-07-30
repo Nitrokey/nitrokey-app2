@@ -12,7 +12,7 @@ Follow the steps below meticulously to avoid a broken release.
      * The latest release should be on top of this list.
 2. Create a new tag and release.
    1. Make sure the `main` branch of your cloned repository is up-to-date.
-      Create a new tag with `git tag -s -m "vX.Y.Z" vX.Y.Z` and push it to GitHub with `git push --tags`.
+      Create a new tag with `git tag -s -m "vX.Y.Z" vX.Y.Z` and push it to GitHub with `git push origin vX.Y.Z`.
       Open the repository on GitHub and open the releases page.
       Click "Draft a new release" and select the just created tag.
    2. Open the repository on GitHub and open the releases page.
