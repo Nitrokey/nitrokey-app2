@@ -23,6 +23,8 @@ Follow the steps below meticulously to avoid a broken release.
       Set the checkbox "Set as a pre-release" and create the release.
 3. Wait for the pipelines to succeed.
    At this point the tag and release can still be removed.
+   If manual testing is required, perform these tests now with the pipeline artifacts.
+   Otherwise continue with the next steps.
 4. Open the release page for the version and click the edit button.
    Change the release from pre-release to latest release and save the change.
 5. Wait for the release pipelines to succeed.
