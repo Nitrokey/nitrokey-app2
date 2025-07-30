@@ -27,7 +27,11 @@ Follow the steps below meticulously to avoid a broken release.
    Otherwise continue with the next steps.
 4. Open the release page for the version and click the edit button.
    Change the release from pre-release to latest release and save the change.
-5. Wait for the release pipelines to succeed.
+5. The pipeline for the deployment to PyPI needs manual approval.
+   Open the repository on GitHub and open the Actions page.
+   Open the respective PyPI release job.
+   Click the *Review deployments* button.
+   Set the checkbox "pypi" and click *Approve and deploy*.
 6. Please mind that Flatpak and RPM COPR builds need to be triggered manually.
 
 The release is now complete.
