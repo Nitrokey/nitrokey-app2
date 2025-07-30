@@ -133,3 +133,27 @@ jobs:
           PACKAGE_VERSION=$(poetry version --short)
           FLATPAK_VERSION=$(python -c "import xml.etree.ElementTree as ET; print(ET.parse('meta/com.nitrokey.nitrokey-app2.metainfo.xml').getroot().find('releases')[0].get('version'))")
           if [ $PACKAGE_VERSION == $FLATPAK_VERSION ]; then exit 0; else exit 1; fi
+  flatpak-build:
+    name: Flatpak bundle build
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.8
+      options: --privileged
+    steps:
+    - name: Checkout nkapp2 flathub repository
+      uses: actions/checkout@v4
+      with:
+        repository: flathub/com.nitrokey.nitrokey-app2
+        path: flatpak-build
+    - name: Update flathub repository to use this commit
+      run: |
+        cd flatpak-build
+        make venv
+        bash ./update.sh ${{ github.sha }}
+        make
+    - name: Build the flatpak bundle
+      uses: flatpak/flatpak-github-actions/flatpak-builder@v6.5
+      with:
+        bundle: nkapp2.flatpak
+        manifest-path: flatpak-build/com.nitrokey.nitrokey-app2.yml
+        cache-key: flatpak-builder-${{ github.sha }}
