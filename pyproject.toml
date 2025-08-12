@@ -32,6 +32,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
+fido2 = ">=1.1.2, <3"
 nitrokey = "^0.3.2"
 pySide6 = ">=6.6.0"
 pywin32 = { version = "305", markers = "sys_platform =='win32'" }
