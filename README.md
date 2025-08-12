@@ -52,7 +52,7 @@ nitrokeyapp
 ## Dependencies
 
 * [Python Nitrokey SDK](https://github.com/Nitrokey/nitrokey-sdk-py) ([`pip install nitrokey`](https://pypi.org/project/nitrokey))
-* Python >3.9
+* Python >3.10
 
 ## Author
 

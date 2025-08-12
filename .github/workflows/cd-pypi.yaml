@@ -15,7 +15,7 @@ jobs:
   check-package-version:
     name: Check package version
     runs-on: ubuntu-latest
-    container: python:3.9-slim
+    container: python:3.10-slim
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -30,7 +30,7 @@ jobs:
   check-tag-version:
     name: Check tag version
     runs-on: ubuntu-latest
-    container: python:3.9-slim
+    container: python:3.10-slim
     if: github.event_name == 'release'
     steps:
       - name: Checkout repository
@@ -48,7 +48,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    container: python:3.9-slim
+    container: python:3.10-slim
     needs: check-package-version
     steps:
       - name: Checkout repository

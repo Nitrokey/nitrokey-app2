@@ -11,7 +11,7 @@ jobs:
   version-check:
     name: Check versioning
     runs-on: ubuntu-latest
-    container: python:3.9-slim
+    container: python:3.10-slim
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -36,7 +36,7 @@ jobs:
   build-onefile:
     name: Build onefile
     runs-on: ubuntu-latest
-    container: python:3.9-slim
+    container: python:3.10-slim
     needs: version-check
     steps:
       - name: Checkout repository
@@ -65,9 +65,7 @@ jobs:
             make
           pip install "${POETRY_SPEC}"
       - name: Create virtual environment
-        run: |
-          poetry env use python3.9
-          poetry install
+        run: poetry install
       - name: Build
         run: make build-pyinstaller-onefile
       - name: Upload artifacts
@@ -78,7 +76,7 @@ jobs:
   publish-binary:
     name: Publish binary
     runs-on: ubuntu-latest
-    container: python:3.9-slim
+    container: python:3.10-slim
     needs: build-onefile
     permissions:
       contents: write

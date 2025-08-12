@@ -4,6 +4,9 @@ on:
   release:
     types: [prereleased, released]
 
+env:
+  PYTHON_VERSION: 3.10
+
 jobs:
   version-check:
     name: Check versioning
@@ -12,10 +15,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Install required packages
-        run: brew install python@3.9 poetry swig
+        run: brew install python@${{ env.PYTHON_VERSION }} poetry swig
       - name: Create virtual environment
         run: |
-          poetry env use python3.9
+          poetry env use python${{ env.PYTHON_VERSION }}
           poetry install
       - name: Check version tag format
         run: |
@@ -34,10 +37,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Install required packages
-        run: brew install python@3.9 poetry swig
+        run: brew install python@${{ env.PYTHON_VERSION }} poetry swig
       - name: Create virtual environment
         run: |
-          poetry env use python3.9
+          poetry env use python${{ env.PYTHON_VERSION }}
           poetry install
       - name: Build onedir
         run: |
