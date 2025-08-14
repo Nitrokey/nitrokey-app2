@@ -93,7 +93,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             self.ui.status_label.hide()
             self.ui.nk3_status.hide()
             self.ui.more_info.hide()
-            self.ui.nk3_label.setText("Nitrokey 3 Bootloader")
+            self.ui.nk3_label.setText(f"{data.model} Bootloader")
             self.status_error(InitStatus(0))
 
         else:
@@ -105,7 +105,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
                 str(data.status.variant.name),
                 str(data.status.init_status),
             )
-            self.ui.nk3_label.setText("Nitrokey 3")
+            self.ui.nk3_label.setText(str(data.model))
             if data.status.init_status is None:
                 self.ui.status_label.hide()
                 self.ui.nk3_status.hide()
