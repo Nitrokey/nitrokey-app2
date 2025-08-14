@@ -1,9 +1,10 @@
 import logging
 from typing import List, Optional
 
-from nitrokey import nk3
+from nitrokey import nk3, nkpk
 from nitrokey.nk3 import NK3, NK3Bootloader
-from nitrokey.trussed import TrussedBase, TrussedDevice, Uuid, Version
+from nitrokey.nkpk import NKPK, NKPKBootloader
+from nitrokey.trussed import Model, TrussedBase, TrussedDevice, Uuid, Version
 from nitrokey.trussed.admin_app import Status
 
 from nitrokeyapp.update import Nk3Context, UpdateGUI, UpdateResult, UpdateStatus
@@ -14,6 +15,7 @@ logger = logging.getLogger(__name__)
 class DeviceData:
     def __init__(self, device: TrussedBase) -> None:
         self.path = device.path
+        self.model = device.model
         self.updating = False
 
         self._status: Optional[Status] = None
@@ -43,12 +45,20 @@ class DeviceData:
     def name(self) -> str:
         if self.is_bootloader:
             # desc = self.path.split("/")[-1]
-            return "Nitrokey 3 (BL)"
-        return f"Nitrokey 3: {self.uuid_prefix}"
+            return "Nitrokey (BL)"
+        elif self.model == Model.NK3:
+            return f"{self.model}: {self.uuid_prefix}"
+        elif self.model == Model.NKPK:
+            return f"{self.model}: {self.uuid_prefix}"
 
     @property
     def is_bootloader(self) -> bool:
-        return isinstance(self._device, NK3Bootloader)
+        if isinstance(self._device, NK3Bootloader) or isinstance(
+            self._device, NKPKBootloader
+        ):
+            return True
+        else:
+            return False
 
     @property
     def is_too_old(self) -> bool:
