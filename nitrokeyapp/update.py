@@ -16,8 +16,9 @@ from typing import (
 from nitrokey.nk3 import NK3, NK3Bootloader
 from nitrokey.nk3 import list as list_nk3
 from nitrokey.nk3 import open as open_nk3
-from nitrokey.nk3.updates import Updater, UpdateUi, Warning
-from nitrokey.trussed import TrussedBase, Variant, Version
+from nitrokey.trussed import Model, TrussedBase, Variant, Version
+from nitrokey.trussed.admin_app import InitStatus
+from nitrokey.trussed.updates import DeviceHandler, Updater, UpdateUi, Warning
 from PySide6.QtCore import QCoreApplication
 
 if TYPE_CHECKING:
@@ -182,7 +183,7 @@ class UpdateGUI(UpdateUi):
             self._version_printed = True
 
 
-class Nk3Context:
+class Nk3Context(DeviceHandler):
     def __init__(self, path: str) -> None:
         self.path = path
         logger.info(f"path: {path}")
@@ -224,20 +225,21 @@ class Nk3Context:
 
     def await_device(
         self,
+        model: Model,
         retries: Optional[int] = 90,
         callback: Optional[Callable[[int, int], None]] = None,
     ) -> NK3:
-        assert isinstance(retries, int)
+        assert model == Model.NK3
+        assert retries is not None
         return self._await("Nitrokey 3", NK3, retries, callback)
 
     def await_bootloader(
         self,
-        retries: Optional[int] = 90,
-        callback: Optional[Callable[[int, int], None]] = None,
+        model: Model,
     ) -> NK3Bootloader:
-        assert isinstance(retries, int)
+        assert model == Model.NK3
         # mypy does not allow abstract types here, but this is still valid
-        return self._await("Nitrokey 3 bootloader", NK3Bootloader, retries, callback)  # type: ignore
+        return self._await("Nitrokey 3 bootloader", NK3Bootloader, 90, None)  # type: ignore
 
     def update(
         self,
@@ -247,12 +249,16 @@ class Nk3Context:
         ignore_pynitrokey_version: bool = False,
     ) -> None:
         with self.connect() as device:
-            updater = Updater(
-                ui,
-                self.await_bootloader,
-                self.await_device,
+            updater = Updater(ui, self)
+            _, status = updater.update(
+                device, image, version, ignore_pynitrokey_version
             )
-            updater.update(device, image, version, ignore_pynitrokey_version)
+        if status.init_status is not None:
+            if status.init_status & InitStatus.EXT_FLASH_NEED_REFORMAT:
+                raise Exception(
+                    "External filesystem needs to be reformatted."
+                    " Please contact support@nitrokey.com for more information on how to solve this issue."
+                )
 
 
 class Try:
