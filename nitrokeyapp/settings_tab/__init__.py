@@ -4,6 +4,7 @@ from typing import Dict, List, Optional, Tuple
 
 from fido2.ctap2.base import Info
 from nitrokey.nk3.secrets_app import SelectResponse
+from nitrokey.trussed import Model
 from PySide6.QtCore import QThread, Signal, Slot
 from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem, QWidget
 
@@ -181,6 +182,10 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.reset()
         self.data = data
 
+        has_passwords = self.data.model == Model.NK3
+        for state in [State.Passwords, State.PasswordsPin, State.PasswordsReset]:
+            self.items[state].setHidden(not has_passwords)
+
     def field_btn(self) -> None:
         icon_visibility = self.get_qicon("visibility_off.svg")
         icon_check = self.get_qicon("done.svg")
@@ -212,7 +217,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
     def show_widget(self, item: Optional[QTreeWidgetItem]) -> None:
         self.active_item = item
-        if item is None:
+        if item is None or item.isHidden():
             self.view_settings_empty()
             return
 
