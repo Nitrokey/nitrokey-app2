@@ -9,6 +9,7 @@ from PySide6.QtWidgets import QFileDialog, QWidget
 from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
+from nitrokeyapp.update import UpdateResult, UpdateStatus
 from nitrokeyapp.worker import Worker
 
 from .worker import OverviewWorker
@@ -208,13 +209,24 @@ class OverviewTab(QtUtilsMixIn, QWidget):
 
         self.trigger_update.emit(self.data, self.is_qubesos)
 
-    @Slot(bool)
-    def device_updated(self, success: bool) -> None:
+    @Slot(UpdateResult)
+    def device_updated(self, result: UpdateResult) -> None:
         self.update_btns_during_update(True)
-        if success:
-            self.common_ui.info.info.emit("Nitrokey 3 successfully updated")
+
+        msg = ""
+        if result.message is not None:
+            msg = ": " + result.message
+
+        if result.status == UpdateStatus.SUCCESS:
+            self.common_ui.info.info.emit(f"Nitrokey 3 successfully updated{msg}")
+        elif result.status == UpdateStatus.ERROR:
+            self.common_ui.info.error.emit(f"Nitrokey 3 update failed{msg}")
+        elif result.status == UpdateStatus.ABORTED:
+            self.common_ui.info.error.emit(f"Nitrokey 3 update aborted{msg}")
         else:
-            self.common_ui.info.error.emit("Nitrokey 3 update failed")
+            self.common_ui.info.error.emit(
+                f"Unexpected update result: {result.status}{msg}"
+            )
 
         self.common_ui.gui.refresh_devices.emit()
 

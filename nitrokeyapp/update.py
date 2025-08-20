@@ -1,5 +1,7 @@
 import logging
 from contextlib import contextmanager
+from dataclasses import dataclass
+from enum import Enum
 from time import sleep
 from typing import (
     TYPE_CHECKING,
@@ -29,11 +31,29 @@ logger = logging.getLogger(__name__)
 T = TypeVar("T", bound=TrussedBase)
 
 
+class UpdateStatus(Enum):
+    SUCCESS = "success"
+    ERROR = "error"
+    ABORTED = "aborted"
+
+
+@dataclass
+class UpdateResult:
+    status: UpdateStatus
+    message: str | None = None
+
+
+@dataclass
+class UpdateException(Exception):
+    def __init__(self, status: UpdateStatus, *msgs: Any) -> None:
+        super().__init__(*msgs)
+        self.status = status
+
+
 class UpdateGUI(UpdateUi):
     def __init__(self, common_ui: "CommonUi", is_qubesos: bool) -> None:
         super().__init__()
 
-        self._version_printed = False
         self.common_ui = common_ui
         self.is_qubesos = is_qubesos
 
@@ -41,13 +61,15 @@ class UpdateGUI(UpdateUi):
         self.await_confirmation: Optional[bool] = None
 
     def error(self, *msgs: Any) -> Exception:
-        return Exception(*msgs)
+        logger.error(f"Error during firmware update: {msgs}")
+        return UpdateException(UpdateStatus.ERROR, *msgs)
 
     def abort(self, *msgs: Any) -> Exception:
-        return Exception(*msgs)
+        logger.warning(f"Firmware update aborted: {msgs}")
+        return UpdateException(UpdateStatus.ABORTED, *msgs)
 
     def raise_warning(self, warning: Warning) -> Exception:
-        return Exception(warning.message)
+        return UpdateException(UpdateStatus.ERROR, warning.message)
 
     def show_warning(self, warning: Warning) -> None:
         res = self.run_confirm_dialog(
@@ -60,8 +82,9 @@ class UpdateGUI(UpdateUi):
         logger.info("OK clicked (warning dialog)")
 
     def abort_downgrade(self, current: Version, image: Version) -> Exception:
-        self._print_firmware_versions(current, image)
-        return self.abort("Abort: firmware older as on device")
+        return self.abort(
+            f"firmware {image} is older than the firmware on the device ({current})"
+        )
 
     def run_confirm_dialog(self, title: str, desc: str) -> bool:
         self.common_ui.prompt.confirm.emit(title, desc)
@@ -106,7 +129,7 @@ class UpdateGUI(UpdateUi):
             )
         if not res:
             logger.info("Cancel clicked (confirm update)")
-            raise self.abort("Abort: canceled by user (confirm update)")
+            raise self.abort("canceled by user (confirm update)")
 
         logger.info("OK clicked (confirm update)")
         self.common_ui.touch.start.emit()
@@ -122,7 +145,7 @@ class UpdateGUI(UpdateUi):
         )
         if not res:
             logger.info("Cancel clicked (confirm same version)")
-            raise self.abort("Abort: canceled by user (confirm same version)")
+            raise self.abort("canceled by user (confirm same version)")
 
         logger.info("OK clicked (confirm same version)")
 
@@ -130,22 +153,22 @@ class UpdateGUI(UpdateUi):
         res = self.run_confirm_dialog("Confirm extra information", " ".join(txt))
         if not res:
             logger.info("Cancel clicked (confirm extra info)")
-            raise self.abort("Abort: canceled by user (confirm extra info)")
+            raise self.abort("canceled by user (confirm extra info)")
 
         logger.info("OK clicked (confirm same version)")
 
     def abort_pynitrokey_version(
         self, current: Version, required: Version
     ) -> Exception:
-        raise self.abort(f"Abort: pynitrokey {required} too old, need: {current}")
+        raise self.abort(f"pynitrokey {required} too old, need: {current}")
 
     def confirm_pynitrokey_version(self, current: Version, required: Version) -> None:
         # TODO: implement
-        raise self.abort(f"Abort: pynitrokey {required} too old, need: {current}")
+        raise self.abort(f"pynitrokey {required} too old, need: {current}")
 
     def request_repeated_update(self) -> Exception:
         logger.info("Bootloader mode enabled. Repeat to update")
-        return self.abort("Abort: bootloader enabled")
+        return self.abort("bootloader enabled")
 
     def request_bootloader_confirmation(self) -> None:
         logger.info("requesting bootloader confirmation")
@@ -172,15 +195,6 @@ class UpdateGUI(UpdateUi):
     ) -> Iterator[Callable[[int, int], None]]:
         self.common_ui.progress.start.emit("Finalization")
         yield self.common_ui.progress.progress.emit
-
-    def _print_firmware_versions(
-        self, current: Optional[Version], new: Optional[Version]
-    ) -> None:
-        if not self._version_printed:
-            current_str = str(current) if current else "[unknown]"
-            logger.info(f"Current firmware version:  {current_str}")
-            logger.info(f"Updated firmware version:  {new}")
-            self._version_printed = True
 
 
 class Nk3Context(DeviceHandler):
@@ -245,20 +259,30 @@ class Nk3Context(DeviceHandler):
         self,
         ui: UpdateGUI,
         image: Optional[str] = None,
-        version: Optional[str] = None,
-        ignore_pynitrokey_version: bool = False,
-    ) -> None:
-        with self.connect() as device:
-            updater = Updater(ui, self)
-            _, status = updater.update(
-                device, image, version, ignore_pynitrokey_version
-            )
+    ) -> UpdateResult:
+        try:
+            with self.connect() as device:
+                updater = Updater(ui, self)
+                _, status = updater.update(
+                    device=device, image=image, update_version=None
+                )
+        except UpdateException as e:
+            return UpdateResult(status=e.status, message=str(e))
+        except Exception as e:
+            return UpdateResult(status=UpdateStatus.ERROR, message=str(e))
+
         if status.init_status is not None:
             if status.init_status & InitStatus.EXT_FLASH_NEED_REFORMAT:
-                raise Exception(
-                    "External filesystem needs to be reformatted."
-                    " Please contact support@nitrokey.com for more information on how to solve this issue."
+                logger.error(
+                    f"Problematic init status after update: {status.init_status}"
                 )
+                return UpdateResult(
+                    status=UpdateStatus.ERROR,
+                    message="External filesystem needs to be reformatted."
+                    " Please contact support@nitrokey.com for more information on how to solve this issue.",
+                )
+
+        return UpdateResult(status=UpdateStatus.SUCCESS)
 
 
 class Try:

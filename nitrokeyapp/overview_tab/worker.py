@@ -5,14 +5,14 @@ from PySide6.QtCore import Signal, Slot
 
 from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
-from nitrokeyapp.update import UpdateGUI
+from nitrokeyapp.update import UpdateGUI, UpdateResult
 from nitrokeyapp.worker import Job, Worker
 
 logger = logging.getLogger(__name__)
 
 
 class UpdateDevice(Job):
-    device_updated = Signal(bool)
+    device_updated = Signal(UpdateResult)
 
     def __init__(
         self,
@@ -34,11 +34,11 @@ class UpdateDevice(Job):
 
     def run(self) -> None:
         if not self.image:
-            success = self.data.update(self.update_gui)
+            result = self.data.update(self.update_gui)
         else:
-            success = self.data.update(self.update_gui, self.image)
+            result = self.data.update(self.update_gui, self.image)
 
-        self.device_updated.emit(success)
+        self.device_updated.emit(result)
 
     @Slot()
     def cleanup(self) -> None:
@@ -51,7 +51,7 @@ class UpdateDevice(Job):
 
 class OverviewWorker(Worker):
     # TODO: remove DeviceData from signatures
-    device_updated = Signal(bool)
+    device_updated = Signal(UpdateResult)
 
     def __init__(self, common_ui: CommonUi) -> None:
         super().__init__(common_ui)
