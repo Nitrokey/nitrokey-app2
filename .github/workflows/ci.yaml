@@ -135,6 +135,7 @@ jobs:
           if [ $PACKAGE_VERSION == $FLATPAK_VERSION ]; then exit 0; else exit 1; fi
   flatpak-build:
     name: Flatpak bundle build
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.8
