@@ -150,6 +150,9 @@ class UpdateGUI(UpdateUi):
         logger.info("OK clicked (confirm same version)")
 
     def confirm_extra_information(self, txt: List[str]) -> None:
+        if len(txt) == 0:
+            return
+
         res = self.run_confirm_dialog("Confirm extra information", " ".join(txt))
         if not res:
             logger.info("Cancel clicked (confirm extra info)")
