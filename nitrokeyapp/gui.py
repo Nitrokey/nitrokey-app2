@@ -4,6 +4,7 @@ from time import sleep
 from types import TracebackType
 from typing import Dict, Optional, Type
 
+from nitrokey.trussed import Model
 from PySide6 import QtWidgets
 from PySide6.QtCore import QEvent, Qt, Signal, Slot
 from PySide6.QtGui import QCursor
@@ -261,8 +262,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.tabs.setTabEnabled(1, False)
             self.tabs.setTabEnabled(2, False)
         else:
-            self.tabs.setTabEnabled(1, True)
-            self.tabs.setTabEnabled(2, True)
+            if not self.selected_device.model == Model.NKPK:
+                self.tabs.setTabEnabled(1, True)
+                self.tabs.setTabEnabled(2, True)
+            else:
+                self.tabs.setTabEnabled(1, False)
+                self.tabs.setTabEnabled(2, True)
 
         self.show_navigation()
         self.welcome_widget.hide()
