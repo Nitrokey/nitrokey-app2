@@ -160,7 +160,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             return
 
         # add as nk3 device
-        logger.info(f"nk3 connected: {devs}")
+        logger.info(f"{len(devs)} nk3 device(s) connected:")
+        for i, dev in enumerate(devs):
+            logger.info(f"device #{i + 1}: {dev}")
 
         self.trigger_update_devices.emit()
 
