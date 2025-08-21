@@ -106,8 +106,13 @@ class DeviceData:
         assert isinstance(self._device, TrussedDevice)
         return str(self.uuid)[:5]
 
-    def open(self) -> NK3:
-        device = NK3.open(self.path)
+    def open(self) -> NK3 | NKPK:
+        device: Optional[NK3 | NKPK] = None
+        if self.model == Model.NK3:
+            device = NK3.open(self.path)
+        elif self.model == Model.NKPK:
+            device = NKPK.open(self.path)
+
         if device:
             return device
         else:
