@@ -2,6 +2,7 @@ import logging
 
 from fido2.ctap2.base import Ctap2, Info
 from fido2.ctap2.pin import ClientPin
+from nitrokey.nk3 import NK3
 from nitrokey.nk3.secrets_app import SecretsApp, SecretsAppException, SelectResponse
 from PySide6.QtCore import Signal, Slot
 
@@ -50,6 +51,8 @@ class CheckPasswordsInfo(Job):
     def run(self) -> None:
         pin_status: bool = False
         with self.data.open() as device:
+            if not isinstance(device, NK3):
+                return
             secrets = SecretsApp(device)
             status = secrets.select()
             if status.pin_attempt_counter is not None:
@@ -111,6 +114,8 @@ class SavePasswordsPinJob(Job):
     def check(self) -> bool:
         pin_status: bool = False
         with self.data.open() as device:
+            if not isinstance(device, NK3):
+                return pin_status
             secrets = SecretsApp(device)
             status = secrets.select()
             if status.pin_attempt_counter is not None:
@@ -123,6 +128,8 @@ class SavePasswordsPinJob(Job):
         passwords_state = self.check()
         with self.touch_prompt():
             with self.data.open() as device:
+                if not isinstance(device, NK3):
+                    return
                 secrets = SecretsApp(device)
                 try:
                     if passwords_state:
@@ -181,6 +188,8 @@ class ResetPasswords(Job):
 
     def run(self) -> None:
         with self.data.open() as device:
+            if not isinstance(device, NK3):
+                return
             secrets = SecretsApp(device)
             try:
                 with self.touch_prompt():
