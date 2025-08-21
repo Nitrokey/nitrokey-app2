@@ -3,7 +3,8 @@ from typing import List, Optional
 
 from nitrokey import nk3, nkpk
 from nitrokey.nk3 import NK3
-from nitrokey.trussed import TrussedBase, TrussedBootloader, TrussedDevice, Uuid, Version
+from nitrokey.nkpk import NKPK
+from nitrokey.trussed import Model, TrussedBase, TrussedBootloader, TrussedDevice, Uuid, Version
 from nitrokey.trussed.admin_app import Status
 
 from nitrokeyapp.update import Nk3Context, UpdateGUI, UpdateResult, UpdateStatus
@@ -98,13 +99,18 @@ class DeviceData:
         assert isinstance(self._device, TrussedDevice)
         return str(self.uuid)[:5]
 
-    def open(self) -> NK3:
-        device = NK3.open(self.path)
+    def open(self) -> TrussedDevice:
+        device: Optional[TrussedDevice] = None
+        if self.model == Model.NK3:
+            device = NK3.open(self.path)
+        elif self.model == Model.NKPK:
+            device = NKPK.open(self.path)
+
         if device:
             return device
         else:
             # TODO: improve error handling
-            raise RuntimeError(f"Failed to open device {self.uuid} at {self.path}")
+            raise RuntimeError(f"Failed to open {self.model} device {self.uuid} at {self.path}")
 
     def update(self, ui: UpdateGUI, image: Optional[str] = None) -> UpdateResult:
         self.updating = True
