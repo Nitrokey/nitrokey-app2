@@ -164,10 +164,20 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             )
             tooltip = "Please remove all Nitrokey 3 devices except the one you want to update."
 
-        self.ui.btn_update.setEnabled(enabled)
-        self.ui.btn_update.setToolTip(tooltip)
-        self.ui.btn_more_options.setEnabled(enabled)
-        self.ui.btn_more_options.setToolTip(tooltip)
+        if self.data and self.data.model == Model.NK3:
+            self.ui.btn_update.setEnabled(enabled)
+            self.ui.btn_update.setToolTip(tooltip)
+            self.ui.btn_more_options.setEnabled(enabled)
+            self.ui.btn_more_options.setToolTip(tooltip)
+        elif self.data and self.data.model == Model.NKPK:
+            self.ui.btn_update.setEnabled(False)
+            self.ui.btn_update.setToolTip(
+                "Nitrokey Passkeys can't be updated with this version of the Nitrokey App."
+            )
+            self.ui.btn_more_options.setEnabled(False)
+            self.ui.btn_more_options.setToolTip(
+                "Nitrokey Passkeys can't be updated with this version of the Nitrokey App."
+            )
 
     def update_btns_during_update(self, enabled: bool) -> None:
         tooltip = ""
