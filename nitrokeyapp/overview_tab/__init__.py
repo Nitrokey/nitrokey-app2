@@ -134,7 +134,9 @@ class OverviewTab(QtUtilsMixIn, QWidget):
     def set_update_enabled(self, enabled: bool) -> None:
         tooltip = ""
         if enabled:
-            ...
+            if self.data and self.data.model == Model.NKPK:
+                enabled = False
+                tooltip = "Nitrokey Passkeys can't be updated with this version of the Nitrokey App."
         else:
             self.hide_more_options()
             self.common_ui.info.info.emit(
