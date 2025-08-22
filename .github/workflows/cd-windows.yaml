@@ -1,13 +1,18 @@
 name: Continuous delivery - Windows
 
 on:
+  pull_request:
+  push:
+    branches: [main]
   release:
     types: [prereleased, released]
+  workflow_dispatch:
 
 jobs:
   version-check:
     name: Check versioning
     runs-on: windows-latest
+    if: github.event_name == 'release'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,7 +33,6 @@ jobs:
   build-onedir:
     name: Build onedir
     runs-on: windows-latest
-    needs: version-check
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -57,7 +61,8 @@ jobs:
     runs-on:
       group: "Windows Software Signing"
       labels: ["self-hosted", "Linux", "X64"]
-    needs: build-onedir
+    needs: [build-onedir, version-check]
+    if: github.event_name == 'release'
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
@@ -87,6 +92,7 @@ jobs:
     name: Build MSI installer
     runs-on: windows-latest
     needs: sign-onedir
+    if: github.event_name == 'release'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -137,6 +143,7 @@ jobs:
       group: "Windows Software Signing"
       labels: ["self-hosted", "Linux", "X64"]
     needs: build-msi-installer
+    if: github.event_name == 'release'
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
@@ -164,6 +171,7 @@ jobs:
     name: Publish MSI installer
     runs-on: windows-latest
     needs: sign-msi-installer
+    if: github.event_name == 'release'
     permissions:
       contents: write
     steps:
