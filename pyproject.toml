@@ -35,7 +35,7 @@ classifiers = [
 fido2 = "^2"
 nitrokey = "^0.4"
 pySide6 = ">=6.6.0"
-pywin32 = { version = "305", markers = "sys_platform =='win32'" }
+pywin32 = { version = ">=305", markers = "sys_platform =='win32'" }
 usb-monitor = "^1.21"
 
 [tool.poetry.group.dev.dependencies]
