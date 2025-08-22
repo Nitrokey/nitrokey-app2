@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  PYTHON_VERSION: 3.10
+  PYTHON_VERSION: "3.10"
 
 jobs:
   version-check:
@@ -32,7 +32,7 @@ jobs:
       - name: Check if version tag and package version are equal
         run: |
           VERSION_TAG="${{ github.event.release.tag_name }}"
-          PACKAGE_VERSION="v"$($(poetry env info --path)/bin/python -c "from nitrokeyapp import __version__; print(__version__)")
+          PACKAGE_VERSION="v"$(poetry version --short)
           if [ $VERSION_TAG == $PACKAGE_VERSION ]; then exit 0; else exit 1; fi
   build-onedir:
     name: Build onedir
