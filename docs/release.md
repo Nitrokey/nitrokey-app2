@@ -4,7 +4,6 @@ Follow the steps below meticulously to avoid a broken release.
 
 1. Adapt version information.
    The CI pipeline will fail if the version strings in the files below do not match.
-   * `nitrokeyapp/VERSION` (mind the final newline)
    * `pyproject.toml` 
    * `ci-scripts/linux/rpm/nitrokey-app2.spec` 
    * Add flatpak meta-data in `meta/com.nitrokey.nitrokey-app2.metainfo.xml`, 
