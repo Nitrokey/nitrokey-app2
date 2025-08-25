@@ -2,58 +2,22 @@
 
 This application allows to manage Nitrokey 3 devices. To manage Nitrokey Pro and Nitrokey Storage devices, use the older [Nitrokey App](https://github.com/Nitrokey/nitrokey-app).
 
-## Installation
+## Documentation
 
-These are the preferred installation methods for the following operating systems:
+The user documentation for Nitrokey App 2 is available on [docs.nitrokey.com](https://docs.nitrokey.com/software/nk-app2/).
 
-### Windows
+## Compatibility
 
-Download and run the prebuilt `.msi` available inside [releases](https://github.com/Nitrokey/nitrokey-app2/releases).
+Nitrokey App 2 requires Python 3.10 or later.
 
-### Linux
+## Development
 
-Flathub lists the [Nitrokey App2](https://flathub.org/apps/com.nitrokey.nitrokey-app2) to be used for an easy install within your prefered Linux distribution.
-
-
-### macOS
-
-Currently there is no official support for macOS, you might want to try installing through [pypi](https://pypi.org/project/nitrokeyapp/) using `pip` and/or `pipx`. 
-
-
-## Features
-
-The following features are currently implemented.
-
-- Firmware update
-- Passwords
-    - TOTP
-    - HOTP
-
-## Download
-
-Executable binaries for Linux and Windows as well as a MSI installer for Windows can be downloaded from the [releases](https://github.com/Nitrokey/nitrokey-app2/releases).
-
-### Compiling for Linux and macOS
-
-This project uses [Poetry](https://python-poetry.org/) as its dependency management and packaging system.
-See the [documentation](https://python-poetry.org/docs/) of *Poetry* for available commands.
-
-The application can be compiled by executing:
-
-```
-git clone https://github.com/Nitrokey/nitrokey-app2.git
-cd nitrokey-app2
-make init
-make build
-poetry shell
-nitrokeyapp
-```
-
-## Dependencies
-
-* [Python Nitrokey SDK](https://github.com/Nitrokey/nitrokey-sdk-py) ([`pip install nitrokey`](https://pypi.org/project/nitrokey))
-* Python >3.10
+See the [docs](./docs) directory for developer information.
 
 ## Author
 
 Nitrokey GmbH, Jan Suhr and [contributors](https://github.com/Nitrokey/nitrokey-app2/graphs/contributors).
+
+## License
+
+Nitrokey App 2 is licensed under the Apache License, Version 2.0 (see the [LICENSE](./LICENSE) file or http://www.apache.org/licenses/LICENSE-2.0).
