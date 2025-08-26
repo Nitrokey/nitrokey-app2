@@ -2,6 +2,7 @@ import logging
 import shutil
 from typing import Optional
 
+from nitrokey.trussed import Model
 from nitrokey.trussed.admin_app import InitStatus
 from PySide6.QtCore import QThread, Signal, Slot
 from PySide6.QtWidgets import QFileDialog, QWidget
@@ -106,7 +107,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             self.ui.status_label.hide()
             self.ui.nk3_status.hide()
             self.ui.more_info.hide()
-            self.ui.nk3_label.setText("Nitrokey 3 Bootloader")
+            self.ui.nk3_label.setText("Nitrokey Bootloader")
             self.status_error(InitStatus(0))
 
         else:
@@ -118,7 +119,10 @@ class OverviewTab(QtUtilsMixIn, QWidget):
                 str(data.status.variant.name),
                 str(data.status.init_status),
             )
-            self.ui.nk3_label.setText("Nitrokey 3")
+            if data.model == Model.NK3:
+                self.ui.nk3_label.setText(f"{data.model}")
+            if data.model == Model.NKPK:
+                self.ui.nk3_label.setText(f"{data.model}")
             if data.status.init_status is None:
                 self.ui.status_label.hide()
                 self.ui.nk3_status.hide()
@@ -160,10 +164,20 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             )
             tooltip = "Please remove all Nitrokey 3 devices except the one you want to update."
 
-        self.ui.btn_update.setEnabled(enabled)
-        self.ui.btn_update.setToolTip(tooltip)
-        self.ui.btn_more_options.setEnabled(enabled)
-        self.ui.btn_more_options.setToolTip(tooltip)
+        if self.data and self.data.model == Model.NK3:
+            self.ui.btn_update.setEnabled(enabled)
+            self.ui.btn_update.setToolTip(tooltip)
+            self.ui.btn_more_options.setEnabled(enabled)
+            self.ui.btn_more_options.setToolTip(tooltip)
+        elif self.data and self.data.model == Model.NKPK:
+            self.ui.btn_update.setEnabled(False)
+            self.ui.btn_update.setToolTip(
+                "Nitrokey Passkeys can't be updated with this version of the Nitrokey App."
+            )
+            self.ui.btn_more_options.setEnabled(False)
+            self.ui.btn_more_options.setToolTip(
+                "Nitrokey Passkeys can't be updated with this version of the Nitrokey App."
+            )
 
     def update_btns_during_update(self, enabled: bool) -> None:
         tooltip = ""
