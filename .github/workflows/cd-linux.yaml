@@ -15,7 +15,7 @@ jobs:
   version-check:
     name: Check versioning
     runs-on: ubuntu-latest
-    container: python:3.10-slim
+    container: python:3.10-slim-bookworm
     if: github.event_name == 'release'
     steps:
       - name: Checkout repository
@@ -41,7 +41,7 @@ jobs:
   build-onefile:
     name: Build onefile
     runs-on: ubuntu-latest
-    container: python:3.10-slim
+    container: python:3.10-slim-bookworm
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -80,7 +80,7 @@ jobs:
   publish-binary:
     name: Publish binary
     runs-on: ubuntu-latest
-    container: python:3.10-slim
+    container: python:3.10-slim-bookworm
     needs: [build-onefile, version-check]
     if: github.event_name == 'release'
     permissions:
