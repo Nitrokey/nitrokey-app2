@@ -355,8 +355,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_save.hide()
 
         self.ui.warning_label.setText(
-            "**Reset for FIDO2 is only possible 10secs "
-            + "after plugging in the device.**"
+            "**Reset for FIDO 2 is only possible within 10secs after plugging in the device.**"
         )
 
         if state == State.FidoReset:
