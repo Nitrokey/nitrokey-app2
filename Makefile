@@ -13,7 +13,7 @@ update-venv:
 ifeq (, $(shell which poetry))
 $(error "No poetry in $(PATH)")
 endif
-	poetry install --sync --without=deploy
+	poetry sync --without=deploy
 
 # clean environment
 semi-clean:
@@ -37,13 +37,13 @@ build-pyinstaller-onedir:
 
 # code checks
 check-format:
-	poetry run black --check $(PACKAGE_NAME)/
+	poetry run ruff format --check $(PACKAGE_NAME)/
 
 check-import-sorting:
-	poetry run isort --check-only $(PACKAGE_NAME)/
+	poetry run ruff check --select I --diff $(PACKAGE_NAME)/
 
 check-style:
-	poetry run flake8 $(PACKAGE_NAME)/
+	poetry run ruff check $(PACKAGE_NAME)/
 
 check-typing:
 	poetry run mypy $(PACKAGE_NAME)/
@@ -51,5 +51,5 @@ check-typing:
 check: check-format check-import-sorting check-style check-typing
 
 fix:
-	poetry run black $(PACKAGE_NAME)/
-	poetry run isort $(PACKAGE_NAME)/
+	poetry run ruff format $(PACKAGE_NAME)/
+	poetry run ruff check --fix $(PACKAGE_NAME)/
