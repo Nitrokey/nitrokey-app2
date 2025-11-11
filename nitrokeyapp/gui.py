@@ -148,7 +148,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         device_info: Optional[Dict[str, str]] = None,
     ) -> None:
         # retry for up to 2secs
-        for tries in range(8):
+        for _tries in range(8):
             devs = self.device_manager.add()
             if devs:
                 break

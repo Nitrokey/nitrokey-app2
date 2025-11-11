@@ -311,11 +311,11 @@ class EditCredentialJob(Job):
         with self.data.open() as device:
             secrets = SecretsApp(device)
             with self.touch_prompt():
-                reg_data = dict(
-                    cred_id=self.old_cred_id,
-                    touch_button=self.credential.touch_required,
+                reg_data = {
+                    "cred_id": self.old_cred_id,
+                    "touch_button": self.credential.touch_required,
                     # pin_based_encryption=self.credential.protected,
-                )
+                }
                 if self.old_cred_id != self.credential.id:
                     reg_data["new_name"] = self.credential.id
 
@@ -370,7 +370,7 @@ class AddCredentialJob(Job):
 
     @Slot(list)
     def check_credential(self, credentials: list[Credential]) -> None:
-        ids = set([credential.id for credential in credentials])
+        ids = {credential.id for credential in credentials}
         if self.credential.id in ids:
             self.trigger_error(f"A credential with the name {self.credential.name} already exists.")
         elif self.credential.protected:
@@ -395,11 +395,11 @@ class AddCredentialJob(Job):
         with self.data.open() as device:
             secrets = SecretsApp(device)
             with self.touch_prompt():
-                reg_data = dict(
-                    credid=self.credential.id,
-                    touch_button_required=self.credential.touch_required,
-                    pin_based_encryption=self.credential.protected,
-                )
+                reg_data = {
+                    "credid": self.credential.id,
+                    "touch_button_required": self.credential.touch_required,
+                    "pin_based_encryption": self.credential.protected,
+                }
 
                 if self.credential.other:
                     reg_data["secret"] = self.secret
