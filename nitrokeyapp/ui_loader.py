@@ -59,12 +59,12 @@ class UiLoader(QUiLoader):
                     # @fixme? in fact QWidget is callable
                     widget = self.customWidgets[class_name](parent)  # type: ignore
 
-                except (TypeError, KeyError):
+                except (TypeError, KeyError) as e:
                     raise Exception(
                         "No custom widget "
                         + class_name
                         + " found in customWidgets param of UiLoader __init__."
-                    )
+                    ) from e
 
             if self.baseinstance:
                 # set an attribute for the new child widget on the base
