@@ -478,7 +478,6 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         has_pin = fido_state.options["clientPin"]
 
         if state in [State.Fido, State.FidoReset]:
-
             self.update_status_form(
                 [
                     ("PIN set", "yes" if has_pin else "no"),
@@ -494,9 +493,8 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             self.show_current_password(has_pin)
             self.ui.status_form.hide()
 
-    @Slot(SelectResponse)
+    @Slot(bool, SelectResponse)
     def handle_info_passwords(self, pin_set: bool, status: SelectResponse) -> None:
-
         if self.active_item is None:
             return
 
@@ -505,7 +503,6 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             State.Passwords,
             State.PasswordsReset,
         ]:
-
             data = [
                 ("PIN set", "yes" if pin_set else "no"),
                 ("PIN retries", str(status.pin_attempt_counter)),
@@ -517,7 +514,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             self.update_status_form(data)
             self.show_current_password(pin_set)
 
-        elif state == State.PasswordsReset:
+        elif state == State.PasswordsPin:
             self.show_current_password(pin_set)
             self.ui.status_form.hide()
 
