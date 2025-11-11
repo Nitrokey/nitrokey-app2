@@ -18,9 +18,7 @@ class QtUtilsMixIn:
         assert isinstance(self, QObject)
 
     @staticmethod
-    def load_ui(
-        filename: str, base_instance: Optional[QtWidgets.QWidget] = None
-    ) -> Any:
+    def load_ui(filename: str, base_instance: Optional[QtWidgets.QWidget] = None) -> Any:
         # returning `Any` to avoid  `mypy` going crazy due to monkey-patching
         loader = UiLoader(base_instance, customWidgets=None)
         p_dir = (Path(__file__).parent / "ui").absolute()
@@ -80,9 +78,7 @@ class QtUtilsMixIn:
             self.widgets[name] = widget
         return widget  # type: ignore
 
-    def collapse(
-        self, frame: QtWidgets.QWidget, expand_button: QtWidgets.QPushButton
-    ) -> None:
+    def collapse(self, frame: QtWidgets.QWidget, expand_button: QtWidgets.QPushButton) -> None:
         # Find out if the state is on or off
         state = expand_button.isChecked()
         if not state:

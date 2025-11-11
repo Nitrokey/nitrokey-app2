@@ -53,11 +53,7 @@ class DeviceManager:
         new_devices = []
         for candidate in all_devs:
             # ignore bootloader device during update
-            if (
-                len(self._devices) == 1
-                and self._devices[0].updating
-                and candidate.is_bootloader
-            ):
+            if len(self._devices) == 1 and self._devices[0].updating and candidate.is_bootloader:
                 continue
 
             # handle from bootloader-device updating

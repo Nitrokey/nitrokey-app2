@@ -63,9 +63,7 @@ class OverviewWorker(Worker):
         self.run(job)
 
     @Slot(DeviceData, str)
-    def update_device_file(
-        self, data: DeviceData, filename: str, is_qubesos: bool
-    ) -> None:
+    def update_device_file(self, data: DeviceData, filename: str, is_qubesos: bool) -> None:
         job = UpdateDevice(self.common_ui, data, is_qubesos)
         job.image = filename
         job.device_updated.connect(self.device_updated)

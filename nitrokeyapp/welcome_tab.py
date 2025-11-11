@@ -48,9 +48,7 @@ class WelcomeTab(QtUtilsMixIn, QWidget):
         if Version.__lt__(self.c_version_v, self.n_version_v):
             self.ui.CheckUpdate.setText("update available")
             self.ui.CheckUpdate.pressed.connect(
-                lambda: webbrowser.open(
-                    "https://github.com/Nitrokey/nitrokey-app2/releases"
-                )
+                lambda: webbrowser.open("https://github.com/Nitrokey/nitrokey-app2/releases")
             )
         else:
             self.ui.CheckUpdate.setText("App is up to date")

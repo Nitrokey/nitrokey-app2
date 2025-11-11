@@ -224,9 +224,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         elif result.status == UpdateStatus.ABORTED:
             self.common_ui.info.error.emit(f"Nitrokey 3 update aborted{msg}")
         else:
-            self.common_ui.info.error.emit(
-                f"Unexpected update result: {result.status}{msg}"
-            )
+            self.common_ui.info.error.emit(f"Unexpected update result: {result.status}{msg}")
 
         self.common_ui.gui.refresh_devices.emit()
 
