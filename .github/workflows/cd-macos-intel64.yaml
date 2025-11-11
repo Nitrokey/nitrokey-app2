@@ -14,7 +14,7 @@ env:
 jobs:
   version-check:
     name: Check versioning
-    runs-on: macos-13
+    runs-on: macos-15-intel
     if: github.event_name == 'release'
     steps:
       - name: Checkout repository
@@ -36,7 +36,7 @@ jobs:
           if [ $VERSION_TAG == $PACKAGE_VERSION ]; then exit 0; else exit 1; fi
   build-onedir:
     name: Build onedir
-    runs-on: macos-13
+    runs-on: macos-15-intel
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -81,7 +81,7 @@ jobs:
           path: nitrokey-app2-onedir-app.tar
   build-pkg-installer:
     name: Build PKG installer
-    runs-on: macos-13
+    runs-on: macos-15-intel
     needs: build-onedir
     steps:
       - name: Checkout repository
@@ -119,7 +119,7 @@ jobs:
           path: nitrokey-app2.pkg
   publish-pkg-installer:
     name: Publish PKG installer
-    runs-on: macos-13
+    runs-on: macos-15-intel
     needs: [build-pkg-installer, version-check]
     if: github.event_name == 'release'
     permissions:
