@@ -59,9 +59,7 @@ class InfoBox(QObject):
         self.hide_timer.timeout.connect(self.hide_status)
 
     @Slot(str, int, str)
-    def set_status(
-        self, text: str, timeout: int = 7000, icon: Optional[str] = None
-    ) -> None:
+    def set_status(self, text: str, timeout: int = 7000, icon: Optional[str] = None) -> None:
         self.status.setText(text)
         self.status.show()
         self.information_frame.show()
@@ -88,9 +86,7 @@ class InfoBox(QObject):
 
     @Slot()
     def set_touch_status(self) -> None:
-        self.set_status(
-            "Press your Nitrokey to confirm...", timeout=15000, icon="touch.svg"
-        )
+        self.set_status("Press your Nitrokey to confirm...", timeout=15000, icon="touch.svg")
 
     @Slot()
     def hide_touch(self) -> None:

@@ -7,9 +7,7 @@ from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
 
 class Nk3Button(QtWidgets.QToolButton):
-    def __init__(
-        self, data: DeviceData, on_click: Callable[[DeviceData], None]
-    ) -> None:
+    def __init__(self, data: DeviceData, on_click: Callable[[DeviceData], None]) -> None:
         super().__init__()
 
         self.setIcon(QtUtilsMixIn.get_qicon("nitrokey.svg"))

@@ -73,7 +73,8 @@ class UpdateGUI(UpdateUi):
 
     def show_warning(self, warning: Warning) -> None:
         res = self.run_confirm_dialog(
-            "DANGER - You can ignore this warning by pressing ok", warning.message
+            "DANGER - You can ignore this warning by pressing ok",
+            warning.message,
         )
         if not res:
             logger.info("Cancel clicked (during warning)")
@@ -82,9 +83,7 @@ class UpdateGUI(UpdateUi):
         logger.info("OK clicked (warning dialog)")
 
     def abort_downgrade(self, current: Version, image: Version) -> Exception:
-        return self.abort(
-            f"firmware {image} is older than the firmware on the device ({current})"
-        )
+        return self.abort(f"firmware {image} is older than the firmware on the device ({current})")
 
     def run_confirm_dialog(self, title: str, desc: str) -> bool:
         self.common_ui.prompt.confirm.emit(title, desc)
@@ -160,9 +159,7 @@ class UpdateGUI(UpdateUi):
 
         logger.info("OK clicked (confirm same version)")
 
-    def abort_pynitrokey_version(
-        self, current: Version, required: Version
-    ) -> Exception:
+    def abort_pynitrokey_version(self, current: Version, required: Version) -> Exception:
         raise self.abort(f"pynitrokey {required} too old, need: {current}")
 
     def confirm_pynitrokey_version(self, current: Version, required: Version) -> None:
@@ -266,9 +263,7 @@ class Nk3Context(DeviceHandler):
         try:
             with self.connect() as device:
                 updater = Updater(ui, self)
-                _, status = updater.update(
-                    device=device, image=image, update_version=None
-                )
+                _, status = updater.update(device=device, image=image, update_version=None)
         except UpdateException as e:
             return UpdateResult(status=e.status, message=str(e))
         except Exception as e:
@@ -276,9 +271,7 @@ class Nk3Context(DeviceHandler):
 
         if status.init_status is not None:
             if status.init_status & InitStatus.EXT_FLASH_NEED_REFORMAT:
-                logger.error(
-                    f"Problematic init status after update: {status.init_status}"
-                )
+                logger.error(f"Problematic init status after update: {status.init_status}")
                 return UpdateResult(
                     status=UpdateStatus.ERROR,
                     message="External filesystem needs to be reformatted."

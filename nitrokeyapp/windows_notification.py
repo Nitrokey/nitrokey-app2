@@ -10,9 +10,7 @@ class WindowsUSBNotifi:
     WORD = c_ushort
     DWORD = c_ulong
 
-    def __init__(
-        self, detect_nk3: Callable[[], None], remove_nk3: Callable[[], None]
-    ) -> None:
+    def __init__(self, detect_nk3: Callable[[], None], remove_nk3: Callable[[], None]) -> None:
         import win32api
         import win32con
         import win32gui

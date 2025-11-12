@@ -22,9 +22,7 @@ def init_logging() -> Generator[str, None, None]:
     log_format = "%(relativeCreated)-8d %(levelname)6s %(name)10s %(message)s"
 
     try:
-        handler = logging.FileHandler(
-            filename=log_file.name, delay=True, encoding="utf-8"
-        )
+        handler = logging.FileHandler(filename=log_file.name, delay=True, encoding="utf-8")
         console_handler = logging.StreamHandler(sys.stdout)
 
         handlers = [handler]

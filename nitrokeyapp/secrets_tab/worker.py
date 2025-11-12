@@ -210,15 +210,10 @@ class EditCredentialJob(Job):
         # ids = set([credential.id for credential in credentials])
 
         if self.old_cred_id not in self.all_credentials:
-            self.trigger_error(
-                f"A credential with the name {self.old_cred_id!r} does not exists."
-            )
+            self.trigger_error(f"A credential with the name {self.old_cred_id!r} does not exists.")
             return
 
-        if (
-            self.credential.id != self.old_cred_id
-            and self.credential.id in self.all_credentials
-        ):
+        if self.credential.id != self.old_cred_id and self.credential.id in self.all_credentials:
             self.trigger_error(
                 f"A credential with the name {self.credential.name} does already exist."
             )
@@ -258,9 +253,7 @@ class EditCredentialJob(Job):
                 temp_cred_id = self.temp_rename_credential(self.old_cred_id)
                 self.add_credential(self.credential, self.secret, temp_cred_id)
 
-    def add_credential(
-        self, cred: Credential, secret: bytes, then_delete_id: bytes
-    ) -> None:
+    def add_credential(self, cred: Credential, secret: bytes, then_delete_id: bytes) -> None:
         add_job = AddCredentialJob(
             self.common_ui,
             self.pin_cache,
@@ -269,9 +262,7 @@ class EditCredentialJob(Job):
             credential=cred,
             secret=secret,
         )
-        add_job.credential_added.connect(
-            lambda cred: self.handle_created(cred, then_delete_id)
-        )
+        add_job.credential_added.connect(lambda cred: self.handle_created(cred, then_delete_id))
         self.spawn(add_job)
 
     @Slot(Credential)
@@ -320,12 +311,11 @@ class EditCredentialJob(Job):
         with self.data.open() as device:
             secrets = SecretsApp(device)
             with self.touch_prompt():
-
-                reg_data = dict(
-                    cred_id=self.old_cred_id,
-                    touch_button=self.credential.touch_required,
+                reg_data = {
+                    "cred_id": self.old_cred_id,
+                    "touch_button": self.credential.touch_required,
                     # pin_based_encryption=self.credential.protected,
-                )
+                }
                 if self.old_cred_id != self.credential.id:
                     reg_data["new_name"] = self.credential.id
 
@@ -380,11 +370,9 @@ class AddCredentialJob(Job):
 
     @Slot(list)
     def check_credential(self, credentials: list[Credential]) -> None:
-        ids = set([credential.id for credential in credentials])
+        ids = {credential.id for credential in credentials}
         if self.credential.id in ids:
-            self.trigger_error(
-                f"A credential with the name {self.credential.name} already exists."
-            )
+            self.trigger_error(f"A credential with the name {self.credential.name} already exists.")
         elif self.credential.protected:
             verify_pin_job = VerifyPinJob(
                 self.common_ui,
@@ -407,12 +395,11 @@ class AddCredentialJob(Job):
         with self.data.open() as device:
             secrets = SecretsApp(device)
             with self.touch_prompt():
-
-                reg_data = dict(
-                    credid=self.credential.id,
-                    touch_button_required=self.credential.touch_required,
-                    pin_based_encryption=self.credential.protected,
-                )
+                reg_data = {
+                    "credid": self.credential.id,
+                    "touch_button_required": self.credential.touch_required,
+                    "pin_based_encryption": self.credential.protected,
+                }
 
                 if self.credential.other:
                     reg_data["secret"] = self.secret
@@ -536,9 +523,7 @@ class GenerateOtpJob(Job):
                 valid_until = datetime.fromtimestamp((challenge + 1) * period)
                 validity = (valid_from, valid_until)
             else:
-                self.trigger_exception(
-                    RuntimeError(f"Unexpected OTP kind: {self.credential.otp}")
-                )
+                self.trigger_exception(RuntimeError(f"Unexpected OTP kind: {self.credential.otp}"))
 
             try:
                 with self.touch_prompt():
@@ -573,9 +558,7 @@ class ListCredentialsJob(Job):
 
     def run(self) -> None:
         if self.pin_protected:
-            verify_pin_job = VerifyPinJob(
-                self.common_ui, self.pin_cache, self.pin_ui, self.data
-            )
+            verify_pin_job = VerifyPinJob(self.common_ui, self.pin_cache, self.pin_ui, self.data)
             verify_pin_job.pin_verified.connect(self.list_protected_credentials)
             self.spawn(verify_pin_job)
         else:
@@ -675,9 +658,7 @@ class SecretsWorker(Worker):
         self.run(job)
 
     @Slot(DeviceData, Credential, bytes)
-    def add_credential(
-        self, data: DeviceData, credential: Credential, secret: bytes
-    ) -> None:
+    def add_credential(self, data: DeviceData, credential: Credential, secret: bytes) -> None:
         job = AddCredentialJob(
             self.common_ui,
             self.pin_cache,

@@ -22,9 +22,7 @@ class ErrorDialog(QtUtilsMixIn, QDialog):
         self.button_save_log = QPushButton("Save Log File", self)
         self.button_save_log.pressed.connect(self.save_log)
 
-        self.ui.buttonBox.addButton(
-            self.button_save_log, QDialogButtonBox.ButtonRole.ActionRole
-        )
+        self.ui.buttonBox.addButton(self.button_save_log, QDialogButtonBox.ButtonRole.ActionRole)
 
     def set_exception(
         self,

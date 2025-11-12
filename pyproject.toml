@@ -40,22 +40,30 @@ usb-monitor = "^1.21"
 
 [tool.poetry.group.dev.dependencies]
 PySide6-stubs = "^6.4.2"
-black = ">=22.1.0,<23"
-flake8 = "^6.1.0"
-isort = "^5.12.0"
+ruff = "^0.14"
 mypy = ">=1.4,<1.5"
 
 [tool.poetry.group.deploy.dependencies]
 pyinstaller = "^6.3.0"
 pyinstaller-versionfile = { version = "2.1.1", markers = "sys_platform=='win32'" }
 
-[tool.isort]
-py_version = "310"
-profile = "black"
-line_length = 80
+[tool.ruff]
+line-length = 100
+target-version = "py310"
 
-[tool.black]
-target-version = ["py310"]
+[tool.ruff.lint]
+select = ["B", "C", "E", "F", "W", "B9", "I"]
+ignore = ["E203", "E266", "E501"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 30
+
+[tool.ruff.lint.isort]
+known-first-party = ["nitrokeyapp"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
 
 [tool.mypy]
 show_error_codes = true

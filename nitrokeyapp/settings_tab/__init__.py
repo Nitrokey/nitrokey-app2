@@ -78,8 +78,7 @@ SETTINGS: Dict[State, Dict] = {
         "parent": State.Passwords,
         "icon": RESET_ICON,
         "name": "Factory Reset",
-        "desc": "This operation will unevitably remove all your credentials "
-        + "in Passwords!",
+        "desc": "This operation will unevitably remove all your credentials " + "in Passwords!",
     },
 }
 
@@ -196,38 +195,20 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         icon_false = self.get_qicon("close.svg")
 
         loc = QLineEdit.ActionPosition.TrailingPosition
-        self.action_current_password_show = self.ui.current_password.addAction(
-            icon_visibility, loc
-        )
-        self.action_current_password_show.triggered.connect(
-            self.act_current_password_show
-        )
+        self.action_current_password_show = self.ui.current_password.addAction(icon_visibility, loc)
+        self.action_current_password_show.triggered.connect(self.act_current_password_show)
 
-        self.action_new_password_show = self.ui.new_password.addAction(
-            icon_visibility, loc
-        )
+        self.action_new_password_show = self.ui.new_password.addAction(icon_visibility, loc)
         self.action_new_password_show.triggered.connect(self.act_new_password_show)
 
-        self.action_repeat_password_show = self.ui.repeat_password.addAction(
-            icon_visibility, loc
-        )
-        self.action_repeat_password_show.triggered.connect(
-            self.act_repeat_password_show
-        )
+        self.action_repeat_password_show = self.ui.repeat_password.addAction(icon_visibility, loc)
+        self.action_repeat_password_show.triggered.connect(self.act_repeat_password_show)
 
-        self.show_current_password_check = self.ui.current_password.addAction(
-            icon_check, loc
-        )
-        self.show_current_password_false = self.ui.current_password.addAction(
-            icon_false, loc
-        )
+        self.show_current_password_check = self.ui.current_password.addAction(icon_check, loc)
+        self.show_current_password_false = self.ui.current_password.addAction(icon_false, loc)
 
-        self.show_repeat_password_check = self.ui.repeat_password.addAction(
-            icon_check, loc
-        )
-        self.show_repeat_password_false = self.ui.repeat_password.addAction(
-            icon_false, loc
-        )
+        self.show_repeat_password_check = self.ui.repeat_password.addAction(icon_check, loc)
+        self.show_repeat_password_false = self.ui.repeat_password.addAction(icon_false, loc)
 
         self.action_current_password_show.setVisible(False)
         self.action_new_password_show.setVisible(False)

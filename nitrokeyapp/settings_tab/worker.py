@@ -217,9 +217,7 @@ class ResetPasswords(Job):
             try:
                 with self.touch_prompt():
                     secrets.reset()
-                    self.common_ui.info.info.emit(
-                        "PASSWORDS function reset successfully!"
-                    )
+                    self.common_ui.info.info.emit("PASSWORDS function reset successfully!")
             except SecretsAppException as e:
                 self.trigger_error(f"Passwords reset failed: {e}")
         self.reset_passwords.emit()

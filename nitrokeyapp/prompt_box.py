@@ -29,8 +29,7 @@ class PromptBox(QtWidgets.QMessageBox):
         self.setText(desc)
         self.setWindowTitle(title)
         self.setStandardButtons(
-            QtWidgets.QMessageBox.StandardButton.Ok
-            | QtWidgets.QMessageBox.StandardButton.Cancel
+            QtWidgets.QMessageBox.StandardButton.Ok | QtWidgets.QMessageBox.StandardButton.Cancel
         )
         self.setIcon(QtWidgets.QMessageBox.Icon.Information)
 

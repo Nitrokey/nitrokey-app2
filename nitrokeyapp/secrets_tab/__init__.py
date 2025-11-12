@@ -137,14 +137,10 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.action_password_show.triggered.connect(self.act_password_show)
 
         self.action_comment_copy = self.ui.comment.addAction(icon_copy, loc)
-        self.action_comment_copy.triggered.connect(
-            lambda: self.act_copy_line_edit(self.ui.comment)
-        )
+        self.action_comment_copy.triggered.connect(lambda: self.act_copy_line_edit(self.ui.comment))
 
         self.action_otp_copy = self.ui.otp.addAction(icon_copy, loc)
-        self.action_otp_copy.triggered.connect(
-            lambda: self.act_copy_line_edit(self.ui.otp)
-        )
+        self.action_otp_copy.triggered.connect(lambda: self.act_copy_line_edit(self.ui.otp))
 
         self.action_otp_gen = self.ui.otp.addAction(icon_refresh, loc)
         self.action_otp_gen.triggered.connect(self.generate_otp)
@@ -499,9 +495,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         if credential.otp or credential.other:
             self.ui.otp.setReadOnly(True)
 
-            self.ui.select_algorithm.setCurrentText(
-                str(credential.otp or credential.other)
-            )
+            self.ui.select_algorithm.setCurrentText(str(credential.otp or credential.other))
             self.ui.select_algorithm.setEnabled(False)
             self.action_hmac_gen.setVisible(False)
 
@@ -546,7 +540,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     @Slot()
     def add_new_credential(self) -> None:
-
         if not self.data:
             return
 
@@ -661,9 +654,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
                 self.show_hmac_view()
                 if len(check_secret) != 32:
                     can_save = False
-                    self.common_ui.info.info.emit(
-                        "The HMAC-Secret is not 32 chars long"
-                    )
+                    self.common_ui.info.info.emit("The HMAC-Secret is not 32 chars long")
                     tool_Tip = tool_Tip + "\n- The HMAC-Secret is not 32 chars long"
             else:
                 self.hide_hmac_view()
@@ -694,9 +685,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.line2copy_action[obj].setIcon(self.get_qicon("done.svg"))
         QTimer.singleShot(
             5000,
-            lambda: self.line2copy_action[obj].setIcon(
-                self.get_qicon("content_copy.svg")
-            ),
+            lambda: self.line2copy_action[obj].setIcon(self.get_qicon("content_copy.svg")),
         )
 
     def act_password_show(self) -> None:
@@ -723,7 +712,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.active_credential = None
 
     def show_hmac_view(self) -> None:
-
         name_hmac = "HmacSlot2"
 
         if self.active_credential is None:
@@ -754,7 +742,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.is_touch_protected.hide()
 
     def hide_hmac_view(self) -> None:
-
         if self.active_credential is None and self.ui.name_label.text() == "HmacSlot2":
             self.ui.name_label.clear()
             self.ui.name_label.hide()
@@ -873,9 +860,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         if self.active_credential is None:
             self.trigger_add_credential.emit(self.data, cred, secret)
         else:
-            self.trigger_edit_credential.emit(
-                self.data, cred, secret, self.active_credential.id
-            )
+            self.trigger_edit_credential.emit(self.data, cred, secret, self.active_credential.id)
 
     @Slot()
     def generate_otp(self) -> None:

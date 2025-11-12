@@ -90,7 +90,6 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         ]
         for view in self.views:
             if view.worker:
-
                 view.worker.busy_state_changed.connect(self.set_busy)
 
                 view.common_ui.touch.start.connect(self.touch_dialog.start)
@@ -149,7 +148,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         device_info: Optional[Dict[str, str]] = None,
     ) -> None:
         # retry for up to 2secs
-        for tries in range(8):
+        for _tries in range(8):
             devs = self.device_manager.add()
             if devs:
                 break
