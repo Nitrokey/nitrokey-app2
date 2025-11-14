@@ -5,3 +5,4 @@ __pycache__/
 nitrokeyapp/ui/*.py
 build/
 dist/
+variables.mk
