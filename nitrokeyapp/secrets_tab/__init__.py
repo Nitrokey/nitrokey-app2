@@ -605,7 +605,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         tool_Tip = "Credeantial cannot be saved:"
         can_save = True
-        check_secret = self.ui.otp.text()
+        check_secret = self.ui.otp.text().replace(" ", "").replace("-", "")
 
         name_len = len(str.encode(self.ui.name.text()))
         username_len = len(str.encode(self.ui.username.text()))
@@ -839,7 +839,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
                     otherKind = OtherKind.from_str(kind_str)
                 else:
                     kind = OtpKind.from_str(kind_str)
-                otp_secret = self.ui.otp.text()
+                otp_secret = self.ui.otp.text().replace(" ", "").replace("-", "")
                 secret = parse_base32(otp_secret)
             except RuntimeError:
                 pass
