@@ -43,16 +43,13 @@ build-pyinstaller-onedir:
 check-format:
 	$(RUFF) format --check $(PACKAGE_NAME)/
 
-check-import-sorting:
-	$(RUFF) check --select I --diff $(PACKAGE_NAME)/
-
 check-style:
 	$(RUFF) check $(PACKAGE_NAME)/
 
 check-typing:
 	poetry run mypy $(PACKAGE_NAME)/
 
-check: check-format check-import-sorting check-style check-typing
+check: check-format check-style check-typing
 
 fix:
 	$(RUFF) format $(PACKAGE_NAME)/

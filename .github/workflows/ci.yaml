@@ -33,22 +33,6 @@ jobs:
         run: make init
       - name: Check code format
         run: make check-format
-  format-import:
-    name: Check imports format
-    runs-on: ubuntu-latest
-    container: python:3.10-slim
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Install required packages
-        run: |
-          apt update
-          apt install -y make
-          pip install poetry
-      - name: Create virtual environment
-        run: make init
-      - name: Check code import format
-        run: make check-import-sorting
   lint-style:
     name: Check code style
     runs-on: ubuntu-latest
