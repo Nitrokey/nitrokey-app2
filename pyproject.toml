@@ -49,7 +49,6 @@ pyinstaller-versionfile = { version = "2.1.1", markers = "sys_platform=='win32'"
 
 [tool.ruff]
 line-length = 100
-target-version = "py310"
 
 [tool.ruff.lint]
 select = ["B", "C", "E", "F", "W", "B9", "I"]
@@ -60,10 +59,6 @@ max-complexity = 30
 
 [tool.ruff.lint.isort]
 known-first-party = ["nitrokeyapp"]
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
 
 [tool.mypy]
 show_error_codes = true
