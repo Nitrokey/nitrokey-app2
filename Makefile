@@ -1,5 +1,9 @@
 .PHONY: clean 
 
+-include variables.mk
+
+RUFF ?= poetry run ruff
+
 PACKAGE_NAME=nitrokeyapp
 
 PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
@@ -37,13 +41,13 @@ build-pyinstaller-onedir:
 
 # code checks
 check-format:
-	poetry run ruff format --check $(PACKAGE_NAME)/
+	$(RUFF) format --check $(PACKAGE_NAME)/
 
 check-import-sorting:
-	poetry run ruff check --select I --diff $(PACKAGE_NAME)/
+	$(RUFF) check --select I --diff $(PACKAGE_NAME)/
 
 check-style:
-	poetry run ruff check $(PACKAGE_NAME)/
+	$(RUFF) check $(PACKAGE_NAME)/
 
 check-typing:
 	poetry run mypy $(PACKAGE_NAME)/
@@ -51,5 +55,5 @@ check-typing:
 check: check-format check-import-sorting check-style check-typing
 
 fix:
-	poetry run ruff format $(PACKAGE_NAME)/
-	poetry run ruff check --fix $(PACKAGE_NAME)/
+	$(RUFF) format $(PACKAGE_NAME)/
+	$(RUFF) check --fix $(PACKAGE_NAME)/
