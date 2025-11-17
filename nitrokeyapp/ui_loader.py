@@ -36,10 +36,7 @@ class UiLoader(QUiLoader):
         self.customWidgets = customWidgets or {}
 
     def createWidget(
-        self,
-        class_name: str,
-        parent: Optional[QtWidgets.QWidget] = None,
-        name: str = "",
+        self, class_name: str, parent: Optional[QtWidgets.QWidget] = None, name: str = ""
     ) -> QtWidgets.QWidget:
         """
         Function that is called for each widget defined in ui file,

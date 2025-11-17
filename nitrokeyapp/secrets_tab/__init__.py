@@ -684,8 +684,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.common_ui.info.info.emit("contents copied to clipboard")
         self.line2copy_action[obj].setIcon(self.get_qicon("done.svg"))
         QTimer.singleShot(
-            5000,
-            lambda: self.line2copy_action[obj].setIcon(self.get_qicon("content_copy.svg")),
+            5000, lambda: self.line2copy_action[obj].setIcon(self.get_qicon("content_copy.svg"))
         )
 
     def act_password_show(self) -> None:
@@ -798,9 +797,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     @Slot(QListWidgetItem, QListWidgetItem)
     def credential_changed(
-        self,
-        current: Optional[QListWidgetItem],
-        old: Optional[QListWidgetItem],
+        self, current: Optional[QListWidgetItem], old: Optional[QListWidgetItem]
     ) -> None:
         if current and self.data:
             pass

@@ -25,10 +25,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
     trigger_update = Signal(DeviceData, bool)
     trigger_update_file = Signal(DeviceData, str, bool)
 
-    def __init__(
-        self,
-        parent: Optional[QWidget] = None,
-    ) -> None:
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
         QWidget.__init__(self, parent)
         QtUtilsMixIn.__init__(self)
 
@@ -82,11 +79,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         # catch too old firmware
         if data.is_too_old:
             self.set_device_data(
-                str(data.path),
-                "n/a",
-                "n/a",
-                "Update Your Nitrokey 3 for full functionality",
-                "n/a",
+                str(data.path), "n/a", "n/a", "Update Your Nitrokey 3 for full functionality", "n/a"
             )
             self.ui.status_label.hide()
             self.ui.nk3_status.hide()
@@ -96,13 +89,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             return
 
         if data.is_bootloader:
-            self.set_device_data(
-                str(data.path),
-                "n/a",
-                "n/a",
-                "n/a",
-                "n/a",
-            )
+            self.set_device_data(str(data.path), "n/a", "n/a", "n/a", "n/a")
             self.ui.status_label.hide()
             self.ui.nk3_status.hide()
             self.ui.more_info.hide()
@@ -128,12 +115,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
                 self.ui.nk3_status.show()
 
     def set_device_data(
-        self,
-        path: str,
-        uuid: str,
-        version: str,
-        variant: str,
-        init_status: str,
+        self, path: str, uuid: str, version: str, variant: str, init_status: str
     ) -> None:
         self.ui.nk3_path.setText(path)
         self.ui.nk3_uuid.setText(uuid)

@@ -25,10 +25,7 @@ class ErrorDialog(QtUtilsMixIn, QDialog):
         self.ui.buttonBox.addButton(self.button_save_log, QDialogButtonBox.ButtonRole.ActionRole)
 
     def set_exception(
-        self,
-        ty: Type[BaseException],
-        e: BaseException,
-        tb: Optional[TracebackType],
+        self, ty: Type[BaseException], e: BaseException, tb: Optional[TracebackType]
     ) -> None:
         lines = format_exception(ty, e, tb)
         self.ui.textEditDetails.setPlainText("".join(lines))

@@ -3,16 +3,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from enum import Enum
 from time import sleep
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Iterator,
-    List,
-    Optional,
-    Type,
-    TypeVar,
-)
+from typing import TYPE_CHECKING, Any, Callable, Iterator, List, Optional, Type, TypeVar
 
 # Nitrokey 3
 from nitrokey.nk3 import NK3, NK3Bootloader
@@ -73,8 +64,7 @@ class UpdateGUI(UpdateUi):
 
     def show_warning(self, warning: Warning) -> None:
         res = self.run_confirm_dialog(
-            "DANGER - You can ignore this warning by pressing ok",
-            warning.message,
+            "DANGER - You can ignore this warning by pressing ok", warning.message
         )
         if not res:
             logger.info("Cancel clicked (during warning)")
@@ -97,8 +87,7 @@ class UpdateGUI(UpdateUi):
 
     def confirm_download(self, current: Optional[Version], new: Version) -> None:
         res = self.run_confirm_dialog(
-            "Nitrokey 3 Firmware Update",
-            f"Do you want to download the firmware version {new}?",
+            "Nitrokey 3 Firmware Update", f"Do you want to download the firmware version {new}?"
         )
         if not res:
             logger.info("Cancel clicked (confirm download)")
@@ -190,9 +179,7 @@ class UpdateGUI(UpdateUi):
         yield self.common_ui.progress.progress.emit
 
     @contextmanager
-    def finalization_progress_bar(
-        self,
-    ) -> Iterator[Callable[[int, int], None]]:
+    def finalization_progress_bar(self) -> Iterator[Callable[[int, int], None]]:
         self.common_ui.progress.start.emit("Finalization")
         yield self.common_ui.progress.progress.emit
 
@@ -247,19 +234,12 @@ class Nk3Context(DeviceHandler):
         assert retries is not None
         return self._await("Nitrokey 3", NK3, retries, callback)
 
-    def await_bootloader(
-        self,
-        model: Model,
-    ) -> NK3Bootloader:
+    def await_bootloader(self, model: Model) -> NK3Bootloader:
         assert model == Model.NK3
         # mypy does not allow abstract types here, but this is still valid
         return self._await("Nitrokey 3 bootloader", NK3Bootloader, 90, None)  # type: ignore
 
-    def update(
-        self,
-        ui: UpdateGUI,
-        image: Optional[str] = None,
-    ) -> UpdateResult:
+    def update(self, ui: UpdateGUI, image: Optional[str] = None) -> UpdateResult:
         try:
             with self.connect() as device:
                 updater = Updater(ui, self)

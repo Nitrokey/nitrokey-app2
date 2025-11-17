@@ -14,12 +14,7 @@ logger = logging.getLogger(__name__)
 class UpdateDevice(Job):
     device_updated = Signal(UpdateResult)
 
-    def __init__(
-        self,
-        common_ui: CommonUi,
-        data: DeviceData,
-        is_qubesos: bool,
-    ) -> None:
+    def __init__(self, common_ui: CommonUi, data: DeviceData, is_qubesos: bool) -> None:
         super().__init__(common_ui)
 
         self.data = data

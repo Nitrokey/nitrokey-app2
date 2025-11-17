@@ -41,8 +41,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # start monitoring usb
         monitor = USBMonitor()
         monitor.start_monitoring(
-            on_connect=self.detect_added_devices,
-            on_disconnect=self.detect_removed_devices,
+            on_connect=self.detect_added_devices, on_disconnect=self.detect_removed_devices
         )
 
         self.trigger_update_devices.connect(self.update_devices)
@@ -83,11 +82,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.secrets_tab = SecretsTab(self)
         self.settings_tab = SettingsTab(self)
 
-        self.views: list[DeviceView] = [
-            self.overview_tab,
-            self.secrets_tab,
-            self.settings_tab,
-        ]
+        self.views: list[DeviceView] = [self.overview_tab, self.secrets_tab, self.settings_tab]
         for view in self.views:
             if view.worker:
                 view.worker.busy_state_changed.connect(self.set_busy)
@@ -143,9 +138,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.overview_tab.set_update_enabled(device_count <= 1)
 
     def detect_added_devices(
-        self,
-        device_id: Optional[str] = None,
-        device_info: Optional[Dict[str, str]] = None,
+        self, device_id: Optional[str] = None, device_info: Optional[Dict[str, str]] = None
     ) -> None:
         # retry for up to 2secs
         for _tries in range(8):
@@ -166,9 +159,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.trigger_update_devices.emit()
 
     def detect_removed_devices(
-        self,
-        device_id: Optional[str] = None,
-        device_info: Optional[Dict[str, str]] = None,
+        self, device_id: Optional[str] = None, device_info: Optional[Dict[str, str]] = None
     ) -> None:
         devs = self.device_manager.remove()
         if not devs:
@@ -322,10 +313,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     @Slot(object, BaseException, object)
     def handle_exception(
-        self,
-        ty: Type[BaseException],
-        e: BaseException,
-        tb: Optional[TracebackType],
+        self, ty: Type[BaseException], e: BaseException, tb: Optional[TracebackType]
     ) -> None:
         logger.error("Unhandled exception", exc_info=(ty, e, tb))
 

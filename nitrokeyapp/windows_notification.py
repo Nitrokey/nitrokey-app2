@@ -56,11 +56,7 @@ class WindowsUSBNotifi:
 
         WORD = c_ushort
         DWORD = c_ulong
-        _fields_ = [
-            ("dbch_size", DWORD),
-            ("dbch_devicetype", DWORD),
-            ("dbch_reserved", DWORD),
-        ]
+        _fields_ = [("dbch_size", DWORD), ("dbch_devicetype", DWORD), ("dbch_reserved", DWORD)]
 
     class DEV_BROADCAST_VOLUME(Structure):
         from ctypes import c_ulong, c_ushort

@@ -2,11 +2,7 @@ import logging
 
 from fido2.ctap2.base import Ctap2, Info
 from fido2.ctap2.pin import ClientPin
-from nitrokey.nk3.secrets_app import (
-    SecretsApp,
-    SecretsAppException,
-    SelectResponse,
-)
+from nitrokey.nk3.secrets_app import SecretsApp, SecretsAppException, SelectResponse
 from PySide6.QtCore import Signal, Slot
 
 from nitrokeyapp.common_ui import CommonUi
@@ -19,11 +15,7 @@ logger = logging.getLogger(__name__)
 class CheckFidoPinStatus(Job):
     status_fido = Signal(Info, int)
 
-    def __init__(
-        self,
-        common_ui: CommonUi,
-        data: DeviceData,
-    ) -> None:
+    def __init__(self, common_ui: CommonUi, data: DeviceData) -> None:
         super().__init__(common_ui)
 
         self.data = data
@@ -48,11 +40,7 @@ class CheckFidoPinStatus(Job):
 class CheckPasswordsInfo(Job):
     info_passwords = Signal(bool, SelectResponse)
 
-    def __init__(
-        self,
-        common_ui: CommonUi,
-        data: DeviceData,
-    ) -> None:
+    def __init__(self, common_ui: CommonUi, data: DeviceData) -> None:
         super().__init__(common_ui)
 
         self.data = data
@@ -75,13 +63,7 @@ class CheckPasswordsInfo(Job):
 class SaveFidoPinJob(Job):
     change_pw_fido = Signal()
 
-    def __init__(
-        self,
-        common_ui: CommonUi,
-        data: DeviceData,
-        old_pin: str,
-        new_pin: str,
-    ) -> None:
+    def __init__(self, common_ui: CommonUi, data: DeviceData, old_pin: str, new_pin: str) -> None:
         super().__init__(common_ui)
 
         self.data = data
@@ -117,13 +99,7 @@ class SaveFidoPinJob(Job):
 class SavePasswordsPinJob(Job):
     change_pw_passwords = Signal()
 
-    def __init__(
-        self,
-        common_ui: CommonUi,
-        data: DeviceData,
-        old_pin: str,
-        new_pin: str,
-    ) -> None:
+    def __init__(self, common_ui: CommonUi, data: DeviceData, old_pin: str, new_pin: str) -> None:
         super().__init__(common_ui)
 
         self.data = data
@@ -167,11 +143,7 @@ class SavePasswordsPinJob(Job):
 class ResetFido(Job):
     reset_fido = Signal()
 
-    def __init__(
-        self,
-        common_ui: CommonUi,
-        data: DeviceData,
-    ) -> None:
+    def __init__(self, common_ui: CommonUi, data: DeviceData) -> None:
         super().__init__(common_ui)
 
         self.data = data
@@ -200,11 +172,7 @@ class ResetFido(Job):
 class ResetPasswords(Job):
     reset_passwords = Signal()
 
-    def __init__(
-        self,
-        common_ui: CommonUi,
-        data: DeviceData,
-    ) -> None:
+    def __init__(self, common_ui: CommonUi, data: DeviceData) -> None:
         super().__init__(common_ui)
 
         self.data = data

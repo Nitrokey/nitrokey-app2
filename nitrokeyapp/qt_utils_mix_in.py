@@ -37,30 +37,21 @@ class QtUtilsMixIn:
         return QtGui.QPixmap(p.as_posix())
 
     def user_warn(
-        self,
-        msg: str,
-        title: Optional[str] = None,
-        parent: Optional[QtWidgets.QWidget] = None,
+        self, msg: str, title: Optional[str] = None, parent: Optional[QtWidgets.QWidget] = None
     ) -> None:
         if not parent and isinstance(self, QtWidgets.QWidget):
             parent = self
         QtWidgets.QMessageBox.warning(parent, title or msg, msg)
 
     def user_info(
-        self,
-        msg: str,
-        title: Optional[str] = None,
-        parent: Optional[QtWidgets.QWidget] = None,
+        self, msg: str, title: Optional[str] = None, parent: Optional[QtWidgets.QWidget] = None
     ) -> None:
         if not parent and isinstance(self, QtWidgets.QWidget):
             parent = self
         QtWidgets.QMessageBox.information(parent, title or msg, msg)
 
     def user_err(
-        self,
-        msg: str,
-        title: Optional[str] = None,
-        parent: Optional[QtWidgets.QWidget] = None,
+        self, msg: str, title: Optional[str] = None, parent: Optional[QtWidgets.QWidget] = None
     ) -> None:
         if not parent and isinstance(self, QtWidgets.QWidget):
             parent = self

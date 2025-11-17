@@ -45,11 +45,7 @@ SETTINGS: Dict[State, Dict] = {
         + "key cryptography to provide strong authentication and "
         + "protect against phishing and other security threats.",
     },
-    State.FidoPin: {
-        "parent": State.Fido,
-        "icon": PIN_ICON,
-        "name": "Pin Change",
-    },
+    State.FidoPin: {"parent": State.Fido, "icon": PIN_ICON, "name": "Pin Change"},
     State.FidoReset: {
         "parent": State.Fido,
         "icon": RESET_ICON,
@@ -69,11 +65,7 @@ SETTINGS: Dict[State, Dict] = {
         + "be stored and managed. Supported are: Plain usernames using a "
         + "password, HOTPs, TOTPs, ReverseHOTPs and HMAC.",
     },
-    State.PasswordsPin: {
-        "parent": State.Passwords,
-        "icon": PIN_ICON,
-        "name": "Pin Change",
-    },
+    State.PasswordsPin: {"parent": State.Passwords, "icon": PIN_ICON, "name": "Pin Change"},
     State.PasswordsReset: {
         "parent": State.Passwords,
         "icon": RESET_ICON,
@@ -421,12 +413,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.action_repeat_password_show.setIcon(icon)
 
     def set_device_data(
-        self,
-        path: str,
-        uuid: str,
-        version: str,
-        variant: str,
-        init_status: str,
+        self, path: str, uuid: str, version: str, variant: str, init_status: str
     ) -> None:
         self.ui.nk3_path.setText(path)
         self.ui.nk3_uuid.setText(uuid)
@@ -462,10 +449,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             self.update_status_form(
                 [
                     ("PIN set", "yes" if has_pin else "no"),
-                    (
-                        "PIN retries",
-                        str(pin_retries) if has_pin else "n/a",
-                    ),
+                    ("PIN retries", str(pin_retries) if has_pin else "n/a"),
                     ("Versions", ", ".join(fido_state.versions)),
                     ("Extensions", ", ".join(fido_state.extensions)),
                 ]
@@ -480,10 +464,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             return
 
         state = self.active_item.data(1, 0)
-        if state in [
-            State.Passwords,
-            State.PasswordsReset,
-        ]:
+        if state in [State.Passwords, State.PasswordsReset]:
             data = [
                 ("PIN set", "yes" if pin_set else "no"),
                 ("PIN retries", str(status.pin_attempt_counter)),

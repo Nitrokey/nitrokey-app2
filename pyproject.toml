@@ -50,6 +50,9 @@ pyinstaller-versionfile = { version = "2.1.1", markers = "sys_platform=='win32'"
 [tool.ruff]
 line-length = 100
 
+[tool.ruff.format]
+skip-magic-trailing-comma = true
+
 [tool.ruff.lint]
 select = ["B", "C", "E", "F", "W", "B9", "I"]
 ignore = ["E501"]
@@ -59,6 +62,7 @@ max-complexity = 30
 
 [tool.ruff.lint.isort]
 known-first-party = ["nitrokeyapp"]
+split-on-trailing-comma = false
 
 [tool.mypy]
 show_error_codes = true

@@ -102,11 +102,7 @@ class DeviceData:
             # TODO: improve error handling
             raise RuntimeError(f"Failed to open device {self.uuid} at {self.path}")
 
-    def update(
-        self,
-        ui: UpdateGUI,
-        image: Optional[str] = None,
-    ) -> UpdateResult:
+    def update(self, ui: UpdateGUI, image: Optional[str] = None) -> UpdateResult:
         self.updating = True
         result = Nk3Context(self.path).update(ui, image)
         if result.status == UpdateStatus.SUCCESS:

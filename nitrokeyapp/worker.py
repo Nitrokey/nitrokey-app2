@@ -13,10 +13,7 @@ from nitrokeyapp.common_ui import CommonUi
 class Job(QObject):
     finished = Signal()
 
-    def __init__(
-        self,
-        common_ui: CommonUi,
-    ) -> None:
+    def __init__(self, common_ui: CommonUi) -> None:
         super().__init__()
 
         self.common_ui = common_ui
