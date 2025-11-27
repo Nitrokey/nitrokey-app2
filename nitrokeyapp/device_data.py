@@ -7,7 +7,7 @@ from nitrokey.nkpk import NKPK
 from nitrokey.trussed import Model, TrussedBase, TrussedBootloader, TrussedDevice, Uuid, Version
 from nitrokey.trussed.admin_app import Status
 
-from nitrokeyapp.update import Nk3Context, UpdateGUI, UpdateResult, UpdateStatus
+from nitrokeyapp.update import UpdateContext, UpdateGUI, UpdateResult, UpdateStatus
 
 logger = logging.getLogger(__name__)
 
@@ -114,10 +114,10 @@ class DeviceData:
 
     def update(self, ui: UpdateGUI, image: Optional[str] = None) -> UpdateResult:
         self.updating = True
-        result = Nk3Context(self.path).update(ui, image)
+        result = UpdateContext(self.path, self.model).update(ui, image)
         if result.status == UpdateStatus.SUCCESS:
-            logger.info("Nitrokey 3 successfully updated")
+            logger.info(f"{self.model} successfully updated")
         else:
-            logger.error(f"Nitrokey 3 update failed: {result}")
+            logger.error(f"{self.model} update failed: {result}")
         self.updating = False
         return result

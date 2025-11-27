@@ -5,11 +5,8 @@ from enum import Enum
 from time import sleep
 from typing import TYPE_CHECKING, Any, Callable, Iterator, List, Optional, Type, TypeVar
 
-# Nitrokey 3
-from nitrokey.nk3 import NK3, NK3Bootloader
-from nitrokey.nk3 import list as list_nk3
-from nitrokey.nk3 import open as open_nk3
-from nitrokey.trussed import Model, TrussedBase, Variant, Version
+from nitrokey import trussed
+from nitrokey.trussed import Model, TrussedBase, TrussedBootloader, TrussedDevice, Version
 from nitrokey.trussed.admin_app import InitStatus
 from nitrokey.trussed.updates import DeviceHandler, Updater, UpdateUi, Warning
 from PySide6.QtCore import QCoreApplication
@@ -30,6 +27,7 @@ class UpdateStatus(Enum):
 
 @dataclass
 class UpdateResult:
+    model: Model
     status: UpdateStatus
     message: str | None = None
 
@@ -42,10 +40,11 @@ class UpdateException(Exception):
 
 
 class UpdateGUI(UpdateUi):
-    def __init__(self, common_ui: "CommonUi", is_qubesos: bool) -> None:
+    def __init__(self, common_ui: "CommonUi", model: Model, is_qubesos: bool) -> None:
         super().__init__()
 
         self.common_ui = common_ui
+        self.model = model
         self.is_qubesos = is_qubesos
 
         # blocking wait, set by parent during confirm-prompt
@@ -87,7 +86,7 @@ class UpdateGUI(UpdateUi):
 
     def confirm_download(self, current: Optional[Version], new: Version) -> None:
         res = self.run_confirm_dialog(
-            "Nitrokey 3 Firmware Update", f"Do you want to download the firmware version {new}?"
+            f"{self.model} Firmware Update", f"Do you want to download the firmware version {new}?"
         )
         if not res:
             logger.info("Cancel clicked (confirm download)")
@@ -98,21 +97,21 @@ class UpdateGUI(UpdateUi):
     def confirm_update(self, current: Optional[Version], new: Version) -> None:
         if self.is_qubesos:
             res = self.run_confirm_dialog(
-                "Nitrokey 3 Firmware Update",
-                "Please do not remove the Nitrokey 3 or insert any other "
-                + "Nitrokey 3 devices during the update. Doing so may "
-                + "damage the Nitrokey 3.\n\n"
+                f"{self.model} Firmware Update",
+                f"Please do not remove the {self.model} or insert any other "
+                + f"{self.model} devices during the update. Doing so may "
+                + f"damage the {self.model}.\n\n"
                 + "QubesOS is detected!\n\n"
-                + "After the touch prompt, the Nitrokey3 will be loaded into the bootloader. The Nitrokey must then be reattach to the current Qube.\n\n"
+                + f"After the touch prompt, the {self.model} will be loaded into the bootloader. The Nitrokey must then be reattach to the current Qube.\n\n"
                 + "Do you want to perform the firmware update now?",
             )
 
         else:
             res = self.run_confirm_dialog(
-                "Nitrokey 3 Firmware Update",
-                "Please do not remove the Nitrokey 3 or insert any other "
-                + "Nitrokey 3 devices during the update. Doing so may "
-                + "damage the Nitrokey 3. Do you want to perform the "
+                f"{self.model} Firmware Update",
+                f"Please do not remove the {self.model} or insert any other "
+                + f"{self.model} devices during the update. Doing so may "
+                + f"damage the {self.model}. Do you want to perform the "
                 + "firmware update now?",
             )
         if not res:
@@ -127,7 +126,7 @@ class UpdateGUI(UpdateUi):
 
     def confirm_update_same_version(self, version: Version) -> None:
         res = self.run_confirm_dialog(
-            "Nitrokey 3 Firmware Update",
+            f"{self.model} Firmware Update",
             "The version of the firmware image is the same as on the device."
             + "Do you want to continue anyway?",
         )
@@ -163,10 +162,6 @@ class UpdateGUI(UpdateUi):
         logger.info("requesting bootloader confirmation")
         self.common_ui.touch.start.emit()
 
-    # atm we dont need this
-    def prompt_variant(self) -> Variant:
-        raise NotImplementedError()
-
     @contextmanager
     def update_progress_bar(self) -> Iterator[Callable[[int, int], None]]:
         self.common_ui.touch.stop.emit()
@@ -184,17 +179,20 @@ class UpdateGUI(UpdateUi):
         yield self.common_ui.progress.progress.emit
 
 
-class Nk3Context(DeviceHandler):
-    def __init__(self, path: str) -> None:
+class UpdateContext(DeviceHandler):
+    def __init__(self, path: str, model: Model) -> None:
         self.path = path
-        logger.info(f"path: {path}")
+        self.model = model
+        logger.info(f"update for path: {path}, model: {model}")
         self.updating = False
 
     def connect(self) -> TrussedBase:
-        device = open_nk3(self.path)
+        device = trussed.open(self.path)
         # TODO: improve error handling
         if not device:
-            raise RuntimeError(f"Failed to open Nitrokey 3 device at {self.path}")
+            raise RuntimeError(f"Failed to open {self.model} device at {self.path}")
+        if device.model != self.model:
+            raise RuntimeError(f"Found {device.model} device at {self.path}, expected {self.model}")
         return device
 
     def _await(
@@ -207,7 +205,9 @@ class Nk3Context(DeviceHandler):
         for t in Retries(retries):
             logger.debug(f"Searching {name} device ({t})")
             try:
-                devices = [device for device in list_nk3() if isinstance(device, ty)]
+                devices = [
+                    device for device in trussed.list(model=self.model) if isinstance(device, ty)
+                ]
             except Exception:
                 # have to catch this, to avoid early exception-raise-out
                 devices = []
@@ -229,15 +229,15 @@ class Nk3Context(DeviceHandler):
         model: Model,
         retries: Optional[int] = 90,
         callback: Optional[Callable[[int, int], None]] = None,
-    ) -> NK3:
-        assert model == Model.NK3
+    ) -> TrussedDevice:
+        assert model == self.model
         assert retries is not None
-        return self._await("Nitrokey 3", NK3, retries, callback)
+        return self._await(str(model), TrussedDevice, retries, callback)  # type: ignore[type-abstract]
 
-    def await_bootloader(self, model: Model) -> NK3Bootloader:
-        assert model == Model.NK3
+    def await_bootloader(self, model: Model) -> TrussedBootloader:
+        assert model == self.model
         # mypy does not allow abstract types here, but this is still valid
-        return self._await("Nitrokey 3 bootloader", NK3Bootloader, 90, None)  # type: ignore
+        return self._await(f"{self.model} bootloader", TrussedBootloader, 90, None)  # type: ignore[type-abstract]
 
     def update(self, ui: UpdateGUI, image: Optional[str] = None) -> UpdateResult:
         try:
@@ -245,20 +245,21 @@ class Nk3Context(DeviceHandler):
                 updater = Updater(ui, self)
                 _, status = updater.update(device=device, image=image, update_version=None)
         except UpdateException as e:
-            return UpdateResult(status=e.status, message=str(e))
+            return UpdateResult(model=self.model, status=e.status, message=str(e))
         except Exception as e:
-            return UpdateResult(status=UpdateStatus.ERROR, message=str(e))
+            return UpdateResult(model=self.model, status=UpdateStatus.ERROR, message=str(e))
 
         if status.init_status is not None:
             if status.init_status & InitStatus.EXT_FLASH_NEED_REFORMAT:
                 logger.error(f"Problematic init status after update: {status.init_status}")
                 return UpdateResult(
+                    model=self.model,
                     status=UpdateStatus.ERROR,
                     message="External filesystem needs to be reformatted."
                     " Please contact support@nitrokey.com for more information on how to solve this issue.",
                 )
 
-        return UpdateResult(status=UpdateStatus.SUCCESS)
+        return UpdateResult(model=self.model, status=UpdateStatus.SUCCESS)
 
 
 class Try:
