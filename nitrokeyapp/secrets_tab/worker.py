@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict, Optional
 
+from nitrokey.nk3 import NK3
 from nitrokey.nk3.secrets_app import SecretsApp, SecretsAppException
 from nitrokey.trussed import Uuid
 from PySide6.QtCore import QObject, Signal, Slot
@@ -64,6 +65,8 @@ class CheckDeviceJob(Job):
         compatible = False
         try:
             with self.data.open() as device:
+                if not isinstance(device, NK3):
+                    return
                 secrets = SecretsApp(device)
                 try:
                     compatible = secrets._semver_equal_or_newer("4.11.0")
@@ -112,6 +115,8 @@ class VerifyPinJob(Job):
 
     def run(self) -> None:
         with self.data.open() as device:
+            if not isinstance(device, NK3):
+                return
             secrets = SecretsApp(device)
             select = secrets.select()
 
@@ -129,6 +134,8 @@ class VerifyPinJob(Job):
     @Slot(str)
     def pin_queried(self, pin: str) -> None:
         with self.data.open() as device:
+            if not isinstance(device, NK3):
+                return
             secrets = SecretsApp(device)
             try:
                 with self.touch_prompt():
@@ -145,6 +152,8 @@ class VerifyPinJob(Job):
     @Slot(str)
     def pin_chosen(self, pin: str) -> None:
         with self.data.open() as device:
+            if not isinstance(device, NK3):
+                return
             secrets = SecretsApp(device)
             with self.touch_prompt():
                 secrets.set_pin_raw(pin)
@@ -281,6 +290,8 @@ class EditCredentialJob(Job):
             new_cred_id += b"_"
 
         with self.data.open() as device:
+            if not isinstance(device, NK3):
+                return from_cred_id
             secrets = SecretsApp(device)
             with self.touch_prompt():
                 secrets.update_credential(cred_id=from_cred_id, new_name=new_cred_id)
@@ -290,6 +301,8 @@ class EditCredentialJob(Job):
     @Slot()
     def edit_credential_final(self) -> None:
         with self.data.open() as device:
+            if not isinstance(device, NK3):
+                return
             secrets = SecretsApp(device)
             with self.touch_prompt():
                 reg_data = {
@@ -370,6 +383,8 @@ class AddCredentialJob(Job):
             return
 
         with self.data.open() as device:
+            if not isinstance(device, NK3):
+                return
             secrets = SecretsApp(device)
             with self.touch_prompt():
                 reg_data = {
@@ -435,6 +450,8 @@ class DeleteCredentialJob(Job):
     @Slot()
     def delete_credential(self) -> None:
         with self.data.open() as device:
+            if not isinstance(device, NK3):
+                return
             secrets = SecretsApp(device)
             try:
                 secrets.delete(self.credential.id)
@@ -478,6 +495,8 @@ class GenerateOtpJob(Job):
     @Slot()
     def generate_otp(self) -> None:
         with self.data.open() as device:
+            if not isinstance(device, NK3):
+                return
             secrets = SecretsApp(device)
 
             challenge = None
@@ -532,6 +551,8 @@ class ListCredentialsJob(Job):
             self.spawn(verify_pin_job)
         else:
             with self.data.open() as device:
+                if not isinstance(device, NK3):
+                    return
                 secrets = SecretsApp(device)
                 credentials = Credential.list(secrets)
             self.credentials_listed.emit(credentials)
@@ -543,6 +564,8 @@ class ListCredentialsJob(Job):
             self.uncheck_checkbox.emit(True)
 
         with self.data.open() as device:
+            if not isinstance(device, NK3):
+                return
             secrets = SecretsApp(device)
             for credential in Credential.list(secrets):
                 credentials.append(credential)
@@ -584,6 +607,8 @@ class GetCredentialJob(Job):
     @Slot()
     def get_credential(self) -> None:
         with self.data.open() as device:
+            if not isinstance(device, NK3):
+                return
             secrets = SecretsApp(device)
             try:
                 pse = secrets.get_credential(self.credential.id)

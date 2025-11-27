@@ -1,12 +1,13 @@
 import logging
 from typing import List, Optional
 
-from nitrokey import nk3
-from nitrokey.nk3 import NK3, NK3Bootloader
-from nitrokey.trussed import TrussedBase, TrussedDevice, Uuid, Version
+from nitrokey import nk3, nkpk
+from nitrokey.nk3 import NK3
+from nitrokey.nkpk import NKPK
+from nitrokey.trussed import Model, TrussedBase, TrussedBootloader, TrussedDevice, Uuid, Version
 from nitrokey.trussed.admin_app import Status
 
-from nitrokeyapp.update import Nk3Context, UpdateGUI, UpdateResult, UpdateStatus
+from nitrokeyapp.update import UpdateContext, UpdateGUI, UpdateResult, UpdateStatus
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +15,7 @@ logger = logging.getLogger(__name__)
 class DeviceData:
     def __init__(self, device: TrussedBase) -> None:
         self.path = device.path
+        self.model = device.model
         self.updating = False
 
         self._status: Optional[Status] = None
@@ -35,18 +37,21 @@ class DeviceData:
 
     @classmethod
     def list(cls) -> List["DeviceData"]:
-        return [cls(dev) for dev in nk3.list()]
+        nk3_devices = [cls(dev) for dev in nk3.list()]
+        nkpk_devices = [cls(dev) for dev in nkpk.list()]
+        return nk3_devices + nkpk_devices
 
     @property
     def name(self) -> str:
         if self.is_bootloader:
             # desc = self.path.split("/")[-1]
-            return "Nitrokey 3 (BL)"
-        return f"Nitrokey 3: {self.uuid_prefix}"
+            return f"{self.model} (BL)"
+        else:
+            return f"{self.model}: {self.uuid_prefix}"
 
     @property
     def is_bootloader(self) -> bool:
-        return isinstance(self._device, NK3Bootloader)
+        return isinstance(self._device, TrussedBootloader)
 
     @property
     def is_too_old(self) -> bool:
@@ -94,20 +99,25 @@ class DeviceData:
         assert isinstance(self._device, TrussedDevice)
         return str(self.uuid)[:5]
 
-    def open(self) -> NK3:
-        device = NK3.open(self.path)
+    def open(self) -> TrussedDevice:
+        device: Optional[TrussedDevice] = None
+        if self.model == Model.NK3:
+            device = NK3.open(self.path)
+        elif self.model == Model.NKPK:
+            device = NKPK.open(self.path)
+
         if device:
             return device
         else:
             # TODO: improve error handling
-            raise RuntimeError(f"Failed to open device {self.uuid} at {self.path}")
+            raise RuntimeError(f"Failed to open {self.model} device {self.uuid} at {self.path}")
 
     def update(self, ui: UpdateGUI, image: Optional[str] = None) -> UpdateResult:
         self.updating = True
-        result = Nk3Context(self.path).update(ui, image)
+        result = UpdateContext(self.path, self.model).update(ui, image)
         if result.status == UpdateStatus.SUCCESS:
-            logger.info("Nitrokey 3 successfully updated")
+            logger.info(f"{self.model} successfully updated")
         else:
-            logger.error(f"Nitrokey 3 update failed: {result}")
+            logger.error(f"{self.model} update failed: {result}")
         self.updating = False
         return result

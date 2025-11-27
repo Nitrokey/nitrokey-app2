@@ -93,7 +93,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             self.ui.status_label.hide()
             self.ui.nk3_status.hide()
             self.ui.more_info.hide()
-            self.ui.nk3_label.setText("Nitrokey 3 Bootloader")
+            self.ui.nk3_label.setText(f"{data.model} Bootloader")
             self.status_error(InitStatus(0))
 
         else:
@@ -105,7 +105,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
                 str(data.status.variant.name),
                 str(data.status.init_status),
             )
-            self.ui.nk3_label.setText("Nitrokey 3")
+            self.ui.nk3_label.setText(str(data.model))
             if data.status.init_status is None:
                 self.ui.status_label.hide()
                 self.ui.nk3_status.hide()
@@ -133,14 +133,12 @@ class OverviewTab(QtUtilsMixIn, QWidget):
 
     def set_update_enabled(self, enabled: bool) -> None:
         tooltip = ""
-        if enabled:
-            ...
-        else:
+        if not enabled:
             self.hide_more_options()
             self.common_ui.info.info.emit(
-                "Please remove all Nitrokey 3 devices except the one you want to update."
+                "Please remove all Nitrokey devices except the one you want to update."
             )
-            tooltip = "Please remove all Nitrokey 3 devices except the one you want to update."
+            tooltip = "Please remove all Nitrokey devices except the one you want to update."
 
         self.ui.btn_update.setEnabled(enabled)
         self.ui.btn_update.setToolTip(tooltip)
@@ -200,11 +198,11 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             msg = ": " + result.message
 
         if result.status == UpdateStatus.SUCCESS:
-            self.common_ui.info.info.emit(f"Nitrokey 3 successfully updated{msg}")
+            self.common_ui.info.info.emit(f"{result.model} successfully updated{msg}")
         elif result.status == UpdateStatus.ERROR:
-            self.common_ui.info.error.emit(f"Nitrokey 3 update failed{msg}")
+            self.common_ui.info.error.emit(f"{result.model} update failed{msg}")
         elif result.status == UpdateStatus.ABORTED:
-            self.common_ui.info.error.emit(f"Nitrokey 3 update aborted{msg}")
+            self.common_ui.info.error.emit(f"{result.model} update aborted{msg}")
         else:
             self.common_ui.info.error.emit(f"Unexpected update result: {result.status}{msg}")
 
