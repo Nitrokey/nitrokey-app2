@@ -24,7 +24,7 @@ class UpdateDevice(Job):
 
         self.device_updated.connect(lambda _: self.finished.emit())
 
-        self.update_gui = UpdateGUI(self.common_ui, self.is_qubesos)
+        self.update_gui = UpdateGUI(self.common_ui, data.model, self.is_qubesos)
         self.common_ui.prompt.confirmed.connect(self.cancel_busy_wait)
 
     def run(self) -> None:

@@ -133,16 +133,12 @@ class OverviewTab(QtUtilsMixIn, QWidget):
 
     def set_update_enabled(self, enabled: bool) -> None:
         tooltip = ""
-        if enabled:
-            if self.data and self.data.model == Model.NKPK:
-                enabled = False
-                tooltip = "Nitrokey Passkeys can't be updated with this version of the Nitrokey App."
-        else:
+        if not enabled:
             self.hide_more_options()
             self.common_ui.info.info.emit(
-                "Please remove all Nitrokey 3 devices except the one you want to update."
+                "Please remove all Nitrokey devices except the one you want to update."
             )
-            tooltip = "Please remove all Nitrokey 3 devices except the one you want to update."
+            tooltip = "Please remove all Nitrokey devices except the one you want to update."
 
         self.ui.btn_update.setEnabled(enabled)
         self.ui.btn_update.setToolTip(tooltip)
@@ -202,11 +198,11 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             msg = ": " + result.message
 
         if result.status == UpdateStatus.SUCCESS:
-            self.common_ui.info.info.emit(f"Nitrokey 3 successfully updated{msg}")
+            self.common_ui.info.info.emit(f"{result.model} successfully updated{msg}")
         elif result.status == UpdateStatus.ERROR:
-            self.common_ui.info.error.emit(f"Nitrokey 3 update failed{msg}")
+            self.common_ui.info.error.emit(f"{result.model} update failed{msg}")
         elif result.status == UpdateStatus.ABORTED:
-            self.common_ui.info.error.emit(f"Nitrokey 3 update aborted{msg}")
+            self.common_ui.info.error.emit(f"{result.model} update aborted{msg}")
         else:
             self.common_ui.info.error.emit(f"Unexpected update result: {result.status}{msg}")
 
