@@ -87,7 +87,7 @@ jobs:
       - name: Install required packages
         run: |
           dnf makecache
-          dnf install -y gcc make python python-pip python3-devel rpm-build systemd-devel which
+          dnf install -y gcc libffi-devel make python python-pip python3-devel rpm-build systemd-devel which
           pip install poetry
       - name: Create virtual environment
         run: make init
