@@ -57,7 +57,7 @@ jobs:
     name: Sign onedir
     runs-on:
       group: "Windows Software Signing"
-      labels: ["self-hosted", "Linux", "X64"]
+      labels: ["self-hosted", "Linux", "ARM64"]
     needs: [build-onedir, version-check]
     if: github.event_name == 'release'
     steps:
@@ -138,7 +138,7 @@ jobs:
     name: Sign MSI installer
     runs-on:
       group: "Windows Software Signing"
-      labels: ["self-hosted", "Linux", "X64"]
+      labels: ["self-hosted", "Linux", "ARM64"]
     needs: build-msi-installer
     if: github.event_name == 'release'
     steps:
