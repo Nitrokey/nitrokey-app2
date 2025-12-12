@@ -71,8 +71,8 @@ jobs:
           mv dist/nitrokey-app/nitrokey-app.exe nitrokey-app_unsigned.exe
           osslsigncode \
             sign \
-            -provider /usr/lib/x86_64-linux-gnu/engines-3/pkcs11.so \
-            -pkcs11module /usr/lib/x86_64-linux-gnu/opensc-pkcs11.so \
+            -provider /usr/lib/aarch64-linux-gnu/engines-3/pkcs11.so \
+            -pkcs11module /usr/lib/aarch64-linux-gnu/opensc-pkcs11.so \
             -pkcs11cert "${{ secrets.PKCS11_CERT_URI_WINDOWS }}" \
             -key "${{ secrets.PKCS11_KEY_URI_WINDOWS }}" \
             -h sha256 \
@@ -151,8 +151,8 @@ jobs:
           mv nitrokey-app.msi nitrokey-app_unsigned.msi
           osslsigncode \
             sign \
-            -provider /usr/lib/x86_64-linux-gnu/engines-3/pkcs11.so \
-            -pkcs11module /usr/lib/x86_64-linux-gnu/opensc-pkcs11.so \
+            -provider /usr/lib/aarch64-linux-gnu/engines-3/pkcs11.so \
+            -pkcs11module /usr/lib/aarch64-linux-gnu/opensc-pkcs11.so \
             -pkcs11cert "${{ secrets.PKCS11_CERT_URI_WINDOWS }}" \
             -key "${{ secrets.PKCS11_KEY_URI_WINDOWS }}" \
             -h sha256 \
