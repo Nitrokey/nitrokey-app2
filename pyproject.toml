@@ -33,10 +33,12 @@ classifiers = [
 
 [tool.poetry.dependencies]
 fido2 = "^2"
-nitrokey = "^0.4"
+# "nitrokey >=0.4.2, <0.5"
+nitrokey = { git =  "https://github.com/Nitrokey/nitrokey-sdk-py.git", rev =  "a841f9f6d4ed6f767b949e15da481952970c4ff5" }
 pySide6 = ">=6.6.0"
 pywin32 = { version = ">=305", markers = "sys_platform =='win32'" }
 usb-monitor = "^1.21"
+pyscard = { version = ">=2, <3", markers = "sys_platform == 'win32'"}
 
 [tool.poetry.group.dev.dependencies]
 PySide6-stubs = "^6.4.2"

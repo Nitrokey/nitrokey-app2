@@ -564,26 +564,33 @@ files = [
 
 [[package]]
 name = "nitrokey"
-version = "0.4.0"
+version = "0.4.2"
 description = "Nitrokey Python SDK"
 optional = false
-python-versions = "<4,>=3.10"
+python-versions = ">=3.10, <4"
 groups = ["main"]
-files = [
-    {file = "nitrokey-0.4.0-py3-none-any.whl", hash = "sha256:743a660042999c6298e394df3822e16f57e4898fa37bd20a916569faef58816a"},
-    {file = "nitrokey-0.4.0.tar.gz", hash = "sha256:b99dca17ef0f530563c1fef76ee169abfe85bbe7ea91f21e70fdc0df7166b4a9"},
-]
+files = []
+develop = false
 
 [package.dependencies]
 crcmod = ">=1.7,<2"
 cryptography = ">=41"
 fido2 = ">=1.1.2,<3"
 hidapi = ">=0.14,<0.15"
-protobuf = ">=5.26,<6"
+protobuf = ">=5.26,<7"
 pyserial = ">=3.5,<4"
 requests = ">=2.16,<3"
 semver = ">=3,<4"
 tlv8 = ">=0.10,<0.11"
+
+[package.extras]
+pcsc = ["pyscard (>=2,<3)"]
+
+[package.source]
+type = "git"
+url = "https://github.com/Nitrokey/nitrokey-sdk-py.git"
+reference = "a841f9f6d4ed6f767b949e15da481952970c4ff5"
+resolved_reference = "a841f9f6d4ed6f767b949e15da481952970c4ff5"
 
 [[package]]
 name = "packaging"
@@ -712,6 +719,39 @@ files = [
 Jinja2 = "*"
 packaging = "*"
 PyYAML = "*"
+
+[[package]]
+name = "pyscard"
+version = "2.3.1"
+description = "Smartcard module for Python."
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+markers = "sys_platform == \"win32\""
+files = [
+    {file = "pyscard-2.3.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:5bd277142644441cba8fe71bc991fe83108147f3ba22c01e8b9a5a3f41a31f69"},
+    {file = "pyscard-2.3.1-cp310-cp310-win32.whl", hash = "sha256:717ea958ee77d7d4514ff0a6eb238082f9437e7882479ee6f742bb9db54419d4"},
+    {file = "pyscard-2.3.1-cp310-cp310-win_amd64.whl", hash = "sha256:91b27548eddcd6c21f115d5e6151ced9b348aae989b0e4fcc1ad4c479e61610c"},
+    {file = "pyscard-2.3.1-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:341eca9151318093d5543fa812736546de19020d214e01aff9bbc231d1429949"},
+    {file = "pyscard-2.3.1-cp311-cp311-win32.whl", hash = "sha256:be78734964621b59f8b63c90b822169dc804571df57f574733ccf585a31769af"},
+    {file = "pyscard-2.3.1-cp311-cp311-win_amd64.whl", hash = "sha256:52da45a3becfb6807dcd9427d763aeb154c9c9e9ad324a13a2bf322fa31baca5"},
+    {file = "pyscard-2.3.1-cp311-cp311-win_arm64.whl", hash = "sha256:e228c78e028b74e5411a604c765852bdc8fd04321f03e62d25cad8e90de27597"},
+    {file = "pyscard-2.3.1-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:acb9f4842cb08110d916e7e37ef225c755a1da627017364c55df547b6f187dcf"},
+    {file = "pyscard-2.3.1-cp312-cp312-macosx_15_0_x86_64.whl", hash = "sha256:abf5091d5067ac4945eb2a283b60bddce7530595e585868449da12d3b9e885ee"},
+    {file = "pyscard-2.3.1-cp312-cp312-win32.whl", hash = "sha256:c5d9fde122ffd41a74af72364166e8b23760230163e20c4c130aa0616bf4a786"},
+    {file = "pyscard-2.3.1-cp312-cp312-win_amd64.whl", hash = "sha256:561889413866141b3a44099f043d10344ee64b0604d2fecb275975b54aa584c6"},
+    {file = "pyscard-2.3.1-cp312-cp312-win_arm64.whl", hash = "sha256:06ae5e5421a5dd380e8c80046b4242e7b98ed381247117f4cf2c1c8328f74bce"},
+    {file = "pyscard-2.3.1-cp313-cp313-macosx_10_13_universal2.whl", hash = "sha256:c11a596407e18cdcf16a4ccd8cdeaa55846d4f7ec2eefc529483e201f6906658"},
+    {file = "pyscard-2.3.1-cp313-cp313-macosx_15_0_x86_64.whl", hash = "sha256:72b1ab922fad5e050144ec72762e36741271b09d2389cda9b976b61ee0564e71"},
+    {file = "pyscard-2.3.1-cp313-cp313-win32.whl", hash = "sha256:a0b59d1961ff9fb15d980ad64edae13e4512b7e641ea8959e86133f34091aa5c"},
+    {file = "pyscard-2.3.1-cp313-cp313-win_amd64.whl", hash = "sha256:df2b256bc719b701807114bdd179f7b303f309a954d5689188b088adfc33ead2"},
+    {file = "pyscard-2.3.1-cp313-cp313-win_arm64.whl", hash = "sha256:f58b46cd78455a29a0abceabff21b37da81a385a737b29e6dd5e25acb7e3f3da"},
+    {file = "pyscard-2.3.1-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:a36bab071c6f4b1d74a8778a784ccf3cc04bf35a6c677bce15e70fdbeac5b932"},
+    {file = "pyscard-2.3.1.tar.gz", hash = "sha256:a24356f57a0a950740b6e54f51f819edd5296ee8892a6625b0da04724e9e6c13"},
+]
+
+[package.extras]
+gui = ["wxPython"]
 
 [[package]]
 name = "pyserial"
@@ -1121,4 +1161,4 @@ tests = ["pytest"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.15"
-content-hash = "60a49707a6025719ec0fbcef21c95d1f173cd1aa3b11d05cf80e9daaffed7392"
+content-hash = "f10cca8cfff8592d585f362461a85216f65ed1602e4414b3812d84df17d75583"
