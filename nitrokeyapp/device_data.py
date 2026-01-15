@@ -1,6 +1,6 @@
 import logging
 import traceback
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from nitrokey import nk3
 from nitrokey.nk3 import NK3, NK3Bootloader
@@ -12,14 +12,19 @@ from nitrokeyapp.update import Nk3Context, UpdateGUI, UpdateResult, UpdateStatus
 logger = logging.getLogger(__name__)
 
 
+# Wrapper over the NK3 class that does not connect/disconnect on __enter__
+# and __exit__.
+#
+# This allows keeping only one connection running for each device and not re-open
+# the connection each time
 class CcidNk3Wrapper(NK3):
     def __init__(self, inner: NK3) -> None:
         self.inner = inner
 
-    def __getattribute__(self, name: str):
+    def __getattribute__(self, name: str) -> Any:
         getattr(self.inner, name)
 
-    def __enter__(self: T) -> T:
+    def __enter__(self) -> Any:
         return self
 
     def __exit__(self, exc_type: None, exc_val: None, exc_tb: None) -> None:
@@ -119,6 +124,9 @@ class DeviceData:
 
     def open(self) -> NK3:
         print(f"Cloning DEVICE: {self._device} {''.join(traceback.format_stack())}")
+        if not isinstance(self._device, NK3):
+            raise RuntimeError("Trying to open a device that is a bootloader")
+
         if self._using_ccid:
             device = NK3.clone(self._device, exclusive=True)
             if device:
@@ -131,6 +139,10 @@ class DeviceData:
 
     def update(self, ui: UpdateGUI, image: Optional[str] = None) -> UpdateResult:
         self.updating = True
+        if self.path is None:
+            return UpdateResult(
+                UpdateStatus.ERROR, "Administrator rights are required for updating"
+            )
         result = Nk3Context(self.path).update(ui, image)
         if result.status == UpdateStatus.SUCCESS:
             logger.info("Nitrokey 3 successfully updated")

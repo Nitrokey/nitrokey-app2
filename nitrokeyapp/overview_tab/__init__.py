@@ -2,8 +2,8 @@ import logging
 import shutil
 from typing import Optional
 
-from nitrokey.trussed.admin_app import InitStatus
 from nitrokey.trussed import should_default_ccid
+from nitrokey.trussed.admin_app import InitStatus
 from PySide6.QtCore import QThread, Signal, Slot
 from PySide6.QtWidgets import QFileDialog, QWidget
 
@@ -52,7 +52,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         self.ui.btn_more_options.clicked.connect(self.more_options)
         self.ui.btn_update.clicked.connect(self.run_update)
 
-        self.using_ccid  = should_default_ccid()
+        self.using_ccid = should_default_ccid()
 
         self.reset()
 
