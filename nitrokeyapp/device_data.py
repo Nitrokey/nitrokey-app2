@@ -1,5 +1,4 @@
 import logging
-import traceback
 from typing import Any, List, Optional
 
 from nitrokey import nk3
@@ -22,7 +21,7 @@ class CcidNk3Wrapper(NK3):
         self.inner = inner
 
     def __getattribute__(self, name: str) -> Any:
-        getattr(self.inner, name)
+        return getattr(self.inner, name)
 
     def __enter__(self) -> Any:
         return self
@@ -57,13 +56,7 @@ class DeviceData:
     @classmethod
     def list(cls) -> List["DeviceData"]:
         use_ccid = should_default_ccid()
-        try:
-            tmp = [cls(dev, use_ccid) for dev in nk3.list(use_ccid, exclusive=False)]
-        except Exception as e:
-            print("ERROR: ", e)
-            raise e
-        print(tmp)
-        return tmp
+        return [cls(dev, use_ccid) for dev in nk3.list(use_ccid, exclusive=False)]
 
     @property
     def name(self) -> str:
@@ -123,11 +116,10 @@ class DeviceData:
         return str(self.uuid)[:5]
 
     def open(self) -> NK3:
-        print(f"Cloning DEVICE: {self._device} {''.join(traceback.format_stack())}")
         if not isinstance(self._device, NK3):
             raise RuntimeError("Trying to open a device that is a bootloader")
 
-        if self._using_ccid:
+        if not self._using_ccid:
             device = NK3.clone(self._device, exclusive=True)
             if device:
                 return device
