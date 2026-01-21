@@ -5,7 +5,7 @@ from types import TracebackType
 from typing import Dict, Optional, Type
 
 from PySide6 import QtWidgets
-from PySide6.QtCore import QEvent, Qt, Signal, Slot
+from PySide6.QtCore import QEvent, Qt, QTimer, Signal, Slot
 from PySide6.QtGui import QCursor
 from usbmonitor import USBMonitor
 
@@ -83,6 +83,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.settings_tab = SettingsTab(self)
 
         self.views: list[DeviceView] = [self.overview_tab, self.secrets_tab, self.settings_tab]
+        self.busy_count = 0
         for view in self.views:
             if view.worker:
                 view.worker.busy_state_changed.connect(self.set_busy)
@@ -290,13 +291,24 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def home_button_pressed(self) -> None:
         self.hide_device()
 
+    @Slot()
+    def set_busy_after_delay(self) -> None:
+        if self.busy_count == 0:
+            return
+
+        self.setCursor(QCursor(Qt.CursorShape.WaitCursor))
+        self.home_button.setEnabled(False)
+        self.tabs.setEnabled(False)
+
     @Slot(bool)
     def set_busy(self, busy: bool) -> None:
         if busy:
-            self.setCursor(QCursor(Qt.CursorShape.WaitCursor))
-            self.home_button.setEnabled(False)
-            self.tabs.setEnabled(False)
+            self.busy_count = self.busy_count + 1
+            QTimer.singleShot(100, self.set_busy_after_delay)
         else:
+            self.busy_count = self.busy_count - 1
+
+        if self.busy_count == 0:
             self.unsetCursor()
             self.home_button.setEnabled(True)
             self.tabs.setEnabled(True)
