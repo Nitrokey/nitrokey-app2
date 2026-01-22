@@ -122,7 +122,7 @@ jobs:
     if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.8
+      image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.10
       options: --privileged
     steps:
     - name: Checkout nkapp2 flathub repository
@@ -137,7 +137,7 @@ jobs:
         bash ./update.sh ${{ github.sha }}
         make
     - name: Build the flatpak bundle
-      uses: flatpak/flatpak-github-actions/flatpak-builder@v6.5
+      uses: flatpak/flatpak-github-actions/flatpak-builder@v6.6
       with:
         bundle: nkapp2.flatpak
         manifest-path: flatpak-build/com.nitrokey.nitrokey-app2.yml
