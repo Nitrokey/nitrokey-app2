@@ -227,11 +227,10 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             self.view_reset(item)
 
     def collapse_all_except(self, item: QTreeWidgetItem) -> None:
-        top_level_items = self.ui.settings_tree.invisibleRootItem().takeChildren()
-        for top_level_item in top_level_items:
+        for idx in range(self.ui.settings_tree.invisibleRootItem().childCount()):
+            top_level_item = self.ui.settings_tree.invisibleRootItem().child(idx)
             if top_level_item is not item.parent():
                 top_level_item.setExpanded(False)
-        self.ui.settings_tree.invisibleRootItem().addChildren(top_level_items)
 
     def update_status_form(self, data: Optional[List[Tuple[str, str]]] = None) -> None:
         if data is not None:
