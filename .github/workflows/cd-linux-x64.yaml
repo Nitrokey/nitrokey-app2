@@ -1,4 +1,4 @@
-name: Continuous delivery - Linux
+name: Continuous delivery - Linux (x64)
 
 on:
   pull_request:
