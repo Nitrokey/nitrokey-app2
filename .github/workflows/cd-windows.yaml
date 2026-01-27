@@ -39,6 +39,8 @@ jobs:
         run: choco install poetry --source python
       - name: Create virtual environment
         run: poetry install
+      - name: Create virtual environment
+        run: poetry install --extras pcsc 
       - name: Create Windows version info file
         run: |
           poetry run create-version-file `

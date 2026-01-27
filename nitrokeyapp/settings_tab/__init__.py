@@ -185,6 +185,9 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         has_passwords = self.data.model == Model.NK3
         for state in [State.Passwords, State.PasswordsPin, State.PasswordsReset]:
             self.items[state].setHidden(not has_passwords)
+        has_fido = not self.data._using_ccid
+        for state in [State.Fido, State.FidoPin, State.FidoReset]:
+            self.items[state].setHidden(not has_fido)
 
     def field_btn(self) -> None:
         icon_visibility = self.get_qicon("visibility_off.svg")
