@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [project]
 name = "nitrokeyapp"
-version = "2.4.3"
+version = "2.5.0"
 description = "Graphical application to manage Nitrokey devices"
 authors = [
   { name = "Nitrokey", email = "pypi@nitrokey.com" },
