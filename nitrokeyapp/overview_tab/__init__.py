@@ -10,6 +10,7 @@ from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.update import UpdateResult, UpdateStatus
+from nitrokeyapp.utils import should_use_ccid
 from nitrokeyapp.worker import Worker
 
 from .worker import OverviewWorker
@@ -50,6 +51,8 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         self.ui.btn_update_with_file.clicked.connect(self.update_with_file)
         self.ui.btn_more_options.clicked.connect(self.more_options)
         self.ui.btn_update.clicked.connect(self.run_update)
+
+        self.using_ccid = should_use_ccid()
 
         self.reset()
 
@@ -133,6 +136,14 @@ class OverviewTab(QtUtilsMixIn, QWidget):
 
     def set_update_enabled(self, enabled: bool) -> None:
         tooltip = ""
+        btn_really_enabled = enabled and not self.using_ccid
+        if enabled and self.using_ccid:
+            self.hide_more_options()
+            self.common_ui.info.info.emit(
+                "Please restart the application as an administrator to be able to update"
+            )
+            tooltip = "Please restart the application as an administrator to be able to update"
+
         if not enabled:
             self.hide_more_options()
             self.common_ui.info.info.emit(
@@ -140,9 +151,9 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             )
             tooltip = "Please remove all Nitrokey devices except the one you want to update."
 
-        self.ui.btn_update.setEnabled(enabled)
+        self.ui.btn_update.setEnabled(btn_really_enabled)
         self.ui.btn_update.setToolTip(tooltip)
-        self.ui.btn_more_options.setEnabled(enabled)
+        self.ui.btn_more_options.setEnabled(btn_really_enabled)
         self.ui.btn_more_options.setToolTip(tooltip)
 
     def update_btns_during_update(self, enabled: bool) -> None:
