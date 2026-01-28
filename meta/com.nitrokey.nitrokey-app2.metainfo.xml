@@ -46,6 +46,7 @@
   <url type="homepage">https://www.nitrokey.com/</url>
   <url type="bugtracker">https://github.com/Nitrokey/nitrokey-app2/issues</url>
   <url type="help">https://docs.nitrokey.com/software/nk-app2</url>
+  <url type="vcs-browser">https://github.com/Nitrokey/nitrokey-app2</url>
   <screenshots>
     <screenshot type="default">
       <image>https://github.com/Nitrokey/nitrokey-app2/blob/main/meta/screenshot.png?raw=true</image>
