@@ -632,11 +632,11 @@ class SecretsWorker(Worker):
     otp_generated = Signal(OtpData)
     received_credential = Signal(Credential)
 
-    def __init__(self, common_ui: CommonUi, widget: QWidget) -> None:
+    def __init__(self, common_ui: CommonUi, app_widget: QWidget) -> None:
         super().__init__(common_ui)
 
         self.pin_cache = PinCache()
-        self.pin_ui = PinUi(widget)
+        self.pin_ui = PinUi(app_widget)
 
     @Slot(DeviceData)
     def check_device(self, data: DeviceData) -> None:

@@ -10,15 +10,15 @@ class PinUi(QObject):
     chosen = Signal(str)
     cancelled = Signal()
 
-    def __init__(self, parent: QWidget) -> None:
-        super().__init__(parent)
+    def __init__(self, app_widget: QWidget) -> None:
+        super().__init__(app_widget)
 
-        self.parent_widget = parent
+        self.app_widget = app_widget
 
     @Slot(int)
     def query(self, attempts: int) -> None:
         pin, ok = QInputDialog.getText(
-            self.parent_widget,
+            self.app_widget,
             "Enter Passwords PIN",
             f"Please enter the Passwords PIN (remaining retries: {attempts}):",
             QLineEdit.EchoMode.Password,
@@ -32,7 +32,7 @@ class PinUi(QObject):
     def choose(self) -> None:
         # TODO: confirm
         pin, ok = QInputDialog.getText(
-            self.parent_widget,
+            self.app_widget,
             "Set Passwords PIN",
             "Please enter the new PIN for Passwords:",
             QLineEdit.EchoMode.Password,
