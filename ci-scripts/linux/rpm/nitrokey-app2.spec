@@ -1,5 +1,5 @@
 Name:           nitrokey-app2
-Version:        2.5.0
+Version:        2.5.1
 Release:        %autorelease
 Summary:        Graphical application to manage Nitrokey 3 devices
 
