@@ -187,7 +187,7 @@ class UpdateContext(DeviceHandler):
         self.updating = False
 
     def connect(self) -> TrussedBase:
-        device = trussed.open(self.path)
+        device = trussed.open(path=self.path, model=self.model)
         # TODO: improve error handling
         if not device:
             raise RuntimeError(f"Failed to open {self.model} device at {self.path}")
