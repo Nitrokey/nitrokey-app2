@@ -66,14 +66,14 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     trigger_get_credential = Signal(DeviceData, Credential)
     trigger_edit_credential = Signal(DeviceData, Credential, bytes, bytes)
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, parent: QWidget) -> None:
         QWidget.__init__(self, parent)
         QtUtilsMixIn.__init__(self)
 
         self.common_ui = CommonUi()
 
         self.worker_thread = QThread()
-        self._worker = SecretsWorker(self.common_ui, self)
+        self._worker = SecretsWorker(self.common_ui, parent)
         self._worker.moveToThread(self.worker_thread)
         self.worker_thread.start()
 
