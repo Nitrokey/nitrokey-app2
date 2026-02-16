@@ -71,7 +71,7 @@ SETTINGS: Dict[State, Dict] = {
         "parent": State.Passwords,
         "icon": RESET_ICON,
         "name": "Factory Reset",
-        "desc": "This operation will unevitably remove all your credentials " + "in Passwords!",
+        "desc": "This operation will inevitably remove all your credentials in Passwords!",
     },
 }
 
