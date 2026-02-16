@@ -246,7 +246,6 @@
          </property>
          <property name="font">
           <font>
-           <family>OpenSymbol</family>
            <pointsize>16</pointsize>
            <bold>true</bold>
           </font>
