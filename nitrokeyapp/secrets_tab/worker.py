@@ -140,14 +140,14 @@ class VerifyPinJob(Job):
             try:
                 with self.touch_prompt():
                     secrets.verify_pin_raw(pin)
-                self.pin_cache.update(self.data, pin)
-                self.pin_verified.emit(True)
             except SecretsAppException as e:
                 self.pin_cache.clear()
                 # TODO: repeat on failure
                 # TODO: check error code
                 # TODO: improve error message
                 self.trigger_error(f"PIN validation failed: {e}")
+            self.pin_cache.update(self.data, pin)
+            self.pin_verified.emit(True)
 
     @Slot(str)
     def pin_chosen(self, pin: str) -> None:

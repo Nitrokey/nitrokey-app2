@@ -30,6 +30,12 @@ class State(Enum):
 
     NotAvailable = 99
 
+    def only_over_ctaphip(self) -> bool:
+        if self == State.Fido or self == State.FidoPin or self == State.FidoReset:
+            return True
+        else:
+            return False
+
 
 PIN_ICON = QtUtilsMixIn.get_qicon("dialpad.svg")
 RESET_ICON = QtUtilsMixIn.get_qicon("refresh.svg")
@@ -185,6 +191,9 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         has_passwords = self.data.model == Model.NK3
         for state in [State.Passwords, State.PasswordsPin, State.PasswordsReset]:
             self.items[state].setHidden(not has_passwords)
+        has_fido = not self.data._using_ccid
+        for state in [State.Fido, State.FidoPin, State.FidoReset]:
+            self.items[state].setHidden(not has_fido)
 
     def field_btn(self) -> None:
         icon_visibility = self.get_qicon("visibility_off.svg")
