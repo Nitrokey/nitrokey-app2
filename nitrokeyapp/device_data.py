@@ -1,5 +1,5 @@
 import logging
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from nitrokey import nk3, nkpk
 from nitrokey.nk3 import NK3
@@ -8,12 +8,41 @@ from nitrokey.trussed import Model, TrussedBase, TrussedBootloader, TrussedDevic
 from nitrokey.trussed.admin_app import Status
 
 from nitrokeyapp.update import UpdateContext, UpdateGUI, UpdateResult, UpdateStatus
+from nitrokeyapp.utils import should_use_ccid
 
 logger = logging.getLogger(__name__)
 
 
+class CcidNK3Wrapper(NK3):
+    def __init__(self, inner: NK3) -> None:
+        self.inner = inner
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self.inner, name)
+
+    def __enter__(self) -> Any:
+        return self
+
+    def __exit__(self, exc_type: None, exc_val: None, exc_tb: None) -> None:
+        pass
+
+
+class CcidNKPKWrapper(NKPK):
+    def __init__(self, inner: NKPK) -> None:
+        self.inner = inner
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self.inner, name)
+
+    def __enter__(self) -> Any:
+        return self
+
+    def __exit__(self, exc_type: None, exc_val: None, exc_tb: None) -> None:
+        pass
+
+
 class DeviceData:
-    def __init__(self, device: TrussedBase) -> None:
+    def __init__(self, device: TrussedBase, using_ccid: bool) -> None:
         self.path = device.path
         self.model = device.model
         self.updating = False
@@ -22,6 +51,7 @@ class DeviceData:
         self._uuid: Optional[Uuid] = None
         self._version: Optional[Version] = None
         self._device = device
+        self._using_ccid = using_ccid
 
     def __repr__(self) -> str:
         fields = {
@@ -37,8 +67,10 @@ class DeviceData:
 
     @classmethod
     def list(cls) -> List["DeviceData"]:
-        nk3_devices = [cls(dev) for dev in nk3.list()]
-        nkpk_devices = [cls(dev) for dev in nkpk.list()]
+        use_ccid = should_use_ccid()
+
+        nk3_devices = [cls(dev, use_ccid) for dev in nk3.list(use_ccid, exclusive=True)]
+        nkpk_devices = [cls(dev, use_ccid) for dev in nkpk.list(use_ccid, exclusive=True)]
         return nk3_devices + nkpk_devices
 
     @property
@@ -101,18 +133,35 @@ class DeviceData:
 
     def open(self) -> TrussedDevice:
         device: Optional[TrussedDevice] = None
-        if self.model == Model.NK3:
-            device = NK3.open(self.path)
-        elif self.model == Model.NKPK:
-            device = NKPK.open(self.path)
+        if self.is_bootloader:
+            raise RuntimeError("Trying to open a device that is a bootloader")
 
-        if device:
-            return device
+        if not self._using_ccid:
+            assert self.path is not None
+            if self.model == Model.NK3:
+                device = NK3.open(self.path)
+            elif self.model == Model.NKPK:
+                device = NKPK.open(self.path)
+
+            if device:
+                return device
+            else:
+                # TODO: improve error handling
+                raise RuntimeError(f"Failed to open {self.model} device {self.uuid} at {self.path}")
         else:
-            # TODO: improve error handling
-            raise RuntimeError(f"Failed to open {self.model} device {self.uuid} at {self.path}")
+            if isinstance(self._device, NK3):
+                return CcidNK3Wrapper(self._device)
+            elif isinstance(self._device, NKPK):
+                return CcidNKPKWrapper(self._device)
+            else:
+                raise RuntimeError(f"Unknown device model {self._device}")
 
     def update(self, ui: UpdateGUI, image: Optional[str] = None) -> UpdateResult:
+        if self.path is None:
+            return UpdateResult(
+                self.model, UpdateStatus.ERROR, "Administrator rights are required for updating"
+            )
+
         self.updating = True
         result = UpdateContext(self.path, self.model).update(ui, image)
         if result.status == UpdateStatus.SUCCESS:
