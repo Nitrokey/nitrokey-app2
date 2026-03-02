@@ -1,6 +1,7 @@
 import logging
+from contextlib import AbstractContextManager
 from types import TracebackType
-from typing import Any, List, Optional
+from typing import Generic, List, Optional, TypeVar
 
 from nitrokey import nk3, nkpk
 from nitrokey.nk3 import NK3
@@ -13,35 +14,15 @@ from nitrokeyapp.utils import should_use_ccid
 
 logger = logging.getLogger(__name__)
 
+T = TypeVar("T")
 
-class CcidNK3Wrapper(NK3):
-    def __init__(self, inner: NK3) -> None:
+
+class NoCloseWrapper(Generic[T]):
+    def __init__(self, inner: AbstractContextManager[T]) -> None:
         self.inner = inner
 
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self.inner, name)
-
-    def __enter__(self) -> Any:
-        return self
-
-    def __exit__(
-        self,
-        exc_type: Optional[type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
-    ) -> None:
-        pass
-
-
-class CcidNKPKWrapper(NKPK):
-    def __init__(self, inner: NKPK) -> None:
-        self.inner = inner
-
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self.inner, name)
-
-    def __enter__(self) -> Any:
-        return self
+    def __enter__(self) -> T:
+        return self.inner.__enter__()
 
     def __exit__(
         self,
@@ -142,7 +123,7 @@ class DeviceData:
         assert isinstance(self._device, TrussedDevice)
         return str(self.uuid)[:5]
 
-    def open(self) -> TrussedDevice:
+    def open(self) -> AbstractContextManager[TrussedDevice]:
         device: Optional[TrussedDevice] = None
         if self.is_bootloader:
             raise RuntimeError("Trying to open a device that is a bootloader")
@@ -161,9 +142,9 @@ class DeviceData:
                 raise RuntimeError(f"Failed to open {self.model} device {self.uuid} at {self.path}")
         else:
             if isinstance(self._device, NK3):
-                return CcidNK3Wrapper(self._device)
+                return NoCloseWrapper(self._device)
             elif isinstance(self._device, NKPK):
-                return CcidNKPKWrapper(self._device)
+                return NoCloseWrapper(self._device)
             else:
                 raise RuntimeError(f"Unknown device model {self._device}")
 
