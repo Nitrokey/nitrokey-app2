@@ -2,6 +2,7 @@ import logging
 
 from fido2.ctap2.base import Ctap2, Info
 from fido2.ctap2.pin import ClientPin
+from fido2.ctap2.credman import CredentialManagement
 from nitrokey.nk3 import NK3
 from nitrokey.nk3.secrets_app import SecretsApp, SecretsAppException, SelectResponse
 from PySide6.QtCore import Signal, Slot
@@ -37,7 +38,6 @@ class CheckFidoPinStatus(Job):
 
             self.status_fido.emit(ctap2.info, pin_retries)
 
-
 class CheckPasswordsInfo(Job):
     info_passwords = Signal(bool, SelectResponse)
 
@@ -62,6 +62,35 @@ class CheckPasswordsInfo(Job):
             self.info_passwords.emit(pin_status, status)
         return
 
+class CheckDiscoverableCreds(Job):
+    discoverable_creds = Signal(list)
+
+    def __init__(self, common_ui: CommonUi, data: DeviceData, pin: str) -> None:
+        super().__init__(common_ui)
+        self.data = data
+        self.pin = pin
+        self.discoverable_creds.connect(lambda: self.finished.emit())
+
+    def run(self) -> None:
+        with self.data.open() as device:
+            ctap2 = Ctap2(device.device)
+            c_pin = ClientPin(ctap2)
+            try:
+                pin_token = c_pin.get_pin_token(self.pin)
+                pin_protocol=c_pin.protocol
+                cred_man= CredentialManagement(ctap2, pin_protocol, pin_token)
+                rp_list= list(cred_man.enumerate_rps())
+                self.discoverable_creds_list=[]
+                for rp in rp_list:
+                    current_list=list(cred_man.enumerate_creds(rp[4]))
+                    rp_id=rp[3]['id']
+                    for cred in current_list:
+                        cred_dict={'rp_id':rp_id, 'user': cred[6]}
+                        self.discoverable_creds_list.append(cred_dict)
+                self.discoverable_creds.emit(self.discoverable_creds_list)
+            except Exception as e:
+                self.trigger_error(f"Failed to enumerate discoverable credentials: {e}")
+                self.discoverable_creds.emit([])
 
 class SaveFidoPinJob(Job):
     change_pw_fido = Signal()
@@ -207,6 +236,7 @@ class SettingsWorker(Worker):
     reset_passwords = Signal()
     status_fido = Signal(Info, int)
     info_passwords = Signal(bool, SelectResponse)
+    discoverable_creds= Signal(list)
 
     def __init__(self, common_ui: CommonUi) -> None:
         super().__init__(common_ui)
@@ -245,4 +275,10 @@ class SettingsWorker(Worker):
     def passwords_reset(self, data: DeviceData) -> None:
         job = ResetPasswords(self.common_ui, data)
         job.reset_passwords.connect(self.reset_passwords)
+        self.run(job)
+
+    @Slot(DeviceData)
+    def get_discoverablecreds(self, data: DeviceData, pin: str):
+        job = CheckDiscoverableCreds(self.common_ui, data, pin)
+        job.discoverable_creds.connect(self.discoverable_creds)
         self.run(job)
