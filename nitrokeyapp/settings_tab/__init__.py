@@ -36,6 +36,7 @@ PIN_ICON = QtUtilsMixIn.get_qicon("dialpad.svg")
 RESET_ICON = QtUtilsMixIn.get_qicon("refresh.svg")
 SHOW_ICON = QtUtilsMixIn.get_qicon("visibility.svg")
 HIDE_ICON = QtUtilsMixIn.get_qicon("visibility_off.svg")
+PASSKEY_ICON = QtUtilsMixIn.get_qicon("passkey.svg")
 
 SETTINGS: Dict[State, Dict] = {
     State.Fido: {
@@ -61,7 +62,7 @@ SETTINGS: Dict[State, Dict] = {
     },
     State.DiscoverableCreds: {
         "parent": State.Fido,
-        "icon": RESET_ICON,
+        "icon": PASSKEY_ICON,
         "name": "Resident Keys",
         "desc": "Resident Keys or Passkeys allow users to do passwordless authentication without even requiring an username.",
     },
