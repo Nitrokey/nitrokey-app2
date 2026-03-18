@@ -89,6 +89,7 @@ class CheckDiscoverableCreds(Job):
                         self.discoverable_creds_list.append(cred_dict)
                 self.discoverable_creds.emit(self.discoverable_creds_list)
             except Exception as e:
+                logger.error("Failed to enumerate discoverable credentials", exc_info=True)
                 self.trigger_error(f"Failed to enumerate discoverable credentials: {e}")
                 self.discoverable_creds.emit([])
 
