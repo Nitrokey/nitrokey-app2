@@ -19,7 +19,7 @@ jobs:
     if: github.event_name == 'release'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install required packages
         run: |
           apt update
@@ -44,7 +44,7 @@ jobs:
     container: python:3.10-slim-trixie
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install required packages
         run: |
           apt update
@@ -73,7 +73,7 @@ jobs:
       - name: Build
         run: make build-pyinstaller-onefile
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: nitrokey-app-onefile
           path: dist/nitrokey-app
@@ -87,7 +87,7 @@ jobs:
       contents: write
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: nitrokey-app-onefile
       - name: Rename binary

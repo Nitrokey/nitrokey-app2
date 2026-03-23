@@ -18,7 +18,7 @@ jobs:
     if: github.event_name == 'release'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install required packages
         run: brew install python@${{ env.PYTHON_VERSION }} poetry swig
       - name: Create virtual environment
@@ -39,7 +39,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install required packages
         run: brew install python@${{ env.PYTHON_VERSION }} poetry swig
       - name: Create virtual environment
@@ -75,7 +75,7 @@ jobs:
       - name: Create application archive
         run: tar -c -C dist -f nitrokey-app2-onedir-app.tar nitrokey-app2.app
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: nitrokey-app2-onedir-app-arm64
           path: nitrokey-app2-onedir-app.tar
@@ -85,9 +85,9 @@ jobs:
     needs: build-onedir
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: nitrokey-app2-onedir-app-arm64
       - name: Extract application archive
@@ -113,7 +113,7 @@ jobs:
             --package-path app2.pkg \
             nitrokey-app2.pkg
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: nitrokey-app-pkg-arm64
           path: nitrokey-app2.pkg
@@ -126,7 +126,7 @@ jobs:
       contents: write
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: nitrokey-app-pkg-arm64
       - name: Rename installer
