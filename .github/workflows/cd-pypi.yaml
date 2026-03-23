@@ -64,7 +64,7 @@ jobs:
       - name: Build
         run: make build
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: nitrokeyapp-pypi
           path: dist

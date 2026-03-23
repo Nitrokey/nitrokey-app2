@@ -73,7 +73,7 @@ jobs:
       - name: Build
         run: make build-pyinstaller-onefile
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: nitrokey-app-onefile
           path: dist/nitrokey-app
