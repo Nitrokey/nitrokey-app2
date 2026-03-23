@@ -64,7 +64,7 @@ jobs:
     if: github.event_name == 'release'
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: nitrokey-app-onedir-unsigned
           path: dist/nitrokey-app
@@ -96,7 +96,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: nitrokey-app-onedir-signed
           path: dist/nitrokey-app
@@ -145,7 +145,7 @@ jobs:
     if: github.event_name == 'release'
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: nitrokey-app-installer-unsigned
       - name: Sign the artifact
@@ -175,7 +175,7 @@ jobs:
       contents: write
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: nitrokey-app-installer-signed
       - name: Rename installer
