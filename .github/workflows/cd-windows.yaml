@@ -15,7 +15,7 @@ jobs:
     if: github.event_name == 'release'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install required packages
         run: choco install poetry --source python
       - name: Create virtual envrionment
@@ -34,7 +34,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install required packages
         run: choco install poetry --source python
       - name: Create virtual environment
@@ -94,7 +94,7 @@ jobs:
     if: github.event_name == 'release'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:

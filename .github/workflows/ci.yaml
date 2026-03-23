@@ -12,7 +12,7 @@ jobs:
     container: python:3.10-slim
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install required packages
         run: pip install poetry
       - name: Check pyproject.toml syntax and consistency with poetry.lock
@@ -23,7 +23,7 @@ jobs:
     container: python:3.10-slim
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install required packages
         run: |
           apt update
@@ -39,7 +39,7 @@ jobs:
     container: python:3.10-slim
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install required packages
         run: |
           apt update
@@ -55,7 +55,7 @@ jobs:
     container: python:3.10-slim
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install required packages
         run: |
           apt update
@@ -71,7 +71,7 @@ jobs:
     container: ghcr.io/flathub/flatpak-builder-lint:latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Check appstream metadata
         run: |
           flatpak-builder-lint appstream meta/com.nitrokey.nitrokey-app2.metainfo.xml || true
@@ -83,7 +83,7 @@ jobs:
     container: fedora:latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install required packages
         run: |
           dnf makecache
@@ -103,7 +103,7 @@ jobs:
     container: python:3.10-slim
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install required packages
         run: |
           apt update
@@ -126,7 +126,7 @@ jobs:
       options: --privileged
     steps:
     - name: Checkout nkapp2 flathub repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: flathub/com.nitrokey.nitrokey-app2
         path: flatpak-build
