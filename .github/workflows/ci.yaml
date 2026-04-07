@@ -137,7 +137,7 @@ jobs:
         bash ./update.sh ${{ github.sha }}
         make
     - name: Build the flatpak bundle
-      uses: flatpak/flatpak-github-actions/flatpak-builder@v6.6
+      uses: flatpak/flatpak-github-actions/flatpak-builder@401fe28a8384095fc1531b9d320b292f0ee45adb # v6.7
       with:
         bundle: nkapp2.flatpak
         manifest-path: flatpak-build/com.nitrokey.nitrokey-app2.yml
