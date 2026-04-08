@@ -2,6 +2,8 @@ import logging
 
 from fido2.ctap2.base import Ctap2, Info
 from fido2.ctap2.pin import ClientPin
+from fido2.ctap2.credman import CredentialManagement
+from fido2.ctap import CtapError
 from nitrokey.nk3 import NK3
 from nitrokey.nk3.secrets_app import SecretsApp, SecretsAppException, SelectResponse
 from PySide6.QtCore import Signal, Slot
@@ -37,7 +39,6 @@ class CheckFidoPinStatus(Job):
 
             self.status_fido.emit(ctap2.info, pin_retries)
 
-
 class CheckPasswordsInfo(Job):
     info_passwords = Signal(bool, SelectResponse)
 
@@ -62,6 +63,66 @@ class CheckPasswordsInfo(Job):
             self.info_passwords.emit(pin_status, status)
         return
 
+class CheckDiscoverableCreds(Job):
+    discoverable_creds = Signal(list)
+
+    def __init__(self, common_ui: CommonUi, data: DeviceData, pin: str) -> None:
+        super().__init__(common_ui)
+        self.data = data
+        self.pin = pin
+        self.discoverable_creds.connect(lambda: self.finished.emit())
+
+    def run(self) -> None:
+        with self.data.open() as device:
+            ctap2 = Ctap2(device.device)
+            c_pin = ClientPin(ctap2)
+
+            try:
+                client_token = c_pin.get_pin_token(self.pin, permissions=ClientPin.PERMISSION.CREDENTIAL_MGMT)
+            except CtapError as error:
+                logger.error("Failed to get pin token with credman permissions", exc_info=True)
+                if error.code == CtapError.ERR.PIN_NOT_SET:
+                    self.trigger_error("Please set a pin in order to manage credentials")
+                if error.code == CtapError.ERR.PIN_AUTH_BLOCKED:
+                    self.trigger_error("Pin authentication has been blocked, try reinserting the key or setting a pin if none is set")
+                if error.code == CtapError.ERR.PIN_BLOCKED:
+                    self.trigger_error("Your device has been blocked after too many failed unlock attempts, to fix this it will have to be reset. (If no pin is set, plugging it in again might fix this warning)")
+                if error.code == CtapError.ERR.PIN_INVALID:
+                    self.trigger_error("Wrong pin, please retry")
+                self.discoverable_creds.emit([])
+                return
+
+            try:
+                cred_man=CredentialManagement(ctap2, c_pin.protocol, client_token)
+                cred_metadata = cred_man.get_metadata()
+                cred_count = cred_metadata.get(CredentialManagement.RESULT.EXISTING_CRED_COUNT)
+        
+                if cred_count==0:
+                    self.discoverable_creds.emit([])
+                    return
+        
+                reliable_party_list = cred_man.enumerate_rps()
+                self.discoverable_creds_list=[]
+                for reliable_party_result in reliable_party_list:
+                    reliable_party = reliable_party_result.get(CredentialManagement.RESULT.RP)
+                    reliable_party_hash = reliable_party_result.get(CredentialManagement.RESULT.RP_ID_HASH)
+                    assert isinstance(reliable_party, dict)
+                    name_or_id = reliable_party.get("name", reliable_party.get("id", "(no id)"))
+            
+                    for cred in cred_man.enumerate_creds(reliable_party_hash):
+                        _cred_id = cred.get(CredentialManagement.RESULT.CREDENTIAL_ID)
+                        assert isinstance(_cred_id, dict)
+                        cred_user = cred.get(CredentialManagement.RESULT.USER)
+                        assert isinstance(cred_user, dict)
+                        cred_dict={'rp_id':name_or_id, 'user': cred_user}
+                        self.discoverable_creds_list.append(cred_dict)
+
+                self.discoverable_creds.emit(self.discoverable_creds_list)
+
+            except Exception as e:
+                logger.error("Failed to enumerate discoverable credentials", exc_info=True)
+                self.trigger_error(f"Failed to enumerate discoverable credentials: {e}")
+                self.discoverable_creds.emit([])
 
 class SaveFidoPinJob(Job):
     change_pw_fido = Signal()
@@ -207,6 +268,7 @@ class SettingsWorker(Worker):
     reset_passwords = Signal()
     status_fido = Signal(Info, int)
     info_passwords = Signal(bool, SelectResponse)
+    discoverable_creds= Signal(list)
 
     def __init__(self, common_ui: CommonUi) -> None:
         super().__init__(common_ui)
@@ -245,4 +307,10 @@ class SettingsWorker(Worker):
     def passwords_reset(self, data: DeviceData) -> None:
         job = ResetPasswords(self.common_ui, data)
         job.reset_passwords.connect(self.reset_passwords)
+        self.run(job)
+
+    @Slot(DeviceData)
+    def get_discoverablecreds(self, data: DeviceData, pin: str):
+        job = CheckDiscoverableCreds(self.common_ui, data, pin)
+        job.discoverable_creds.connect(self.discoverable_creds)
         self.run(job)
