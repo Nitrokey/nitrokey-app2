@@ -5,7 +5,6 @@ Follow the steps below meticulously to avoid a broken release.
 1. Adapt version information.
    The CI pipeline will fail if the version strings in the files below do not match.
    * `pyproject.toml` 
-   * `ci-scripts/linux/rpm/nitrokey-app2.spec` 
    * Add flatpak meta-data in `meta/com.nitrokey.nitrokey-app2.metainfo.xml`, 
      like this: `<release version="2.3" date="2024-04-19"/>` 
      * The latest release should be on top of this list.
@@ -31,6 +30,6 @@ Follow the steps below meticulously to avoid a broken release.
    Open the respective PyPI release job.
    Click the *Review deployments* button.
    Set the checkbox "pypi" and click *Approve and deploy*.
-6. Please mind that Flatpak and RPM COPR builds need to be triggered manually.
+6. Please mind that the Flatpak build needs to be triggered manually.
 
 The release is now complete.
