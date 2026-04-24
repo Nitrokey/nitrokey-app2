@@ -35,13 +35,13 @@
     <binary>nitrokeyapp</binary>
     <modalias>usb:v20A0p4108d*</modalias>
     <!-- Nitrokey 3 -->
-    <modalias>usb:v20A0p42ddd*</modalias>
+    <modalias>usb:v20A0p42DDd*</modalias>
     <!-- Nitrokey 3xn Bootloader  -->
-    <modalias>usb:v20A0p42e8d*</modalias>
+    <modalias>usb:v20A0p42E8d*</modalias>
     <!-- Nitrokey 3am Bootloader -->
-    <modalias>usb:v20A0p42f3d*</modalias>
+    <modalias>usb:v20A0p42F3d*</modalias>
     <!-- Nitrokey Passkey -->
-    <modalias>usb:v20A0p42f4d*</modalias>
+    <modalias>usb:v20A0p42F4d*</modalias>
     <!-- Nitrokey Passkey Bootloader-->
   </provides>
   <content_rating type="oars-1.1"/>
