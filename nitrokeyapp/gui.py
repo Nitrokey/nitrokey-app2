@@ -24,11 +24,18 @@ from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.secrets_tab import SecretsTab
 from nitrokeyapp.settings_tab import SettingsTab
 from nitrokeyapp.touch import TouchIndicator
+from nitrokeyapp.utils import should_use_ccid
 
 # import wizards and stuff
 from nitrokeyapp.welcome_tab import WelcomeTab
 
 logger = logging.getLogger(__name__)
+
+PASSKEYS_TAB_INDEX = 2
+PASSKEYS_ADMIN_REQUIRED_MESSAGE = (
+    "Managing passkeys requires administrator privileges on Windows. "
+    "Please restart the Nitrokey App as administrator to list or delete passkeys."
+)
 
 
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
@@ -128,6 +135,13 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         for view in self.views:
             self.tabs.addTab(view.widget, view.title)
         self.tabs.currentChanged.connect(self.tab_changed)
+
+        # On Windows without admin rights, CTAPHID is unavailable so the
+        # passkeys tab cannot list/delete credentials — keep it disabled and
+        # surface the reason via tooltip on hover.
+        self.passkeys_admin_required = should_use_ccid()
+        if self.passkeys_admin_required:
+            self.tabs.setTabToolTip(PASSKEYS_TAB_INDEX, PASSKEYS_ADMIN_REQUIRED_MESSAGE)
 
         # set some spacing between Nitrokey buttons
         self.ui.nitrokeyButtonsLayout.setSpacing(8)
@@ -268,7 +282,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.tabs.setTabVisible(1, is_nk3)
             self.tabs.setTabEnabled(1, is_nk3)
             self.tabs.setTabVisible(2, has_fido2)
-            self.tabs.setTabEnabled(2, has_fido2)
+            self.tabs.setTabEnabled(2, has_fido2 and not self.passkeys_admin_required)
             self.tabs.setTabEnabled(3, True)
 
         self.show_navigation()
