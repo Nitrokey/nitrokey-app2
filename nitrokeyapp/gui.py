@@ -14,6 +14,7 @@ from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.device_manager import DeviceManager
 from nitrokeyapp.device_view import DeviceView
 from nitrokeyapp.error_dialog import ErrorDialog
+from nitrokeyapp.fido2_tab import Fido2Tab
 from nitrokeyapp.information_box import InfoBox
 from nitrokeyapp.nk3_button import Nk3Button
 from nitrokeyapp.overview_tab import OverviewTab
@@ -81,9 +82,15 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         self.overview_tab = OverviewTab(self)
         self.secrets_tab = SecretsTab(self)
+        self.fido2_tab = Fido2Tab(self)
         self.settings_tab = SettingsTab(self)
 
-        self.views: list[DeviceView] = [self.overview_tab, self.secrets_tab, self.settings_tab]
+        self.views: list[DeviceView] = [
+            self.overview_tab,
+            self.secrets_tab,
+            self.fido2_tab,
+            self.settings_tab,
+        ]
         self.busy_count = 0
         for view in self.views:
             if view.worker:
@@ -252,12 +259,17 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         if self.selected_device.is_too_old:
             self.tabs.setTabVisible(1, True)
             self.tabs.setTabEnabled(1, False)
+            self.tabs.setTabVisible(2, True)
             self.tabs.setTabEnabled(2, False)
+            self.tabs.setTabEnabled(3, False)
         else:
-            has_secrets = self.selected_device.model == Model.NK3
-            self.tabs.setTabVisible(1, has_secrets)
-            self.tabs.setTabEnabled(1, has_secrets)
-            self.tabs.setTabEnabled(2, True)
+            is_nk3 = self.selected_device.model == Model.NK3
+            has_fido2 = self.selected_device.model in (Model.NK3, Model.NKPK)
+            self.tabs.setTabVisible(1, is_nk3)
+            self.tabs.setTabEnabled(1, is_nk3)
+            self.tabs.setTabVisible(2, has_fido2)
+            self.tabs.setTabEnabled(2, has_fido2)
+            self.tabs.setTabEnabled(3, True)
 
         self.show_navigation()
         self.welcome_widget.hide()
@@ -340,4 +352,5 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.overview_tab.worker_thread.quit()
         self.settings_tab.worker_thread.quit()
         self.secrets_tab.worker_thread.quit()
+        self.fido2_tab.worker_thread.quit()
         event.accept()
