@@ -14,6 +14,7 @@ from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.device_manager import DeviceManager
 from nitrokeyapp.device_view import DeviceView
 from nitrokeyapp.error_dialog import ErrorDialog
+from nitrokeyapp.fido2_tab import Fido2Tab
 from nitrokeyapp.information_box import InfoBox
 from nitrokeyapp.nk3_button import Nk3Button
 from nitrokeyapp.overview_tab import OverviewTab
@@ -23,11 +24,18 @@ from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.secrets_tab import SecretsTab
 from nitrokeyapp.settings_tab import SettingsTab
 from nitrokeyapp.touch import TouchIndicator
+from nitrokeyapp.utils import should_use_ccid
 
 # import wizards and stuff
 from nitrokeyapp.welcome_tab import WelcomeTab
 
 logger = logging.getLogger(__name__)
+
+PASSKEYS_TAB_INDEX = 2
+PASSKEYS_ADMIN_REQUIRED_MESSAGE = (
+    "Managing passkeys requires administrator privileges on Windows. "
+    "Please restart the Nitrokey App as administrator to list or delete passkeys."
+)
 
 
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
@@ -81,9 +89,15 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         self.overview_tab = OverviewTab(self)
         self.secrets_tab = SecretsTab(self)
+        self.fido2_tab = Fido2Tab(self)
         self.settings_tab = SettingsTab(self)
 
-        self.views: list[DeviceView] = [self.overview_tab, self.secrets_tab, self.settings_tab]
+        self.views: list[DeviceView] = [
+            self.overview_tab,
+            self.secrets_tab,
+            self.fido2_tab,
+            self.settings_tab,
+        ]
         self.busy_count = 0
         for view in self.views:
             if view.worker:
@@ -121,6 +135,13 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         for view in self.views:
             self.tabs.addTab(view.widget, view.title)
         self.tabs.currentChanged.connect(self.tab_changed)
+
+        # On Windows without admin rights, CTAPHID is unavailable so the
+        # passkeys tab cannot list/delete credentials — keep it disabled and
+        # surface the reason via tooltip on hover.
+        self.passkeys_admin_required = should_use_ccid()
+        if self.passkeys_admin_required:
+            self.tabs.setTabToolTip(PASSKEYS_TAB_INDEX, PASSKEYS_ADMIN_REQUIRED_MESSAGE)
 
         # set some spacing between Nitrokey buttons
         self.ui.nitrokeyButtonsLayout.setSpacing(8)
@@ -252,12 +273,17 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         if self.selected_device.is_too_old:
             self.tabs.setTabVisible(1, True)
             self.tabs.setTabEnabled(1, False)
+            self.tabs.setTabVisible(2, True)
             self.tabs.setTabEnabled(2, False)
+            self.tabs.setTabEnabled(3, False)
         else:
-            has_secrets = self.selected_device.model == Model.NK3
-            self.tabs.setTabVisible(1, has_secrets)
-            self.tabs.setTabEnabled(1, has_secrets)
-            self.tabs.setTabEnabled(2, True)
+            is_nk3 = self.selected_device.model == Model.NK3
+            has_fido2 = self.selected_device.model in (Model.NK3, Model.NKPK)
+            self.tabs.setTabVisible(1, is_nk3)
+            self.tabs.setTabEnabled(1, is_nk3)
+            self.tabs.setTabVisible(2, has_fido2)
+            self.tabs.setTabEnabled(2, has_fido2 and not self.passkeys_admin_required)
+            self.tabs.setTabEnabled(3, True)
 
         self.show_navigation()
         self.welcome_widget.hide()
@@ -340,4 +366,5 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.overview_tab.worker_thread.quit()
         self.settings_tab.worker_thread.quit()
         self.secrets_tab.worker_thread.quit()
+        self.fido2_tab.worker_thread.quit()
         event.accept()
