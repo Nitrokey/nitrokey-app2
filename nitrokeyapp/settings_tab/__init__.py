@@ -6,7 +6,7 @@ from fido2.ctap2.base import Info
 from nitrokey.nk3.secrets_app import SelectResponse
 from nitrokey.trussed import Model
 from PySide6.QtCore import QThread, Signal, Slot
-from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem, QWidget
+from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QListWidget, QPushButton, QFrame
 
 from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
@@ -23,6 +23,7 @@ class State(Enum):
     Fido = 1
     FidoPin = 2
     FidoReset = 3
+    DiscoverableCreds = 7
 
     Passwords = 4
     PasswordsPin = 5
@@ -35,6 +36,7 @@ PIN_ICON = QtUtilsMixIn.get_qicon("dialpad.svg")
 RESET_ICON = QtUtilsMixIn.get_qicon("refresh.svg")
 SHOW_ICON = QtUtilsMixIn.get_qicon("visibility.svg")
 HIDE_ICON = QtUtilsMixIn.get_qicon("visibility_off.svg")
+PASSKEY_ICON = QtUtilsMixIn.get_qicon("passkey.svg")
 
 SETTINGS: Dict[State, Dict] = {
     State.Fido: {
@@ -57,6 +59,12 @@ SETTINGS: Dict[State, Dict] = {
         + "authentication factors are deleted. After the reset, the user "
         + "will need to re-register or re-enroll their authentication "
         + "credentials to access the system or service again.",
+    },
+    State.DiscoverableCreds: {
+        "parent": State.Fido,
+        "icon": PASSKEY_ICON,
+        "name": "Resident Keys",
+        "desc": "Resident Keys or Passkeys allow users to do passwordless authentication without even requiring an username.",
     },
     State.Passwords: {
         "parent": None,
@@ -93,6 +101,8 @@ class SettingsTab(QtUtilsMixIn, QWidget):
     trigger_fido_reset = Signal(DeviceData)
     trigger_passwords_reset = Signal(DeviceData)
 
+    trigger_discoverable_creds=Signal(DeviceData, str)
+
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         QWidget.__init__(self, parent)
         QtUtilsMixIn.__init__(self)
@@ -112,6 +122,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.trigger_fido_change_pw.connect(self._worker.fido_change_pw)
         self.trigger_fido_reset.connect(self._worker.fido_reset)
         self.trigger_passwords_reset.connect(self._worker.passwords_reset)
+        self.trigger_discoverable_creds.connect(self._worker.get_discoverablecreds)
 
         # incoming signals
         self._worker.status_fido.connect(self.handle_status_fido)
@@ -122,8 +133,31 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         self._worker.reset_fido.connect(self.handle_reset)
         self._worker.reset_passwords.connect(self.handle_reset)
+        self._worker.discoverable_creds.connect(self.handle_discoverablecreds)
 
         self.ui = self.load_ui("settings_tab.ui", self)
+
+        ## UI CHanges
+        self._rk_frame = QFrame(self.ui.settings_frame.parent())
+        self._rk_frame.setVisible(False)
+        rk_layout = QVBoxLayout(self._rk_frame)
+        pin_row = QHBoxLayout()
+        self._rk_pin_label = QLabel("FIDO2 PIN:")
+        self._rk_pin_input = QLineEdit()
+        self._rk_pin_input.setEchoMode(QLineEdit.Password)  # type: ignore[attr-defined]
+        self._rk_pin_input.setPlaceholderText("Enter FIDO2 PIN")
+        self._rk_fetch_btn = QPushButton("Show Keys")
+        self._rk_fetch_btn.pressed.connect(self._fetch_discoverable_creds)
+        pin_row.addWidget(self._rk_pin_label)
+        pin_row.addWidget(self._rk_pin_input)
+        pin_row.addWidget(self._rk_fetch_btn)
+        rk_layout.addLayout(pin_row)
+        self._rk_list = QListWidget()
+        rk_layout.addWidget(self._rk_list)
+        parent_layout = self.ui.settings_frame.parentWidget().layout()
+        idx = parent_layout.indexOf(self.ui.settings_frame)
+        row, col, rowspan, colspan = parent_layout.getItemPosition(idx)
+        parent_layout.addWidget(self._rk_frame, row, col, rowspan, colspan)
 
         self.ui.btn_abort.pressed.connect(self.abort)
         self.ui.btn_save.pressed.connect(self.save_action)
@@ -233,6 +267,8 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             self.view_edit_pin(item)
         elif sta in [State.FidoReset, State.PasswordsReset]:
             self.view_reset(item)
+        elif sta == State.DiscoverableCreds:
+            self.view_discoverable_creds(item)    
 
     def collapse_all_except(self, item: QTreeWidgetItem) -> None:
         for idx in range(self.ui.settings_tree.invisibleRootItem().childCount()):
@@ -264,6 +300,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         self.ui.status_form.show()
         self.ui.pin_form.hide()
+        self._rk_frame.setVisible(False)
 
         self.ui.info_label.show()
         self.ui.warning_label.hide()
@@ -288,7 +325,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
     def view_edit_pin(self, item: QTreeWidgetItem) -> None:
         state = item.data(1, 0)
         tmpl = SETTINGS[state]
-
+        self._rk_frame.setVisible(False)
         self.show_current_password(False)
 
         self.ui.settings_frame.show()
@@ -319,7 +356,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
     def view_reset(self, item: QTreeWidgetItem) -> None:
         state = item.data(1, 0)
         tmpl = SETTINGS[state]
-
+        self._rk_frame.setVisible(False)
         name = SETTINGS[SETTINGS[state]["parent"]]["name"]
         name += " | " + tmpl["name"]
         desc = tmpl.get("desc")
@@ -347,9 +384,23 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.headline_label.setText(name)
         self.ui.info_label.setText(desc)
 
+    def view_discoverable_creds(self, item: QTreeWidgetItem) -> None:
+        state = item.data(1, 0)
+        tmpl = SETTINGS[state]
+        name = SETTINGS[SETTINGS[state]["parent"]]["name"]
+        name += " | " + tmpl["name"]
+        self.ui.settings_frame.hide()
+        self._rk_frame.setVisible(True)
+        self.ui.btn_abort.hide()
+        self.ui.btn_reset.hide()
+        self.ui.btn_save.hide()
+        self._rk_pin_input.clear()
+        self._rk_list.clear()
+        self._rk_list.addItem("Enter PIN above and click 'Show Keys'")
+
     def view_settings_empty(self) -> None:
         self.ui.settings_frame.hide()
-
+        self._rk_frame.setVisible(False)
         self.ui.btn_abort.hide()
         self.ui.btn_reset.hide()
         self.ui.btn_save.hide()
@@ -486,6 +537,33 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         elif state == State.PasswordsPin:
             self.show_current_password(pin_set)
             self.ui.status_form.hide()
+
+    def _fetch_discoverable_creds(self) -> None:
+        pin = self._rk_pin_input.text()
+        if len(pin) < 4:
+            self.common_ui.info.info.emit("PIN is too short")
+            return
+        self._rk_list.clear()
+        self._rk_list.addItem("Loading…")
+        self._rk_pin_input.clear()
+        self.trigger_discoverable_creds.emit(self.data, pin)
+
+    @Slot(list)
+    def handle_discoverablecreds(self, discoverable_creds: list) -> None:
+        if self.active_item is None:
+            return
+        if self.active_item.data(1, 0) != State.DiscoverableCreds:
+            return
+
+        self._rk_list.clear()
+        if not discoverable_creds:
+            self._rk_list.addItem("No resident keys found.")
+            return
+
+        for cred in discoverable_creds:
+            rp_id = cred.get("rp_id", "?")
+            user_name = cred.get("user", {}).get("name", "?")
+            self._rk_list.addItem(f"{rp_id}  —  {user_name}")
 
     @Slot()
     def handle_reset(self) -> None:
