@@ -6,6 +6,7 @@ from typing import Optional, Union
 from nitrokey.nk3.secrets_app import Kind as RawKind
 from nitrokey.nk3.secrets_app import ListItem, PasswordSafeEntry, SecretsApp
 
+from base64 import b64encode, b64decode
 # TODO: these could be moved into pynitrokey
 
 
@@ -74,7 +75,6 @@ def _kind_from_raw(kind: RawKind) -> Optional[Kind]:
     else:
         raise RuntimeError(f"Unexpected credential kind: {kind}")
 
-
 @dataclass
 class Credential:
     id: bytes
@@ -126,6 +126,38 @@ class Credential:
         self.loaded = True
         return self
 
+    def serialize_credential(self) -> dict:
+        if not self.loaded:
+            raise RuntimeError("Cannot serialize credential which is not loaded yet")
+        credential_dict={
+            "id" : b64encode(self.id).decode(),
+            "kind" : self.otp.raw_kind().value if self.otp else self.other.raw_kind().value if self.other else RawKind.NotSet.value,
+            "login" : b64encode(self.login).decode() if self.login else "",
+            "password" : b64encode(self.password).decode() if self.password else "",
+            "comment" : b64encode(self.comment).decode() if self.comment else "",
+            "protected" : self.protected,
+            "touch_required" : self.touch_required
+        }
+        return credential_dict
+
+    @classmethod
+    def deserialize_credential(cls, credential_dict: dict) -> "Credential":
+        credential = cls(
+            id=b64decode(credential_dict.get("id")),
+            login=b64decode(credential_dict.get("login")) if credential_dict.get("login", "") else None,
+            password=b64decode(credential_dict.get("password")) if credential_dict.get("password", "") else None,
+            comment=b64decode(credential_dict.get("comment")) if credential_dict.get("comment", "") else None,
+            protected=credential_dict.get("protected"),
+            touch_required=credential_dict.get("touch_required")
+        )
+
+        kind= _kind_from_raw(RawKind(credential_dict.get("kind")))
+        if isinstance(kind, OtpKind):
+            credential.otp = kind
+        elif isinstance(kind, OtherKind):
+            credential.other = kind
+
+        return credential
 
 @dataclass
 class OtpData:

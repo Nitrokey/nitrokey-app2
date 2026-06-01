@@ -65,6 +65,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     trigger_refresh_credentials = Signal(DeviceData, bool)
     trigger_get_credential = Signal(DeviceData, Credential)
     trigger_edit_credential = Signal(DeviceData, Credential, bytes, bytes)
+    trigger_backup_credential = Signal(DeviceData, bool)
+    trigger_restore_credential = Signal(DeviceData, str)
 
     def __init__(self, parent: QWidget) -> None:
         QWidget.__init__(self, parent)
@@ -84,9 +86,13 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.trigger_refresh_credentials.connect(self._worker.refresh_credentials)
         self.trigger_get_credential.connect(self._worker.get_credential)
         self.trigger_edit_credential.connect(self._worker.edit_credential)
+        self.trigger_backup_credential.connect(self._worker.backup_credential)
+        self.trigger_restore_credential.connect(self._worker.restore_credential)
 
         self._worker.pin_cache.pin_cleared.connect(self.common_ui.info.pin_cleared)
         self._worker.pin_cache.pin_cleared.connect(lambda: self.uncheck_checkbox(True))
+        self._worker.credential_bkp.connect(self.save_credential_backup)
+        self._worker.credential_restore.connect(self.on_credential_restored)
 
         self._worker.pin_cache.pin_cached.connect(self.common_ui.info.pin_cached)
         self.common_ui.info.pin_pressed.connect(self._worker.pin_cache.clear)
@@ -169,6 +175,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         }
 
         self.ui.btn_add.pressed.connect(self.add_new_credential)
+        self.ui.btn_backup.pressed.connect(self.backup_credentials)
+        self.ui.btn_restore.pressed.connect(self.restore_credentials)
         self.ui.btn_abort.pressed.connect(lambda: self.show_secrets(True))
         self.ui.btn_save.pressed.connect(self.save_credential)
         self.ui.btn_edit.pressed.connect(self.prepare_edit_credential)
@@ -300,6 +308,47 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.ui.otp_timeout_progress.setVisible(data.validity is not None)
         self.ui.otp.show()
+
+    @Slot()
+    def backup_credentials(self) -> None:
+        if not self.data:
+            return
+        pin_protected = self.ui.is_protected.isChecked()
+        self.trigger_backup_credential.emit(self.data, pin_protected)
+
+    @Slot(str)
+    def save_credential_backup(self, credential_list_formatted: str) -> None:
+        from PySide6.QtWidgets import QFileDialog
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save Credential Backup",
+            "credential_backup.json",
+            "JSON Files (*.json)",
+        )
+        if path:
+            with open(path, "w") as f:
+                f.write(credential_list_formatted)
+
+    @Slot()
+    def restore_credentials(self) -> None:
+        if not self.data:
+            return
+        from PySide6.QtWidgets import QFileDialog
+        path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Open Credential Backup",
+            "",
+            "JSON Files (*.json)",
+        )
+        if not path:
+            return
+        with open(path, "r") as f:
+            backup_content = f.read()
+        self.trigger_restore_credential.emit(self.data, backup_content)
+
+    @Slot()
+    def on_credential_restored(self) -> None:
+        self.refresh_credential_list()
 
     def add_credential(self, credential: Credential) -> QListWidgetItem:
         icon = "lock" if credential.protected else "lock_open"
