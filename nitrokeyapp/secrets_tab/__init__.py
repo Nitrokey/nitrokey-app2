@@ -8,7 +8,7 @@ from typing import Callable, Optional
 
 from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QGuiApplication
-from PySide6.QtWidgets import QLineEdit, QListWidgetItem, QWidget
+from PySide6.QtWidgets import QFileDialog, QLineEdit, QListWidgetItem, QWidget
 
 from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
@@ -318,8 +318,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     @Slot(str)
     def save_credential_backup(self, credential_list_formatted: str) -> None:
-        from PySide6.QtWidgets import QFileDialog
-
         path, _ = QFileDialog.getSaveFileName(
             self, "Save Credential Backup", "credential_backup.json", "JSON Files (*.json)"
         )
@@ -331,8 +329,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     def restore_credentials(self) -> None:
         if not self.data:
             return
-        from PySide6.QtWidgets import QFileDialog
-
         path, _ = QFileDialog.getOpenFileName(
             self, "Open Credential Backup", "", "JSON Files (*.json)"
         )
