@@ -752,26 +752,24 @@ class RestoreCredentialJob(Job):
             if not isinstance(device, NK3):
                 return
             secrets = SecretsApp(device)
+            with self.touch_prompt():
+                for credential in self.credential_list:
+                    reg_data = {
+                        "credid": credential.id,
+                        "touch_button_required": credential.touch_required,
+                        "pin_based_encryption": credential.protected,
+                    }
 
-            for credential in self.credential_list:
-                reg_data = {
-                    "credid": credential.id,
-                    "touch_button_required": credential.touch_required,
-                    "pin_based_encryption": credential.protected,
-                }
-
-                if credential.login:
-                    reg_data["login"] = credential.login
-                if credential.password:
-                    reg_data["password"] = credential.password
-                if credential.comment:
-                    reg_data["metadata"] = credential.comment
-                try:
-                    secrets.register(**reg_data)  # type: ignore [arg-type]
-                except SecretsAppException as e:
-                    #pass
-                    self.trigger_error('Addition failed')
-                    
+                    if credential.login:
+                        reg_data["login"] = credential.login
+                    if credential.password:
+                        reg_data["password"] = credential.password
+                    if credential.comment:
+                        reg_data["metadata"] = credential.comment
+                    try:
+                        secrets.register(**reg_data)  # type: ignore [arg-type]
+                    except SecretsAppException as e:
+                        self.trigger_error('Addition failed')
 
         self.credential_restore.emit()
 
