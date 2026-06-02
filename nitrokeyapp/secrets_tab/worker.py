@@ -662,6 +662,9 @@ class BackupCredentialJob(Job):
             credential_list_serialized=[]
             for credential in credential_list:
                 try:
+                    if credential.protected:
+                        pin= self.pin_cache.get(self.data)
+                        secrets.verify_pin_raw(pin)
                     pse = secrets.get_credential(credential.id)
                 except SecretsAppException as e:
                     self.trigger_exception(e)
