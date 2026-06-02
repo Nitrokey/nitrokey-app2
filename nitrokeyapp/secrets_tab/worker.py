@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict, Optional
 import json
-import traceback
 
 from nitrokey.nk3 import NK3
 from nitrokey.nk3.secrets_app import SecretsApp, SecretsAppException
@@ -664,7 +663,8 @@ class BackupCredentialJob(Job):
                 try:
                     if credential.protected:
                         pin= self.pin_cache.get(self.data)
-                        secrets.verify_pin_raw(pin)
+                        if pin:
+                            secrets.verify_pin_raw(pin)
                     pse = secrets.get_credential(credential.id)
                 except SecretsAppException as e:
                     self.trigger_exception(e)
@@ -673,8 +673,8 @@ class BackupCredentialJob(Job):
                 cred = credential.extend_with_password_safe_entry(pse)
                 try:
                     credential_list_serialized.append(cred.serialize_credential())
-                except:
-                    logger.warn("Serialization failed")
+                except SecretsAppException as e:
+                    self.trigger_exception(e)
 
             credential_list_formatted=json.dumps(credential_list_serialized, indent=4)
             self.credential_bkp.emit(credential_list_formatted)
@@ -709,15 +709,15 @@ class RestoreCredentialJob(Job):
     def check_credential_backup(self, existing_credentials: list[Credential]) -> None:
         try:
             serialized_credential_list=json.loads(self.credential_backup)
-        except:
+        except json.JSONDecodeError as e:
             self.trigger_error('Error: Invalid backup file')
         credential_list=[]
         for serialized_credential in serialized_credential_list:
             try:
                 credential = Credential.deserialize_credential(serialized_credential)
                 credential_list.append(credential)
-            except Exception as e:
-                self.trigger_error('Error: Invalid credential entry')
+            except SecretsAppException as e:
+                self.trigger_exception(e)
 
         pin_required=False
         ids = {credential.id for credential in existing_credentials}
@@ -772,7 +772,7 @@ class RestoreCredentialJob(Job):
                     try:
                         secrets.register(**reg_data)  # type: ignore [arg-type]
                     except SecretsAppException as e:
-                        self.trigger_error('Addition failed')
+                        self.trigger_exception(e)
 
         self.credential_restore.emit()
 

@@ -1,3 +1,4 @@
+from base64 import b64encode, b64decode
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum, auto, unique
@@ -6,7 +7,6 @@ from typing import Optional, Union
 from nitrokey.nk3.secrets_app import Kind as RawKind
 from nitrokey.nk3.secrets_app import ListItem, PasswordSafeEntry, SecretsApp
 
-from base64 import b64encode, b64decode
 # TODO: these could be moved into pynitrokey
 
 
@@ -142,13 +142,16 @@ class Credential:
 
     @classmethod
     def deserialize_credential(cls, credential_dict: dict) -> "Credential":
+        login=credential_dict.get("login", "")
+        password=credential_dict.get("password", "")
+        comment=credential_dict.get("comment", "")
         credential = cls(
             id=b64decode(credential_dict.get("id")),
-            login=b64decode(credential_dict.get("login")) if credential_dict.get("login", "") else None,
-            password=b64decode(credential_dict.get("password")) if credential_dict.get("password", "") else None,
-            comment=b64decode(credential_dict.get("comment")) if credential_dict.get("comment", "") else None,
-            protected=credential_dict.get("protected"),
-            touch_required=credential_dict.get("touch_required")
+            login=b64decode(login) if login else None
+            password=b64decode(password) if password else None
+            comment=b64decode(comment) if comment else None
+            protected=credential_dict.get("protected", False),
+            touch_required=credential_dict.get("touch_required", False)
         )
 
         kind= _kind_from_raw(RawKind(credential_dict.get("kind")))
