@@ -1,8 +1,8 @@
+import json
 import logging
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict, Optional
-import json
 
 from nitrokey.nk3 import NK3
 from nitrokey.nk3.secrets_app import SecretsApp, SecretsAppException
@@ -620,6 +620,7 @@ class GetCredentialJob(Job):
             cred = self.credential.extend_with_password_safe_entry(pse)
             self.received_credential.emit(cred)
 
+
 class BackupCredentialJob(Job):
     credential_bkp = Signal(str)
 
@@ -629,14 +630,14 @@ class BackupCredentialJob(Job):
         pin_cache: PinCache,
         pin_ui: PinUi,
         data: DeviceData,
-        pin_protected: bool
+        pin_protected: bool,
     ) -> None:
         super().__init__(common_ui)
 
         self.pin_cache = pin_cache
         self.pin_ui = pin_ui
         self.data = data
-        self.pin_protected=pin_protected
+        self.pin_protected = pin_protected
         self.credential_bkp.connect(lambda _: self.finished.emit())
 
     def run(self) -> None:
@@ -657,12 +658,12 @@ class BackupCredentialJob(Job):
                 return
             secrets = SecretsApp(device)
 
-            credential_list=Credential.list(secrets=secrets)
-            credential_list_serialized=[]
+            credential_list = Credential.list(secrets=secrets)
+            credential_list_serialized = []
             for credential in credential_list:
                 try:
                     if credential.protected:
-                        pin= self.pin_cache.get(self.data)
+                        pin = self.pin_cache.get(self.data)
                         if pin:
                             secrets.verify_pin_raw(pin)
                     pse = secrets.get_credential(credential.id)
@@ -676,8 +677,9 @@ class BackupCredentialJob(Job):
                 except SecretsAppException as e:
                     self.trigger_exception(e)
 
-            credential_list_formatted=json.dumps(credential_list_serialized, indent=4)
+            credential_list_formatted = json.dumps(credential_list_serialized, indent=4)
             self.credential_bkp.emit(credential_list_formatted)
+
 
 class RestoreCredentialJob(Job):
     credential_restore = Signal()
@@ -688,14 +690,14 @@ class RestoreCredentialJob(Job):
         pin_cache: PinCache,
         pin_ui: PinUi,
         data: DeviceData,
-        credential_backup: str
+        credential_backup: str,
     ) -> None:
         super().__init__(common_ui)
 
         self.pin_cache = pin_cache
         self.pin_ui = pin_ui
         self.data = data
-        self.credential_backup=credential_backup
+        self.credential_backup = credential_backup
         self.credential_restore.connect(lambda: self.finished.emit())
 
     def run(self) -> None:
@@ -708,10 +710,10 @@ class RestoreCredentialJob(Job):
     @Slot(list)
     def check_credential_backup(self, existing_credentials: list[Credential]) -> None:
         try:
-            serialized_credential_list=json.loads(self.credential_backup)
+            serialized_credential_list = json.loads(self.credential_backup)
         except json.JSONDecodeError as e:
-            self.trigger_error('Error: Invalid backup file')
-        credential_list=[]
+            self.trigger_exception(e)
+        credential_list = []
         for serialized_credential in serialized_credential_list:
             try:
                 credential = Credential.deserialize_credential(serialized_credential)
@@ -719,9 +721,9 @@ class RestoreCredentialJob(Job):
             except SecretsAppException as e:
                 self.trigger_exception(e)
 
-        pin_required=False
+        pin_required = False
         ids = {credential.id for credential in existing_credentials}
-        temp_cred_list=[]
+        temp_cred_list = []
         for credential in credential_list:
             if credential.id in ids:
                 logger.warning("Warn: Credential with same ID already exists")
@@ -729,16 +731,12 @@ class RestoreCredentialJob(Job):
                 temp_cred_list.append(credential)
 
             if credential.protected:
-                pin_required=True
+                pin_required = True
 
-        self.credential_list=temp_cred_list
+        self.credential_list = temp_cred_list
         if pin_required:
             verify_pin_job = VerifyPinJob(
-                self.common_ui,
-                self.pin_cache,
-                self.pin_ui,
-                self.data,
-                set_pin=pin_required,
+                self.common_ui, self.pin_cache, self.pin_ui, self.data, set_pin=pin_required
             )
             verify_pin_job.pin_verified.connect(self.add_credential)
             self.spawn(verify_pin_job)
@@ -775,6 +773,7 @@ class RestoreCredentialJob(Job):
                         self.trigger_exception(e)
 
         self.credential_restore.emit()
+
 
 class SecretsWorker(Worker):
     # TODO: remove DeviceData from signatures
@@ -852,7 +851,7 @@ class SecretsWorker(Worker):
         self.run(job)
 
     @Slot(DeviceData, str)
-    def restore_credential(self, data:DeviceData, backup_conent: str) -> None:
+    def restore_credential(self, data: DeviceData, backup_conent: str) -> None:
         job = RestoreCredentialJob(self.common_ui, self.pin_cache, self.pin_ui, data, backup_conent)
         job.credential_restore.connect(self.credential_restore)
         self.run(job)

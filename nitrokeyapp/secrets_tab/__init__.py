@@ -319,11 +319,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     @Slot(str)
     def save_credential_backup(self, credential_list_formatted: str) -> None:
         from PySide6.QtWidgets import QFileDialog
+
         path, _ = QFileDialog.getSaveFileName(
-            self,
-            "Save Credential Backup",
-            "credential_backup.json",
-            "JSON Files (*.json)",
+            self, "Save Credential Backup", "credential_backup.json", "JSON Files (*.json)"
         )
         if path:
             with open(path, "w") as f:
@@ -334,11 +332,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         if not self.data:
             return
         from PySide6.QtWidgets import QFileDialog
+
         path, _ = QFileDialog.getOpenFileName(
-            self,
-            "Open Credential Backup",
-            "",
-            "JSON Files (*.json)",
+            self, "Open Credential Backup", "", "JSON Files (*.json)"
         )
         if not path:
             return
