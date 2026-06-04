@@ -1,11 +1,12 @@
 import json
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from datetime import datetime
 from typing import Dict, Optional
 
 from nitrokey.nk3 import NK3
-from nitrokey.nk3.secrets_app import SecretsApp, SecretsAppException
+from nitrokey.nk3.secrets_app import SecretsApp, SecretsAppException, CXF
+from nitrokey.nk3.credential_exchange_format import PasswordToCXF
 from nitrokey.trussed import Uuid
 from PySide6.QtCore import QObject, Signal, Slot
 from PySide6.QtWidgets import QWidget
@@ -656,28 +657,14 @@ class BackupCredentialJob(Job):
         with self.data.open() as device:
             if not isinstance(device, NK3):
                 return
-            secrets = SecretsApp(device)
-
-            credential_list = Credential.list(secrets=secrets)
-            credential_list_serialized = []
-            for credential in credential_list:
-                try:
-                    if credential.protected:
-                        pin = self.pin_cache.get(self.data)
-                        if pin:
-                            secrets.verify_pin_raw(pin)
-                    pse = secrets.get_credential(credential.id)
-                except SecretsAppException as e:
-                    self.trigger_exception(e)
-                    continue
-
-                cred = credential.extend_with_password_safe_entry(pse)
-                try:
-                    credential_list_serialized.append(cred.serialize_credential())
-                except SecretsAppException as e:
-                    self.trigger_exception(e)
-
-            credential_list_formatted = json.dumps(credential_list_serialized, indent=4)
+            secrets = SecretsApp(device)           
+            
+            
+            pin=self.pin_cache.get(self.data)
+            if not pin:
+                pin = ''
+            cxf_export = secrets.get_export_cxf(pin)
+            credential_list_formatted = json.dumps(asdict(cxf_export), indent=4)
             self.credential_bkp.emit(credential_list_formatted)
 
 
@@ -701,77 +688,30 @@ class RestoreCredentialJob(Job):
         self.credential_restore.connect(lambda: self.finished.emit())
 
     def run(self) -> None:
-        list_credentials_job = ListCredentialsJob(
-            self.common_ui, self.pin_cache, self.pin_ui, self.data, pin_protected=True
-        )
-        list_credentials_job.credentials_listed.connect(self.check_credential_backup)
-        self.spawn(list_credentials_job)
-
+        with self.touch_prompt():
+        
+            verify_pin_job = VerifyPinJob(
+                self.common_ui, self.pin_cache, self.pin_ui, self.data
+            )
+            verify_pin_job.pin_verified.connect(self.restore_credential_backup)
+            self.spawn(verify_pin_job)
+        
     @Slot(list)
-    def check_credential_backup(self, existing_credentials: list[Credential]) -> None:
+    def restore_credential_backup(self, existing_credentials: list[Credential]) -> None:
         try:
-            serialized_credential_list = json.loads(self.credential_backup)
+            cred_bkp = json.loads(self.credential_backup)
         except json.JSONDecodeError as e:
             self.trigger_exception(e)
-        credential_list = []
-        for serialized_credential in serialized_credential_list:
-            try:
-                credential = Credential.deserialize_credential(serialized_credential)
-                credential_list.append(credential)
-            except SecretsAppException as e:
-                self.trigger_exception(e)
 
-        pin_required = False
-        ids = {credential.id for credential in existing_credentials}
-        temp_cred_list = []
-        for credential in credential_list:
-            if credential.id in ids:
-                logger.warning("Warn: Credential with same ID already exists")
-            else:
-                temp_cred_list.append(credential)
-
-            if credential.protected:
-                pin_required = True
-
-        self.credential_list = temp_cred_list
-        if pin_required:
-            verify_pin_job = VerifyPinJob(
-                self.common_ui, self.pin_cache, self.pin_ui, self.data, set_pin=pin_required
-            )
-            verify_pin_job.pin_verified.connect(self.add_credential)
-            self.spawn(verify_pin_job)
-        else:
-            self.add_credential()
-
-    @Slot(bool)
-    def add_credential(self, successful: bool = True) -> None:
-        if not successful:
-            self.finished.emit()
-            return
-
+        cxf_export = PasswordToCXF.cxf_from_dict(cred_bkp)
         with self.data.open() as device:
             if not isinstance(device, NK3):
                 return
             secrets = SecretsApp(device)
-            with self.touch_prompt():
-                for credential in self.credential_list:
-                    reg_data = {
-                        "credid": credential.id,
-                        "touch_button_required": credential.touch_required,
-                        "pin_based_encryption": credential.protected,
-                    }
-
-                    if credential.login:
-                        reg_data["login"] = credential.login
-                    if credential.password:
-                        reg_data["password"] = credential.password
-                    if credential.comment:
-                        reg_data["metadata"] = credential.comment
-                    try:
-                        secrets.register(**reg_data)  # type: ignore [arg-type]
-                    except SecretsAppException as e:
-                        self.trigger_exception(e)
-
+            pin = self.pin_cache.get(self.data)
+            if not pin:
+                pin = ''
+            secrets.bulk_import_cxf(cxf_export, pin)
         self.credential_restore.emit()
 
 
