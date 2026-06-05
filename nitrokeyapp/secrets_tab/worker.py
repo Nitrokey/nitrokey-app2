@@ -663,8 +663,8 @@ class BackupCredentialJob(Job):
             pin=self.pin_cache.get(self.data)
             if not pin:
                 pin = ''
-            cxf_export = secrets.get_export_cxf(pin)
-            credential_list_formatted = json.dumps(asdict(cxf_export), indent=4)
+            cxf_export = secrets.get_export_cxf(pin, as_dict=True)
+            credential_list_formatted = json.dumps(cxf_export, indent=4)
             self.credential_bkp.emit(credential_list_formatted)
 
 
@@ -702,8 +702,6 @@ class RestoreCredentialJob(Job):
             cred_bkp = json.loads(self.credential_backup)
         except json.JSONDecodeError as e:
             self.trigger_exception(e)
-
-        cxf_export = PasswordToCXF.cxf_from_dict(cred_bkp)
         with self.data.open() as device:
             if not isinstance(device, NK3):
                 return
@@ -711,7 +709,7 @@ class RestoreCredentialJob(Job):
             pin = self.pin_cache.get(self.data)
             if not pin:
                 pin = ''
-            secrets.bulk_import_cxf(cxf_export, pin)
+            secrets.bulk_import_cxf(cred_bkp, pin)
         self.credential_restore.emit()
 
 
