@@ -24,7 +24,7 @@ from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.secrets_tab import SecretsTab
 from nitrokeyapp.settings_tab import SettingsTab
 from nitrokeyapp.touch import TouchIndicator
-from nitrokeyapp.utils import should_use_ccid
+from nitrokeyapp.utils import check_ccid_config, should_use_ccid
 
 # import wizards and stuff
 from nitrokeyapp.welcome_tab import WelcomeTab
@@ -153,6 +153,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         self.init_gui()
         self.show()
+
+        check_ccid_config(self)
 
     def toggle_update_btn(self) -> None:
         device_count = len(self.device_manager)
