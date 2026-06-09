@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Dict, Optional
 
 from nitrokey.nk3 import NK3
-from nitrokey.nk3.secrets_app import SecretsApp, SecretsAppException, CXF
+from nitrokey.nk3.secrets_app import SecretsApp, SecretsAppException
 from nitrokey.nk3.credential_exchange_format import PasswordToCXF
 from nitrokey.trussed import Uuid
 from PySide6.QtCore import QObject, Signal, Slot
@@ -663,7 +663,7 @@ class BackupCredentialJob(Job):
             pin=self.pin_cache.get(self.data)
             if not pin:
                 pin = ''
-            cxf_export = secrets.get_export_cxf(pin, as_dict=True)
+            cxf_export, non_exportable_creds = secrets.get_export_cxf(pin, as_dict=True)
             credential_list_formatted = json.dumps(cxf_export, indent=4)
             self.credential_bkp.emit(credential_list_formatted)
 
