@@ -663,7 +663,8 @@ class BackupCredentialJob(Job):
             pin=self.pin_cache.get(self.data)
             if not pin:
                 pin = ''
-            cxf_export, non_exportable_creds = secrets.get_export_cxf(pin, as_dict=True)
+            cxf_export, passphrase, non_exportable_creds = secrets.get_export_cxf_encrypted(pin)
+            print("Passphrase ", passphrase)
             credential_list_formatted = json.dumps(cxf_export, indent=4)
             self.credential_bkp.emit(credential_list_formatted)
 
@@ -709,6 +710,7 @@ class RestoreCredentialJob(Job):
             pin = self.pin_cache.get(self.data)
             if not pin:
                 pin = ''
+            passphrase = input("Enter passphrase")
             secrets.bulk_import_cxf(cred_bkp, pin)
         self.credential_restore.emit()
 
