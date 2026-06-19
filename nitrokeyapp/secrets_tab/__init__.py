@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QListWidgetItem,
+    QMessageBox,
     QSpinBox,
     QWidget,
 )
@@ -204,6 +205,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             timer.setInterval(CLIPBOARD_CLEAR_TIMEOUT_MS)
             timer.timeout.connect(lambda f=field: self._clear_clipboard_for_field(f))
             self._clipboard_timers[field] = timer
+
+        self.refresh_icons()
 
         self.ui.btn_add.pressed.connect(self.add_new_credential)
         self.ui.btn_abort.pressed.connect(lambda: self.show_secrets(True))
@@ -554,7 +557,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.ui.otp.clear()
             self.ui.otp.setReadOnly(False)
             self.ui.otp.setPlaceholderText("<empty>")
-            self.ui.select_algorithm.setCurrentText(str(credential.otp))
+            self.ui.select_algorithm.setCurrentText("Password only")
             self.ui.select_algorithm.setEnabled(True)
 
         self.check_credential()
@@ -628,7 +631,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.algorithm_show.hide()
 
         self.ui.select_algorithm.show()
-        self.ui.select_algorithm.setCurrentText("None")
+        self.ui.select_algorithm.setCurrentText("Password only")
         self.ui.select_algorithm.setEnabled(True)
         self.action_hmac_gen.setVisible(False)
 
@@ -643,7 +646,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     def check_credential(self) -> None:
         self.common_ui.info.info.emit("")
 
-        tool_Tip = "Credeantial cannot be saved:"
+        tool_Tip = "Credential cannot be saved:"
         can_save = True
         check_secret = self.ui.otp.text().replace(" ", "").replace("-", "")
 
@@ -683,9 +686,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             tool_Tip = tool_Tip + "\n- Comment is too long"
 
         if self.ui.select_algorithm.isEnabled():
-            if algo == "None":
+            if algo == "Password only":
                 self.ui.otp.setReadOnly(True)
-                self.ui.otp.setPlaceholderText("<select algorithm>")
+                self.ui.otp.setPlaceholderText("OTP not configured")
             else:
                 self.ui.otp.setReadOnly(False)
                 self.ui.otp.setPlaceholderText("<empty>")
@@ -699,16 +702,16 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             else:
                 self.hide_hmac_view()
 
-            if algo != "None" and len(check_secret) != len(check_secret.encode()):
+            if algo != "Password only" and len(check_secret) != len(check_secret.encode()):
                 can_save = False
                 self.common_ui.info.info.emit("Invalid character in Secret")
                 tool_Tip = tool_Tip + "\n- Invalid character in Secret"
             elif not is_base32(check_secret) and len(check_secret) > 1:
                 can_save = False
-                self.common_ui.info.info.emit("Secret is not in Base32")
-                tool_Tip = tool_Tip + "\n- Secret is not in Base32"
+                self.common_ui.info.info.emit("Secret is not valid Base32")
+                tool_Tip = tool_Tip + "\n- Secret is not valid Base32"
 
-            if algo != "None" and len(check_secret) < 1:
+            if algo != "Password only" and len(check_secret) < 1:
                 can_save = False
                 self.common_ui.info.info.emit("Enter a Secret")
                 tool_Tip = tool_Tip + "\n- Enter a Secret"
@@ -747,6 +750,24 @@ class SecretsTab(QtUtilsMixIn, QWidget):
                 self._clipboard_expected[obj] = selected
                 self._clipboard_timers[obj].start()
         return False
+
+    def refresh_icons(self) -> None:
+        """re-resolve all themed icons, e.g. after a light/dark mode switch"""
+        self.ui.btn_abort.setIcon(self.get_qicon("close.svg"))
+        self.ui.btn_delete.setIcon(self.get_qicon("delete.svg"))
+        self.ui.btn_edit.setIcon(self.get_qicon("edit.svg"))
+        self.ui.btn_refresh.setIcon(self.get_qicon("refresh.svg"))
+
+        icon_copy = self.get_qicon("content_copy.svg")
+        self.action_username_copy.setIcon(icon_copy)
+        self.action_password_copy.setIcon(icon_copy)
+        self.action_comment_copy.setIcon(icon_copy)
+        self.action_otp_copy.setIcon(icon_copy)
+        self.action_otp_edit.setIcon(self.get_qicon("edit.svg"))
+        self.action_hmac_gen.setIcon(self.get_qicon("refresh.svg"))
+
+        shown = self.ui.password.echoMode() == QLineEdit.Normal  # type: ignore [attr-defined]
+        self.set_password_show(shown)
 
     def act_password_show(self) -> None:
         self.set_password_show(self.ui.password.echoMode() == QLineEdit.Password)  # type: ignore [attr-defined]
@@ -915,9 +936,18 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         credential = self.get_current_credential()
         assert credential
 
-        # TODO: ask for confirmation?
+        msg_box = QMessageBox(self)
+        msg_box.setIcon(QMessageBox.Icon.Warning)
+        msg_box.setWindowTitle("Delete Credential")
+        msg_box.setText(f"Delete '{credential.name}' from the device?")
+        msg_box.setInformativeText("This action cannot be undone.")
+        delete_btn = msg_box.addButton("Delete", QMessageBox.ButtonRole.DestructiveRole)
+        msg_box.addButton(QMessageBox.StandardButton.Cancel)
+        msg_box.setDefaultButton(QMessageBox.StandardButton.Cancel)
+        msg_box.exec()
 
-        self.trigger_delete_credential.emit(self.data, credential)
+        if msg_box.clickedButton() == delete_btn:
+            self.trigger_delete_credential.emit(self.data, credential)
 
     @Slot()
     def save_credential(self) -> None:
@@ -930,7 +960,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         kind_str = self.ui.select_algorithm.currentText()
 
         if len(name) < 3:
-            print("INSERT ERROR MESSAGE HERE - status bar?")
             return
 
         kind, otherKind, otp_secret, secret = None, None, None, None
@@ -956,7 +985,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             protected=pin_protected,
             touch_required=user_presence,
             new_secret=self.ui.select_algorithm.isEnabled()
-            and self.ui.select_algorithm.currentText() != "None",
+            and self.ui.select_algorithm.currentText() != "Password only",
         )
 
         if self.active_credential is None:

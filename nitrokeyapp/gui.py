@@ -133,6 +133,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
                 view.common_ui.gui.refresh_devices.connect(self.refresh_devices)
 
+        qt_app.styleHints().colorSchemeChanged.connect(self.refresh_themed_icons)  # type: ignore [attr-defined]
+
         # main window widgets
         self.home_button = self.ui.btn_home
         self.help_btn = self.ui.btn_dial_help
@@ -354,6 +356,13 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.hide_device()
 
     @Slot()
+    def refresh_themed_icons(self) -> None:
+        """re-resolve icons that have light/dark variants after a system theme switch"""
+        self.welcome_widget.refresh_icons()
+        self.secrets_tab.refresh_icons()
+        self.fido2_tab.refresh_icons()
+        self.settings_tab.refresh_icons()
+
     def set_busy_after_delay(self) -> None:
         if self.busy_count == 0:
             return

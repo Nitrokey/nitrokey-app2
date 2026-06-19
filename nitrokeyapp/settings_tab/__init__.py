@@ -5,7 +5,7 @@ from fido2.ctap2.base import Info
 from nitrokey.nk3.secrets_app import SelectResponse
 from nitrokey.trussed import Model
 from PySide6.QtCore import QThread, Signal, Slot
-from PySide6.QtGui import QAction
+from PySide6.QtGui import QAction, QBrush, QColor, QFont
 from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem, QWidget
 
 from nitrokeyapp.common_ui import CommonUi
@@ -135,8 +135,14 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         for state, data in SETTINGS.items():
             if data.get("parent") is None:
                 item = QTreeWidgetItem(self.ui.settings_tree)
-                item.setText(0, data["name"])
+                item.setText(0, data["name"].upper())
                 item.setData(1, 0, state)
+                header_font = QFont()
+                header_font.setPointSize(9)
+                header_font.setWeight(QFont.Weight.Bold)
+                item.setFont(0, header_font)
+                item.setForeground(0, QBrush(QColor("#57606a")))
+                item.setBackground(0, QBrush(QColor("#f6f8fa")))
                 self.items[state] = item
 
         # sub-items
@@ -147,7 +153,13 @@ class SettingsTab(QtUtilsMixIn, QWidget):
                 item.setData(1, 0, state)
                 self.items[state] = item
 
-        self.ui.settings_tree.itemClicked.connect(self.show_widget)
+        tree = self.ui.settings_tree
+        tree.setRootIsDecorated(False)
+        tree.setItemsExpandable(False)
+        tree.setIndentation(0)
+        tree.expandAll()
+
+        tree.itemClicked.connect(self.show_widget)
 
         self.ui.current_password.textChanged.connect(self.check_credential)
         self.ui.new_password.textChanged.connect(self.check_credential)
@@ -157,6 +169,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         self.reset()
         self.field_btn()
+        self.refresh_icons()
 
     @property
     def title(self) -> str:
@@ -398,6 +411,21 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         field.setEchoMode(mode)
         action.setIcon(icon)
 
+    def refresh_icons(self) -> None:
+        """re-resolve all themed icons, e.g. after a light/dark mode switch"""
+        self.ui.btn_abort.setIcon(self.get_qicon("close.svg"))
+        self.ui.btn_reset.setIcon(self.get_qicon("delete.svg"))
+
+        show_icon = self.get_qicon("visibility.svg")
+        hide_icon = self.get_qicon("visibility_off.svg")
+        for field, action in [
+            (self.ui.current_password, self.action_current_password_show),
+            (self.ui.new_password, self.action_new_password_show),
+            (self.ui.repeat_password, self.action_repeat_password_show),
+        ]:
+            is_shown = field.echoMode() == QLineEdit.EchoMode.Normal
+            action.setIcon(show_icon if is_shown else hide_icon)
+
     def set_device_data(
         self, path: str, uuid: str, version: str, variant: str, init_status: str
     ) -> None:
@@ -486,7 +514,6 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         elif state == State.PasswordsPin:
             self.trigger_passwords_status.emit(self.data)
 
-    @Slot(bool)
     def check_credential(self) -> None:
         self.common_ui.info.info.emit("")
 
