@@ -142,11 +142,10 @@ class VerifyPinJob(Job):
                 self.pin_cache.update(self.data, pin)
                 self.pin_verified.emit(True)
             except SecretsAppException as e:
+                logger.warning(f"Secrets PIN verification failed: {e}")
                 self.pin_cache.clear()
                 # TODO: repeat on failure
-                # TODO: check error code
-                # TODO: improve error message
-                self.trigger_error(f"PIN validation failed: {e}")
+                self.trigger_error("Incorrect PIN. Please try again.")
 
     @Slot(str)
     def pin_chosen(self, pin: str) -> None:
@@ -212,9 +211,7 @@ class EditCredentialJob(Job):
             return
 
         if self.credential.id != self.old_cred_id and self.credential.id in self.all_credentials:
-            self.trigger_error(
-                f"A credential with the name {self.credential.name} does already exist."
-            )
+            self.trigger_error(f"A credential named '{self.credential.name}' already exists.")
             return
 
         if self.credential.protected:

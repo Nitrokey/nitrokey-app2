@@ -24,7 +24,6 @@ class ProgressBox(QObject):
         self.progress_bar.setTextVisible(True)
 
         self.progress_bar.hide()
-        self.progress_bar.setStyleSheet("color: #808080; font: bold;")
 
         self.hide_timer = QTimer(self)
         self.hide_timer.setSingleShot(True)
