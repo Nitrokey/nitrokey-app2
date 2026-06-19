@@ -6,6 +6,7 @@ from fido2.ctap2.base import Info
 from nitrokey.nk3.secrets_app import SelectResponse
 from nitrokey.trussed import Model
 from PySide6.QtCore import QThread, Signal, Slot
+from PySide6.QtGui import QBrush, QColor, QFont
 from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem, QWidget
 
 from nitrokeyapp.common_ui import CommonUi
@@ -33,8 +34,6 @@ class State(Enum):
 
 PIN_ICON = QtUtilsMixIn.get_qicon("dialpad.svg")
 RESET_ICON = QtUtilsMixIn.get_qicon("refresh.svg")
-SHOW_ICON = QtUtilsMixIn.get_qicon("visibility.svg")
-HIDE_ICON = QtUtilsMixIn.get_qicon("visibility_off.svg")
 
 SETTINGS: Dict[State, Dict] = {
     State.Fido: {
@@ -135,8 +134,14 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         for state, data in SETTINGS.items():
             if data.get("parent") is None:
                 item = QTreeWidgetItem(self.ui.settings_tree)
-                item.setText(0, data["name"])
+                item.setText(0, data["name"].upper())
                 item.setData(1, 0, state)
+                header_font = QFont()
+                header_font.setPointSize(9)
+                header_font.setWeight(QFont.Weight.Bold)
+                item.setFont(0, header_font)
+                item.setForeground(0, QBrush(QColor("#57606a")))
+                item.setBackground(0, QBrush(QColor("#f6f8fa")))
                 self.items[state] = item
 
         # sub-items
@@ -147,7 +152,13 @@ class SettingsTab(QtUtilsMixIn, QWidget):
                 item.setData(1, 0, state)
                 self.items[state] = item
 
-        self.ui.settings_tree.itemClicked.connect(self.show_widget)
+        tree = self.ui.settings_tree
+        tree.setRootIsDecorated(False)
+        tree.setItemsExpandable(False)
+        tree.setIndentation(0)
+        tree.expandAll()
+
+        tree.itemClicked.connect(self.show_widget)
 
         self.ui.current_password.textChanged.connect(self.check_credential)
         self.ui.new_password.textChanged.connect(self.check_credential)
@@ -157,6 +168,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         self.reset()
         self.field_btn()
+        self.refresh_icons()
 
     @property
     def title(self) -> str:
@@ -402,22 +414,37 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.set_repeat_password_show(show)
 
     def set_current_password_show(self, show: bool = True) -> None:
-        icon = SHOW_ICON if show else HIDE_ICON
+        icon = self.get_qicon("visibility.svg" if show else "visibility_off.svg")
         mode = QLineEdit.Normal if show else QLineEdit.Password  # type: ignore [attr-defined]
         self.ui.current_password.setEchoMode(mode)
         self.action_current_password_show.setIcon(icon)
 
     def set_new_password_show(self, show: bool = True) -> None:
-        icon = SHOW_ICON if show else HIDE_ICON
+        icon = self.get_qicon("visibility.svg" if show else "visibility_off.svg")
         mode = QLineEdit.Normal if show else QLineEdit.Password  # type: ignore [attr-defined]
         self.ui.new_password.setEchoMode(mode)
         self.action_new_password_show.setIcon(icon)
 
     def set_repeat_password_show(self, show: bool = True) -> None:
-        icon = SHOW_ICON if show else HIDE_ICON
+        icon = self.get_qicon("visibility.svg" if show else "visibility_off.svg")
         mode = QLineEdit.Normal if show else QLineEdit.Password  # type: ignore [attr-defined]
         self.ui.repeat_password.setEchoMode(mode)
         self.action_repeat_password_show.setIcon(icon)
+
+    def refresh_icons(self) -> None:
+        """re-resolve all themed icons, e.g. after a light/dark mode switch"""
+        self.ui.btn_abort.setIcon(self.get_qicon("close.svg"))
+        self.ui.btn_reset.setIcon(self.get_qicon("delete.svg"))
+
+        self.set_current_password_show(
+            self.ui.current_password.echoMode() == QLineEdit.Normal  # type: ignore [attr-defined]
+        )
+        self.set_new_password_show(
+            self.ui.new_password.echoMode() == QLineEdit.Normal  # type: ignore [attr-defined]
+        )
+        self.set_repeat_password_show(
+            self.ui.repeat_password.echoMode() == QLineEdit.Normal  # type: ignore [attr-defined]
+        )
 
     def set_device_data(
         self, path: str, uuid: str, version: str, variant: str, init_status: str

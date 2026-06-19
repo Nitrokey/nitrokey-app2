@@ -110,12 +110,24 @@
           <enum>QFrame::Shadow::Raised</enum>
          </property>
          <property name="lineWidth">
-          <number>5</number>
-         </property>
-         <property name="midLineWidth">
-          <number>5</number>
+          <number>1</number>
          </property>
          <layout class="QFormLayout" name="formLayout_4">
+          <property name="leftMargin">
+           <number>16</number>
+          </property>
+          <property name="topMargin">
+           <number>12</number>
+          </property>
+          <property name="rightMargin">
+           <number>16</number>
+          </property>
+          <property name="bottomMargin">
+           <number>12</number>
+          </property>
+          <property name="verticalSpacing">
+           <number>8</number>
+          </property>
           <item row="0" column="0" colspan="2">
            <widget class="QLabel" name="nk3_label">
             <property name="sizePolicy">
@@ -376,7 +388,7 @@
                </font>
               </property>
               <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;An error occurred during device initialization. &lt;br/&gt;Click &lt;span style=&quot; font-weight:600; text-decoration: underline; color:#c81435;&quot;&gt;More Info&lt;/span&gt; for more information and contact support if the error persists.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;An error occurred during device initialization. &lt;br/&gt;Click &lt;span style=&quot; font-weight:600; text-decoration: underline; color:#c0392b;&quot;&gt;More Info&lt;/span&gt; for more information and contact support if the error persists.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="layoutDirection">
                <enum>Qt::LayoutDirection::RightToLeft</enum>
@@ -409,7 +421,7 @@
                </font>
               </property>
               <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://docs.nitrokey.com/nitrokey3/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#c80636;&quot;&gt;More Info&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://docs.nitrokey.com/nitrokey3/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#c0392b;&quot;&gt;More Info&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="openExternalLinks">
                <bool>true</bool>
@@ -512,10 +524,7 @@
           <enum>QFrame::Shadow::Raised</enum>
          </property>
          <property name="lineWidth">
-          <number>5</number>
-         </property>
-         <property name="midLineWidth">
-          <number>5</number>
+          <number>1</number>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>

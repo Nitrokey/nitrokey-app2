@@ -265,7 +265,7 @@
        <item>
         <widget class="QWidget" name="nitrokeys_list" native="true">
          <property name="styleSheet">
-          <string notr="true">border:0;</string>
+          <string notr="true">background-color: transparent; border: 0;</string>
          </property>
          <layout class="QVBoxLayout" name="nitrokeyButtonsLayout">
           <property name="spacing">
@@ -343,9 +343,7 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;home&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="styleSheet">
-             <string notr="true">QPushButton {
-	border: none;
-	} </string>
+             <string notr="true">QPushButton { background-color: transparent; border: 1px solid transparent; border-radius: 8px; } QPushButton:hover { background-color: rgba(192, 57, 43, 0.18); border: 1px solid rgba(192, 57, 43, 0.45); }</string>
             </property>
             <property name="text">
              <string/>
@@ -401,9 +399,7 @@
              <enum>Qt::LayoutDirection::RightToLeft</enum>
             </property>
             <property name="styleSheet">
-             <string notr="true">QPushButton {
-	border: none;
-	} </string>
+             <string notr="true">QPushButton { background-color: transparent; border: 1px solid transparent; border-radius: 8px; } QPushButton:hover { background-color: rgba(192, 57, 43, 0.18); border: 1px solid rgba(192, 57, 43, 0.45); }</string>
             </property>
             <property name="text">
              <string/>
