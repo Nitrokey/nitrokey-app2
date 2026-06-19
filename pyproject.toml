@@ -95,3 +95,8 @@ module = [
   "usbmonitor.*",
 ]
 ignore_missing_imports = true
+
+[tool.uv]
+exclude-newer = "7 days"
+# Can be used to update packages to a version more recent what exclude-newer allows
+exclude-newer-package = { nitrokey = false }
