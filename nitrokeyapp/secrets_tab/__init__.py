@@ -6,8 +6,8 @@ from enum import Enum
 from random import randbytes
 from typing import Callable, Optional
 
-from PySide6.QtCore import Qt, QThread, QTimer, Signal, Slot
-from PySide6.QtGui import QGuiApplication
+from PySide6.QtCore import QEvent, QObject, Qt, QThread, QTimer, Signal, Slot
+from PySide6.QtGui import QGuiApplication, QKeyEvent, QKeySequence
 from PySide6.QtWidgets import QLineEdit, QListWidgetItem, QWidget
 
 from nitrokeyapp.common_ui import CommonUi
@@ -24,6 +24,8 @@ from .worker import SecretsWorker
 
 
 logger = logging.getLogger(__name__)
+
+CLIPBOARD_CLEAR_TIMEOUT_MS = 10_000
 
 
 def parse_base32(s: str) -> bytes:
@@ -167,6 +169,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.ui.comment: self.action_comment_copy,
             self.ui.otp: self.action_otp_copy,
         }
+
+        for field in self.line2copy_action:
+            field.installEventFilter(self)
 
         self.ui.btn_add.pressed.connect(self.add_new_credential)
         self.ui.btn_abort.pressed.connect(lambda: self.show_secrets(True))
@@ -680,12 +685,32 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_save.setToolTip(tool_Tip)
 
     def act_copy_line_edit(self, obj: QLineEdit) -> None:
-        self.clipboard.setText(obj.text())
+        copied_text = obj.text()
+        self.clipboard.setText(copied_text)
         self.common_ui.info.info.emit("contents copied to clipboard")
         self.line2copy_action[obj].setIcon(self.get_qicon("done.svg"))
         QTimer.singleShot(
             5000, lambda: self.line2copy_action[obj].setIcon(self.get_qicon("content_copy.svg"))
         )
+        QTimer.singleShot(CLIPBOARD_CLEAR_TIMEOUT_MS, lambda: self.clear_clipboard(copied_text))
+
+    def clear_clipboard(self, expected_text: str) -> None:
+        if self.clipboard.text() == expected_text:
+            self.clipboard.clear()
+
+    def eventFilter(self, obj: QObject, event: QEvent) -> bool:
+        if (
+            event.type() == QEvent.Type.KeyPress
+            and isinstance(obj, QLineEdit)
+            and isinstance(event, QKeyEvent)
+            and event.matches(QKeySequence.StandardKey.Copy)
+        ):
+            selected = obj.selectedText()
+            if selected:
+                QTimer.singleShot(
+                    CLIPBOARD_CLEAR_TIMEOUT_MS, lambda: self.clear_clipboard(selected)
+                )
+        return False
 
     def act_password_show(self) -> None:
         self.set_password_show(self.ui.password.echoMode() == QLineEdit.Password)  # type: ignore [attr-defined]
