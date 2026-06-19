@@ -1,14 +1,26 @@
 import binascii
 import logging
+import string
 from base64 import b32decode, b32encode
 from datetime import datetime
 from enum import Enum
 from random import randbytes
+from secrets import choice
 from typing import Callable, Optional
 
 from PySide6.QtCore import QEvent, QObject, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QGuiApplication, QKeyEvent, QKeySequence
-from PySide6.QtWidgets import QLineEdit, QListWidgetItem, QWidget
+from PySide6.QtWidgets import (
+    QAbstractSpinBox,
+    QCheckBox,
+    QFormLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QListWidgetItem,
+    QSpinBox,
+    QWidget,
+)
 
 from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
@@ -138,6 +150,17 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.action_password_show = self.ui.password.addAction(icon_visibility, loc)
         self.action_password_show.triggered.connect(self.act_password_show)
 
+        self.action_password_generate = self.ui.password.addAction(icon_generate, loc)
+        self.action_password_generate.triggered.connect(self.act_toggle_password_gen)
+        self.action_password_generate.setToolTip("Generate random password")
+
+        self._pw_gen_widget = self._create_password_gen_widget()
+        self._pw_gen_widget.hide()
+        form = self.ui.password.parentWidget().layout()
+        assert isinstance(form, QFormLayout)
+        pw_row = form.getWidgetPosition(self.ui.password)[0]  # type: ignore[index]
+        form.insertRow(pw_row + 1, "", self._pw_gen_widget)
+
         self.action_comment_copy = self.ui.comment.addAction(icon_copy, loc)
         self.action_comment_copy.triggered.connect(lambda: self.act_copy_line_edit(self.ui.comment))
 
@@ -157,6 +180,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.action_username_copy,
             self.action_password_copy,
             self.action_password_show,
+            self.action_password_generate,
             self.action_comment_copy,
             self.action_otp_copy,
             self.action_otp_edit,
@@ -357,6 +381,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.set_password_show(show=False)
         for action in self.line_actions:
             action.setVisible(True)
+        self.action_password_generate.setVisible(False)
+        self._pw_gen_widget.hide()
 
         self.ui.credential_empty.hide()
         self.ui.credential_show.show()
@@ -456,6 +482,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             action.setVisible(False)
 
         self.action_password_show.setEnabled(True)
+        self.action_password_generate.setVisible(True)
+        self.action_password_generate.setEnabled(True)
+        self._pw_gen_widget.hide()
 
         self.ui.name.show()
         self.ui.name_label.hide()
@@ -558,6 +587,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             action.setVisible(False)
         self.action_password_show.setVisible(True)
         self.action_password_show.setEnabled(True)
+        self.action_password_generate.setVisible(True)
+        self.action_password_generate.setEnabled(True)
+        self._pw_gen_widget.hide()
 
         self.ui.name.show()
         self.ui.name_label.hide()
@@ -714,6 +746,62 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     def act_password_show(self) -> None:
         self.set_password_show(self.ui.password.echoMode() == QLineEdit.Password)  # type: ignore [attr-defined]
+
+    def act_toggle_password_gen(self) -> None:
+        self._pw_gen_widget.show()
+        self.act_password_generate()
+
+    def act_password_gen_setting_changed(self) -> None:
+        if self._pw_gen_widget.isVisible():
+            self.act_password_generate()
+
+    def act_password_generate(self) -> None:
+        alphabet = ""
+        if self._pw_gen_letters.isChecked():
+            alphabet += string.ascii_letters
+        if self._pw_gen_digits.isChecked():
+            alphabet += string.digits
+        if self._pw_gen_punctuation.isChecked():
+            alphabet += "!#$%&()*+,-.:;<=>?@[]^_{|}~"
+        if not alphabet:
+            self.common_ui.info.info.emit(
+                "Select at least one character group to generate a password"
+            )
+            return
+        password = "".join(choice(alphabet) for _ in range(self._pw_gen_length.value()))
+        self.ui.password.setText(password)
+        self.set_password_show(show=True)
+
+    def _create_password_gen_widget(self) -> QWidget:
+        widget = QWidget()
+        layout = QHBoxLayout(widget)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        self._pw_gen_letters = QCheckBox("Letters")
+        self._pw_gen_letters.setChecked(True)
+        self._pw_gen_digits = QCheckBox("Digits")
+        self._pw_gen_digits.setChecked(True)
+        self._pw_gen_punctuation = QCheckBox("Symbols")
+        self._pw_gen_punctuation.setChecked(True)
+
+        self._pw_gen_length = QSpinBox()
+        self._pw_gen_length.setRange(1, 64)
+        self._pw_gen_length.setValue(20)
+        self._pw_gen_length.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+
+        self._pw_gen_letters.stateChanged.connect(self.act_password_gen_setting_changed)
+        self._pw_gen_digits.stateChanged.connect(self.act_password_gen_setting_changed)
+        self._pw_gen_punctuation.stateChanged.connect(self.act_password_gen_setting_changed)
+        self._pw_gen_length.valueChanged.connect(self.act_password_gen_setting_changed)
+
+        layout.addWidget(self._pw_gen_letters)
+        layout.addWidget(self._pw_gen_digits)
+        layout.addWidget(self._pw_gen_punctuation)
+        layout.addWidget(QLabel("Length:"))
+        layout.addWidget(self._pw_gen_length)
+        layout.addStretch()
+
+        return widget
 
     def set_password_show(self, show: bool = True) -> None:
         icon_show = self.get_qicon("visibility.svg")
