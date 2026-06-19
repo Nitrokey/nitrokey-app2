@@ -23,9 +23,14 @@ class WelcomeTab(QtUtilsMixIn, QWidget):
 
         # self.ui === self -> this tricks mypy due to monkey-patching self
         self.ui = self.load_ui("welcome_tab.ui", self)
+        self.refresh_icons()
         self.ui.buttonSaveLog.pressed.connect(self.save_log)
         self.ui.VersionNr.setText(__version__)
         self.ui.CheckUpdate.pressed.connect(self.check_update)
+
+    def refresh_icons(self) -> None:
+        """re-resolve all themed icons, e.g. after a light/dark mode switch"""
+        self.ui.AppIcon.setPixmap(self.get_pixmap("app_logo.svg"))
 
     def check_update(self) -> None:
         try:

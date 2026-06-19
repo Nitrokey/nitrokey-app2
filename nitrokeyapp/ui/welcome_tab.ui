@@ -85,7 +85,7 @@
             <number>0</number>
            </property>
            <property name="text">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:704;&quot;&gt;Welcome to the Nitrokey App&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:700;&quot;&gt;Welcome to the Nitrokey App&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="textFormat">
             <enum>Qt::TextFormat::AutoText</enum>
@@ -94,7 +94,7 @@
             <set>Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignTop</set>
            </property>
            <property name="margin">
-            <number>20</number>
+            <number>10</number>
            </property>
           </widget>
          </item>
@@ -125,14 +125,14 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>400</width>
-             <height>100</height>
+             <width>280</width>
+             <height>65</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>400</width>
-             <height>100</height>
+             <width>280</width>
+             <height>65</height>
             </size>
            </property>
            <property name="sizeIncrement">
@@ -151,7 +151,7 @@
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap>icons/app_logo.svg</pixmap>
+            <pixmap>icons/light_mode/app_logo.svg</pixmap>
            </property>
            <property name="scaledContents">
             <bool>true</bool>
@@ -210,11 +210,17 @@
           <property name="spacing">
            <number>6</number>
           </property>
+          <property name="leftMargin">
+           <number>14</number>
+          </property>
           <property name="topMargin">
-           <number>9</number>
+           <number>12</number>
+          </property>
+          <property name="rightMargin">
+           <number>14</number>
           </property>
           <property name="bottomMargin">
-           <number>9</number>
+           <number>12</number>
           </property>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -242,9 +248,6 @@
               <property name="text">
                <string>Your connected devices are visible on the left side</string>
               </property>
-              <property name="indent">
-               <number>16</number>
-              </property>
              </widget>
             </item>
             <item>
@@ -257,9 +260,6 @@
               </property>
               <property name="text">
                <string>Select the device you want to manage</string>
-              </property>
-              <property name="indent">
-               <number>16</number>
               </property>
              </widget>
             </item>
@@ -290,6 +290,18 @@
           <enum>QFrame::Shadow::Raised</enum>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <property name="leftMargin">
+           <number>14</number>
+          </property>
+          <property name="topMargin">
+           <number>12</number>
+          </property>
+          <property name="rightMargin">
+           <number>14</number>
+          </property>
+          <property name="bottomMargin">
+           <number>12</number>
+          </property>
           <item>
            <widget class="QLabel" name="Version">
             <property name="sizePolicy">
@@ -300,7 +312,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>155</width>
+              <width>100</width>
               <height>0</height>
              </size>
             </property>
@@ -311,7 +323,7 @@
              <string>App version:</string>
             </property>
             <property name="alignment">
-             <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft</set>
+             <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -359,6 +371,18 @@
           <enum>QFrame::Shadow::Raised</enum>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <property name="leftMargin">
+           <number>14</number>
+          </property>
+          <property name="topMargin">
+           <number>12</number>
+          </property>
+          <property name="rightMargin">
+           <number>14</number>
+          </property>
+          <property name="bottomMargin">
+           <number>12</number>
+          </property>
           <item>
            <widget class="QLabel" name="Link">
             <property name="sizePolicy">
@@ -368,13 +392,10 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://www.nitrokey.com/start&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#c80636;&quot;&gt;Instructions and help&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://www.nitrokey.com/start&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#c0392b;&quot;&gt;Instructions and help&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="alignment">
-             <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft</set>
-            </property>
-            <property name="margin">
-             <number>0</number>
+             <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
             </property>
             <property name="openExternalLinks">
              <bool>true</bool>
