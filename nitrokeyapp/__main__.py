@@ -818,8 +818,8 @@ QToolTip {
 """
 
 
-def _stylesheet_for_scheme(scheme: Qt.ColorScheme) -> str:  # type: ignore [name-defined]
-    return _STYLESHEET_DARK if scheme == Qt.ColorScheme.Dark else _STYLESHEET_LIGHT  # type: ignore [attr-defined]
+def _stylesheet_for_scheme(scheme: Qt.ColorScheme) -> str:
+    return _STYLESHEET_DARK if scheme == Qt.ColorScheme.Dark else _STYLESHEET_LIGHT
 
 
 def main() -> None:
@@ -829,11 +829,11 @@ def main() -> None:
 
     style_hints = app.styleHints()
 
-    def apply_stylesheet(scheme: Qt.ColorScheme) -> None:  # type: ignore [name-defined]
+    def apply_stylesheet(scheme: Qt.ColorScheme) -> None:
         app.setStyleSheet(_stylesheet_for_scheme(scheme))
 
-    apply_stylesheet(style_hints.colorScheme())  # type: ignore [attr-defined]
-    style_hints.colorSchemeChanged.connect(apply_stylesheet)  # type: ignore [attr-defined]
+    apply_stylesheet(style_hints.colorScheme())
+    style_hints.colorSchemeChanged.connect(apply_stylesheet)
 
     with init_logging() as log_file:
         log_environment()
@@ -844,7 +844,7 @@ def main() -> None:
             # Qt's platform theme detection isn't always settled yet during
             # startup, so the stylesheet/icons set above can briefly use the
             # wrong variant; re-resolve both once the event loop is running
-            apply_stylesheet(style_hints.colorScheme())  # type: ignore [attr-defined]
+            apply_stylesheet(style_hints.colorScheme())
             window.refresh_themed_icons()
 
         QTimer.singleShot(0, refresh_theme)

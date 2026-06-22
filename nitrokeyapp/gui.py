@@ -121,7 +121,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
                 view.common_ui.gui.refresh_devices.connect(self.refresh_devices)
 
-        qt_app.styleHints().colorSchemeChanged.connect(self.refresh_themed_icons)  # type: ignore [attr-defined]
+        qt_app.styleHints().colorSchemeChanged.connect(self.refresh_themed_icons)
 
         # main window widgets
         self.home_button = self.ui.btn_home
@@ -213,7 +213,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.selected_device = None
 
         for widget in self.device_buttons:
-            widget.setParent(None)  # type: ignore [call-overload]
+            widget.setParent(None)
             widget.destroy()
         self.device_buttons.clear()
 
