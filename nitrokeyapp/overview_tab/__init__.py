@@ -192,7 +192,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         self.ui.btn_more_options.setIcon(QtUtilsMixIn.get_qicon("right_arrow.svg"))
         self.ui.frame_more_options.setFixedHeight(0)
 
-    @Slot(bool)
+    @Slot()
     def run_update(self) -> None:
         assert self.data
         # self.data.update(self, self.info_box)

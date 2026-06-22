@@ -2,7 +2,7 @@ import logging
 import webbrowser
 from time import sleep
 from types import TracebackType
-from typing import Dict, Optional, Type
+from typing import Dict, Optional, Type, cast
 
 from nitrokey.trussed import Model
 from PySide6 import QtWidgets
@@ -365,13 +365,13 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # self.user_err(msg, "Error", self)
 
     @Slot(object, BaseException, object)
-    def handle_exception(
-        self, ty: Type[BaseException], e: BaseException, tb: Optional[TracebackType]
-    ) -> None:
-        logger.error("Unhandled exception", exc_info=(ty, e, tb))
+    def handle_exception(self, ty: object, e: BaseException, tb: object) -> None:
+        ty_ = cast(Type[BaseException], ty)
+        tb_ = cast(TracebackType, tb)
+        logger.error("Unhandled exception", exc_info=(ty_, e, tb_))
 
         dialog = ErrorDialog(self.log_file, self)
-        dialog.set_exception(ty, e, tb)
+        dialog.set_exception(ty_, e, tb_)
 
     def closeEvent(self, event: QEvent) -> None:
         self.overview_tab.worker_thread.quit()

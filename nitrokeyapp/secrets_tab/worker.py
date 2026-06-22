@@ -256,7 +256,6 @@ class EditCredentialJob(Job):
         add_job.credential_added.connect(lambda cred: self.handle_created(cred, then_delete_id))
         self.spawn(add_job)
 
-    @Slot(Credential)
     def handle_created(self, credential: Credential, delete_id: bytes) -> None:
         self.credential = credential
         self.delete_credential(delete_id)
@@ -371,7 +370,7 @@ class AddCredentialJob(Job):
             verify_pin_job.pin_verified.connect(self.add_credential)
             self.spawn(verify_pin_job)
         else:
-            self.add_credential()
+            self.add_credential(True)
 
     @Slot(bool)
     def add_credential(self, successful: bool = True) -> None:
@@ -674,7 +673,7 @@ class SecretsWorker(Worker):
         job.received_credential.connect(self.received_credential)
         self.run(job)
 
-    @Slot(DeviceData, Credential, bytes, str)
+    @Slot(DeviceData, Credential, bytes, bytes)
     def edit_credential(
         self, data: DeviceData, credential: Credential, secret: bytes, old_cred_id: bytes
     ) -> None:

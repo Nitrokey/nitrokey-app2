@@ -229,6 +229,6 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
         self.trigger_delete_credential.emit(self.data, credential)
 
     @Slot(object)
-    def credential_deleted(self, credential: Optional[Fido2Credential]) -> None:
+    def credential_deleted(self, credential: object) -> None:
         self.active_credential = None
         self.refresh_credential_list()

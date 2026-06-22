@@ -534,7 +534,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         elif state == State.PasswordsPin:
             self.trigger_passwords_status.emit(self.data)
 
-    @Slot(bool)
+    @Slot()
     def check_credential(self) -> None:
         self.common_ui.info.info.emit("")
 
