@@ -855,14 +855,14 @@ shiboken6 = "6.10.1"
 
 [[package]]
 name = "pyside6-stubs"
-version = "6.4.2.0"
+version = "6.7.3.0"
 description = "PEP561 stub files for the *Qt for Python/PySide6* framework"
 optional = false
 python-versions = ">=3.7"
 groups = ["dev"]
 files = [
-    {file = "PySide6-stubs-6.4.2.0.tar.gz", hash = "sha256:d5578eb1597d1c07831c899b35636410b08915a4695ce6e41cceb6707c400fcf"},
-    {file = "PySide6_stubs-6.4.2.0-py3-none-any.whl", hash = "sha256:e825ded4b3555d540f297f405e3a9dc0943c032a96c53184cf644a8e4c4a6b0b"},
+    {file = "pyside6_stubs-6.7.3.0-py3-none-any.whl", hash = "sha256:7a2ef0d7486939f240e745829f80887ec3eab280e52c9930d64b48b3de95042a"},
+    {file = "pyside6_stubs-6.7.3.0.tar.gz", hash = "sha256:db8def2bb9c74091bfa2a4df7610d3ea344ecd00ebd4283995eeb5fda8383603"},
 ]
 
 [package.dependencies]
@@ -1179,4 +1179,4 @@ pcsc = ["nitrokey"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.15"
-content-hash = "d27f697c98ed1b602dde13a98a2bb8cdcde88bf8f7c75406e19471adc6299abf"
+content-hash = "62c4508b7358681039360fa39696b45437564a01e92752b7b5bf23ebd658d4f6"

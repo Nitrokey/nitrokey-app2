@@ -43,7 +43,7 @@ pcsc = ["nitrokey[pcsc]"]
 
 
 [tool.poetry.group.dev.dependencies]
-PySide6-stubs = "^6.4.2"
+PySide6-stubs = "^6.6.0"
 ruff = "^0.14"
 mypy = ">=1.18,<1.19"
 

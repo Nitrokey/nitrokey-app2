@@ -95,7 +95,7 @@ class QtUtilsMixIn:
             # ensure `self` will always be mixed-in with a QObject derived class
             assert isinstance(self, QObject)
             # TODO: what should we do if this is None?
-            widget = self.findChild(qt_cls, name)  # type: ignore
+            widget = self.findChild(qt_cls, name)
             assert widget
             self.widgets[name] = widget
         return widget  # type: ignore
