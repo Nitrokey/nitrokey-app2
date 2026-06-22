@@ -40,7 +40,7 @@ class ProgressBox(QObject):
         self.progress_bar.hide()
         self.progress_bar.setValue(0)
 
-    @Slot(int)
+    @Slot(int, int)
     def update(self, n: int, total: int) -> None:
         self.progress_bar.show()
         value = self.progress_bar.value()

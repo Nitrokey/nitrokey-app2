@@ -32,7 +32,7 @@ class Job(QObject):
         self.common_ui.info.error.emit(self.__class__.__name__ + str(Exception(msg)))
         self.finished.emit()
 
-    @Slot(str, Exception)
+    @Slot(Exception)
     def trigger_exception(self, exc: Exception) -> None:
         self.common_ui.info.error.emit(self.__class__.__name__ + str(exc))
         self.finished.emit()
