@@ -1,4 +1,3 @@
-from base64 import b64decode, b64encode
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum, auto, unique
@@ -126,47 +125,6 @@ class Credential:
             self.comment = item.metadata
         self.loaded = True
         return self
-
-    def serialize_credential(self) -> dict:
-        if not self.loaded:
-            raise RuntimeError("Cannot serialize credential which is not loaded yet")
-        credential_dict = {
-            "id": b64encode(self.id).decode(),
-            "kind": self.otp.raw_kind().value
-            if self.otp
-            else self.other.raw_kind().value
-            if self.other
-            else RawKind.NotSet.value,
-            "login": b64encode(self.login).decode() if self.login else "",
-            "password": b64encode(self.password).decode() if self.password else "",
-            "comment": b64encode(self.comment).decode() if self.comment else "",
-            "protected": self.protected,
-            "touch_required": self.touch_required,
-        }
-        return credential_dict
-
-    @classmethod
-    def deserialize_credential(cls, credential_dict: dict) -> "Credential":
-        id = credential_dict.get("id", "")
-        login = credential_dict.get("login", "")
-        password = credential_dict.get("password", "")
-        comment = credential_dict.get("comment", "")
-        credential = cls(
-            id=id,
-            login=b64decode(login) if login else None,
-            password=b64decode(password) if password else None,
-            comment=b64decode(comment) if comment else None,
-            protected=credential_dict.get("protected", False),
-            touch_required=credential_dict.get("touch_required", False),
-        )
-
-        kind = _kind_from_raw(RawKind(credential_dict.get("kind")))
-        if isinstance(kind, OtpKind):
-            credential.otp = kind
-        elif isinstance(kind, OtherKind):
-            credential.other = kind
-
-        return credential
 
 
 @dataclass

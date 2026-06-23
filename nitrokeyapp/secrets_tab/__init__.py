@@ -15,6 +15,7 @@ from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.worker import Worker
 
+from .backup_restore_ui import open_backup_restore_ui
 from .data import Credential, OtherKind, OtpData, OtpKind
 from .worker import SecretsWorker
 
@@ -65,8 +66,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     trigger_refresh_credentials = Signal(DeviceData, bool)
     trigger_get_credential = Signal(DeviceData, Credential)
     trigger_edit_credential = Signal(DeviceData, Credential, bytes, bytes)
-    trigger_backup_credential = Signal(DeviceData, bool)
-    trigger_restore_credential = Signal(DeviceData, str)
+    trigger_backup_credential = Signal(DeviceData, bool, bool)
+    trigger_restore_credential = Signal(DeviceData, str, str)
 
     def __init__(self, parent: QWidget) -> None:
         QWidget.__init__(self, parent)
@@ -118,6 +119,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.clipboard = QGuiApplication.clipboard()
         self.originalText = self.clipboard.text()
+        self.backup_content: str = ""
 
         # self.ui === self -> this tricks mypy due to monkey-patching self
         self.ui = self.load_ui("secrets_tab.ui", self)
@@ -313,8 +315,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     def backup_credentials(self) -> None:
         if not self.data:
             return
-        pin_protected = self.ui.is_protected.isChecked()
-        self.trigger_backup_credential.emit(self.data, pin_protected)
+        self._open_backup_restore("Backup passwords")
 
     @Slot(str)
     def save_credential_backup(self, credential_list_formatted: str) -> None:
@@ -335,8 +336,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         if not path:
             return
         with open(path, "r") as f:
-            backup_content = f.read()
-        self.trigger_restore_credential.emit(self.data, backup_content)
+            self.backup_content = f.read()
+        self._open_backup_restore(f"Restore passwords from {path}")
 
     @Slot()
     def on_credential_restored(self) -> None:
@@ -916,3 +917,22 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     def generate_hmac(self) -> None:
         secret = b32encode(randbytes(20))
         self.ui.otp.setText(secret.decode())
+
+    def _open_backup_restore(self, action: str) -> None:
+        ui = open_backup_restore_ui(action, self)
+        ui.update_status("Idle")
+
+        self._worker.passphrase_ready.connect(ui.update_passphrase)
+        self._worker.backup_progress.connect(ui.update_fields)
+        self._worker.restore_progress.connect(ui.update_fields)
+        self._worker.credential_bkp.connect(lambda _: ui.update_status("Backup complete"))
+        self._worker.credential_restore.connect(lambda: ui.update_status("Restore complete"))
+
+        def on_begin(cleartext: bool, passphrase: str, action_name: str) -> None:
+            ui.update_status("Working... Press your Nitrokey if it blinks.")
+            if action_name.lower().startswith("backup"):
+                self.trigger_backup_credential.emit(self.data, True, cleartext)
+            else:
+                self.trigger_restore_credential.emit(self.data, self.backup_content, passphrase)
+
+        ui.begin(on_begin)
