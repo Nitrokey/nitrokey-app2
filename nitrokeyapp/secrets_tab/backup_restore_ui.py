@@ -78,8 +78,19 @@ class BackupRestoreUi(QDialog):
         )
 
         self.successful_label = QLabel("Successful (0)")
+        self.successful_label.setToolTip("Operation on these credentials completed successfully")
+
         self.failed_label = QLabel(f"{self.failed_name} (0)")
+        self.failed_label.setToolTip(
+            "Credentials without a password (for example OTP only) are skipped during the backup as they cannot be extracted from the device."
+            if name == BackupRestoreAction.BACKUP
+            else "Credentials not imported because a credential with same label already exists on the device"
+        )
+
         self.skipped_label = QLabel("Skipped (0)")
+        self.skipped_label.setToolTip(
+            "Credentials are skipped if they are PIN protected but PIN is not supplied."
+        )
 
         lists_layout = QHBoxLayout()
         for label, widget in (
