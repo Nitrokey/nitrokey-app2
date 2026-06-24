@@ -1,6 +1,7 @@
+from enum import Enum
 from typing import Callable, List, Optional
 
-from PySide6.QtGui import QGuiApplication
+from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtWidgets import (
     QCheckBox,
     QDialog,
@@ -9,37 +10,46 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QListWidget,
     QPushButton,
+    QStatusBar,
     QToolButton,
     QVBoxLayout,
     QWidget,
 )
 
 
-class BackupRestoreUi(QDialog):
-    def __init__(self, name: str, parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent)
+class BackupRestoreAction(str, Enum):
+    BACKUP = "backup"
+    RESTORE = "restore"
 
-        processname = name
-        name = "backup" if processname.lower().startswith("backup") else "restore"
+
+class BackupRestoreUi(QDialog):
+    def __init__(
+        self, name: BackupRestoreAction, title: str, icon: QIcon, parent: Optional[QWidget] = None
+    ) -> None:
+        super().__init__(parent)
 
         self.name = name
         self.setWindowTitle(name.capitalize())
 
-        self.action_edit = QLineEdit(processname)
-        self.action_edit.setReadOnly(True)
+        self.action_edit = QLabel(f"Action: {title}")
 
         action_layout = QHBoxLayout()
-        action_layout.addWidget(QLabel("Action:"))
         action_layout.addWidget(self.action_edit)
 
         self.cleartext_checkbox = QCheckBox("Cleartext")
-        self.cleartext_checkbox.setVisible(name == "backup")
+        self.cleartext_checkbox.setToolTip(
+            "This option disables encryption of the generated backup and is discouraged. Only use for interoperability with other password managers."
+        )
+        self.cleartext_checkbox.setVisible(name == BackupRestoreAction.BACKUP)
 
         self.passphrase_edit = QLineEdit()
-        self.passphrase_edit.setReadOnly(name == "backup")
+        self.passphrase_edit.setToolTip(
+            "Passphrase is automatically created during an encrypted backup."
+        )
+        self.passphrase_edit.setReadOnly(name == BackupRestoreAction.BACKUP)
 
         self.copy_passphrase_button = QToolButton()
-        self.copy_passphrase_button.setText("📋")
+        self.copy_passphrase_button.setIcon(icon)
         self.copy_passphrase_button.setToolTip("Copy passphrase")
 
         self.begin_button = QPushButton("Begin")
@@ -47,7 +57,8 @@ class BackupRestoreUi(QDialog):
         passphrase_layout = QHBoxLayout()
         passphrase_layout.setContentsMargins(0, 0, 0, 0)
         passphrase_layout.addWidget(self.passphrase_edit)
-        passphrase_layout.addWidget(self.copy_passphrase_button)
+        if self.name == BackupRestoreAction.BACKUP:
+            passphrase_layout.addWidget(self.copy_passphrase_button)
 
         middle_layout = QHBoxLayout()
         middle_layout.addWidget(self.cleartext_checkbox)
@@ -56,15 +67,15 @@ class BackupRestoreUi(QDialog):
         middle_layout.addLayout(passphrase_layout, 1)
         middle_layout.addWidget(self.begin_button)
 
-        self.copy_passphrase_button.clicked.connect(
-            lambda: QGuiApplication.clipboard().setText(self.passphrase_edit.text())
-        )
+        self.copy_passphrase_button.clicked.connect(self.copy_passphrase)
 
         self.successful_list = QListWidget()
         self.failed_list = QListWidget()
         self.skipped_list = QListWidget()
 
-        self.failed_name = "Not passwords" if name == "backup" else "Already exists"
+        self.failed_name = (
+            "Not passwords" if name == BackupRestoreAction.BACKUP else "Already exists"
+        )
 
         self.successful_label = QLabel("Successful (0)")
         self.failed_label = QLabel(f"{self.failed_name} (0)")
@@ -81,8 +92,8 @@ class BackupRestoreUi(QDialog):
             column.addWidget(widget)
             lists_layout.addLayout(column)
 
-        self.status_edit = QLineEdit()
-        self.status_edit.setReadOnly(True)
+        self.status_edit = QStatusBar()
+        # self.status_edit.setReadOnly(True)
 
         status_layout = QHBoxLayout()
         status_layout.addWidget(QLabel("Status"))
@@ -97,6 +108,13 @@ class BackupRestoreUi(QDialog):
         self.setLayout(layout)
 
         self.resize(900, 520)
+
+    def copy_passphrase(self) -> None:
+        if self.passphrase_edit.text() != "":
+            QGuiApplication.clipboard().setText(self.passphrase_edit.text())
+            self.update_status("Passphrase copied!")
+        else:
+            self.update_status("Nothing to copy!")
 
     def update_fields(
         self, success_list: List[bytes], failed_list: List[bytes], skipped_list: List[bytes]
@@ -119,19 +137,21 @@ class BackupRestoreUi(QDialog):
         self.skipped_label.setText(f"Skipped ({len(skipped_list)})")
 
     def update_status(self, status: str) -> None:
-        self.status_edit.setText(status)
+        self.status_edit.showMessage(status)
 
     def update_passphrase(self, passphrase: str) -> None:
         self.passphrase_edit.setText(passphrase)
 
-    def begin(self, callback: Callable[[bool, str, str], None]) -> None:
+    def begin(self, callback: Callable[[bool, str, BackupRestoreAction], None]) -> None:
         def on_clicked() -> None:
             callback(self.cleartext_checkbox.isChecked(), self.passphrase_edit.text(), self.name)
 
         self.begin_button.clicked.connect(on_clicked)
 
 
-def open_backup_restore_ui(name: str, parent: Optional[QWidget] = None) -> BackupRestoreUi:
-    ui = BackupRestoreUi(name, parent)
+def open_backup_restore_ui(
+    action: BackupRestoreAction, title: str, icon: QIcon, parent: Optional[QWidget] = None
+) -> BackupRestoreUi:
+    ui = BackupRestoreUi(action, title, icon, parent)
     ui.show()
     return ui
