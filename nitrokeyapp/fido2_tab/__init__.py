@@ -62,6 +62,8 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
         self.ui.btn_edit.hide()
         self.ui.btn_abort.hide()
         self.ui.is_protected.hide()
+        self.ui.btn_backup.hide()
+        self.ui.btn_restore.hide()
 
         self.ui.name.hide()
         self.ui.algorithm_tab.hide()

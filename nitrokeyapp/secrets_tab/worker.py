@@ -1,10 +1,16 @@
+import json
 import logging
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict, Optional
 
 from nitrokey.nk3 import NK3
-from nitrokey.nk3.secrets_app import SecretsApp, SecretsAppException
+from nitrokey.nk3.secrets_app import (
+    CXFBackupCombined,
+    CXFRestoreCombined,
+    SecretsApp,
+    SecretsAppException,
+)
 from nitrokey.trussed import Uuid
 from PySide6.QtCore import QObject, Signal, Slot
 from PySide6.QtWidgets import QWidget
@@ -620,6 +626,138 @@ class GetCredentialJob(Job):
             self.received_credential.emit(cred)
 
 
+class BackupCredentialJob(Job):
+    credential_bkp = Signal(str)
+    passphrase_ready = Signal(str)
+    backup_progress = Signal(list, list, list)
+
+    def __init__(
+        self,
+        common_ui: CommonUi,
+        pin_cache: PinCache,
+        pin_ui: PinUi,
+        data: DeviceData,
+        pin_protected: bool,
+        cleartext: bool,
+    ) -> None:
+        super().__init__(common_ui)
+        self.pin_cache = pin_cache
+        self.pin_ui = pin_ui
+        self.data = data
+        self.pin_protected = pin_protected
+        self.cleartext = cleartext
+        self.credential_bkp.connect(lambda _: self.finished.emit())
+
+    def run(self) -> None:
+        with self.touch_prompt():
+            if self.pin_protected:
+                verify_pin_job = VerifyPinJob(
+                    self.common_ui, self.pin_cache, self.pin_ui, self.data
+                )
+                verify_pin_job.pin_verified.connect(self.get_credential_backup)
+                self.spawn(verify_pin_job)
+            else:
+                self.get_credential_backup()
+
+    def _progress_callback(self, total: int, status: CXFRestoreCombined) -> None:
+        self.backup_progress.emit(
+            list(status.successful_credentials),
+            list(status.failed_credentials),
+            list(status.skipped_credentials),
+        )
+
+    @Slot()
+    def get_credential_backup(self) -> None:
+        with self.data.open() as device:
+            if not isinstance(device, NK3):
+                return
+            secrets = SecretsApp(device)
+            pin = self.pin_cache.get(self.data) or ""
+            encryption = not self.cleartext
+
+            export_combined = secrets.export_cxf(
+                encryption=encryption, callback=self._progress_callback, password=pin
+            )
+
+            self.passphrase_ready.emit(export_combined.passphrase if encryption else "")
+
+            results = export_combined.results
+            self.backup_progress.emit(
+                list(results.successful_credentials) if results else [],
+                list(results.failed_credentials) if results else [],
+                list(results.skipped_credentials) if results else [],
+            )
+
+            credential_list_formatted = json.dumps(export_combined.payload, indent=4)
+            self.credential_bkp.emit(credential_list_formatted)
+
+
+class RestoreCredentialJob(Job):
+    credential_restore = Signal()
+    restore_progress = Signal(list, list, list)
+
+    def __init__(
+        self,
+        common_ui: CommonUi,
+        pin_cache: PinCache,
+        pin_ui: PinUi,
+        data: DeviceData,
+        credential_backup: str,
+        passphrase: str,
+    ) -> None:
+        super().__init__(common_ui)
+        self.pin_cache = pin_cache
+        self.pin_ui = pin_ui
+        self.data = data
+        self.credential_backup = credential_backup
+        self.passphrase = passphrase
+        self.credential_restore.connect(lambda: self.finished.emit())
+
+    def run(self) -> None:
+        with self.touch_prompt():
+            verify_pin_job = VerifyPinJob(self.common_ui, self.pin_cache, self.pin_ui, self.data)
+            verify_pin_job.pin_verified.connect(self.restore_credential_backup)
+            self.spawn(verify_pin_job)
+
+    def _progress_callback(self, total: int, status: CXFRestoreCombined) -> None:
+        self.restore_progress.emit(
+            list(status.successful_credentials),
+            list(status.failed_credentials),
+            list(status.skipped_credentials),
+        )
+
+    @Slot(bool)
+    def restore_credential_backup(self, successful: bool) -> None:
+        if not successful:
+            self.credential_restore.emit()
+            return
+
+        try:
+            cred_bkp = json.loads(self.credential_backup)
+        except json.JSONDecodeError as e:
+            self.trigger_exception(e)
+            return
+
+        with self.data.open() as device:
+            if not isinstance(device, NK3):
+                return
+            secrets = SecretsApp(device)
+            pin = self.pin_cache.get(self.data) or ""
+
+            import_content = CXFBackupCombined(payload=cred_bkp, passphrase=self.passphrase)
+            restore_result = secrets.import_cxf(
+                import_content, callback=self._progress_callback, password=pin
+            )
+
+            self.restore_progress.emit(
+                list(restore_result.successful_credentials),
+                list(restore_result.failed_credentials),
+                list(restore_result.skipped_credentials),
+            )
+
+        self.credential_restore.emit()
+
+
 class SecretsWorker(Worker):
     # TODO: remove DeviceData from signatures
 
@@ -631,6 +769,11 @@ class SecretsWorker(Worker):
     device_checked = Signal(bool)
     otp_generated = Signal(OtpData)
     received_credential = Signal(Credential)
+    credential_bkp = Signal(str)
+    credential_restore = Signal()
+    passphrase_ready = Signal(str)
+    backup_progress = Signal(list, list, list)
+    restore_progress = Signal(list, list, list)
 
     def __init__(self, common_ui: CommonUi, app_widget: QWidget) -> None:
         super().__init__(common_ui)
@@ -685,4 +828,23 @@ class SecretsWorker(Worker):
             self.common_ui, self.pin_cache, self.pin_ui, data, credential, secret, old_cred_id
         )
         job.credential_edited.connect(self.credential_edited)
+        self.run(job)
+
+    @Slot(DeviceData, bool, bool)
+    def backup_credential(self, data: DeviceData, pin_protected: bool, cleartext: bool) -> None:
+        job = BackupCredentialJob(
+            self.common_ui, self.pin_cache, self.pin_ui, data, pin_protected, cleartext
+        )
+        job.credential_bkp.connect(self.credential_bkp)
+        job.passphrase_ready.connect(self.passphrase_ready)
+        job.backup_progress.connect(self.backup_progress)
+        self.run(job)
+
+    @Slot(DeviceData, str, str)
+    def restore_credential(self, data: DeviceData, backup_content: str, passphrase: str) -> None:
+        job = RestoreCredentialJob(
+            self.common_ui, self.pin_cache, self.pin_ui, data, backup_content, passphrase
+        )
+        job.credential_restore.connect(self.credential_restore)
+        job.restore_progress.connect(self.restore_progress)
         self.run(job)
