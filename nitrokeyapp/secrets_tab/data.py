@@ -110,9 +110,9 @@ class Credential:
         return credential
 
     @classmethod
-    def list(cls, secrets: SecretsApp, perform_select: Optional[bool] = True) -> list["Credential"]:
+    def list(cls, secrets: SecretsApp) -> list["Credential"]:
         credentials = []
-        for item in secrets.list_with_properties(perform_select=perform_select):
+        for item in secrets.list_with_properties():
             credentials.append(cls.from_list_item(item))
         return credentials
 

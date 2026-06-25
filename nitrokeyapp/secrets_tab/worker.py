@@ -573,7 +573,7 @@ class ListCredentialsJob(Job):
             if not isinstance(device, NK3):
                 return
             secrets = SecretsApp(device)
-            for credential in Credential.list(secrets, perform_select=False):
+            for credential in Credential.list(secrets):
                 credentials.append(credential)
 
         self.credentials_listed.emit(credentials)
