@@ -262,7 +262,9 @@ class PivApp:
             from smartcard.ExclusiveTransmitCardConnection import (  # type: ignore[import-not-found,import-untyped]
                 ExclusiveTransmitCardConnection,
             )
-            from smartcard.System import readers as list_readers  # type: ignore[import-not-found,import-untyped]
+            from smartcard.System import (  # type: ignore[import-not-found,import-untyped]
+                readers as list_readers,
+            )
         except ImportError:
             raise PivError(0x0000, "pyscard is not installed. Run: pip install pyscard") from None
 
