@@ -15,11 +15,13 @@ from PySide6.QtWidgets import QInputDialog, QLineEdit, QWidget
 class PivPinUi(QObject):
     """Prompt for PIV PIN via a modal dialog (runs in the UI thread)."""
 
-    query = Signal(int)   # emitted from worker thread; delivered to UI thread
+    query = Signal(int)  # emitted from worker thread; delivered to UI thread
     queried = Signal(str)
     cancelled = Signal()
 
-    def __init__(self, app_widget: QWidget, title: str = "PIV PIN", label: str = "Enter PIV PIN:") -> None:
+    def __init__(
+        self, app_widget: QWidget, title: str = "PIV PIN", label: str = "Enter PIV PIN:"
+    ) -> None:
         super().__init__(app_widget)
         self.app_widget = app_widget
         self.title = title
@@ -30,10 +32,7 @@ class PivPinUi(QObject):
     def _show_dialog(self, retries: int) -> None:
         label = f"{self.label} (remaining retries: {retries})" if retries >= 0 else self.label
         pin, ok = QInputDialog.getText(
-            self.app_widget,
-            self.title,
-            label,
-            QLineEdit.EchoMode.Password,
+            self.app_widget, self.title, label, QLineEdit.EchoMode.Password
         )
         if ok and pin:
             self.queried.emit(pin)
@@ -41,9 +40,7 @@ class PivPinUi(QObject):
             self.cancelled.emit()
 
     def connect_actions(
-        self,
-        queried: Optional[Callable[[str], None]],
-        cancelled: Optional[Callable[[], None]],
+        self, queried: Optional[Callable[[str], None]], cancelled: Optional[Callable[[], None]]
     ) -> "PivPinUiConnection":
         conn = PivPinUiConnection(self)
         if queried:

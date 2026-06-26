@@ -15,10 +15,10 @@ from nitrokeyapp.device_manager import DeviceManager
 from nitrokeyapp.device_view import DeviceView
 from nitrokeyapp.error_dialog import ErrorDialog
 from nitrokeyapp.fido2_tab import Fido2Tab
-from nitrokeyapp.piv_tab import PivTab
 from nitrokeyapp.information_box import InfoBox
 from nitrokeyapp.nk3_button import Nk3Button
 from nitrokeyapp.overview_tab import OverviewTab
+from nitrokeyapp.piv_tab import PivTab
 from nitrokeyapp.progress_box import ProgressBox
 from nitrokeyapp.prompt_box import PromptBox
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
@@ -304,7 +304,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.welcome_widget.hide()
 
         # enforce refreshing the current view
-        self.views[0].refresh(data, force=True)
+        self.views[0].refresh(data)
 
         for btn in self.device_buttons:
             btn.set_stylesheet_small()

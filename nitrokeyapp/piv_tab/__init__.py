@@ -10,16 +10,16 @@ from typing import Optional
 
 from PySide6.QtCore import Qt, QThread, Signal, Slot
 from PySide6.QtWidgets import (
+    QComboBox,
     QDialog,
     QDialogButtonBox,
     QFileDialog,
     QFormLayout,
     QInputDialog,
+    QLabel,
     QLineEdit,
     QListWidgetItem,
     QMessageBox,
-    QComboBox,
-    QLabel,
     QVBoxLayout,
     QWidget,
 )
@@ -34,11 +34,7 @@ from .worker import PivWorker
 
 logger = logging.getLogger(__name__)
 
-ALGO_CHOICES = [
-    ("ECC P-256", b"\x11"),
-    ("ECC P-384", b"\x14"),
-    ("RSA 2048", b"\x07"),
-]
+ALGO_CHOICES = [("ECC P-256", b"\x11"), ("ECC P-384", b"\x14"), ("RSA 2048", b"\x07")]
 
 
 class PivTab(QtUtilsMixIn, QWidget):
@@ -297,9 +293,7 @@ class PivTab(QtUtilsMixIn, QWidget):
         password: Optional[bytes] = password_str.encode() if (ok and password_str) else None
 
         admin_key_str, ok = QInputDialog.getText(
-            self,
-            "Management Key",
-            "Management key (hex, leave empty for default):",
+            self, "Management Key", "Management key (hex, leave empty for default):"
         )
         if ok and admin_key_str.strip():
             try:
@@ -316,6 +310,7 @@ class PivTab(QtUtilsMixIn, QWidget):
 
 
 # ── Helper dialog ─────────────────────────────────────────────────────────────
+
 
 class _GenerateKeyDialog(QDialog):
     def __init__(self, slot_id: str, parent: Optional[QWidget] = None) -> None:

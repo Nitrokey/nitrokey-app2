@@ -13,14 +13,16 @@ from typing import Any, Optional, Sequence
 
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import ec, rsa
 from cryptography.hazmat.primitives.ciphers import Cipher, modes
 from cryptography.hazmat.primitives.serialization import Encoding, pkcs12
-from cryptography.hazmat.primitives.asymmetric import ec, rsa
 
 try:
     from cryptography.hazmat.decrepit.ciphers.algorithms import TripleDES
 except ImportError:
-    from cryptography.hazmat.primitives.ciphers.algorithms import TripleDES  # type: ignore[no-reattr]
+    from cryptography.hazmat.primitives.ciphers.algorithms import (
+        TripleDES,  # type: ignore[no-reattr]
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -29,8 +31,23 @@ NK3_ATR = bytes.fromhex("3B8F01805D4E6974726F6B657900000000006A")
 
 # SELECT PIV APDU (matches pynitrokey's piv_app.py)
 PIV_SELECT_APDU = [
-    0x00, 0xA4, 0x04, 0x00, 0x0C,
-    0xA0, 0x00, 0x00, 0x03, 0x08, 0x00, 0x00, 0x10, 0x00, 0x01, 0x00, 0x00,
+    0x00,
+    0xA4,
+    0x04,
+    0x00,
+    0x0C,
+    0xA0,
+    0x00,
+    0x00,
+    0x03,
+    0x08,
+    0x00,
+    0x00,
+    0x10,
+    0x00,
+    0x01,
+    0x00,
+    0x00,
 ]
 
 # Map from slot hex string to certificate container object ID
@@ -61,6 +78,7 @@ ALGORITHM_NAMES = {
 
 
 # ─── TLV helpers (ported from pynitrokey/tlv.py) ─────────────────────────────
+
 
 def _tlv_build_one(tag: int, data: bytes) -> bytes:
     if tag <= 0xFF:
@@ -132,6 +150,7 @@ def find_by_id(tag: int, items: list[tuple[int, bytes]]) -> Optional[bytes]:
 
 # ─── Data classes ─────────────────────────────────────────────────────────────
 
+
 @dataclass
 class PivCertInfo:
     subject: str
@@ -179,6 +198,7 @@ class PivSlotInfo:
 
 # ─── PIV error ────────────────────────────────────────────────────────────────
 
+
 class PivError(Exception):
     def __init__(self, status: int, message: str = "") -> None:
         self.status = status
@@ -207,6 +227,7 @@ class PivError(Exception):
 
 # ─── PivApp ───────────────────────────────────────────────────────────────────
 
+
 class PivApp:
     """PIV APDU session over a smartcard (pyscard) connection."""
 
@@ -234,14 +255,16 @@ class PivApp:
     def open(cls) -> "PivApp":
         """Open a PIV session on the first NK3 found via smartcard interface."""
         try:
-            from smartcard.Exceptions import CardConnectionException, NoCardException
-            from smartcard.ExclusiveTransmitCardConnection import ExclusiveTransmitCardConnection
-            from smartcard.System import readers as list_readers
-        except ImportError:
-            raise PivError(
-                0x0000,
-                "pyscard is not installed. Run: pip install pyscard",
+            from smartcard.Exceptions import (  # type: ignore[import-untyped]
+                CardConnectionException,
+                NoCardException,
             )
+            from smartcard.ExclusiveTransmitCardConnection import (  # type: ignore[import-untyped]
+                ExclusiveTransmitCardConnection,
+            )
+            from smartcard.System import readers as list_readers  # type: ignore[import-untyped]
+        except ImportError:
+            raise PivError(0x0000, "pyscard is not installed. Run: pip install pyscard") from None
 
         nk3_atr = list(NK3_ATR)
         for reader in list_readers():
@@ -316,16 +339,19 @@ class PivApp:
         """Mutual-authenticate with the management key (3DES or AES)."""
         if len(admin_key) == 24:
             from cryptography.hazmat.primitives.ciphers import algorithms as _alg
-            algorithm = TripleDES(admin_key)
+
+            algorithm: Any = TripleDES(admin_key)
             algo_byte = 0x03
             expected_len = 8
         elif len(admin_key) == 16:
             from cryptography.hazmat.primitives.ciphers import algorithms as _alg
+
             algorithm = _alg.AES128(admin_key)
             algo_byte = 0x08
             expected_len = 16
         elif len(admin_key) == 32:
             from cryptography.hazmat.primitives.ciphers import algorithms as _alg
+
             algorithm = _alg.AES256(admin_key)
             algo_byte = 0x0C
             expected_len = 16
@@ -493,8 +519,7 @@ class PivApp:
             if modulus_data is None or exponent_data is None:
                 raise PivError(0x0000, "No RSA key data in generate key response")
             public_key_rsa = rsa.RSAPublicNumbers(
-                int.from_bytes(exponent_data, "big"),
-                int.from_bytes(modulus_data, "big"),
+                int.from_bytes(exponent_data, "big"), int.from_bytes(modulus_data, "big")
             ).public_key()
             signer = _RsaPivSigner(self, key_ref, public_key_rsa)
             cert = (
@@ -514,25 +539,36 @@ class PivApp:
         slot_id_hex = format(key_ref, "02X")
         self.write_certificate(slot_id_hex, cert_der)
 
-    def import_rsa2048(self, key_ref: int, key: rsa.RSAPrivateNumbers, public_key: rsa.RSAPublicNumbers) -> None:
+    def import_rsa2048(
+        self, key_ref: int, key: rsa.RSAPrivateNumbers, public_key: rsa.RSAPublicNumbers
+    ) -> None:
         self.send_receive(
-            0xFE, 0x07, key_ref,
-            Tlv.build([
-                (0x01, key.p.to_bytes(128, "big")),
-                (0x02, key.q.to_bytes(128, "big")),
-                (0x03, public_key.e.to_bytes((public_key.e.bit_length() + 7) // 8, "big")),
-            ]),
+            0xFE,
+            0x07,
+            key_ref,
+            Tlv.build(
+                [
+                    (0x01, key.p.to_bytes(128, "big")),
+                    (0x02, key.q.to_bytes(128, "big")),
+                    (0x03, public_key.e.to_bytes((public_key.e.bit_length() + 7) // 8, "big")),
+                ]
+            ),
         )
 
     def write_certificate(self, slot_id: str, cert_der: bytes) -> None:
         container_id = KEY_TO_CERT_OBJ_ID[slot_id.upper()]
-        payload = Tlv.build([
-            (0x5C, container_id),
-            (0x53, Tlv.build([(0x70, cert_der), (0x71, bytes([0]))])),
-        ])
+        payload = Tlv.build(
+            [(0x5C, container_id), (0x53, Tlv.build([(0x70, cert_der), (0x71, bytes([0]))]))]
+        )
         self.send_receive(0xDB, 0x3F, 0xFF, payload)
 
-    def import_p12(self, slot_id: str, p12_data: bytes, password: Optional[bytes], admin_key: bytes = DEFAULT_ADMIN_KEY) -> None:
+    def import_p12(
+        self,
+        slot_id: str,
+        p12_data: bytes,
+        password: Optional[bytes],
+        admin_key: bytes = DEFAULT_ADMIN_KEY,
+    ) -> None:
         """Import a PKCS#12 file (RSA 2048 only) into a slot."""
         private_key, certificate, _ = pkcs12.load_key_and_certificates(p12_data, password)
 
@@ -545,9 +581,7 @@ class PivApp:
 
         self.authenticate_admin(admin_key)
         self.import_rsa2048(
-            key_ref,
-            private_key.private_numbers(),
-            private_key.public_key().public_numbers(),
+            key_ref, private_key.private_numbers(), private_key.public_key().public_numbers()
         )
         self._select_piv()
         self.authenticate_admin(admin_key)
@@ -568,15 +602,16 @@ class PivApp:
                         logger.warning(f"Failed to parse cert for slot {slot_id}: {e}")
             except PivError as e:
                 logger.debug(f"Error reading slot {slot_id}: {e}")
-            slots.append(PivSlotInfo(
-                slot_id=slot_id,
-                display_name=SLOT_DISPLAY_NAMES[slot_id],
-                cert=cert_info,
-            ))
+            slots.append(
+                PivSlotInfo(
+                    slot_id=slot_id, display_name=SLOT_DISPLAY_NAMES[slot_id], cert=cert_info
+                )
+            )
         return slots
 
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
+
 
 def _encode_pin(pin: str) -> bytes:
     body = pin.encode("utf-8")
@@ -598,6 +633,7 @@ def _prepare_pkcs1v15_sha256(data: bytes) -> bytes:
 
 
 # ─── PIV signing proxy classes (wrap device signing for cert generation) ──────
+
 
 class _RsaPivSigner(rsa.RSAPrivateKey):
     def __init__(self, device: PivApp, key_ref: int, public_key: rsa.RSAPublicKey) -> None:

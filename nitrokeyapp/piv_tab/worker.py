@@ -17,7 +17,7 @@ from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.worker import Job, Worker
 
-from .data import DEFAULT_ADMIN_KEY, PivApp, PivError, PivSlotInfo
+from .data import DEFAULT_ADMIN_KEY, PivApp, PivError
 from .ui import PivPinUi, PivPinUiConnection
 
 logger = logging.getLogger(__name__)
@@ -54,6 +54,7 @@ class PinCache(QObject):
 
 
 # ─── Jobs ─────────────────────────────────────────────────────────────────────
+
 
 class CheckDeviceJob(Job):
     device_checked = Signal(bool)
@@ -271,6 +272,7 @@ class GenerateKeyJob(Job):
 
 # ─── Worker ───────────────────────────────────────────────────────────────────
 
+
 class PivWorker(Worker):
     device_checked = Signal(bool)
     slots_listed = Signal(list)
@@ -315,7 +317,7 @@ class PivWorker(Worker):
         job.piv_reset.connect(self.piv_reset)
         self.run(job)
 
-    @Slot(DeviceData, str, bytes, object, bytes)
+    @Slot(DeviceData, str, bytes, object, bytes)  # type: ignore[arg-type]
     def import_p12(
         self,
         data: DeviceData,
