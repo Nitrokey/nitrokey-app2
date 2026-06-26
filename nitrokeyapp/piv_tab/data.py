@@ -255,14 +255,14 @@ class PivApp:
     def open(cls) -> "PivApp":
         """Open a PIV session on the first NK3 found via smartcard interface."""
         try:
-            from smartcard.Exceptions import (  # type: ignore[import-untyped]
+            from smartcard.Exceptions import (  # type: ignore[import-not-found,import-untyped]
                 CardConnectionException,
                 NoCardException,
             )
-            from smartcard.ExclusiveTransmitCardConnection import (  # type: ignore[import-untyped]
+            from smartcard.ExclusiveTransmitCardConnection import (  # type: ignore[import-not-found,import-untyped]
                 ExclusiveTransmitCardConnection,
             )
-            from smartcard.System import readers as list_readers  # type: ignore[import-untyped]
+            from smartcard.System import readers as list_readers  # type: ignore[import-not-found,import-untyped]
         except ImportError:
             raise PivError(0x0000, "pyscard is not installed. Run: pip install pyscard") from None
 
