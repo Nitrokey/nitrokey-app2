@@ -1,6 +1,7 @@
 import logging
 import shutil
 
+from nitrokey.trussed import Transport
 from nitrokey.trussed.admin_app import InitStatus
 from PySide6.QtCore import QThread, Signal, Slot
 from PySide6.QtWidgets import QFileDialog, QWidget
@@ -9,7 +10,7 @@ from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.update import UpdateResult, UpdateStatus
-from nitrokeyapp.utils import should_use_ccid
+from nitrokeyapp.utils import get_transport
 from nitrokeyapp.worker import Worker
 
 from .worker import OverviewWorker
@@ -51,7 +52,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         self.ui.btn_more_options.clicked.connect(self.more_options)
         self.ui.btn_update.clicked.connect(self.run_update)
 
-        self.using_ccid = should_use_ccid()
+        self._transport = get_transport()
 
         self.reset()
 
@@ -135,8 +136,8 @@ class OverviewTab(QtUtilsMixIn, QWidget):
 
     def set_update_enabled(self, enabled: bool) -> None:
         tooltip = ""
-        btn_really_enabled = enabled and not self.using_ccid
-        if enabled and self.using_ccid:
+        btn_really_enabled = enabled and self._transport == Transport.CTAPHID
+        if enabled and self._transport != Transport.CTAPHID:
             self.hide_more_options()
             self.common_ui.info.info.emit(
                 "Please restart the application as an administrator to be able to update"

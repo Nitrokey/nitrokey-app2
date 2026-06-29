@@ -1,31 +1,41 @@
-import importlib.util
 import logging
 import os
 import sys
 from typing import TYPE_CHECKING, Optional
 
-from nitrokey.trussed import should_default_ccid
+from nitrokey.trussed import HAS_CCID_SUPPORT, Transport, recommended_transport
 
 if TYPE_CHECKING:
     from PySide6.QtWidgets import QWidget
 
-NITROKEY_FORCE_CCID = "NITROKEY_FORCE_CCID"
-
 logger = logging.getLogger(__name__)
 
 
-def should_use_ccid() -> bool:
-    force_ccid = os.environ.get(NITROKEY_FORCE_CCID)
+def is_ctaphid_available() -> bool:
+    if sys.platform == "win32" or sys.platform == "cygwin":
+        try:
+            return ctypes.windll.shell32.IsUserAnAdmin()
+        except Exception:
+            pass
+    return True
+
+
+def get_transport() -> Transport:
+    force_ccid = os.environ.get("NITROKEY_FORCE_CCID")
+    transport = os.environ.get("NITROKEY_TRANSPORT")
     if force_ccid:
-        return True
+        return Transport.CCID
+    elif transport:
+        return Transport.from_str(transport)
     else:
-        return should_default_ccid()
+        return recommended_transport()
 
 
 def check_ccid_config(parent: Optional["QWidget"] = None) -> None:
-    if os.environ.get(NITROKEY_FORCE_CCID):
-        if importlib.util.find_spec("smartcard") is None:
-            message = "NITROKEY_FORCE_CCID is set but pyscard is not installed"
+    transport = get_transport()
+    if transport == Transport.CCID:
+        if not HAS_CCID_SUPPORT:
+            message = "CCID transport is selected but pyscard is not installed"
             logger.warning(message)
             sys.stderr.write(f"WARNING: {message}\n")
 

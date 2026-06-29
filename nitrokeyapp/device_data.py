@@ -1,8 +1,9 @@
 import logging
-from contextlib import AbstractContextManager
+from contextlib import AbstractContextManager, contextmanager
 from types import TracebackType
-from typing import Generic, TypeVar
+from typing import Generic, Iterator, TypeVar
 
+from fido2.ctap2.base import Ctap2
 from nitrokey import nk3, nkpk
 from nitrokey.nk3 import NK3
 from nitrokey.nkpk import NKPK
@@ -10,7 +11,7 @@ from nitrokey.trussed import Model, TrussedBase, TrussedBootloader, TrussedDevic
 from nitrokey.trussed.admin_app import Status
 
 from nitrokeyapp.update import UpdateContext, UpdateGUI, UpdateResult, UpdateStatus
-from nitrokeyapp.utils import should_use_ccid
+from nitrokeyapp.utils import Transport, get_transport
 
 logger = logging.getLogger(__name__)
 
@@ -34,16 +35,16 @@ class NoCloseWrapper(Generic[T]):
 
 
 class DeviceData:
-    def __init__(self, device: TrussedBase, using_ccid: bool) -> None:
+    def __init__(self, device: TrussedBase, transport: Transport) -> None:
         self.path = device.path
         self.model = device.model
         self.updating = False
+        self.transport = transport
 
         self._status: Status | None = None
         self._uuid: Uuid | None = None
         self._version: Version | None = None
         self._device = device
-        self._using_ccid = using_ccid
 
     def __repr__(self) -> str:
         fields = {
@@ -59,10 +60,11 @@ class DeviceData:
 
     @classmethod
     def list(cls) -> list["DeviceData"]:
-        use_ccid = should_use_ccid()
-
-        nk3_devices = [cls(dev, use_ccid) for dev in nk3.list(use_ccid, exclusive=True)]
-        nkpk_devices = [cls(dev, use_ccid) for dev in nkpk.list(use_ccid, exclusive=True)]
+        transport = get_transport()
+        nk3_devices = [cls(dev, transport) for dev in nk3.list(transport=transport, exclusive=True)]
+        nkpk_devices = [
+            cls(dev, transport) for dev in nkpk.list(transport=transport, exclusive=True)
+        ]
         return nk3_devices + nkpk_devices
 
     @property
@@ -128,7 +130,7 @@ class DeviceData:
         if self.is_bootloader:
             raise RuntimeError("Trying to open a device that is a bootloader")
 
-        if not self._using_ccid:
+        if self.transport == Transport.CTAPHID:
             assert self.path is not None
             if self.model == Model.NK3:
                 device = NK3.open(self.path)
@@ -140,13 +142,26 @@ class DeviceData:
             else:
                 # TODO: improve error handling
                 raise RuntimeError(f"Failed to open {self.model} device {self.uuid} at {self.path}")
-        else:
+        elif self.transport == Transport.CCID:
             if isinstance(self._device, NK3):
                 return NoCloseWrapper(self._device)
             elif isinstance(self._device, NKPK):
                 return NoCloseWrapper(self._device)
             else:
                 raise RuntimeError(f"Unknown device model {self._device}")
+        else:
+            # TODO: use typing.assert_never
+            raise ValueError(self.transport)
+
+    @contextmanager
+    def open_ctap2(self) -> Iterator[Ctap2]:
+        with self.open() as device:
+            ctaphid_device = device.ctaphid_device()
+            if ctaphid_device is None:
+                raise RuntimeError(
+                    f"Failed to access CTAPHID device using transport {device.transport}"
+                )
+            yield Ctap2(ctaphid_device)
 
     def update(self, ui: UpdateGUI, image: str | None = None) -> UpdateResult:
         if self.path is None:

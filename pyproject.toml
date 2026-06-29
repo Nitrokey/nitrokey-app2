@@ -33,7 +33,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 fido2 = "^2"
-nitrokey = "=0.5.0-rc.2"
+nitrokey = { git = "https://github.com/Nitrokey/nitrokey-sdk-py.git", branch = "connection" }
 pySide6 = ">=6.6.0"
 pywin32 = { version = ">=305", markers = "sys_platform =='win32'" }
 usb-monitor = "^1.21"

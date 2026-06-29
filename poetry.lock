@@ -580,12 +580,10 @@ name = "nitrokey"
 version = "0.5.0rc2"
 description = "Nitrokey Python SDK"
 optional = false
-python-versions = "<4,>=3.10"
+python-versions = ">=3.11, <4"
 groups = ["main"]
-files = [
-    {file = "nitrokey-0.5.0rc2-py3-none-any.whl", hash = "sha256:0b6df5ac57b46024b02d904636335c6aa3331c2796ed36ec7398bf56653b9267"},
-    {file = "nitrokey-0.5.0rc2.tar.gz", hash = "sha256:3cc79a7d19947b78a6bb676e1ba06e2174be2f846b67bdaf950c48a875e4221d"},
-]
+files = []
+develop = false
 
 [package.dependencies]
 crcmod = ">=1.7,<2"
@@ -593,7 +591,7 @@ cryptography = ">=41"
 fido2 = ">=2,<3"
 hidapi = ">=0.14,<0.15"
 protobuf = ">=5.26,<7"
-pyscard = {version = ">=2,<3", optional = true, markers = "extra == \"pcsc\""}
+pyscard = {version = ">=2,<3", optional = true}
 pyserial = ">=3.5,<4"
 requests = ">=2.16,<3"
 semver = ">=3,<4"
@@ -601,6 +599,12 @@ tlv8 = ">=0.10,<0.11"
 
 [package.extras]
 pcsc = ["pyscard (>=2,<3)"]
+
+[package.source]
+type = "git"
+url = "https://github.com/Nitrokey/nitrokey-sdk-py.git"
+reference = "connection"
+resolved_reference = "a97d2a6e3b8aefba7c57a5b789a2dcb3478dbc29"
 
 [[package]]
 name = "packaging"
@@ -1179,4 +1183,4 @@ pcsc = ["nitrokey"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.15"
-content-hash = "d27f697c98ed1b602dde13a98a2bb8cdcde88bf8f7c75406e19471adc6299abf"
+content-hash = "8bfa5e9919750a3043a7dd726395fee788609efd0883fd343f6ef9501a970220"

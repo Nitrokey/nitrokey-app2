@@ -1,12 +1,10 @@
 import logging
 from dataclasses import dataclass
 
-from fido2.ctap import CtapError
-from fido2.ctap2.base import Ctap2
 from fido2.ctap2.credman import CredentialManagement
 from fido2.ctap2.pin import ClientPin
 from fido2.webauthn import PublicKeyCredentialDescriptor, PublicKeyCredentialType
-from nitrokey.trussed import Uuid
+from nitrokey.trussed import DeviceError, Uuid
 from PySide6.QtCore import QObject, Signal, Slot
 from PySide6.QtWidgets import QWidget
 
@@ -61,8 +59,7 @@ class CheckDeviceJob(Job):
     def run(self) -> None:
         compatible = False
         try:
-            with self.data.open() as device:
-                ctap2 = Ctap2(device.device)
+            with self.data.open_ctap2() as ctap2:
                 opts = ctap2.info.options or {}
                 # FIDO2 credential management requires credMgmt or credentialMgmtPreview
                 compatible = bool(opts.get("credMgmt") or opts.get("credentialMgmtPreview"))
@@ -109,8 +106,7 @@ class ListCredentialsJob(Job):
 
     def _get_pin_retries(self) -> int | None:
         try:
-            with self.data.open() as device:
-                ctap2 = Ctap2(device.device)
+            with self.data.open_ctap2() as ctap2:
                 if not ctap2.info.options.get("clientPin"):
                     return None
                 client_pin = ClientPin(ctap2)
@@ -126,7 +122,8 @@ class ListCredentialsJob(Job):
     def _do_list(self, pin: str, pin_was_queried: bool = False) -> None:
         try:
             credentials = self._enumerate(pin)
-        except CtapError as e:
+        except DeviceError as e:
+            # TODO: check error code
             self.pin_cache.clear()
             self.trigger_error(f"FIDO2 PIN authentication failed: {e}")
             return
@@ -140,8 +137,7 @@ class ListCredentialsJob(Job):
         self.credentials_listed.emit(credentials)
 
     def _enumerate(self, pin: str) -> list[Fido2Credential]:
-        with self.data.open() as device:
-            ctap2 = Ctap2(device.device)
+        with self.data.open_ctap2() as ctap2:
             client_pin = ClientPin(ctap2)
             token = client_pin.get_pin_token(pin, permissions=ClientPin.PERMISSION.CREDENTIAL_MGMT)
             cred_mgmt = CredentialManagement(ctap2, client_pin.protocol, token)
@@ -217,8 +213,7 @@ class DeleteCredentialJob(Job):
 
     def _get_pin_retries(self) -> int | None:
         try:
-            with self.data.open() as device:
-                ctap2 = Ctap2(device.device)
+            with self.data.open_ctap2() as ctap2:
                 if not ctap2.info.options.get("clientPin"):
                     return None
                 client_pin = ClientPin(ctap2)
@@ -233,8 +228,7 @@ class DeleteCredentialJob(Job):
 
     def _do_delete(self, pin: str, pin_was_queried: bool = False) -> None:
         try:
-            with self.data.open() as device:
-                ctap2 = Ctap2(device.device)
+            with self.data.open_ctap2() as ctap2:
                 client_pin = ClientPin(ctap2)
                 token = client_pin.get_pin_token(
                     pin, permissions=ClientPin.PERMISSION.CREDENTIAL_MGMT
@@ -244,7 +238,7 @@ class DeleteCredentialJob(Job):
                     type=PublicKeyCredentialType.PUBLIC_KEY, id=self.credential.credential_id
                 )
                 cred_mgmt.delete_cred(descriptor)
-        except CtapError as e:
+        except DeviceError as e:
             self.pin_cache.clear()
             self.trigger_error(f"FIDO2 delete failed: {e}")
             return

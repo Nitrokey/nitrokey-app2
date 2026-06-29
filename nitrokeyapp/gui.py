@@ -3,7 +3,7 @@ import webbrowser
 from time import sleep
 from types import TracebackType
 
-from nitrokey.trussed import Model
+from nitrokey.trussed import Model, Transport
 from PySide6 import QtWidgets
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal, Slot
 from PySide6.QtGui import QCursor
@@ -23,7 +23,7 @@ from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.secrets_tab import SecretsTab
 from nitrokeyapp.settings_tab import SettingsTab
 from nitrokeyapp.touch import TouchIndicator
-from nitrokeyapp.utils import check_ccid_config, should_use_ccid
+from nitrokeyapp.utils import check_ccid_config, get_transport, is_ctaphid_available
 
 # import wizards and stuff
 from nitrokeyapp.welcome_tab import WelcomeTab
@@ -34,6 +34,10 @@ PASSKEYS_TAB_INDEX = 2
 PASSKEYS_ADMIN_REQUIRED_MESSAGE = (
     "Managing passkeys requires administrator privileges on Windows. "
     "Please restart the Nitrokey App as administrator to list or delete passkeys."
+)
+PASSKEYS_CTAPHID_REQUIRED_MESSAGE = (
+    "Managing passkeys requires using the CTAPHID transport. "
+    "Please update your configuration and restart the Nitrokey App to list or delete passkeys."
 )
 
 
@@ -138,9 +142,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # On Windows without admin rights, CTAPHID is unavailable so the
         # passkeys tab cannot list/delete credentials — keep it disabled and
         # surface the reason via tooltip on hover.
-        self.passkeys_admin_required = should_use_ccid()
-        if self.passkeys_admin_required:
-            self.tabs.setTabToolTip(PASSKEYS_TAB_INDEX, PASSKEYS_ADMIN_REQUIRED_MESSAGE)
+        self.passkeys_available = get_transport() == Transport.CTAPHID
+        if not self.passkeys_available:
+            if is_ctaphid_available():
+                self.tabs.setTabToolTip(PASSKEYS_TAB_INDEX, PASSKEYS_CTAPHID_REQUIRED_MESSAGE)
+            else:
+                self.tabs.setTabToolTip(PASSKEYS_TAB_INDEX, PASSKEYS_ADMIN_REQUIRED_MESSAGE)
 
         # set some spacing between Nitrokey buttons
         self.ui.nitrokeyButtonsLayout.setSpacing(8)
@@ -283,7 +290,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.tabs.setTabVisible(1, is_nk3)
             self.tabs.setTabEnabled(1, is_nk3)
             self.tabs.setTabVisible(2, has_fido2)
-            self.tabs.setTabEnabled(2, has_fido2 and not self.passkeys_admin_required)
+            self.tabs.setTabEnabled(2, has_fido2 and self.passkeys_available)
             self.tabs.setTabEnabled(3, True)
 
         self.show_navigation()
