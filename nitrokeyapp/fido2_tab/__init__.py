@@ -47,6 +47,7 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
 
         self.ui = self.load_ui("secrets_tab.ui", self)
         self._adapt_ui()
+        self.refresh_icons()
 
         self.ui.btn_refresh.pressed.connect(self.refresh_credential_list)
         self.ui.secrets_list.currentItemChanged.connect(self.credential_changed)
@@ -54,6 +55,11 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
         self.ui.btn_delete.pressed.connect(self.delete_credential)
 
         self.reset()
+
+    def refresh_icons(self) -> None:
+        """re-resolve all themed icons, e.g. after a light/dark mode switch"""
+        self.ui.btn_delete.setIcon(self.get_qicon("delete.svg"))
+        self.ui.btn_refresh.setIcon(self.get_qicon("refresh.svg"))
 
     def _adapt_ui(self) -> None:
         # hide everything not used by the FIDO2 view
@@ -222,7 +228,7 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
 
         self.trigger_delete_credential.emit(self.data, credential)
 
-    @Slot(object)
+    @Slot(object)  # type: ignore [arg-type]
     def credential_deleted(self, credential: Optional[Fido2Credential]) -> None:
         self.active_credential = None
         self.refresh_credential_list()

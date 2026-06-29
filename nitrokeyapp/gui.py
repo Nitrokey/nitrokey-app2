@@ -121,6 +121,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
                 view.common_ui.gui.refresh_devices.connect(self.refresh_devices)
 
+        qt_app.styleHints().colorSchemeChanged.connect(self.refresh_themed_icons)
+
         # main window widgets
         self.home_button = self.ui.btn_home
         self.help_btn = self.ui.btn_dial_help
@@ -211,7 +213,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.selected_device = None
 
         for widget in self.device_buttons:
-            widget.setParent(None)  # type: ignore [call-overload]
+            widget.setParent(None)
             widget.destroy()
         self.device_buttons.clear()
 
@@ -324,6 +326,13 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.hide_device()
 
     @Slot()
+    def refresh_themed_icons(self) -> None:
+        """re-resolve icons that have light/dark variants after a system theme switch"""
+        self.welcome_widget.refresh_icons()
+        self.secrets_tab.refresh_icons()
+        self.fido2_tab.refresh_icons()
+        self.settings_tab.refresh_icons()
+
     def set_busy_after_delay(self) -> None:
         if self.busy_count == 0:
             return
@@ -355,7 +364,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.info_box.set_error_status(msg)
         # self.user_err(msg, "Error", self)
 
-    @Slot(object, BaseException, object)
+    @Slot(object, BaseException, object)  # type: ignore [arg-type]
     def handle_exception(
         self, ty: Type[BaseException], e: BaseException, tb: Optional[TracebackType]
     ) -> None:
