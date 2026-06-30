@@ -4,6 +4,7 @@ from time import sleep
 from types import TracebackType
 from typing import Dict, Optional, Type
 
+from nitrokey import _VID_NITROKEY
 from nitrokey.trussed import Model
 from PySide6 import QtWidgets
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal, Slot
@@ -48,7 +49,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         QtUtilsMixIn.__init__(self)
 
         # start monitoring usb
-        monitor = USBMonitor()
+        monitor = USBMonitor(filter_devices=[{"ID_VENDOR_ID": f"{_VID_NITROKEY:04X}"}])
         monitor.start_monitoring(
             on_connect=self.detect_added_devices, on_disconnect=self.detect_removed_devices
         )
@@ -165,6 +166,24 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def detect_added_devices(
         self, device_id: Optional[str] = None, device_info: Optional[Dict[str, str]] = None
     ) -> None:
+        vid = device_info["ID_VENDOR_ID"] if device_info and "ID_VENDOR_ID" in device_info else ""
+        pid = device_info["ID_MODEL_ID"] if device_info and "ID_MODEL_ID" in device_info else ""
+
+        vid_dec = int(vid, 16) if vid else 0
+        pid_dec = int(pid, 16) if pid else 0
+
+        if vid_dec and pid_dec:
+            for current_devices in self.device_manager._devices:
+                currdev = current_devices._device
+                if (
+                    currdev.vid
+                    and currdev.vid == vid_dec
+                    and currdev.pid
+                    and currdev.pid == pid_dec
+                ):
+                    logger.info(f"Skipping device {device_id}")
+                    return
+
         # retry for up to 2secs
         for _tries in range(8):
             devs = self.device_manager.add()
