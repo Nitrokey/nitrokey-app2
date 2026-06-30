@@ -50,9 +50,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         QtUtilsMixIn.__init__(self)
 
         # start monitoring usb
-        nk_vid =f"{_VID_NITROKEY:04x}"
-        device_filter=({ID_VENDOR_ID: nk_vid.upper()},{ID_VENDOR_ID: nk_vid.lower()})
-        monitor = USBMonitor(filter_devices = device_filter)
+        nk_vid = f"{_VID_NITROKEY:04x}"
+        device_filter = (
+            {ID_VENDOR_ID: nk_vid.upper()},
+            {ID_VENDOR_ID: nk_vid.lower()},
+        )  # Lower case for linux, Upper case for windows
+        monitor = USBMonitor(filter_devices=device_filter)
         monitor.start_monitoring(
             on_connect=self.detect_added_devices, on_disconnect=self.detect_removed_devices
         )
@@ -169,9 +172,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def detect_added_devices(
         self, device_id: Optional[str] = None, device_info: Optional[Dict[str, str]] = None
     ) -> None:
-        interfaces=device_info.get(ID_USB_INTERFACES, ()) if device_info else ()
-        ccid_classes=('0b0000', 'class_0b')
-        hid_classes=('030000', 'class_03')
+        interfaces = device_info.get(ID_USB_INTERFACES, ()) if device_info else ()
+        ccid_classes = ("0b0000", "class_0b", "0x0b")
+        hid_classes = ("030000", "class_03", "0x03")
 
         filter_success = False
         filter_class = ccid_classes if should_use_ccid() else hid_classes
