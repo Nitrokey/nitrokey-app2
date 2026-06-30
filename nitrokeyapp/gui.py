@@ -3,11 +3,13 @@ import webbrowser
 from time import sleep
 from types import TracebackType
 
+from nitrokey import _VID_NITROKEY
 from nitrokey.trussed import Model
 from PySide6 import QtWidgets
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal, Slot
 from PySide6.QtGui import QCursor
 from usbmonitor import USBMonitor
+from usbmonitor.attributes import ID_USB_INTERFACES, ID_VENDOR_ID
 
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.device_manager import DeviceManager
@@ -47,7 +49,18 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         QtUtilsMixIn.__init__(self)
 
         # start monitoring usb
-        monitor = USBMonitor()
+        # usb-monitor uses different formats for the VID depending on the operating system, see:
+        # - https://github.com/Eric-Canas/USBMonitor/issues/10
+        # - https://github.com/Eric-Canas/USBMonitor/issues/12
+        nk_vid = f"{_VID_NITROKEY:04x}"
+        device_filter = (
+            {ID_VENDOR_ID: nk_vid.upper()},
+            {ID_VENDOR_ID: nk_vid.lower()},
+            {ID_VENDOR_ID: f"0x{nk_vid.upper()}"},
+            {ID_VENDOR_ID: f"0x{nk_vid.lower()}"},
+            {ID_VENDOR_ID: str(_VID_NITROKEY)},
+        )
+        monitor = USBMonitor(filter_devices=device_filter)
         monitor.start_monitoring(
             on_connect=self.detect_added_devices, on_disconnect=self.detect_removed_devices
         )
@@ -164,6 +177,24 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def detect_added_devices(
         self, device_id: str | None = None, device_info: dict[str, str] | None = None
     ) -> None:
+        interfaces = device_info.get(ID_USB_INTERFACES, ()) if device_info else ()
+        ccid_classes = ("0b0000", "class_0b", "0x0b", "IOUSBHostFamily.kext")
+        hid_classes = ("030000", "class_03", "0x03", "IOUSBHostFamily.kext")
+
+        filter_success = False
+        filter_class = ccid_classes if should_use_ccid() else hid_classes
+
+        for interface in interfaces:
+            if filter_success:
+                break
+            for f in filter_class:
+                if f in interface.lower():
+                    filter_success = True
+                    break
+
+        if not filter_success and interfaces:
+            return
+
         # retry for up to 2secs
         for _tries in range(8):
             devs = self.device_manager.add()
