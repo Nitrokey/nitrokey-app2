@@ -10,7 +10,7 @@ from PySide6 import QtWidgets
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal, Slot
 from PySide6.QtGui import QCursor
 from usbmonitor import USBMonitor
-from usbmonitor.attributes import ID_VENDOR_ID
+from usbmonitor.attributes import ID_USB_INTERFACES, ID_VENDOR_ID
 
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.device_manager import DeviceManager
@@ -169,7 +169,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def detect_added_devices(
         self, device_id: Optional[str] = None, device_info: Optional[Dict[str, str]] = None
     ) -> None:
-        interfaces=device_info.get("ID_USB_INTERFACES", ()) if device_info else ()
+        interfaces=device_info.get(ID_USB_INTERFACES, ()) if device_info else ()
         ccid_classes=('0b0000', 'class_0b')
         hid_classes=('030000', 'class_03')
 
