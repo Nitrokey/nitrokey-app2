@@ -10,6 +10,7 @@ from PySide6 import QtWidgets
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal, Slot
 from PySide6.QtGui import QCursor
 from usbmonitor import USBMonitor
+from usbmonitor.attributes import ID_VENDOR_ID
 
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.device_manager import DeviceManager
@@ -49,7 +50,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         QtUtilsMixIn.__init__(self)
 
         # start monitoring usb
-        monitor = USBMonitor(filter_devices=[{"ID_VENDOR_ID": f"{_VID_NITROKEY:04X}"}])
+        nk_vid =f"{_VID_NITROKEY:04x}"
+        device_filter=({ID_VENDOR_ID: nk_vid},)
+        monitor = USBMonitor(filter_devices = device_filter)
         monitor.start_monitoring(
             on_connect=self.detect_added_devices, on_disconnect=self.detect_removed_devices
         )
