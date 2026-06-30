@@ -45,10 +45,6 @@ class DeviceData:
         self._device = device
         self._using_ccid = using_ccid
 
-        if isinstance(self._device, TrussedDevice):
-            self._status = self._device.admin.status()
-            self._uuid = self._device.uuid()
-            self._version = self._device.admin.version()
 
     def __repr__(self) -> str:
         fields = {
