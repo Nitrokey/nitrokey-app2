@@ -1,5 +1,3 @@
-from typing import Dict, Optional
-
 from PySide6 import QtWidgets
 from PySide6.QtUiTools import QUiLoader
 
@@ -17,8 +15,8 @@ class UiLoader(QUiLoader):
 
     def __init__(
         self,
-        baseinstance: Optional[QtWidgets.QWidget],
-        customWidgets: Optional[Dict[str, QtWidgets.QWidget]] = None,
+        baseinstance: QtWidgets.QWidget | None,
+        customWidgets: dict[str, QtWidgets.QWidget] | None = None,
     ):
         """
         Create a loader for the given ``baseinstance``.
@@ -36,7 +34,7 @@ class UiLoader(QUiLoader):
         self.customWidgets = customWidgets or {}
 
     def createWidget(
-        self, class_name: str, parent: Optional[QtWidgets.QWidget] = None, name: str = ""
+        self, class_name: str, parent: QtWidgets.QWidget | None = None, name: str = ""
     ) -> QtWidgets.QWidget:
         """
         Function that is called for each widget defined in ui file,

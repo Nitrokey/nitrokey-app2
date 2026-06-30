@@ -1,14 +1,13 @@
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass
 class Fido2Credential:
     rp_id: str
-    rp_name: Optional[str]
+    rp_name: str | None
     user_id: bytes
-    user_name: Optional[str]
-    user_display_name: Optional[str]
+    user_name: str | None
+    user_display_name: str | None
     credential_id: bytes
 
     @property

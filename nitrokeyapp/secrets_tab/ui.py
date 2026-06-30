@@ -1,5 +1,5 @@
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Optional
 
 from PySide6.QtCore import QMetaObject, QObject, Signal, Slot
 from PySide6.QtWidgets import QInputDialog, QLineEdit, QWidget
@@ -44,9 +44,9 @@ class PinUi(QObject):
 
     def connect_actions(
         self,
-        queried: Optional[Callable[[str], None]],
-        chosen: Optional[Callable[[str], None]],
-        cancelled: Optional[Callable[[], None]],
+        queried: Callable[[str], None] | None,
+        chosen: Callable[[str], None] | None,
+        cancelled: Callable[[], None] | None,
     ) -> "PinUiConnection":
         connection = PinUiConnection(self)
         if queried:
@@ -61,9 +61,9 @@ class PinUi(QObject):
 @dataclass
 class PinUiConnection:
     pin_ui: PinUi
-    queried: Optional[QMetaObject.Connection] = None
-    chosen: Optional[QMetaObject.Connection] = None
-    cancelled: Optional[QMetaObject.Connection] = None
+    queried: QMetaObject.Connection | None = None
+    chosen: QMetaObject.Connection | None = None
+    cancelled: QMetaObject.Connection | None = None
 
     def disconnect(self) -> None:
         if self.queried:

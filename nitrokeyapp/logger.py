@@ -3,11 +3,11 @@ import os
 import platform
 import shutil
 import sys
+from collections.abc import Generator
 from contextlib import contextmanager
 from datetime import datetime
 from importlib.metadata import version as package_version
 from tempfile import NamedTemporaryFile
-from typing import Generator
 
 from PySide6.QtWidgets import QFileDialog, QWidget
 

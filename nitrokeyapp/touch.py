@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from PySide6 import QtWidgets
 from PySide6.QtCore import QObject, QTimer, Signal, Slot
@@ -24,7 +24,7 @@ class TouchIndicator(QtWidgets.QWidget):
 
         # TODO: pass proper type here instead of "all"
         self.owner = parent
-        self.active_btn: Optional[Nk3Button] = None
+        self.active_btn: Nk3Button | None = None
         self.info_box = info_box
 
         # show status bar info 750ms late

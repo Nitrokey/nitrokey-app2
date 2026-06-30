@@ -14,7 +14,7 @@ jobs:
   pyproject-lock-file-check:
     name: Check pyproject syntax
     runs-on: ubuntu-latest
-    container: python:3.10-slim
+    container: python:3.11-slim
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -25,7 +25,7 @@ jobs:
   format-code:
     name: Check code format
     runs-on: ubuntu-latest
-    container: python:3.10-slim
+    container: python:3.11-slim
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -41,7 +41,7 @@ jobs:
   lint-style:
     name: Check code style
     runs-on: ubuntu-latest
-    container: python:3.10-slim
+    container: python:3.11-slim
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -57,7 +57,7 @@ jobs:
   lint-typing:
     name: Check static typing
     runs-on: ubuntu-latest
-    container: python:3.10-slim
+    container: python:3.11-slim
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -84,7 +84,7 @@ jobs:
   check-version-accordance-flatpak-metadata:
     name: Check for version accordance with Flatpak metadata file
     runs-on: ubuntu-latest
-    container: python:3.10-slim
+    container: python:3.11-slim
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6

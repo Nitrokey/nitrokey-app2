@@ -1,6 +1,5 @@
 import logging
 import shutil
-from typing import Optional
 
 from nitrokey.trussed.admin_app import InitStatus
 from PySide6.QtCore import QThread, Signal, Slot
@@ -26,11 +25,11 @@ class OverviewTab(QtUtilsMixIn, QWidget):
     trigger_update = Signal(DeviceData, bool)
     trigger_update_file = Signal(DeviceData, str, bool)
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         QtUtilsMixIn.__init__(self)
 
-        self.data: Optional[DeviceData] = None
+        self.data: DeviceData | None = None
         self.common_ui = CommonUi()
 
         self.worker_thread = QThread()
@@ -65,7 +64,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         return self
 
     @property
-    def worker(self) -> Optional[Worker]:
+    def worker(self) -> Worker | None:
         return self._worker
 
     def reset(self) -> None:
@@ -157,24 +156,11 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         self.ui.btn_more_options.setToolTip(tooltip)
 
     def update_btns_during_update(self, enabled: bool) -> None:
-        tooltip = ""
-        if enabled:
-            self.busy_state_changed.emit(False)
-            self.ui.btn_update.setEnabled(enabled)
-            self.ui.btn_update.setToolTip(tooltip)
-            self.ui.btn_more_options.setEnabled(enabled)
-            self.ui.btn_more_options.setToolTip(tooltip)
-            self.ui.btn_update_with_file.setEnabled(enabled)
-            self.ui.btn_update_with_file.setToolTip(tooltip)
-        else:
-            tooltip = "Update is already running. Please wait."
-            self.busy_state_changed.emit(True)
-            self.ui.btn_update.setEnabled(enabled)
-            self.ui.btn_update.setToolTip(tooltip)
-            self.ui.btn_more_options.setEnabled(enabled)
-            self.ui.btn_more_options.setToolTip(tooltip)
-            self.ui.btn_update_with_file.setEnabled(enabled)
-            self.ui.btn_update_with_file.setToolTip(tooltip)
+        tooltip = "" if enabled else "Update is already running. Please wait."
+        self.busy_state_changed.emit(not enabled)
+        for btn in [self.ui.btn_update, self.ui.btn_more_options, self.ui.btn_update_with_file]:
+            btn.setEnabled(enabled)
+            btn.setToolTip(tooltip)
 
     def more_options(self) -> None:
         state = self.ui.btn_more_options.isChecked()

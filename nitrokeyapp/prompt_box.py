@@ -1,5 +1,3 @@
-from typing import Optional
-
 from PySide6 import QtWidgets
 from PySide6.QtCore import QObject, Signal, Slot
 
@@ -15,7 +13,7 @@ class PromptUi(QObject):
 class PromptBox(QtWidgets.QMessageBox):
     confirmed = Signal(bool)
 
-    def __init__(self, parent: Optional[QtWidgets.QWidget] = None):
+    def __init__(self, parent: QtWidgets.QWidget | None = None):
         super().__init__(parent)
 
         self.finished.connect(self.send_confirmed)

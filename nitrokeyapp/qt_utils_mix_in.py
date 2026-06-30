@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Optional, Type, TypeVar
+from typing import Any, TypeVar
 
 from PySide6 import QtGui, QtWidgets
 from PySide6.QtCore import QDir, QObject, QSize
@@ -18,7 +18,7 @@ class QtUtilsMixIn:
         assert isinstance(self, QObject)
 
     @staticmethod
-    def load_ui(filename: str, base_instance: Optional[QtWidgets.QWidget] = None) -> Any:
+    def load_ui(filename: str, base_instance: QtWidgets.QWidget | None = None) -> Any:
         # returning `Any` to avoid  `mypy` going crazy due to monkey-patching
         loader = UiLoader(base_instance, customWidgets=None)
         p_dir = (Path(__file__).parent / "ui").absolute()
@@ -37,27 +37,27 @@ class QtUtilsMixIn:
         return QtGui.QPixmap(p.as_posix())
 
     def user_warn(
-        self, msg: str, title: Optional[str] = None, parent: Optional[QtWidgets.QWidget] = None
+        self, msg: str, title: str | None = None, parent: QtWidgets.QWidget | None = None
     ) -> None:
         if not parent and isinstance(self, QtWidgets.QWidget):
             parent = self
         QtWidgets.QMessageBox.warning(parent, title or msg, msg)
 
     def user_info(
-        self, msg: str, title: Optional[str] = None, parent: Optional[QtWidgets.QWidget] = None
+        self, msg: str, title: str | None = None, parent: QtWidgets.QWidget | None = None
     ) -> None:
         if not parent and isinstance(self, QtWidgets.QWidget):
             parent = self
         QtWidgets.QMessageBox.information(parent, title or msg, msg)
 
     def user_err(
-        self, msg: str, title: Optional[str] = None, parent: Optional[QtWidgets.QWidget] = None
+        self, msg: str, title: str | None = None, parent: QtWidgets.QWidget | None = None
     ) -> None:
         if not parent and isinstance(self, QtWidgets.QWidget):
             parent = self
         QtWidgets.QMessageBox.critical(parent, title or msg, msg)
 
-    def get_widget(self, qt_cls: Type[Q], name: str = "") -> Q:
+    def get_widget(self, qt_cls: type[Q], name: str = "") -> Q:
         """while finding widgets, why not cache them into a map"""
         widget = self.widgets.get(name)
         if not widget:

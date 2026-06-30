@@ -1,7 +1,7 @@
 import logging
 from contextlib import AbstractContextManager
 from types import TracebackType
-from typing import Generic, List, Optional, TypeVar
+from typing import Generic, TypeVar
 
 from nitrokey import nk3, nkpk
 from nitrokey.nk3 import NK3
@@ -26,9 +26,9 @@ class NoCloseWrapper(Generic[T]):
 
     def __exit__(
         self,
-        exc_type: Optional[type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
     ) -> None:
         pass
 
@@ -39,9 +39,9 @@ class DeviceData:
         self.model = device.model
         self.updating = False
 
-        self._status: Optional[Status] = None
-        self._uuid: Optional[Uuid] = None
-        self._version: Optional[Version] = None
+        self._status: Status | None = None
+        self._uuid: Uuid | None = None
+        self._version: Version | None = None
         self._device = device
         self._using_ccid = using_ccid
 
@@ -58,7 +58,7 @@ class DeviceData:
         return f"DeviceData({fields_str})"
 
     @classmethod
-    def list(cls) -> List["DeviceData"]:
+    def list(cls) -> list["DeviceData"]:
         use_ccid = should_use_ccid()
 
         nk3_devices = [cls(dev, use_ccid) for dev in nk3.list(use_ccid, exclusive=True)]
@@ -108,7 +108,7 @@ class DeviceData:
         return self._version
 
     @property
-    def uuid(self) -> Optional[Uuid]:
+    def uuid(self) -> Uuid | None:
         assert isinstance(self._device, TrussedDevice)
         if not self._uuid:
             self._uuid = self._device.uuid()
@@ -124,7 +124,7 @@ class DeviceData:
         return str(self.uuid)[:5]
 
     def open(self) -> AbstractContextManager[TrussedDevice]:
-        device: Optional[TrussedDevice] = None
+        device: TrussedDevice | None = None
         if self.is_bootloader:
             raise RuntimeError("Trying to open a device that is a bootloader")
 
@@ -148,7 +148,7 @@ class DeviceData:
             else:
                 raise RuntimeError(f"Unknown device model {self._device}")
 
-    def update(self, ui: UpdateGUI, image: Optional[str] = None) -> UpdateResult:
+    def update(self, ui: UpdateGUI, image: str | None = None) -> UpdateResult:
         if self.path is None:
             return UpdateResult(
                 self.model, UpdateStatus.ERROR, "Administrator rights are required for updating"

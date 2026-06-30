@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 from PySide6.QtCore import QObject, Signal
 
 from nitrokeyapp.information_box import InfoUi
@@ -15,7 +13,6 @@ class GuiUi(QObject):
         super().__init__()
 
 
-@dataclass
 class CommonUi:
     touch: TouchUi
     info: InfoUi

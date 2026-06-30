@@ -2,11 +2,11 @@ import binascii
 import logging
 import string
 from base64 import b32decode, b32encode
+from collections.abc import Callable
 from datetime import datetime
 from enum import Enum
 from random import randbytes
 from secrets import choice
-from typing import Callable, Optional
 
 from PySide6.QtCore import QEvent, QObject, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QGuiApplication, QKeyEvent, QKeySequence
@@ -114,18 +114,17 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self._worker.uncheck_checkbox.connect(self.uncheck_checkbox)
 
         self._worker.received_credential.connect(self.handle_receive_credential)
-        self.next_credential_receiver: Optional[Callable[[Credential], None]] = None
+        self.next_credential_receiver: Callable[[Credential], None] | None = None
 
-        self.data: Optional[DeviceData] = None
-        self.active_credential: Optional[Credential] = None
+        self.data: DeviceData | None = None
+        self.active_credential: Credential | None = None
 
-        self.otp_timeout: Optional[datetime] = None
+        self.otp_timeout: datetime | None = None
         self.otp_timer = QTimer()
         self.otp_timer.timeout.connect(self.update_otp_timeout)
         self.otp_timer.setInterval(1000)
 
         self.clipboard = QGuiApplication.clipboard()
-        self.originalText = self.clipboard.text()
 
         # self.ui === self -> this tricks mypy due to monkey-patching self
         self.ui = self.load_ui("secrets_tab.ui", self)
@@ -227,7 +226,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         return self.ui
 
     @property
-    def worker(self) -> Optional[Worker]:
+    def worker(self) -> Worker | None:
         return self._worker
 
     def reset(self) -> None:
@@ -242,16 +241,10 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.show_secrets(True)
 
     def show_secrets(self, show: bool) -> None:
-        if show:
-            self.ui.page_empty.hide()
-            self.ui.page_compatible.show()
-            self.ui.page_incompatible.hide()
-            self.hide_credential()
-        else:
-            self.ui.page_empty.hide()
-            self.ui.page_compatible.hide()
-            self.ui.page_incompatible.show()
-            self.hide_credential()
+        self.ui.page_empty.hide()
+        self.ui.page_compatible.setVisible(show)
+        self.ui.page_incompatible.setVisible(not show)
+        self.hide_credential()
 
     def refresh(self, data: DeviceData) -> None:
         if data == self.data:
@@ -315,7 +308,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     @Slot(OtpData)
     def otp_generated(self, data: OtpData) -> None:
         self.ui.otp.setText(data.otp)
-        self.data_otp = data.otp
         self.common_ui.info.info.emit("Secret is generated")
 
         if data.validity:
@@ -343,7 +335,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         assert isinstance(data, Credential)
         return data
 
-    def get_current_credential(self) -> Optional[Credential]:
+    def get_current_credential(self) -> Credential | None:
         item = self.ui.secrets_list.currentItem()
         if not item:
             return None
@@ -897,7 +889,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.hide_otp()
 
     @Slot(QListWidgetItem)
-    def credential_clicked(self, item: Optional[QListWidgetItem]) -> None:
+    def credential_clicked(self, item: QListWidgetItem | None) -> None:
         if self.data:
             assert item
             credential = self.get_credential(item)
@@ -910,7 +902,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     @Slot(QListWidgetItem, QListWidgetItem)
     def credential_changed(
-        self, current: Optional[QListWidgetItem], old: Optional[QListWidgetItem]
+        self, current: QListWidgetItem | None, old: QListWidgetItem | None
     ) -> None:
         if current and self.data:
             pass

@@ -2,7 +2,6 @@ import logging
 import webbrowser
 from time import sleep
 from types import TracebackType
-from typing import Dict, Optional, Type
 
 from nitrokey.trussed import Model
 from PySide6 import QtWidgets
@@ -57,7 +56,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         self.device_manager = DeviceManager()
         self.device_buttons: list[Nk3Button] = []
-        self.selected_device: Optional[DeviceData] = None
+        self.selected_device: DeviceData | None = None
 
         self.log_file = log_file
 
@@ -163,7 +162,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.overview_tab.set_update_enabled(device_count <= 1)
 
     def detect_added_devices(
-        self, device_id: Optional[str] = None, device_info: Optional[Dict[str, str]] = None
+        self, device_id: str | None = None, device_info: dict[str, str] | None = None
     ) -> None:
         # retry for up to 2secs
         for _tries in range(8):
@@ -184,7 +183,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.trigger_update_devices.emit()
 
     def detect_removed_devices(
-        self, device_id: Optional[str] = None, device_info: Optional[Dict[str, str]] = None
+        self, device_id: str | None = None, device_info: dict[str, str] | None = None
     ) -> None:
         devs = self.device_manager.remove()
         if not devs:
@@ -357,7 +356,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     @Slot(object, BaseException, object)
     def handle_exception(
-        self, ty: Type[BaseException], e: BaseException, tb: Optional[TracebackType]
+        self, ty: type[BaseException], e: BaseException, tb: TracebackType | None
     ) -> None:
         logger.error("Unhandled exception", exc_info=(ty, e, tb))
 

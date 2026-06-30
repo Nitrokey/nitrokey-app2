@@ -1,5 +1,5 @@
 import logging
-from typing import Iterator, List
+from collections.abc import Iterator
 
 from nitrokeyapp.device_data import DeviceData
 
@@ -19,18 +19,9 @@ def match(lhs: DeviceData, rhs: DeviceData) -> bool:
     return False
 
 
-def test(devices: List[DeviceData]) -> bool:
-    for dev in devices:
-        if dev.is_bootloader:
-            continue
-        if dev.uuid is not None:
-            continue
-    return True
-
-
 class DeviceManager:
     def __init__(self) -> None:
-        self._devices: List[DeviceData] = []
+        self._devices: list[DeviceData] = []
 
     def __iter__(self) -> Iterator[DeviceData]:
         for item in self._devices:
@@ -42,10 +33,9 @@ class DeviceManager:
     def clear(self) -> None:
         self._devices = []
 
-    def add(self) -> List[DeviceData]:
+    def add(self) -> list[DeviceData]:
         try:
             all_devs = DeviceData.list()
-            test(all_devs)
         except Exception as e:
             logger.error(f"failed listing nk3 devices: {e}")
             return []
@@ -88,10 +78,9 @@ class DeviceManager:
 
         return new_devices
 
-    def remove(self) -> List[DeviceData]:
+    def remove(self) -> list[DeviceData]:
         try:
             all_devs = DeviceData.list()
-            test(all_devs)
         except Exception as e:
             logger.error(f"failed listing nk3 devices: {e}")
             return []
@@ -102,7 +91,7 @@ class DeviceManager:
             if dev.updating:
                 continue
 
-            res = list(filter(lambda x: match(x, dev), all_devs))
+            res = [x for x in all_devs if match(x, dev)]
             if len(res) == 0:
                 self._devices.remove(dev)
                 out.append(dev)

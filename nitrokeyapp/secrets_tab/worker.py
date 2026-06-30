@@ -1,7 +1,6 @@
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, Optional
 
 from nitrokey.nk3 import NK3
 from nitrokey.nk3.secrets_app import SecretsApp, SecretsAppException
@@ -21,8 +20,8 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class PinCache(QObject):
-    uuid: Optional[Uuid] = None
-    pin: Optional[str] = None
+    uuid: Uuid | None = None
+    pin: str | None = None
 
     pin_cached = Signal()
     pin_cleared = Signal()
@@ -36,7 +35,7 @@ class PinCache(QObject):
         self.pin = None
         self.pin_cleared.emit()
 
-    def get(self, data: DeviceData) -> Optional[str]:
+    def get(self, data: DeviceData) -> str | None:
         if data.uuid and self.uuid == data.uuid:
             return self.pin
         else:
@@ -192,7 +191,7 @@ class EditCredentialJob(Job):
         self.secret = secret
         self.old_cred_id = old_cred_id
 
-        self.all_credentials: Optional[Dict[bytes, Credential]] = None
+        self.all_credentials: dict[bytes, Credential] | None = None
 
         self.credential_edited.connect(lambda _: self.finished.emit())
 

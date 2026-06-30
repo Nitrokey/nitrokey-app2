@@ -1,6 +1,5 @@
 from traceback import format_exception
 from types import TracebackType
-from typing import Optional, Type
 
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QDialog, QDialogButtonBox, QPushButton, QWidget
@@ -10,7 +9,7 @@ from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
 
 class ErrorDialog(QtUtilsMixIn, QDialog):
-    def __init__(self, log_file: str, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, log_file: str, parent: QWidget | None = None) -> None:
         QDialog.__init__(self, parent)
         QtUtilsMixIn.__init__(self)
 
@@ -25,7 +24,7 @@ class ErrorDialog(QtUtilsMixIn, QDialog):
         self.ui.buttonBox.addButton(self.button_save_log, QDialogButtonBox.ButtonRole.ActionRole)
 
     def set_exception(
-        self, ty: Type[BaseException], e: BaseException, tb: Optional[TracebackType]
+        self, ty: type[BaseException], e: BaseException, tb: TracebackType | None
     ) -> None:
         lines = format_exception(ty, e, tb)
         self.ui.textEditDetails.setPlainText("".join(lines))

@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from collections.abc import Callable
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
@@ -13,7 +13,7 @@ class Nk3Button(QtWidgets.QToolButton):
         self.setIcon(QtUtilsMixIn.get_qicon("nitrokey.svg"))
 
         self.data = data
-        self.bootloader_data: Optional[DeviceData] = None
+        self.bootloader_data: DeviceData | None = None
 
         self.clicked.connect(lambda: on_click(self.data))
 

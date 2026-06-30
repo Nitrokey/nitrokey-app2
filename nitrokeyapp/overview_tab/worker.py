@@ -1,5 +1,4 @@
 import logging
-from typing import Optional
 
 from PySide6.QtCore import Signal, Slot
 
@@ -19,7 +18,7 @@ class UpdateDevice(Job):
 
         self.data = data
 
-        self.image: Optional[str] = None
+        self.image: str | None = None
         self.is_qubesos = is_qubesos
 
         self.device_updated.connect(lambda _: self.finished.emit())

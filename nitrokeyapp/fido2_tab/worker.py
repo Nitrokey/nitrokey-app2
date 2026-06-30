@@ -1,6 +1,5 @@
 import logging
 from dataclasses import dataclass
-from typing import Optional
 
 from fido2.ctap import CtapError
 from fido2.ctap2.base import Ctap2
@@ -23,8 +22,8 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class PinCache(QObject):
-    uuid: Optional[Uuid] = None
-    pin: Optional[str] = None
+    uuid: Uuid | None = None
+    pin: str | None = None
 
     pin_cached = Signal()
     pin_cleared = Signal()
@@ -38,7 +37,7 @@ class PinCache(QObject):
         self.pin = None
         self.pin_cleared.emit()
 
-    def get(self, data: DeviceData) -> Optional[str]:
+    def get(self, data: DeviceData) -> str | None:
         if data.uuid and self.uuid == data.uuid:
             return self.pin
         return None
@@ -83,7 +82,7 @@ class ListCredentialsJob(Job):
         self.pin_cache = pin_cache
         self.pin_ui = pin_ui
         self.data = data
-        self._pin_ui_conn: Optional[Fido2PinUiConnection] = None
+        self._pin_ui_conn: Fido2PinUiConnection | None = None
 
         self.credentials_listed.connect(lambda _: self.finished.emit())
 
@@ -108,7 +107,7 @@ class ListCredentialsJob(Job):
         )
         self.pin_ui.query.emit(retries)
 
-    def _get_pin_retries(self) -> Optional[int]:
+    def _get_pin_retries(self) -> int | None:
         try:
             with self.data.open() as device:
                 ctap2 = Ctap2(device.device)
@@ -191,7 +190,7 @@ class DeleteCredentialJob(Job):
         self.pin_ui = pin_ui
         self.data = data
         self.credential = credential
-        self._pin_ui_conn: Optional[Fido2PinUiConnection] = None
+        self._pin_ui_conn: Fido2PinUiConnection | None = None
 
         self.credential_deleted.connect(lambda _: self.finished.emit())
 
@@ -216,7 +215,7 @@ class DeleteCredentialJob(Job):
         )
         self.pin_ui.query.emit(retries)
 
-    def _get_pin_retries(self) -> Optional[int]:
+    def _get_pin_retries(self) -> int | None:
         try:
             with self.data.open() as device:
                 ctap2 = Ctap2(device.device)

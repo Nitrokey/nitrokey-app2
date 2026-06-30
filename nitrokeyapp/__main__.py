@@ -1,7 +1,8 @@
 import sys
+from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from types import TracebackType
-from typing import Any, Callable, Generator, Optional, Type
+from typing import Any
 
 from PySide6 import QtWidgets
 
@@ -11,7 +12,7 @@ from nitrokeyapp.logger import init_logging, log_environment
 
 @contextmanager
 def exception_handler(
-    hook: Callable[[Type[BaseException], BaseException, Optional[TracebackType]], Any],
+    hook: Callable[[type[BaseException], BaseException, TracebackType | None], Any],
 ) -> Generator[None, None, None]:
     old_hook = sys.excepthook
     sys.excepthook = hook

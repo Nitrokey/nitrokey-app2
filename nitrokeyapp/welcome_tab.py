@@ -1,8 +1,7 @@
 import webbrowser
-from typing import Optional
 
 from nitrokey.trussed import Version
-from nitrokey.updates import Release, Repository
+from nitrokey.updates import Repository
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QWidget
 
@@ -16,7 +15,7 @@ REPOSITORY = Repository(owner=REPOSITORY_OWNER, name=REPOSITORY_NAME)
 
 
 class WelcomeTab(QtUtilsMixIn, QWidget):
-    def __init__(self, log_file: str, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, log_file: str, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         QtUtilsMixIn.__init__(self)
 
@@ -29,23 +28,16 @@ class WelcomeTab(QtUtilsMixIn, QWidget):
         self.ui.CheckUpdate.pressed.connect(self.check_update)
 
     def check_update(self) -> None:
-        self.c_version = __version__
         try:
-            self.get_release = REPOSITORY.get_latest_release()
+            release = REPOSITORY.get_latest_release()
         except Exception:
             self.ui.CheckUpdate.setText("No connection")
             return
 
-        self.release = Release
-        self.last_release = self.release.__str__(self.get_release)
+        current = Version.from_str(__version__)
+        latest = Version.from_v_str(release.tag)
 
-        self.n_version = self.last_release
-        self.n_version = self.n_version[1:]
-
-        self.c_version_v = Version.from_str(self.c_version)
-        self.n_version_v = Version.from_str(self.n_version)
-
-        if Version.__lt__(self.c_version_v, self.n_version_v):
+        if current < latest:
             self.ui.CheckUpdate.setText("update available")
             self.ui.CheckUpdate.pressed.connect(
                 lambda: webbrowser.open("https://github.com/Nitrokey/nitrokey-app2/releases")

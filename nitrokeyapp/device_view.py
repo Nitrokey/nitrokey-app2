@@ -1,4 +1,4 @@
-from typing import Optional, Protocol
+from typing import Protocol
 
 from PySide6.QtWidgets import QWidget
 
@@ -18,7 +18,7 @@ class DeviceView(Protocol):
     def widget(self) -> QWidget: ...
 
     @property
-    def worker(self) -> Optional[Worker]: ...
+    def worker(self) -> Worker | None: ...
 
     def reset(self) -> None: ...
 

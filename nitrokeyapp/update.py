@@ -1,9 +1,10 @@
 import logging
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from enum import Enum
 from time import sleep
-from typing import TYPE_CHECKING, Any, Callable, Iterator, List, Optional, Type, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from nitrokey import trussed
 from nitrokey.trussed import Model, TrussedBase, TrussedBootloader, TrussedDevice, Version
@@ -48,7 +49,7 @@ class UpdateGUI(UpdateUi):
         self.is_qubesos = is_qubesos
 
         # blocking wait, set by parent during confirm-prompt
-        self.await_confirmation: Optional[bool] = None
+        self.await_confirmation: bool | None = None
 
     def error(self, *msgs: Any) -> Exception:
         logger.error(f"Error during firmware update: {msgs}")
@@ -84,7 +85,7 @@ class UpdateGUI(UpdateUi):
         self.await_confirmation = None
         return res
 
-    def confirm_download(self, current: Optional[Version], new: Version) -> None:
+    def confirm_download(self, current: Version | None, new: Version) -> None:
         res = self.run_confirm_dialog(
             f"{self.model} Firmware Update", f"Do you want to download the firmware version {new}?"
         )
@@ -94,7 +95,7 @@ class UpdateGUI(UpdateUi):
 
         logger.info("OK clicked (confirm download)")
 
-    def confirm_update(self, current: Optional[Version], new: Version) -> None:
+    def confirm_update(self, current: Version | None, new: Version) -> None:
         if self.is_qubesos:
             res = self.run_confirm_dialog(
                 f"{self.model} Firmware Update",
@@ -136,7 +137,7 @@ class UpdateGUI(UpdateUi):
 
         logger.info("OK clicked (confirm same version)")
 
-    def confirm_extra_information(self, txt: List[str]) -> None:
+    def confirm_extra_information(self, txt: list[str]) -> None:
         if len(txt) == 0:
             return
 
@@ -198,9 +199,9 @@ class UpdateContext(DeviceHandler):
     def _await(
         self,
         name: str,
-        ty: Type[T],
+        ty: type[T],
         retries: int,
-        callback: Optional[Callable[[int, int], None]] = None,
+        callback: Callable[[int, int], None] | None = None,
     ) -> T:
         for t in Retries(retries):
             logger.debug(f"Searching {name} device ({t})")
@@ -227,8 +228,8 @@ class UpdateContext(DeviceHandler):
     def await_device(
         self,
         model: Model,
-        retries: Optional[int] = 90,
-        callback: Optional[Callable[[int, int], None]] = None,
+        retries: int | None = 90,
+        callback: Callable[[int, int], None] | None = None,
     ) -> TrussedDevice:
         assert model == self.model
         assert retries is not None
@@ -239,7 +240,7 @@ class UpdateContext(DeviceHandler):
         # mypy does not allow abstract types here, but this is still valid
         return self._await(f"{self.model} bootloader", TrussedBootloader, 90, None)  # type: ignore[type-abstract]
 
-    def update(self, ui: UpdateGUI, image: Optional[str] = None) -> UpdateResult:
+    def update(self, ui: UpdateGUI, image: str | None = None) -> UpdateResult:
         try:
             with self.connect() as device:
                 updater = Updater(ui, self)

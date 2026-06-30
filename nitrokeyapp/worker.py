@@ -1,5 +1,5 @@
+from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Generator
 
 from PySide6.QtCore import QObject, Signal, Slot
 

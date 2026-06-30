@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum, auto, unique
-from typing import Optional, Union
 
 from nitrokey.nk3.secrets_app import Kind as RawKind
 from nitrokey.nk3.secrets_app import ListItem, PasswordSafeEntry, SecretsApp
@@ -57,10 +56,10 @@ class OtherKind(Enum):
         raise RuntimeError(f"Unexpected Other kind: {kind}")
 
 
-Kind = Union[OtpKind, OtherKind]
+Kind = OtpKind | OtherKind
 
 
-def _kind_from_raw(kind: RawKind) -> Optional[Kind]:
+def _kind_from_raw(kind: RawKind) -> Kind | None:
     if kind == RawKind.Hmac:
         return OtherKind.HMAC
     elif kind == RawKind.Hotp:
@@ -78,11 +77,11 @@ def _kind_from_raw(kind: RawKind) -> Optional[Kind]:
 @dataclass
 class Credential:
     id: bytes
-    otp: Optional[OtpKind] = None
-    other: Optional[OtherKind] = None
-    login: Optional[bytes] = None
-    password: Optional[bytes] = None
-    comment: Optional[bytes] = None
+    otp: OtpKind | None = None
+    other: OtherKind | None = None
+    login: bytes | None = None
+    password: bytes | None = None
+    comment: bytes | None = None
     protected: bool = False
     touch_required: bool = False
 
@@ -130,4 +129,4 @@ class Credential:
 @dataclass
 class OtpData:
     otp: str
-    validity: Optional[tuple[datetime, datetime]] = None
+    validity: tuple[datetime, datetime] | None = None

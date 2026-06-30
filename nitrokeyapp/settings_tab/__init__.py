@@ -1,11 +1,11 @@
 import logging
 from enum import Enum
-from typing import Dict, List, Optional, Tuple
 
 from fido2.ctap2.base import Info
 from nitrokey.nk3.secrets_app import SelectResponse
 from nitrokey.trussed import Model
 from PySide6.QtCore import QThread, Signal, Slot
+from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem, QWidget
 
 from nitrokeyapp.common_ui import CommonUi
@@ -36,7 +36,7 @@ RESET_ICON = QtUtilsMixIn.get_qicon("refresh.svg")
 SHOW_ICON = QtUtilsMixIn.get_qicon("visibility.svg")
 HIDE_ICON = QtUtilsMixIn.get_qicon("visibility_off.svg")
 
-SETTINGS: Dict[State, Dict] = {
+SETTINGS: dict[State, dict] = {
     State.Fido: {
         "parent": None,
         "icon": None,
@@ -93,11 +93,11 @@ class SettingsTab(QtUtilsMixIn, QWidget):
     trigger_fido_reset = Signal(DeviceData)
     trigger_passwords_reset = Signal(DeviceData)
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         QtUtilsMixIn.__init__(self)
 
-        self.data: Optional[DeviceData] = None
+        self.data: DeviceData | None = None
         self.common_ui = CommonUi()
 
         self.worker_thread = QThread()
@@ -153,7 +153,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.new_password.textChanged.connect(self.check_credential)
         self.ui.repeat_password.textChanged.connect(self.check_credential)
 
-        self.active_item: Optional[QTreeWidgetItem] = None
+        self.active_item: QTreeWidgetItem | None = None
 
         self.reset()
         self.field_btn()
@@ -167,7 +167,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         return self.ui
 
     @property
-    def worker(self) -> Optional[Worker]:
+    def worker(self) -> Worker | None:
         return self._worker
 
     def reset(self) -> None:
@@ -196,13 +196,19 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         loc = QLineEdit.ActionPosition.TrailingPosition
         self.action_current_password_show = self.ui.current_password.addAction(icon_visibility, loc)
-        self.action_current_password_show.triggered.connect(self.act_current_password_show)
-
         self.action_new_password_show = self.ui.new_password.addAction(icon_visibility, loc)
-        self.action_new_password_show.triggered.connect(self.act_new_password_show)
-
         self.action_repeat_password_show = self.ui.repeat_password.addAction(icon_visibility, loc)
-        self.action_repeat_password_show.triggered.connect(self.act_repeat_password_show)
+
+        for field, action in [
+            (self.ui.current_password, self.action_current_password_show),
+            (self.ui.new_password, self.action_new_password_show),
+            (self.ui.repeat_password, self.action_repeat_password_show),
+        ]:
+            action.triggered.connect(
+                lambda f=field, a=action: self._set_password_visibility(
+                    f, a, f.echoMode() == QLineEdit.EchoMode.Password
+                )
+            )
 
         self.show_current_password_check = self.ui.current_password.addAction(icon_check, loc)
         self.show_current_password_false = self.ui.current_password.addAction(icon_false, loc)
@@ -218,7 +224,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.show_repeat_password_check.setVisible(False)
         self.show_repeat_password_false.setVisible(False)
 
-    def show_widget(self, item: Optional[QTreeWidgetItem]) -> None:
+    def show_widget(self, item: QTreeWidgetItem | None) -> None:
         self.active_item = item
         if item is None or item.isHidden():
             self.view_settings_empty()
@@ -240,7 +246,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             if top_level_item is not item.parent():
                 top_level_item.setExpanded(False)
 
-    def update_status_form(self, data: Optional[List[Tuple[str, str]]] = None) -> None:
+    def update_status_form(self, data: list[tuple[str, str]] | None = None) -> None:
         if data is not None:
             self.ui.status_form.show()
         else:
@@ -386,38 +392,11 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             self.trigger_passwords_reset.emit(self.data)
             self.abort()
 
-    def act_current_password_show(self) -> None:
-        mode = self.ui.current_password.echoMode()
-        show = mode == QLineEdit.Password  # type: ignore [attr-defined]
-        self.set_current_password_show(show)
-
-    def act_new_password_show(self) -> None:
-        mode = self.ui.new_password.echoMode()
-        show = mode == QLineEdit.Password  # type: ignore [attr-defined]
-        self.set_new_password_show(show)
-
-    def act_repeat_password_show(self) -> None:
-        mode = self.ui.repeat_password.echoMode()
-        show = mode == QLineEdit.Password  # type: ignore [attr-defined]
-        self.set_repeat_password_show(show)
-
-    def set_current_password_show(self, show: bool = True) -> None:
+    def _set_password_visibility(self, field: QLineEdit, action: QAction, show: bool) -> None:
         icon = SHOW_ICON if show else HIDE_ICON
-        mode = QLineEdit.Normal if show else QLineEdit.Password  # type: ignore [attr-defined]
-        self.ui.current_password.setEchoMode(mode)
-        self.action_current_password_show.setIcon(icon)
-
-    def set_new_password_show(self, show: bool = True) -> None:
-        icon = SHOW_ICON if show else HIDE_ICON
-        mode = QLineEdit.Normal if show else QLineEdit.Password  # type: ignore [attr-defined]
-        self.ui.new_password.setEchoMode(mode)
-        self.action_new_password_show.setIcon(icon)
-
-    def set_repeat_password_show(self, show: bool = True) -> None:
-        icon = SHOW_ICON if show else HIDE_ICON
-        mode = QLineEdit.Normal if show else QLineEdit.Password  # type: ignore [attr-defined]
-        self.ui.repeat_password.setEchoMode(mode)
-        self.action_repeat_password_show.setIcon(icon)
+        mode = QLineEdit.EchoMode.Normal if show else QLineEdit.EchoMode.Password
+        field.setEchoMode(mode)
+        action.setIcon(icon)
 
     def set_device_data(
         self, path: str, uuid: str, version: str, variant: str, init_status: str

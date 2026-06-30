@@ -1,5 +1,4 @@
 import logging
-from typing import Optional
 
 from nitrokey.trussed import Model
 from PySide6.QtCore import Qt, QThread, Signal, Slot
@@ -42,8 +41,8 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
         self._worker.credentials_listed.connect(self.credentials_listed)
         self._worker.credential_deleted.connect(self.credential_deleted)
 
-        self.data: Optional[DeviceData] = None
-        self.active_credential: Optional[Fido2Credential] = None
+        self.data: DeviceData | None = None
+        self.active_credential: Fido2Credential | None = None
 
         self.ui = self.load_ui("secrets_tab.ui", self)
         self._adapt_ui()
@@ -90,7 +89,7 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
         return self.ui
 
     @property
-    def worker(self) -> Optional[Worker]:
+    def worker(self) -> Worker | None:
         return self._worker
 
     def reset(self) -> None:
@@ -113,7 +112,7 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
             self.ui.page_compatible.hide()
             self.ui.page_incompatible.show()
 
-    def refresh(self, data: Optional[DeviceData], force: bool = False) -> None:
+    def refresh(self, data: DeviceData | None, force: bool = False) -> None:
         if data is None:
             return
         if data.model not in (Model.NK3, Model.NKPK):
@@ -158,21 +157,21 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
         assert isinstance(data, Fido2Credential)
         return data
 
-    def get_current_credential(self) -> Optional[Fido2Credential]:
+    def get_current_credential(self) -> Fido2Credential | None:
         item = self.ui.secrets_list.currentItem()
         if not item:
             return None
         return self.get_credential(item)
 
     @Slot(QListWidgetItem)
-    def credential_clicked(self, item: Optional[QListWidgetItem]) -> None:
+    def credential_clicked(self, item: QListWidgetItem | None) -> None:
         if not item:
             return
         self.show_credential(self.get_credential(item))
 
     @Slot(QListWidgetItem, QListWidgetItem)
     def credential_changed(
-        self, current: Optional[QListWidgetItem], old: Optional[QListWidgetItem]
+        self, current: QListWidgetItem | None, old: QListWidgetItem | None
     ) -> None:
         if current:
             self.show_credential(self.get_credential(current))
@@ -223,6 +222,6 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
         self.trigger_delete_credential.emit(self.data, credential)
 
     @Slot(object)
-    def credential_deleted(self, credential: Optional[Fido2Credential]) -> None:
+    def credential_deleted(self, credential: Fido2Credential | None) -> None:
         self.active_credential = None
         self.refresh_credential_list()

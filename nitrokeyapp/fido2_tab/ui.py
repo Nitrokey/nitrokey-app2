@@ -1,5 +1,5 @@
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Optional
 
 from PySide6.QtCore import QMetaObject, QObject, Signal, Slot
 from PySide6.QtWidgets import QInputDialog, QLineEdit, QWidget
@@ -29,7 +29,7 @@ class Fido2PinUi(QObject):
             self.cancelled.emit()
 
     def connect_actions(
-        self, queried: Optional[Callable[[str], None]], cancelled: Optional[Callable[[], None]]
+        self, queried: Callable[[str], None] | None, cancelled: Callable[[], None] | None
     ) -> "Fido2PinUiConnection":
         connection = Fido2PinUiConnection(self)
         if queried:
@@ -42,8 +42,8 @@ class Fido2PinUi(QObject):
 @dataclass
 class Fido2PinUiConnection:
     pin_ui: Fido2PinUi
-    queried: Optional[QMetaObject.Connection] = None
-    cancelled: Optional[QMetaObject.Connection] = None
+    queried: QMetaObject.Connection | None = None
+    cancelled: QMetaObject.Connection | None = None
 
     def disconnect(self) -> None:
         if self.queried:

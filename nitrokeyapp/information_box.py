@@ -1,5 +1,3 @@
-from typing import Optional
-
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCore import QObject, Signal, Slot
 
@@ -59,7 +57,7 @@ class InfoBox(QObject):
         self.hide_timer.timeout.connect(self.hide_status)
 
     @Slot(str, int, str)
-    def set_status(self, text: str, timeout: int = 7000, icon: Optional[str] = None) -> None:
+    def set_status(self, text: str, timeout: int = 7000, icon: str | None = None) -> None:
         self.status.setText(text)
         self.status.show()
         self.information_frame.show()
