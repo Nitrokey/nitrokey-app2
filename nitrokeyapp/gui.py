@@ -54,7 +54,10 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         device_filter = (
             {ID_VENDOR_ID: nk_vid.upper()},
             {ID_VENDOR_ID: nk_vid.lower()},
-        )  # Lower case for linux, Upper case for windows
+            {ID_VENDOR_ID: f"0x{nk_vid.upper()}"},
+            {ID_VENDOR_ID: f"0x{nk_vid.lower()}"},
+            {ID_VENDOR_ID: str(_VID_NITROKEY)},
+        )
         monitor = USBMonitor(filter_devices=device_filter)
         monitor.start_monitoring(
             on_connect=self.detect_added_devices, on_disconnect=self.detect_removed_devices
