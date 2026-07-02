@@ -176,8 +176,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self, device_id: Optional[str] = None, device_info: Optional[Dict[str, str]] = None
     ) -> None:
         interfaces = device_info.get(ID_USB_INTERFACES, ()) if device_info else ()
-        ccid_classes = ("0b0000", "class_0b", "0x0b")
-        hid_classes = ("030000", "class_03", "0x03")
+        ccid_classes = ("0b0000", "class_0b", "0x0b", "IOUSBHostFamily.kext")
+        hid_classes = ("030000", "class_03", "0x03", "IOUSBHostFamily.kext")
 
         filter_success = False
         filter_class = ccid_classes if should_use_ccid() else hid_classes
