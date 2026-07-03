@@ -859,7 +859,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.comment_label.hide()
         self.ui.comment.hide()
 
-
     def hide_hmac_view(self) -> None:
         if self.active_credential is None and self.ui.name_label.text() == "HmacSlot2":
             self.ui.name_label.clear()
@@ -878,7 +877,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.ui.comment_label.show()
         self.ui.comment.show()
-
 
     @Slot()
     def hide_otp(self) -> None:
