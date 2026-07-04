@@ -72,12 +72,12 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
         self.ui.is_touch_protected.hide()
 
         # repurpose the username/password/comment fields for FIDO2 details (read-only)
-        self.ui.username_label.setText("User:")
+        self.ui.username_label.setText("Display Name:")
         self.ui.username.setReadOnly(True)
-        self.ui.password_label.setText("E-Mail:")
+        self.ui.password_label.setText("Username:")
         self.ui.password.setReadOnly(True)
         self.ui.password.setEchoMode(QLineEdit.EchoMode.Normal)
-        self.ui.comment_label.setText("ID:")
+        self.ui.comment_label.setText("Credential ID:")
         self.ui.comment.setReadOnly(True)
 
     @property
@@ -188,7 +188,7 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
         self.ui.name_label.show()
         self.ui.name_label.setText(credential.rp_label)
 
-        self.ui.username.setText(credential.user_display_name or credential.user_name or "")
+        self.ui.username.setText(credential.user_display_name or "")
         self.ui.password.setText(credential.user_name or "")
         self.ui.comment.setText(credential.credential_id.hex())
 
