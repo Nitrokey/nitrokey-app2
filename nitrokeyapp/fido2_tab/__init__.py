@@ -2,14 +2,22 @@ import logging
 
 from nitrokey.trussed import Model
 from PySide6.QtCore import Qt, QThread, Signal, Slot
-from PySide6.QtWidgets import QLineEdit, QListWidgetItem, QMessageBox, QWidget
+from PySide6.QtWidgets import (
+    QFormLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QListWidgetItem,
+    QMessageBox,
+    QWidget,
+)
 
 from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.worker import Worker
 
-from .data import Fido2Credential
+from .data import Fido2Credential, Fido2ListState
 from .worker import Fido2Worker
 
 logger = logging.getLogger(__name__)
@@ -80,6 +88,17 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
         self.ui.comment_label.setText("ID:")
         self.ui.comment.setReadOnly(True)
 
+        # show the credential's signature algorithm as an extra detail row
+        self.algorithm_value = QLabel(self.ui)
+        self.algorithm_value.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        form_layout = self.ui.findChild(QFormLayout, "formLayout")
+        form_layout.addRow("Algorithm:", self.algorithm_value)
+
+        # show the number of stored/remaining passkey slots next to Refresh
+        self.credential_count = QLabel(self.ui)
+        button_row = self.ui.findChild(QHBoxLayout, "horizontalLayout")
+        button_row.insertWidget(1, self.credential_count)
+
     @property
     def title(self) -> str:
         return "Passkeys"
@@ -99,6 +118,7 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
 
     def reset_ui(self) -> None:
         self.ui.secrets_list.clear()
+        self.credential_count.clear()
         self.show_compatible(True)
         self.hide_credential()
 
@@ -137,13 +157,16 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
             return
         self.trigger_refresh_credentials.emit(self.data)
 
-    @Slot(list)
-    def credentials_listed(self, credentials: list) -> None:
+    @Slot(object)
+    def credentials_listed(self, state: Fido2ListState) -> None:
         self.ui.secrets_list.clear()
         self.hide_credential()
-        for credential in credentials:
+        for credential in state.credentials:
             self.add_credential(credential)
         self.ui.secrets_list.sortItems()
+        # summary is None when the metadata was never read (e.g. PIN aborted);
+        # keep the label empty rather than claiming "0 stored"
+        self.credential_count.setText(state.summary or "")
 
     def add_credential(self, credential: Fido2Credential) -> QListWidgetItem:
         item = QListWidgetItem(credential.display)
@@ -191,6 +214,7 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
         self.ui.username.setText(credential.user_display_name or credential.user_name or "")
         self.ui.password.setText(credential.user_name or "")
         self.ui.comment.setText(credential.credential_id.hex())
+        self.algorithm_value.setText(credential.algorithm_label or "(unknown)")
 
         self.ui.btn_delete.show()
 
