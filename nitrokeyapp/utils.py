@@ -10,16 +10,22 @@ if TYPE_CHECKING:
     from PySide6.QtWidgets import QWidget
 
 NITROKEY_FORCE_CCID = "NITROKEY_FORCE_CCID"
+NITROKEY_FORCE_CTAPHID = "NITROKEY_FORCE_CTAPHID"
 
 logger = logging.getLogger(__name__)
 
 
 def should_use_ccid() -> bool:
-    force_ccid = os.environ.get(NITROKEY_FORCE_CCID)
-    if force_ccid:
+    if os.environ.get(NITROKEY_FORCE_CTAPHID):
+        if os.environ.get(NITROKEY_FORCE_CCID):
+            logger.warning(
+                f"Both {NITROKEY_FORCE_CTAPHID} and {NITROKEY_FORCE_CCID} are set; "
+                f"{NITROKEY_FORCE_CTAPHID} takes priority"
+            )
+        return False
+    if os.environ.get(NITROKEY_FORCE_CCID):
         return True
-    else:
-        return should_default_ccid()
+    return should_default_ccid()
 
 
 def check_ccid_config(parent: Optional["QWidget"] = None) -> None:

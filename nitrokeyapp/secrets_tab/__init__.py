@@ -196,6 +196,15 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         for field in self.line2copy_action:
             field.installEventFilter(self)
 
+        self._clipboard_expected: dict[QLineEdit, str] = {}
+        self._clipboard_timers: dict[QLineEdit, QTimer] = {}
+        for field in self.line2copy_action:
+            timer = QTimer(self)
+            timer.setSingleShot(True)
+            timer.setInterval(CLIPBOARD_CLEAR_TIMEOUT_MS)
+            timer.timeout.connect(lambda f=field: self._clear_clipboard_for_field(f))
+            self._clipboard_timers[field] = timer
+
         self.ui.btn_add.pressed.connect(self.add_new_credential)
         self.ui.btn_abort.pressed.connect(lambda: self.show_secrets(True))
         self.ui.btn_save.pressed.connect(self.save_credential)
@@ -420,6 +429,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.is_pin_protected.setChecked(credential.protected)
         self.ui.is_touch_protected.setChecked(credential.touch_required)
 
+        self.ui.is_pin_protected.setEnabled(False)
+        self.ui.is_touch_protected.setEnabled(False)
+
         self.hide_hmac_view()
 
         self.hide_otp()
@@ -549,7 +561,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         if credential.other == OtherKind.HMAC:
             self.show_hmac_view()
-            self.ui.btn_save.setEnabled(False)
         else:
             self.hide_hmac_view()
 
@@ -716,10 +727,12 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         QTimer.singleShot(
             5000, lambda: self.line2copy_action[obj].setIcon(self.get_qicon("content_copy.svg"))
         )
-        QTimer.singleShot(CLIPBOARD_CLEAR_TIMEOUT_MS, lambda: self.clear_clipboard(copied_text))
+        self._clipboard_expected[obj] = copied_text
+        self._clipboard_timers[obj].start()
 
-    def clear_clipboard(self, expected_text: str) -> None:
-        if self.clipboard.text() == expected_text:
+    def _clear_clipboard_for_field(self, field: QLineEdit) -> None:
+        expected = self._clipboard_expected.pop(field, None)
+        if expected is not None and self.clipboard.text() == expected:
             self.clipboard.clear()
 
     def eventFilter(self, obj: QObject, event: QEvent) -> bool:
@@ -730,10 +743,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             and event.matches(QKeySequence.StandardKey.Copy)
         ):
             selected = obj.selectedText()
-            if selected:
-                QTimer.singleShot(
-                    CLIPBOARD_CLEAR_TIMEOUT_MS, lambda: self.clear_clipboard(selected)
-                )
+            if selected and obj in self._clipboard_timers:
+                self._clipboard_expected[obj] = selected
+                self._clipboard_timers[obj].start()
         return False
 
     def act_password_show(self) -> None:
@@ -839,12 +851,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.comment_label.hide()
         self.ui.comment.hide()
 
-        self.ui.is_pin_protection_label.hide()
-        self.ui.is_pin_protected.hide()
-
-        self.ui.is_touch_protection_label.hide()
-        self.ui.is_touch_protected.hide()
-
     def hide_hmac_view(self) -> None:
         if self.active_credential is None and self.ui.name_label.text() == "HmacSlot2":
             self.ui.name_label.clear()
@@ -863,12 +869,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.ui.comment_label.show()
         self.ui.comment.show()
-
-        self.ui.is_pin_protection_label.show()
-        self.ui.is_pin_protected.show()
-
-        self.ui.is_touch_protection_label.show()
-        self.ui.is_touch_protected.show()
 
     @Slot()
     def hide_otp(self) -> None:
