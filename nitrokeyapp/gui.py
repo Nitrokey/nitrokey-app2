@@ -110,6 +110,8 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.fido2_tab,
             self.settings_tab,
         ]
+
+        self.settings_tab._worker.reset_passwords.connect(self.secrets_tab.invalidate)
         self.busy_count = 0
         for view in self.views:
             if view.worker:

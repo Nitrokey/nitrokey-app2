@@ -244,6 +244,18 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.reset_ui()
 
+    @Slot()
+    def invalidate(self) -> None:
+        """Drop cached credentials so the next refresh reloads from the device.
+
+        Used after an external change to the passwords app (e.g. a factory
+        reset from the Settings tab) that this tab cannot observe directly.
+        """
+        self.active_credential = None
+        self._worker.pin_cache.clear()
+        self.data = None
+        self.reset_ui()
+
     def reset_ui(self) -> None:
         self.ui.secrets_list.clear()
 
@@ -255,8 +267,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.page_incompatible.setVisible(not show)
         self.hide_credential()
 
-    def refresh(self, data: DeviceData) -> None:
-        if data == self.data:
+    def refresh(self, data: DeviceData, force: bool = False) -> None:
+        if data == self.data and not force:
             return
         self.data = data
         self._worker.pin_cache.clear()
