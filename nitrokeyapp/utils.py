@@ -17,6 +17,11 @@ logger = logging.getLogger(__name__)
 
 def should_use_ccid() -> bool:
     if os.environ.get(NITROKEY_FORCE_CTAPHID):
+        if os.environ.get(NITROKEY_FORCE_CCID):
+            logger.warning(
+                f"Both {NITROKEY_FORCE_CTAPHID} and {NITROKEY_FORCE_CCID} are set; "
+                f"{NITROKEY_FORCE_CTAPHID} takes priority"
+            )
         return False
     if os.environ.get(NITROKEY_FORCE_CCID):
         return True
