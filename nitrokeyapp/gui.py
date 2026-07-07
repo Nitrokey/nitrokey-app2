@@ -1,7 +1,8 @@
 import logging
+import signal
 import webbrowser
 from time import sleep
-from types import TracebackType
+from types import FrameType, TracebackType
 
 from nitrokey import _VID_NITROKEY
 from nitrokey.trussed import Model
@@ -37,6 +38,13 @@ PASSKEYS_ADMIN_REQUIRED_MESSAGE = (
     "Managing passkeys requires administrator privileges on Windows. "
     "Please restart the Nitrokey App as administrator to list or delete passkeys."
 )
+
+UPDATE_IN_PROGRESS_MESSAGE = (
+    "A firmware update is in progress. Please wait until it has finished "
+    "before closing the application."
+)
+
+SIGNAL_WAKEUP_INTERVAL_MS = 200
 
 
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
@@ -166,7 +174,39 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.init_gui()
         self.show()
 
+        self.setup_signal_handling()
+
         check_ccid_config(self)
+
+    def setup_signal_handling(self) -> None:
+        """Install a custom SIGINT handler for a clean shutdown.
+
+        Python cannot run signal handlers while the Qt event loop is
+        blocking, so a timer regularly hands control back to the interpreter
+        to let pending signals be delivered.
+        """
+        signal.signal(signal.SIGINT, self.handle_sigint)
+
+        self.signal_wakeup_timer = QTimer(self)
+        self.signal_wakeup_timer.timeout.connect(lambda: None)
+        self.signal_wakeup_timer.start(SIGNAL_WAKEUP_INTERVAL_MS)
+
+    def is_update_running(self) -> bool:
+        """Whether a firmware update is currently being executed.
+
+        Interrupting an update may brick the device, so this is used to block
+        both signal-triggered and regular application exits.
+        """
+        return any(device.updating for device in self.device_manager)
+
+    def handle_sigint(self, sig: int, frame: FrameType | None) -> None:
+        if self.is_update_running():
+            logger.warning("Ignoring SIGINT: a firmware update is in progress")
+            self.info_box.set_error_status(UPDATE_IN_PROGRESS_MESSAGE)
+            return
+
+        logger.info("Received SIGINT, closing application")
+        self.close()
 
     def toggle_update_btn(self) -> None:
         device_count = len(self.device_manager)
@@ -395,6 +435,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         dialog.set_exception(ty, e, tb)
 
     def closeEvent(self, event: QEvent) -> None:
+        if self.is_update_running():
+            logger.warning("Ignoring close request: a firmware update is in progress")
+            self.info_box.set_error_status(UPDATE_IN_PROGRESS_MESSAGE)
+            event.ignore()
+            return
+
         self.overview_tab.worker_thread.quit()
         self.settings_tab.worker_thread.quit()
         self.secrets_tab.worker_thread.quit()
