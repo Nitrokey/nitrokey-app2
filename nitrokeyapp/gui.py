@@ -19,6 +19,7 @@ from nitrokeyapp.fido2_tab import Fido2Tab
 from nitrokeyapp.information_box import InfoBox
 from nitrokeyapp.nk3_button import Nk3Button
 from nitrokeyapp.overview_tab import OverviewTab
+from nitrokeyapp.piv_tab import PivTab
 from nitrokeyapp.progress_box import ProgressBox
 from nitrokeyapp.prompt_box import PromptBox
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
@@ -102,12 +103,14 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.overview_tab = OverviewTab(self)
         self.secrets_tab = SecretsTab(self)
         self.fido2_tab = Fido2Tab(self)
+        self.piv_tab = PivTab(self)
         self.settings_tab = SettingsTab(self)
 
         self.views: list[DeviceView] = [
             self.overview_tab,
             self.secrets_tab,
             self.fido2_tab,
+            self.piv_tab,
             self.settings_tab,
         ]
         self.busy_count = 0
@@ -300,14 +303,15 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         self.info_box.set_device(data.name)
         self.tabs.show()
-        self.tabs.setCurrentIndex(0)
 
         if self.selected_device.is_too_old:
             self.tabs.setTabVisible(1, True)
             self.tabs.setTabEnabled(1, False)
             self.tabs.setTabVisible(2, True)
             self.tabs.setTabEnabled(2, False)
+            self.tabs.setTabVisible(3, True)
             self.tabs.setTabEnabled(3, False)
+            self.tabs.setTabEnabled(4, False)
         else:
             is_nk3 = self.selected_device.model == Model.NK3
             has_fido2 = self.selected_device.model in (Model.NK3, Model.NKPK)
@@ -315,14 +319,24 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.tabs.setTabEnabled(1, is_nk3)
             self.tabs.setTabVisible(2, has_fido2)
             self.tabs.setTabEnabled(2, has_fido2 and not self.passkeys_admin_required)
-            self.tabs.setTabEnabled(3, True)
+            self.tabs.setTabVisible(3, is_nk3)
+            self.tabs.setTabEnabled(3, is_nk3)
+            self.tabs.setTabEnabled(4, True)
+
+        # Reset all non-Overview views BEFORE switching tabs so widget updates
+        # happen while those views are still visible, not while hidden.
+        # Updating a hidden tab's widgets can cause Qt to re-highlight the tab bar.
+        for i, v in enumerate(self.views):
+            if i != 0:
+                v.reset()
+
+        self.tabs.setCurrentIndex(0)
 
         self.show_navigation()
         self.welcome_widget.hide()
 
         # enforce refreshing the current view
-        view = self.views[self.tabs.currentIndex()]
-        view.refresh(data, force=True)
+        self.views[0].refresh(data)
 
         for btn in self.device_buttons:
             btn.set_stylesheet_small()
@@ -360,7 +374,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         self.setCursor(QCursor(Qt.CursorShape.WaitCursor))
         self.home_button.setEnabled(False)
-        self.tabs.setEnabled(False)
+        # Disable only the tab bar (prevents tab switching) rather than the
+        # entire tabs widget.  Disabling the whole widget causes Qt to skip
+        # visual updates from setCurrentIndex() calls made while disabled,
+        # so when re-enabled the tab bar repaints from the pre-disabled visual
+        # state and the wrong tab can appear selected.
+        self.tabs.tabBar().setEnabled(False)
 
     @Slot(bool)
     def set_busy(self, busy: bool) -> None:
@@ -373,7 +392,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         if self.busy_count == 0:
             self.unsetCursor()
             self.home_button.setEnabled(True)
-            self.tabs.setEnabled(True)
+            self.tabs.tabBar().setEnabled(True)
 
         # TODO: setEnabled?
         # self.setEnabled(not busy)
@@ -399,4 +418,5 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.settings_tab.worker_thread.quit()
         self.secrets_tab.worker_thread.quit()
         self.fido2_tab.worker_thread.quit()
+        self.piv_tab.worker_thread.quit()
         event.accept()
