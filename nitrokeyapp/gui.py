@@ -394,7 +394,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.info_box.set_error_status(msg)
         # self.user_err(msg, "Error", self)
 
-    @Slot(object, BaseException, object)
+    @Slot(type, BaseException, TracebackType)
     def handle_exception(
         self, ty: type[BaseException], e: BaseException, tb: TracebackType | None
     ) -> None:
