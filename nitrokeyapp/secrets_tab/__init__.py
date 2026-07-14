@@ -9,7 +9,7 @@ from random import randbytes
 from secrets import choice
 
 from PySide6.QtCore import QEvent, QObject, Qt, QThread, QTimer, Signal, Slot
-from PySide6.QtGui import QGuiApplication, QKeyEvent, QKeySequence
+from PySide6.QtGui import QGuiApplication, QKeyEvent, QKeySequence, QResizeEvent
 from PySide6.QtWidgets import (
     QAbstractSpinBox,
     QCheckBox,
@@ -37,6 +37,50 @@ from .worker import SecretsWorker
 
 
 logger = logging.getLogger(__name__)
+
+
+class PasswordGenRow(QWidget):
+    """Password-generator filters that adapt to the available width.
+
+    In the narrow (default) view the filters spread out evenly to fill the whole
+    row. In the wide (full-screen) view they group together on the left, aligned
+    under the password field, with the free space collected on the right.
+    """
+
+    _BUNCH_WIDTH = 700
+
+    def __init__(self, items: list[QWidget], indent_source: QWidget) -> None:
+        super().__init__()
+        self._items = items
+        self._indent_source = indent_source
+        self._layout = QHBoxLayout(self)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._bunched: bool | None = None
+        self._relayout(bunched=False)
+
+    def _relayout(self, bunched: bool) -> None:
+        self._bunched = bunched
+        while self._layout.count():
+            self._layout.takeAt(0)
+        if bunched:
+            indent = max(self._indent_source.x() - self.x(), 0)
+            if indent:
+                self._layout.addSpacing(indent)
+            for item in self._items:
+                self._layout.addWidget(item)
+            self._layout.addStretch()
+        else:
+            for index, item in enumerate(self._items):
+                self._layout.addWidget(item)
+                if index < len(self._items) - 1:
+                    self._layout.addStretch()
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        super().resizeEvent(event)
+        bunched = self.width() >= self._BUNCH_WIDTH
+        if bunched != self._bunched:
+            self._relayout(bunched)
+
 
 CLIPBOARD_CLEAR_TIMEOUT_MS = 10_000
 
@@ -159,7 +203,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         form = self.ui.password.parentWidget().layout()
         assert isinstance(form, QFormLayout)
         pw_row = form.getWidgetPosition(self.ui.password)[0]  # type: ignore[index]
-        form.insertRow(pw_row + 1, "", self._pw_gen_widget)
+        form.insertRow(pw_row + 1, self._pw_gen_widget)
 
         self.action_comment_copy = self.ui.comment.addAction(icon_copy, loc)
         self.action_comment_copy.triggered.connect(lambda: self.act_copy_line_edit(self.ui.comment))
@@ -798,10 +842,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.set_password_show(show=True)
 
     def _create_password_gen_widget(self) -> QWidget:
-        widget = QWidget()
-        layout = QHBoxLayout(widget)
-        layout.setContentsMargins(0, 0, 0, 0)
-
         self._pw_gen_letters = QCheckBox("Letters")
         self._pw_gen_letters.setChecked(True)
         self._pw_gen_digits = QCheckBox("Digits")
@@ -819,14 +859,16 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self._pw_gen_punctuation.stateChanged.connect(self.act_password_gen_setting_changed)
         self._pw_gen_length.valueChanged.connect(self.act_password_gen_setting_changed)
 
-        layout.addWidget(self._pw_gen_letters)
-        layout.addWidget(self._pw_gen_digits)
-        layout.addWidget(self._pw_gen_punctuation)
-        layout.addWidget(QLabel("Length:"))
-        layout.addWidget(self._pw_gen_length)
-        layout.addStretch()
+        length_group = QWidget()
+        length_layout = QHBoxLayout(length_group)
+        length_layout.setContentsMargins(0, 0, 0, 0)
+        length_layout.addWidget(QLabel("Length:"))
+        length_layout.addWidget(self._pw_gen_length)
 
-        return widget
+        return PasswordGenRow(
+            [self._pw_gen_letters, self._pw_gen_digits, self._pw_gen_punctuation, length_group],
+            self.ui.password,
+        )
 
     def set_password_show(self, show: bool = True) -> None:
         icon_show = self.get_qicon("visibility.svg")
