@@ -860,13 +860,15 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self._pw_gen_length.valueChanged.connect(self.act_password_gen_setting_changed)
 
         length_group = QWidget()
+        length_group.setObjectName("pw_gen_length_group")
+        length_group.setStyleSheet("QWidget#pw_gen_length_group { background: transparent; }")
         length_layout = QHBoxLayout(length_group)
         length_layout.setContentsMargins(0, 0, 0, 0)
         length_layout.addWidget(QLabel("Length:"))
         length_layout.addWidget(self._pw_gen_length)
 
         return PasswordGenRow(
-            [self._pw_gen_letters, self._pw_gen_digits, self._pw_gen_punctuation, length_group],
+            [length_group, self._pw_gen_letters, self._pw_gen_digits, self._pw_gen_punctuation],
             self.ui.password,
         )
 
