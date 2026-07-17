@@ -1,20 +1,19 @@
 import logging
 import signal
 import webbrowser
-from time import sleep
 from types import FrameType, TracebackType
 
 from nitrokey import _VID_NITROKEY
 from nitrokey.trussed import Model
 from PySide6 import QtWidgets
-from PySide6.QtCore import QEvent, Qt, QTimer, Signal, Slot
+from PySide6.QtCore import QEvent, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QCursor
 from usbmonitor import USBMonitor
 from usbmonitor.attributes import ID_USB_INTERFACES, ID_VENDOR_ID
 
 from nitrokeyapp.device_data import DeviceData
-from nitrokeyapp.device_manager import DeviceManager
 from nitrokeyapp.device_view import DeviceView
+from nitrokeyapp.device_worker import DeviceWorker
 from nitrokeyapp.error_dialog import ErrorDialog
 from nitrokeyapp.fido2_tab import Fido2Tab
 from nitrokeyapp.information_box import InfoBox
@@ -49,12 +48,24 @@ SIGNAL_WAKEUP_INTERVAL_MS = 200
 
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     trigger_handle_exception = Signal(object, BaseException, object)
-    trigger_update_devices = Signal()
+
+    trigger_add_devices = Signal()
+    trigger_remove_devices = Signal()
     trigger_refresh_devices = Signal()
 
     def __init__(self, qt_app: QtWidgets.QApplication, log_file: str):
         QtWidgets.QMainWindow.__init__(self)
         QtUtilsMixIn.__init__(self)
+
+        self.device_worker_thread = QThread()
+        self.device_worker = DeviceWorker()
+        self.device_worker.moveToThread(self.device_worker_thread)
+        self.device_worker_thread.start()
+
+        self.trigger_add_devices.connect(self.device_worker.detect_added_devices)
+        self.trigger_remove_devices.connect(self.device_worker.detect_removed_devices)
+        self.trigger_refresh_devices.connect(self.device_worker.refresh_devices)
+        self.device_worker.devices_updated.connect(self.update_devices)
 
         # start monitoring usb
         # usb-monitor uses different formats for the VID depending on the operating system, see:
@@ -68,14 +79,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             {ID_VENDOR_ID: f"0x{nk_vid.lower()}"},
             {ID_VENDOR_ID: str(_VID_NITROKEY)},
         )
-        monitor = USBMonitor(filter_devices=device_filter)
-        monitor.start_monitoring(
-            on_connect=self.detect_added_devices, on_disconnect=self.detect_removed_devices
+        self.usb_monitor = USBMonitor(filter_devices=device_filter)
+        self.usb_monitor.start_monitoring(
+            on_connect=self.on_device_connect, on_disconnect=self.on_device_disconnect
         )
 
-        self.trigger_update_devices.connect(self.update_devices)
-
-        self.device_manager = DeviceManager()
+        self.devices: list[DeviceData] = []
         self.device_buttons: list[Nk3Button] = []
         self.selected_device: DeviceData | None = None
 
@@ -211,12 +220,12 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.close()
 
     def toggle_update_btn(self) -> None:
-        device_count = len(self.device_manager)
+        device_count = len(self.devices)
         if device_count == 0:
             self.l_insert_nitrokey.show()
         self.overview_tab.set_update_enabled(device_count <= 1)
 
-    def detect_added_devices(
+    def on_device_connect(
         self, device_id: str | None = None, device_info: dict[str, str] | None = None
     ) -> None:
         interfaces = device_info.get(ID_USB_INTERFACES, ()) if device_info else ()
@@ -237,48 +246,22 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         if not filter_success and interfaces:
             return
 
-        # retry for up to 2secs
-        for _tries in range(8):
-            devs = self.device_manager.add()
-            if devs:
-                break
-            sleep(0.25)
+        self.trigger_add_devices.emit()
 
-        if not devs:
-            logger.info("failed adding device")
-            return
-
-        # add as nk3 device
-        logger.info(f"{len(devs)} nk3 device(s) connected:")
-        for i, dev in enumerate(devs):
-            logger.info(f"device #{i + 1}: {dev}")
-
-        self.trigger_update_devices.emit()
-
-    def detect_removed_devices(
+    def on_device_disconnect(
         self, device_id: str | None = None, device_info: dict[str, str] | None = None
     ) -> None:
-        devs = self.device_manager.remove()
-        if not devs:
-            logger.info("failed removing device")
-            return
-
-        logger.info(f"nk3 disconnected: {devs}")
-        self.trigger_update_devices.emit()
+        self.trigger_remove_devices.emit()
 
     @Slot()
     def refresh_devices(self) -> None:
-        """clear `self.device_manager` and fully refresh devices"""
-        self.selected_device = None
-        self.device_manager.clear()
+        self.hide_device()
+        self.trigger_refresh_devices.emit()
 
-        self.detect_added_devices()
+    @Slot(list)
+    def update_devices(self, devices: list[DeviceData]) -> None:
+        self.devices = devices
 
-    @Slot()
-    def update_devices(self) -> None:
-        """update device button view based on `self.device_manager` contents"""
-
-        # always clear right view on update_devices
         self.hide_device()
         self.selected_device = None
 
@@ -287,7 +270,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             widget.destroy()
         self.device_buttons.clear()
 
-        for device_data in self.device_manager:
+        for device_data in self.devices:
             btn = Nk3Button(device_data, self.show_device)
             self.device_buttons.append(btn)
             self.ui.nitrokeyButtonsLayout.addWidget(btn)
@@ -295,7 +278,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             if not self.selected_device:
                 self.selected_device = device_data
 
-        if len(self.device_manager) > 0:
+        if len(self.devices) > 0:
             self.l_insert_nitrokey.hide()
             self.hide_navigation()
             if self.selected_device:
@@ -306,7 +289,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     def init_gui(self) -> None:
         self.hide_device()
-        self.detect_added_devices()
+        self.trigger_add_devices.emit()
 
     def show_navigation(self) -> None:
         for btn in self.device_buttons:
@@ -382,8 +365,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     @Slot(int)
     def tab_changed(self, idx: int) -> None:
-        view = self.views[self.tabs.currentIndex()]
-        view.refresh(self.selected_device)
+        if self.selected_device is not None:
+            view = self.views[self.tabs.currentIndex()]
+            view.refresh(self.selected_device)
 
         if idx == 1:
             self.info_box.pin_icon.show()
@@ -443,6 +427,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             event.ignore()
             return
 
+        self.usb_monitor.stop_monitoring()
+        self.device_worker_thread.quit()
+        self.device_worker_thread.wait(3000)
         self.overview_tab.worker_thread.quit()
         self.settings_tab.worker_thread.quit()
         self.secrets_tab.worker_thread.quit()
