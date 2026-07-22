@@ -14,10 +14,51 @@ from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.worker import Job, Worker
 
-from .data import Fido2Credential
+from .data import Fido2Credential, Fido2ListState
 from .ui import Fido2PinUi, Fido2PinUiConnection
 
 logger = logging.getLogger(__name__)
+
+# COSE key parameter label 3 holds the signature algorithm identifier
+# (RFC 9052, "Key Object Parameters")
+COSE_KEY_ALG_LABEL = 3
+
+
+def build_fido2_list_state(cred_mgmt: CredentialManagement) -> Fido2ListState:
+    """Read slot metadata and enumerate all resident credentials.
+
+    Kept free of any device/UI handling so it can be exercised directly in
+    tests against a stub credential-management object.
+    """
+    metadata = cred_mgmt.get_metadata()
+    existing = metadata.get(CredentialManagement.RESULT.EXISTING_CRED_COUNT, 0)
+    remaining = metadata.get(CredentialManagement.RESULT.MAX_REMAINING_COUNT)
+    state = Fido2ListState(existing_count=existing, remaining_count=remaining, valid=True)
+    if existing == 0:
+        return state
+
+    for rp_result in cred_mgmt.enumerate_rps():
+        rp = rp_result.get(CredentialManagement.RESULT.RP) or {}
+        rp_hash = rp_result.get(CredentialManagement.RESULT.RP_ID_HASH)
+        rp_id = rp.get("id", "(unknown)")
+        rp_name = rp.get("name")
+
+        for cred in cred_mgmt.enumerate_creds(rp_hash):
+            cid = cred.get(CredentialManagement.RESULT.CREDENTIAL_ID) or {}
+            user = cred.get(CredentialManagement.RESULT.USER) or {}
+            public_key = cred.get(CredentialManagement.RESULT.PUBLIC_KEY) or {}
+            state.credentials.append(
+                Fido2Credential(
+                    rp_id=rp_id,
+                    rp_name=rp_name,
+                    user_id=user.get("id", b""),
+                    user_name=user.get("name"),
+                    user_display_name=user.get("displayName"),
+                    credential_id=cid.get("id", b""),
+                    algorithm=public_key.get(COSE_KEY_ALG_LABEL),
+                )
+            )
+    return state
 
 
 @dataclass
@@ -73,7 +114,7 @@ class CheckDeviceJob(Job):
 
 
 class ListCredentialsJob(Job):
-    credentials_listed = Signal(list)
+    credentials_listed = Signal(object)
 
     def __init__(
         self, common_ui: CommonUi, pin_cache: PinCache, pin_ui: Fido2PinUi, data: DeviceData
@@ -103,7 +144,7 @@ class ListCredentialsJob(Job):
             return
 
         self._pin_ui_conn = self.pin_ui.connect_actions(
-            self._on_pin, lambda: self.credentials_listed.emit([])
+            self._on_pin, lambda: self.credentials_listed.emit(Fido2ListState())
         )
         self.pin_ui.query.emit(retries)
 
@@ -125,7 +166,7 @@ class ListCredentialsJob(Job):
 
     def _do_list(self, pin: str, pin_was_queried: bool = False) -> None:
         try:
-            credentials = self._enumerate(pin)
+            state = self._enumerate(pin)
         except CtapError as e:
             self.pin_cache.clear()
             self.trigger_error(f"FIDO2 PIN authentication failed: {e}")
@@ -137,41 +178,15 @@ class ListCredentialsJob(Job):
         if pin_was_queried:
             self.pin_cache.update(self.data, pin)
 
-        self.credentials_listed.emit(credentials)
+        self.credentials_listed.emit(state)
 
-    def _enumerate(self, pin: str) -> list[Fido2Credential]:
+    def _enumerate(self, pin: str) -> Fido2ListState:
         with self.data.open() as device:
             ctap2 = Ctap2(device.device)
             client_pin = ClientPin(ctap2)
             token = client_pin.get_pin_token(pin, permissions=ClientPin.PERMISSION.CREDENTIAL_MGMT)
             cred_mgmt = CredentialManagement(ctap2, client_pin.protocol, token)
-
-            metadata = cred_mgmt.get_metadata()
-            existing = metadata.get(CredentialManagement.RESULT.EXISTING_CRED_COUNT, 0)
-            if existing == 0:
-                return []
-
-            credentials: list[Fido2Credential] = []
-            for rp_result in cred_mgmt.enumerate_rps():
-                rp = rp_result.get(CredentialManagement.RESULT.RP) or {}
-                rp_hash = rp_result.get(CredentialManagement.RESULT.RP_ID_HASH)
-                rp_id = rp.get("id", "(unknown)")
-                rp_name = rp.get("name")
-
-                for cred in cred_mgmt.enumerate_creds(rp_hash):
-                    cid = cred.get(CredentialManagement.RESULT.CREDENTIAL_ID) or {}
-                    user = cred.get(CredentialManagement.RESULT.USER) or {}
-                    credentials.append(
-                        Fido2Credential(
-                            rp_id=rp_id,
-                            rp_name=rp_name,
-                            user_id=user.get("id", b""),
-                            user_name=user.get("name"),
-                            user_display_name=user.get("displayName"),
-                            credential_id=cid.get("id", b""),
-                        )
-                    )
-            return credentials
+            return build_fido2_list_state(cred_mgmt)
 
 
 class DeleteCredentialJob(Job):
@@ -260,7 +275,7 @@ class DeleteCredentialJob(Job):
 
 
 class Fido2Worker(Worker):
-    credentials_listed = Signal(list)
+    credentials_listed = Signal(object)
     credential_deleted = Signal(object)
     device_checked = Signal(bool)
 
