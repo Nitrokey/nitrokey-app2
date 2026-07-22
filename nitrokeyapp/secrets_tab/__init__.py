@@ -210,6 +210,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_save.pressed.connect(self.save_credential)
         self.ui.btn_edit.pressed.connect(self.prepare_edit_credential)
 
+        self.ui.uri.textChanged.connect(self.check_credential)
         self.ui.name.textChanged.connect(self.check_credential)
         self.ui.username.textChanged.connect(self.check_credential)
         self.ui.password.textChanged.connect(self.check_credential)
@@ -592,10 +593,14 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     def show_uri(self) -> None:
         self.ui.uri_label.show()
+        self.ui.uri.setText("")
+        self.ui.uri.setReadOnly(False)
         self.ui.uri.show()
 
     def hide_uri(self) -> None:
         self.ui.uri_label.hide()
+        self.ui.uri.setText("")
+        self.ui.uri.setReadOnly(True)
         self.ui.uri.hide()
 
     @Slot()
@@ -677,64 +682,67 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         algo = self.ui.select_algorithm.currentText()
 
-        if len(self.ui.name.text()) < 3:
-            can_save = False
-        if len(self.ui.name.text()) == 0:
-            self.common_ui.info.info.emit("Enter a Credential Name")
-            tool_Tip = tool_Tip + "\n- Enter a Credential Name"
-        if len(self.ui.name.text()) >= 1 and len(self.ui.name.text()) < 3:
-            self.common_ui.info.info.emit("Credential Name is too short")
-            tool_Tip = tool_Tip + "\n- Credential Name is too short"
-        if name_len >= 128:
-            can_save = False
-            self.common_ui.info.info.emit("Credential Name is too long")
-            tool_Tip = tool_Tip + "\n- Credential Name is too long"
+        if len(self.ui.uri.text()) > 9:
+            can_save = True
+        else:
+            if len(self.ui.name.text()) < 3:
+                can_save = False
+            if len(self.ui.name.text()) == 0:
+                self.common_ui.info.info.emit("Enter a Credential Name")
+                tool_Tip = tool_Tip + "\n- Enter a Credential Name"
+            if len(self.ui.name.text()) >= 1 and len(self.ui.name.text()) < 3:
+                self.common_ui.info.info.emit("Credential Name is too short")
+                tool_Tip = tool_Tip + "\n- Credential Name is too short"
+            if name_len >= 128:
+                can_save = False
+                self.common_ui.info.info.emit("Credential Name is too long")
+                tool_Tip = tool_Tip + "\n- Credential Name is too long"
 
-        if username_len >= 128:
-            can_save = False
-            self.common_ui.info.info.emit("Username is too long")
-            tool_Tip = tool_Tip + "\n- Username is too long"
+            if username_len >= 128:
+                can_save = False
+                self.common_ui.info.info.emit("Username is too long")
+                tool_Tip = tool_Tip + "\n- Username is too long"
 
-        if password_len >= 128:
-            can_save = False
-            self.common_ui.info.info.emit("Password is too long")
-            tool_Tip = tool_Tip + "\n- Password is too long"
+            if password_len >= 128:
+                can_save = False
+                self.common_ui.info.info.emit("Password is too long")
+                tool_Tip = tool_Tip + "\n- Password is too long"
 
-        if comment_len >= 128:
-            can_save = False
-            self.common_ui.info.info.emit("Comment is too long")
-            tool_Tip = tool_Tip + "\n- Comment is too long"
+            if comment_len >= 128:
+                can_save = False
+                self.common_ui.info.info.emit("Comment is too long")
+                tool_Tip = tool_Tip + "\n- Comment is too long"
 
-        if self.ui.select_algorithm.isEnabled():
-            if algo == "None":
-                self.ui.otp.setReadOnly(True)
-                self.ui.otp.setPlaceholderText("<select algorithm>")
-            else:
-                self.ui.otp.setReadOnly(False)
-                self.ui.otp.setPlaceholderText("<empty>")
+            if self.ui.select_algorithm.isEnabled():
+                if algo == "None":
+                    self.ui.otp.setReadOnly(True)
+                    self.ui.otp.setPlaceholderText("<select algorithm>")
+                else:
+                    self.ui.otp.setReadOnly(False)
+                    self.ui.otp.setPlaceholderText("<empty>")
 
-            if algo == "HMAC":
-                self.show_hmac_view()
-                if len(check_secret) != 32:
+                if algo == "HMAC":
+                    self.show_hmac_view()
+                    if len(check_secret) != 32:
+                        can_save = False
+                        self.common_ui.info.info.emit("The HMAC-Secret is not 32 chars long")
+                        tool_Tip = tool_Tip + "\n- The HMAC-Secret is not 32 chars long"
+                else:
+                    self.hide_hmac_view()
+
+                if algo != "None" and len(check_secret) != len(check_secret.encode()):
                     can_save = False
-                    self.common_ui.info.info.emit("The HMAC-Secret is not 32 chars long")
-                    tool_Tip = tool_Tip + "\n- The HMAC-Secret is not 32 chars long"
-            else:
-                self.hide_hmac_view()
+                    self.common_ui.info.info.emit("Invalid character in Secret")
+                    tool_Tip = tool_Tip + "\n- Invalid character in Secret"
+                elif not is_base32(check_secret) and len(check_secret) > 1:
+                    can_save = False
+                    self.common_ui.info.info.emit("Secret is not in Base32")
+                    tool_Tip = tool_Tip + "\n- Secret is not in Base32"
 
-            if algo != "None" and len(check_secret) != len(check_secret.encode()):
-                can_save = False
-                self.common_ui.info.info.emit("Invalid character in Secret")
-                tool_Tip = tool_Tip + "\n- Invalid character in Secret"
-            elif not is_base32(check_secret) and len(check_secret) > 1:
-                can_save = False
-                self.common_ui.info.info.emit("Secret is not in Base32")
-                tool_Tip = tool_Tip + "\n- Secret is not in Base32"
-
-            if algo != "None" and len(check_secret) < 1:
-                can_save = False
-                self.common_ui.info.info.emit("Enter a Secret")
-                tool_Tip = tool_Tip + "\n- Enter a Secret"
+                if algo != "None" and len(check_secret) < 1:
+                    can_save = False
+                    self.common_ui.info.info.emit("Enter a Secret")
+                    tool_Tip = tool_Tip + "\n- Enter a Secret"
 
         self.ui.btn_save.setEnabled(can_save)
         if can_save:
@@ -951,8 +959,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         user_presence = self.ui.is_touch_protected.isChecked()
         pin_protected = self.ui.is_pin_protected.isChecked()
         kind_str = self.ui.select_algorithm.currentText()
+        uri = self.ui.uri.text()
 
-        if len(name) < 3:
+        if not uri and len(name) < 3:
             print("INSERT ERROR MESSAGE HERE - status bar?")
             return
 
@@ -978,6 +987,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             comment=comment.encode(),
             protected=pin_protected,
             touch_required=user_presence,
+            uri=uri,
             new_secret=self.ui.select_algorithm.isEnabled()
             and self.ui.select_algorithm.currentText() != "None",
         )

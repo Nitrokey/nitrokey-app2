@@ -384,33 +384,49 @@ class AddCredentialJob(Job):
         with self.data.open() as device:
             if not isinstance(device, NK3):
                 return
+
+            if self.credential.uri and self.credential.id:
+                self.trigger_error("Other fields must be empty if URI is used")
+
             secrets = SecretsApp(device)
             with self.touch_prompt():
-                reg_data = {
-                    "credid": self.credential.id,
-                    "touch_button_required": self.credential.touch_required,
-                    "pin_based_encryption": self.credential.protected,
-                }
+                if self.credential.uri:
+                    try:
+                        secrets.register_uri(
+                            uri=self.credential.uri,
+                            touch_button_required=self.credential.touch_required,
+                            pin_based_encryption=self.credential.protected,
+                        )
+                    except SecretsAppException as e:
+                        self.trigger_exception(e)
+                        return
 
-                if self.credential.other:
-                    reg_data["secret"] = self.secret
-                    reg_data["kind"] = self.credential.other.raw_kind()
+                else:
+                    reg_data = {
+                        "credid": self.credential.id,
+                        "touch_button_required": self.credential.touch_required,
+                        "pin_based_encryption": self.credential.protected,
+                    }
 
-                if self.credential.otp:
-                    reg_data["secret"] = self.secret
-                    reg_data["kind"] = self.credential.otp.raw_kind()
+                    if self.credential.other:
+                        reg_data["secret"] = self.secret
+                        reg_data["kind"] = self.credential.other.raw_kind()
 
-                if self.credential.login:
-                    reg_data["login"] = self.credential.login
-                if self.credential.password:
-                    reg_data["password"] = self.credential.password
-                if self.credential.comment:
-                    reg_data["metadata"] = self.credential.comment
-                try:
-                    secrets.register(**reg_data)  # type: ignore [arg-type]
-                except SecretsAppException as e:
-                    self.trigger_exception(e)
-                    return
+                    if self.credential.otp:
+                        reg_data["secret"] = self.secret
+                        reg_data["kind"] = self.credential.otp.raw_kind()
+
+                    if self.credential.login:
+                        reg_data["login"] = self.credential.login
+                    if self.credential.password:
+                        reg_data["password"] = self.credential.password
+                    if self.credential.comment:
+                        reg_data["metadata"] = self.credential.comment
+                    try:
+                        secrets.register(**reg_data)  # type: ignore [arg-type]
+                    except SecretsAppException as e:
+                        self.trigger_exception(e)
+                        return
 
         self.credential_added.emit(self.credential)
 
