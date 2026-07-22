@@ -396,6 +396,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             action.setVisible(True)
         self.action_password_generate.setVisible(False)
         self._pw_gen_widget.hide()
+        self.hide_uri()
 
         self.ui.credential_empty.hide()
         self.ui.credential_show.show()
@@ -434,6 +435,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.action_comment_copy.setEnabled(False)
 
         self.ui.name.setReadOnly(True)
+        self.ui.uri.setReadOnly(True)
         self.ui.username.setReadOnly(True)
         self.ui.password.setReadOnly(True)
         self.ui.comment.setReadOnly(True)
@@ -521,6 +523,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         else:
             self.ui.comment.clear()
         self.ui.name.setReadOnly(False)
+        self.ui.uri.setReadOnly(False)
         self.ui.username.setReadOnly(False)
         self.ui.password.setReadOnly(False)
         self.ui.comment.setReadOnly(False)
@@ -587,6 +590,14 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.check_credential()
 
+    def show_uri(self) -> None:
+        self.ui.uri_label.show()
+        self.ui.uri.show()
+
+    def hide_uri(self) -> None:
+        self.ui.uri_label.hide()
+        self.ui.uri.hide()
+
     @Slot()
     def add_new_credential(self) -> None:
         if not self.data:
@@ -596,7 +607,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.ui.credential_empty.hide()
         self.ui.credential_show.show()
-
+        self.show_uri()
         self.set_password_show(show=False)
         for action in self.line_actions:
             action.setVisible(False)
