@@ -3,7 +3,7 @@ import logging
 import string
 from base64 import b32decode, b32encode
 from collections.abc import Callable
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import Enum
 from random import randbytes
 from secrets import choice
@@ -119,6 +119,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.data: DeviceData | None = None
         self.active_credential: Credential | None = None
 
+        self.period: int = 0
         self.otp_timeout: datetime | None = None
         self.otp_timer = QTimer()
         self.otp_timer.timeout.connect(self.update_otp_timeout)
@@ -334,9 +335,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         if data.validity:
             start, end = data.validity
             period = int((end - start).total_seconds())
-            self.ui.otp_timeout_progress.setMaximum(period + period)
-
-            self.otp_timeout = end + (end - start)
+            self.period = period
+            self.ui.otp_timeout_progress.setMaximum(period)
+            self.otp_timeout = end
             self.otp_timer.start()
             self.update_otp_timeout()
 
@@ -888,6 +889,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.otp_timer.stop()
         self.ui.otp_timeout_progress.hide()
         self.ui.otp.clear()
+        self.ui.otp.setPlaceholderText("<hidden>")
 
     @Slot()
     def update_otp_timeout(self) -> None:
@@ -895,7 +897,10 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         if not self.otp_timeout:
             return
         timeout = int((self.otp_timeout - datetime.now()).total_seconds())
-        if timeout >= 0:
+        hidden_timeout = int(
+            (self.otp_timeout + timedelta(seconds=self.period) - datetime.now()).total_seconds()
+        )
+        if hidden_timeout >= 0:
             self.ui.otp_timeout_progress.setValue(timeout)
         else:
             self.hide_otp()

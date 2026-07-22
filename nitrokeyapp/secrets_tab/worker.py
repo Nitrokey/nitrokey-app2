@@ -519,6 +519,8 @@ class GenerateOtpJob(Job):
                 self.trigger_exception(e)
                 return
 
+            print("Validity ", validity)
+
             self.otp_generated.emit(OtpData(otp, validity))
 
 
