@@ -518,9 +518,6 @@ class GenerateOtpJob(Job):
             except SecretsAppException as e:
                 self.trigger_exception(e)
                 return
-
-            print("Validity ", validity)
-
             self.otp_generated.emit(OtpData(otp, validity))
 
 
