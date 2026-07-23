@@ -18,24 +18,33 @@ class DeviceWorker(QObject):
 
     @Slot()
     def detect_added_devices(self) -> None:
-        if self._add():
-            self._emit_devices()
+        try:
+            if self._add():
+                self._emit_devices()
+        except Exception:
+            logger.exception("detect_added_devices failed")
 
     @Slot()
     def detect_removed_devices(self) -> None:
-        devs = self.device_manager.remove()
-        if not devs:
-            logger.info("failed removing device")
-            return
+        try:
+            devs = self.device_manager.remove()
+            if not devs:
+                logger.info("failed removing device")
+                return
 
-        logger.info(f"nk3 disconnected: {devs}")
-        self._emit_devices()
+            logger.info(f"nk3 disconnected: {devs}")
+            self._emit_devices()
+        except Exception:
+            logger.exception("detect_removed_devices failed")
 
     @Slot()
     def refresh_devices(self) -> None:
-        self.device_manager.clear()
-        self._add()
-        self._emit_devices()
+        try:
+            self.device_manager.clear()
+            self._add()
+            self._emit_devices()
+        except Exception:
+            logger.exception("refresh_devices failed")
 
     def _add(self) -> list[DeviceData]:
         devs: list[DeviceData] = []

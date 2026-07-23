@@ -45,6 +45,8 @@ UPDATE_IN_PROGRESS_MESSAGE = (
 
 SIGNAL_WAKEUP_INTERVAL_MS = 200
 
+WORKER_SHUTDOWN_TIMEOUT_MS = 3000
+
 
 class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     trigger_handle_exception = Signal(object, BaseException, object)
@@ -208,7 +210,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         Interrupting an update may brick the device, so this is used to block
         both signal-triggered and regular application exits.
         """
-        return any(device.updating for device in self.device_manager)
+        return any(device.updating for device in self.devices)
 
     def handle_sigint(self, sig: int, frame: FrameType | None) -> None:
         if self.is_update_running():
@@ -427,11 +429,26 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             event.ignore()
             return
 
-        self.usb_monitor.stop_monitoring()
-        self.device_worker_thread.quit()
-        self.device_worker_thread.wait(3000)
-        self.overview_tab.worker_thread.quit()
-        self.settings_tab.worker_thread.quit()
-        self.secrets_tab.worker_thread.quit()
-        self.fido2_tab.worker_thread.quit()
+        try:
+            self.usb_monitor.stop_monitoring()
+        except Exception:
+            logger.exception("failed to stop USB monitoring on close")
+
+        worker_threads = [
+            ("device", self.device_worker_thread),
+            ("overview", self.overview_tab.worker_thread),
+            ("settings", self.settings_tab.worker_thread),
+            ("secrets", self.secrets_tab.worker_thread),
+            ("fido2", self.fido2_tab.worker_thread),
+        ]
+        for _, thread in worker_threads:
+            thread.quit()
+        for name, thread in worker_threads:
+            if not thread.wait(WORKER_SHUTDOWN_TIMEOUT_MS):
+                logger.warning(
+                    "%s worker thread did not finish within %d ms on close",
+                    name,
+                    WORKER_SHUTDOWN_TIMEOUT_MS,
+                )
+
         event.accept()
