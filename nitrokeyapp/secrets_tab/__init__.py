@@ -204,6 +204,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         assert isinstance(form, QFormLayout)
         pw_row = form.getWidgetPosition(self.ui.password)[0]  # type: ignore[index]
         form.insertRow(pw_row + 1, self._pw_gen_widget)
+        self._pin_label_column(form)
 
         self.action_comment_copy = self.ui.comment.addAction(icon_copy, loc)
         self.action_comment_copy.triggered.connect(lambda: self.act_copy_line_edit(self.ui.comment))
@@ -840,6 +841,20 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         password = "".join(choice(alphabet) for _ in range(self._pw_gen_length.value()))
         self.ui.password.setText(password)
         self.set_password_show(show=True)
+
+    @staticmethod
+    def _pin_label_column(form: QFormLayout) -> None:
+        widgets = [
+            item.widget()
+            for row in range(form.rowCount())
+            if (item := form.itemAt(row, QFormLayout.ItemRole.LabelRole)) is not None
+            and item.widget() is not None
+        ]
+        if not widgets:
+            return
+        width = max(widget.sizeHint().width() for widget in widgets)
+        for widget in widgets:
+            widget.setMinimumWidth(width)
 
     def _create_password_gen_widget(self) -> QWidget:
         self._pw_gen_letters = QCheckBox("Letters")
