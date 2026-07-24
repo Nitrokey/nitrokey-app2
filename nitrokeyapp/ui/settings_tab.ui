@@ -249,7 +249,17 @@
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QFrame" name="settings_frame">
+        <widget class="QScrollArea" name="__settings_scroll">
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::Shape::NoFrame</enum>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QScrollArea { border: none; background: transparent; }</string>
+         </property>
+         <widget class="QFrame" name="settings_frame">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
            <horstretch>0</horstretch>
@@ -263,17 +273,20 @@
           <enum>QFrame::Shadow::Raised</enum>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
+          <property name="spacing">
+           <number>4</number>
+          </property>
           <property name="leftMargin">
            <number>16</number>
           </property>
           <property name="topMargin">
-           <number>16</number>
+           <number>10</number>
           </property>
           <property name="rightMargin">
            <number>16</number>
           </property>
           <property name="bottomMargin">
-           <number>16</number>
+           <number>10</number>
           </property>
           <item>
            <widget class="QLabel" name="headline_label">
@@ -490,6 +503,9 @@
           <item>
            <widget class="QWidget" name="pin_form" native="true">
             <layout class="QFormLayout" name="pin_form_layout">
+             <property name="labelAlignment">
+              <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+             </property>
              <item row="0" column="0">
               <widget class="QLabel" name="current_password_label">
                <property name="font">
@@ -651,7 +667,7 @@
             <property name="sizeHint" stdset="0">
              <size>
               <width>20</width>
-              <height>40</height>
+              <height>6</height>
              </size>
             </property>
            </spacer>
@@ -684,6 +700,7 @@
            </widget>
           </item>
          </layout>
+        </widget>
         </widget>
        </item>
       </layout>
