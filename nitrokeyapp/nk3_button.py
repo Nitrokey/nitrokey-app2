@@ -60,7 +60,7 @@ class Nk3Button(QtWidgets.QToolButton):
                 margin: 0; margin-top: 6px;
                 padding: 0.3em 0.5em;
                 border-radius: 6px;
-                font-weight: 600; font-size: 12px;
+                font-weight: 600; font-size: 9pt;
                 color: #768390;
             }
             QToolButton:hover {
@@ -71,7 +71,7 @@ class Nk3Button(QtWidgets.QToolButton):
                 background-color: rgba(192, 57, 43, 0.18);
                 border: 1px solid rgba(192, 57, 43, 0.5);
                 color: #ff8070;
-                font-weight: 600; font-size: 12px;
+                font-weight: 600; font-size: 9pt;
             }
         """
         )
@@ -85,7 +85,7 @@ class Nk3Button(QtWidgets.QToolButton):
                 margin: 0; margin-top: 6px;
                 padding: 0.3em 0.5em;
                 border-radius: 6px;
-                font-weight: 600; font-size: 10px;
+                font-weight: 600; font-size: 8pt;
                 color: #768390;
             }
             QToolButton:hover {
@@ -96,7 +96,7 @@ class Nk3Button(QtWidgets.QToolButton):
                 background-color: rgba(192, 57, 43, 0.18);
                 border: 1px solid rgba(192, 57, 43, 0.5);
                 color: #ff8070;
-                font-weight: 600; font-size: 10px;
+                font-weight: 600; font-size: 8pt;
             }
         """
         )
