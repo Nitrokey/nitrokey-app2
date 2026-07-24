@@ -9,7 +9,7 @@ from random import randbytes
 from secrets import choice
 
 from PySide6.QtCore import QEvent, QObject, Qt, QThread, QTimer, Signal, Slot
-from PySide6.QtGui import QGuiApplication, QKeyEvent, QKeySequence
+from PySide6.QtGui import QGuiApplication, QKeyEvent, QKeySequence, QResizeEvent
 from PySide6.QtWidgets import (
     QAbstractSpinBox,
     QCheckBox,
@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QListWidgetItem,
+    QMessageBox,
     QSpinBox,
     QWidget,
 )
@@ -36,6 +37,50 @@ from .worker import SecretsWorker
 
 
 logger = logging.getLogger(__name__)
+
+
+class PasswordGenRow(QWidget):
+    """Password-generator filters that adapt to the available width.
+
+    In the narrow (default) view the filters spread out evenly to fill the whole
+    row. In the wide (full-screen) view they group together on the left, aligned
+    under the password field, with the free space collected on the right.
+    """
+
+    _BUNCH_WIDTH = 700
+
+    def __init__(self, items: list[QWidget], indent_source: QWidget) -> None:
+        super().__init__()
+        self._items = items
+        self._indent_source = indent_source
+        self._layout = QHBoxLayout(self)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._bunched: bool | None = None
+        self._relayout(bunched=False)
+
+    def _relayout(self, bunched: bool) -> None:
+        self._bunched = bunched
+        while self._layout.count():
+            self._layout.takeAt(0)
+        if bunched:
+            indent = max(self._indent_source.x() - self.x(), 0)
+            if indent:
+                self._layout.addSpacing(indent)
+            for item in self._items:
+                self._layout.addWidget(item)
+            self._layout.addStretch()
+        else:
+            for index, item in enumerate(self._items):
+                self._layout.addWidget(item)
+                if index < len(self._items) - 1:
+                    self._layout.addStretch()
+
+    def resizeEvent(self, event: QResizeEvent) -> None:
+        super().resizeEvent(event)
+        bunched = self.width() >= self._BUNCH_WIDTH
+        if bunched != self._bunched:
+            self._relayout(bunched)
+
 
 CLIPBOARD_CLEAR_TIMEOUT_MS = 10_000
 
@@ -159,7 +204,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         form = self.ui.password.parentWidget().layout()
         assert isinstance(form, QFormLayout)
         pw_row = form.getWidgetPosition(self.ui.password)[0]  # type: ignore[index]
-        form.insertRow(pw_row + 1, "", self._pw_gen_widget)
+        form.insertRow(pw_row + 1, self._pw_gen_widget)
+        self._pin_label_column(form)
 
         self.action_comment_copy = self.ui.comment.addAction(icon_copy, loc)
         self.action_comment_copy.triggered.connect(lambda: self.act_copy_line_edit(self.ui.comment))
@@ -205,6 +251,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             timer.setInterval(CLIPBOARD_CLEAR_TIMEOUT_MS)
             timer.timeout.connect(lambda f=field: self._clear_clipboard_for_field(f))
             self._clipboard_timers[field] = timer
+
+        self.refresh_icons()
 
         self.ui.btn_add.pressed.connect(self.add_new_credential)
         self.ui.btn_abort.pressed.connect(lambda: self.show_secrets(True))
@@ -567,7 +615,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.ui.otp.clear()
             self.ui.otp.setReadOnly(False)
             self.ui.otp.setPlaceholderText("<empty>")
-            self.ui.select_algorithm.setCurrentText(str(credential.otp))
+            self.ui.select_algorithm.setCurrentText("Password only")
             self.ui.select_algorithm.setEnabled(True)
 
         self.check_credential()
@@ -641,7 +689,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.algorithm_show.hide()
 
         self.ui.select_algorithm.show()
-        self.ui.select_algorithm.setCurrentText("None")
+        self.ui.select_algorithm.setCurrentText("Password only")
         self.ui.select_algorithm.setEnabled(True)
         self.action_hmac_gen.setVisible(False)
 
@@ -656,7 +704,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     def check_credential(self) -> None:
         self.common_ui.info.info.emit("")
 
-        tool_Tip = "Credeantial cannot be saved:"
+        tool_Tip = "Credential cannot be saved:"
         can_save = True
         check_secret = self.ui.otp.text().replace(" ", "").replace("-", "")
 
@@ -696,9 +744,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             tool_Tip = tool_Tip + "\n- Comment is too long"
 
         if self.ui.select_algorithm.isEnabled():
-            if algo == "None":
+            if algo == "Password only":
                 self.ui.otp.setReadOnly(True)
-                self.ui.otp.setPlaceholderText("<select algorithm>")
+                self.ui.otp.setPlaceholderText("OTP not configured")
             else:
                 self.ui.otp.setReadOnly(False)
                 self.ui.otp.setPlaceholderText("<empty>")
@@ -712,16 +760,16 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             else:
                 self.hide_hmac_view()
 
-            if algo != "None" and len(check_secret) != len(check_secret.encode()):
+            if algo != "Password only" and len(check_secret) != len(check_secret.encode()):
                 can_save = False
                 self.common_ui.info.info.emit("Invalid character in Secret")
                 tool_Tip = tool_Tip + "\n- Invalid character in Secret"
             elif not is_base32(check_secret) and len(check_secret) > 1:
                 can_save = False
-                self.common_ui.info.info.emit("Secret is not in Base32")
-                tool_Tip = tool_Tip + "\n- Secret is not in Base32"
+                self.common_ui.info.info.emit("Secret is not valid Base32")
+                tool_Tip = tool_Tip + "\n- Secret is not valid Base32"
 
-            if algo != "None" and len(check_secret) < 1:
+            if algo != "Password only" and len(check_secret) < 1:
                 can_save = False
                 self.common_ui.info.info.emit("Enter a Secret")
                 tool_Tip = tool_Tip + "\n- Enter a Secret"
@@ -761,6 +809,24 @@ class SecretsTab(QtUtilsMixIn, QWidget):
                 self._clipboard_timers[obj].start()
         return False
 
+    def refresh_icons(self) -> None:
+        """re-resolve all themed icons, e.g. after a light/dark mode switch"""
+        self.ui.btn_abort.setIcon(self.get_qicon("close.svg"))
+        self.ui.btn_delete.setIcon(self.get_qicon("delete.svg"))
+        self.ui.btn_edit.setIcon(self.get_qicon("edit.svg"))
+        self.ui.btn_refresh.setIcon(self.get_qicon("refresh.svg"))
+
+        icon_copy = self.get_qicon("content_copy.svg")
+        self.action_username_copy.setIcon(icon_copy)
+        self.action_password_copy.setIcon(icon_copy)
+        self.action_comment_copy.setIcon(icon_copy)
+        self.action_otp_copy.setIcon(icon_copy)
+        self.action_otp_edit.setIcon(self.get_qicon("edit.svg"))
+        self.action_hmac_gen.setIcon(self.get_qicon("refresh.svg"))
+
+        shown = self.ui.password.echoMode() == QLineEdit.Normal  # type: ignore [attr-defined]
+        self.set_password_show(shown)
+
     def act_password_show(self) -> None:
         self.set_password_show(self.ui.password.echoMode() == QLineEdit.Password)  # type: ignore [attr-defined]
 
@@ -789,11 +855,21 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.password.setText(password)
         self.set_password_show(show=True)
 
-    def _create_password_gen_widget(self) -> QWidget:
-        widget = QWidget()
-        layout = QHBoxLayout(widget)
-        layout.setContentsMargins(0, 0, 0, 0)
+    @staticmethod
+    def _pin_label_column(form: QFormLayout) -> None:
+        widgets = [
+            item.widget()
+            for row in range(form.rowCount())
+            if (item := form.itemAt(row, QFormLayout.ItemRole.LabelRole)) is not None
+            and item.widget() is not None
+        ]
+        if not widgets:
+            return
+        width = max(widget.sizeHint().width() for widget in widgets)
+        for widget in widgets:
+            widget.setMinimumWidth(width)
 
+    def _create_password_gen_widget(self) -> QWidget:
         self._pw_gen_letters = QCheckBox("Letters")
         self._pw_gen_letters.setChecked(True)
         self._pw_gen_digits = QCheckBox("Digits")
@@ -811,14 +887,18 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self._pw_gen_punctuation.stateChanged.connect(self.act_password_gen_setting_changed)
         self._pw_gen_length.valueChanged.connect(self.act_password_gen_setting_changed)
 
-        layout.addWidget(self._pw_gen_letters)
-        layout.addWidget(self._pw_gen_digits)
-        layout.addWidget(self._pw_gen_punctuation)
-        layout.addWidget(QLabel("Length:"))
-        layout.addWidget(self._pw_gen_length)
-        layout.addStretch()
+        length_group = QWidget()
+        length_group.setObjectName("pw_gen_length_group")
+        length_group.setStyleSheet("QWidget#pw_gen_length_group { background: transparent; }")
+        length_layout = QHBoxLayout(length_group)
+        length_layout.setContentsMargins(0, 0, 0, 0)
+        length_layout.addWidget(QLabel("Length:"))
+        length_layout.addWidget(self._pw_gen_length)
 
-        return widget
+        return PasswordGenRow(
+            [length_group, self._pw_gen_letters, self._pw_gen_digits, self._pw_gen_punctuation],
+            self.ui.password,
+        )
 
     def set_password_show(self, show: bool = True) -> None:
         icon_show = self.get_qicon("visibility.svg")
@@ -932,9 +1012,18 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         credential = self.get_current_credential()
         assert credential
 
-        # TODO: ask for confirmation?
+        msg_box = QMessageBox(self)
+        msg_box.setIcon(QMessageBox.Icon.Warning)
+        msg_box.setWindowTitle("Delete Credential")
+        msg_box.setText(f"Delete '{credential.name}' from the device?")
+        msg_box.setInformativeText("This action cannot be undone.")
+        delete_btn = msg_box.addButton("Delete", QMessageBox.ButtonRole.DestructiveRole)
+        msg_box.addButton(QMessageBox.StandardButton.Cancel)
+        msg_box.setDefaultButton(QMessageBox.StandardButton.Cancel)
+        msg_box.exec()
 
-        self.trigger_delete_credential.emit(self.data, credential)
+        if msg_box.clickedButton() == delete_btn:
+            self.trigger_delete_credential.emit(self.data, credential)
 
     @Slot()
     def save_credential(self) -> None:
@@ -947,7 +1036,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         kind_str = self.ui.select_algorithm.currentText()
 
         if len(name) < 3:
-            print("INSERT ERROR MESSAGE HERE - status bar?")
             return
 
         kind, otherKind, otp_secret, secret = None, None, None, None
@@ -973,7 +1061,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             protected=pin_protected,
             touch_required=user_presence,
             new_secret=self.ui.select_algorithm.isEnabled()
-            and self.ui.select_algorithm.currentText() != "None",
+            and self.ui.select_algorithm.currentText() != "Password only",
         )
 
         if self.active_credential is None:

@@ -48,7 +48,6 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         self.is_qubesos = shutil.which("qubesdb-read") is not None
 
         self.ui.btn_update_with_file.clicked.connect(self.update_with_file)
-        self.ui.btn_more_options.clicked.connect(self.more_options)
         self.ui.btn_update.clicked.connect(self.run_update)
 
         self.using_ccid = should_use_ccid()
@@ -76,7 +75,6 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             return
         self.reset()
         self.data = data
-        self.hide_more_options()
 
         # catch too old firmware
         if data.is_too_old:
@@ -119,7 +117,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
     def set_device_data(
         self, path: str, uuid: str, version: str, variant: str, init_status: str
     ) -> None:
-        self.ui.nk3_path.setText(path)
+        self.ui.nk3_path.setText(path.replace("{", "\n{"))
         self.ui.nk3_uuid.setText(uuid)
         self.ui.nk3_version.setText(version)
         self.ui.nk3_variant.setText(variant)
@@ -137,48 +135,29 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         tooltip = ""
         btn_really_enabled = enabled and not self.using_ccid
         if enabled and self.using_ccid:
-            self.hide_more_options()
             self.common_ui.info.info.emit(
                 "Please restart the application as an administrator to be able to update"
             )
             tooltip = "Please restart the application as an administrator to be able to update"
 
         if not enabled:
-            self.hide_more_options()
             self.common_ui.info.info.emit(
                 "Please remove all Nitrokey devices except the one you want to update."
             )
             tooltip = "Please remove all Nitrokey devices except the one you want to update."
 
-        self.ui.btn_update.setEnabled(btn_really_enabled)
-        self.ui.btn_update.setToolTip(tooltip)
-        self.ui.btn_more_options.setEnabled(btn_really_enabled)
-        self.ui.btn_more_options.setToolTip(tooltip)
+        for btn in [self.ui.btn_update, self.ui.btn_update_with_file]:
+            btn.setEnabled(btn_really_enabled)
+            btn.setToolTip(tooltip)
 
     def update_btns_during_update(self, enabled: bool) -> None:
         tooltip = "" if enabled else "Update is already running. Please wait."
         self.busy_state_changed.emit(not enabled)
-        for btn in [self.ui.btn_update, self.ui.btn_more_options, self.ui.btn_update_with_file]:
+        for btn in [self.ui.btn_update, self.ui.btn_update_with_file]:
             btn.setEnabled(enabled)
             btn.setToolTip(tooltip)
 
-    def more_options(self) -> None:
-        state = self.ui.btn_more_options.isChecked()
-        if state:
-            self.show_more_options()
-        else:
-            self.hide_more_options()
-
-    def show_more_options(self) -> None:
-        self.ui.btn_more_options.setIcon(QtUtilsMixIn.get_qicon("down_arrow.svg"))
-        oSize = self.ui.frame_more_options.sizeHint()
-        self.ui.frame_more_options.setFixedHeight(oSize.height())
-
-    def hide_more_options(self) -> None:
-        self.ui.btn_more_options.setIcon(QtUtilsMixIn.get_qicon("right_arrow.svg"))
-        self.ui.frame_more_options.setFixedHeight(0)
-
-    @Slot(bool)
+    @Slot()
     def run_update(self) -> None:
         assert self.data
         # self.data.update(self, self.info_box)

@@ -59,6 +59,7 @@ class InfoBox(QObject):
     @Slot(str, int, str)
     def set_status(self, text: str, timeout: int = 7000, icon: str | None = None) -> None:
         self.status.setText(text)
+        self.status.setStyleSheet("color: #1a1a1a;")
         self.status.show()
         self.information_frame.show()
         if not icon:
@@ -74,17 +75,18 @@ class InfoBox(QObject):
 
     @Slot(str)
     def set_error_status(self, text: str) -> None:
-        icon = "warning.svg"
-        self.set_status(text, timeout=12000, icon=icon)
+        self.set_status(text, 12000, "warning.svg")
+        self.status.setStyleSheet("color: #c0392b; font-weight: bold;")
 
     @Slot()
     def hide_status(self) -> None:
         self.status.setText("")
+        self.status.setStyleSheet("")
         self.icon.hide()
 
     @Slot()
     def set_touch_status(self) -> None:
-        self.set_status("Press your Nitrokey to confirm...", timeout=15000, icon="touch.svg")
+        self.set_status("Press your Nitrokey to confirm...", 15000, "touch.svg")
 
     @Slot()
     def hide_touch(self) -> None:

@@ -54,13 +54,24 @@ class Nk3Button(QtWidgets.QToolButton):
     def set_stylesheet_big(self) -> None:
         self.setStyleSheet(
             """
-            QToolButton { background-color: none; border: none; margin: 0;
-               margin-top: 8px; padding: 0.25em; border-radius: 6px;
-                font: bold; font-size: 12px; border: 1px solid palette(button);
+            QToolButton {
+                background-color: transparent;
+                border: 1px solid transparent;
+                margin: 0; margin-top: 6px;
+                padding: 0.3em 0.5em;
+                border-radius: 6px;
+                font-weight: 600; font-size: 9pt;
+                color: #768390;
             }
-            QToolButton:checked { background-color: palette(button);
-                 border: 1px outset palette(shadow);
-                 font: bold; font-size: 10px;
+            QToolButton:hover {
+                background-color: rgba(192, 57, 43, 0.18);
+                color: #ff8070;
+            }
+            QToolButton:checked {
+                background-color: rgba(192, 57, 43, 0.18);
+                border: 1px solid rgba(192, 57, 43, 0.5);
+                color: #ff8070;
+                font-weight: 600; font-size: 9pt;
             }
         """
         )
@@ -68,13 +79,24 @@ class Nk3Button(QtWidgets.QToolButton):
     def set_stylesheet_small(self) -> None:
         self.setStyleSheet(
             """
-            QToolButton { background-color: none; border: none; margin: 0;
-               margin-top: 8px; padding: 0.25em; border-radius: 6px;
-                font: bold; font-size: 10px; border: 1px solid palette(button);
+            QToolButton {
+                background-color: transparent;
+                border: 1px solid transparent;
+                margin: 0; margin-top: 6px;
+                padding: 0.3em 0.5em;
+                border-radius: 6px;
+                font-weight: 600; font-size: 8pt;
+                color: #768390;
             }
-            QToolButton:checked { background-color: palette(button);
-                 border: 1px outset palette(shadow);
-                 font: bold; font-size: 10px;
+            QToolButton:hover {
+                background-color: rgba(192, 57, 43, 0.18);
+                color: #ff8070;
+            }
+            QToolButton:checked {
+                background-color: rgba(192, 57, 43, 0.18);
+                border: 1px solid rgba(192, 57, 43, 0.5);
+                color: #ff8070;
+                font-weight: 600; font-size: 8pt;
             }
         """
         )
