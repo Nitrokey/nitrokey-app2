@@ -222,8 +222,8 @@ QCheckBox::indicator {
     border-radius: 4px;
     background-color: #ffffff;
 }
-QCheckBox::indicator:checked            { background-color: #c0392b; border: 2px solid #c0392b; }
-QCheckBox::indicator:checked:disabled   { background-color: #e8a09a; border: 2px solid #e8a09a; }
+QCheckBox::indicator:checked            { background-color: #c0392b; border: 1px solid #c0392b; }
+QCheckBox::indicator:checked:disabled   { background-color: #e8a09a; border: 1px solid #e8a09a; }
 QCheckBox::indicator:unchecked:disabled { background-color: #f6f8fa; border-color: #d0d7de; }
 
 /* ── Cards / panels ─────────────────────────────────────────────────── */
@@ -620,8 +620,8 @@ QCheckBox::indicator {
     border-radius: 4px;
     background-color: #161b22;
 }
-QCheckBox::indicator:checked            { background-color: #ff6b5b; border: 2px solid #ff6b5b; }
-QCheckBox::indicator:checked:disabled   { background-color: #5c2b24; border: 2px solid #5c2b24; }
+QCheckBox::indicator:checked            { background-color: #ff6b5b; border: 1px solid #ff6b5b; }
+QCheckBox::indicator:checked:disabled   { background-color: #5c2b24; border: 1px solid #5c2b24; }
 QCheckBox::indicator:unchecked:disabled { background-color: #0d1117; border-color: #30363d; }
 
 /* ── Cards / panels ─────────────────────────────────────────────────── */
