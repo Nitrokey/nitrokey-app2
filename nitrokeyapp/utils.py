@@ -1,3 +1,4 @@
+import functools
 import importlib.util
 import logging
 import os
@@ -7,12 +8,31 @@ from typing import TYPE_CHECKING, Optional
 from nitrokey.trussed import should_default_ccid
 
 if TYPE_CHECKING:
+    from PySide6.QtCore import Qt
     from PySide6.QtWidgets import QWidget
 
 NITROKEY_FORCE_CCID = "NITROKEY_FORCE_CCID"
 NITROKEY_FORCE_CTAPHID = "NITROKEY_FORCE_CTAPHID"
+NKAPP_THEME = "NKAPP_THEME"
 
 logger = logging.getLogger(__name__)
+
+
+@functools.cache
+def forced_color_scheme() -> Optional["Qt.ColorScheme"]:
+    """Color scheme enforced via NKAPP_THEME=dark|light, or None for auto detection."""
+    value = os.environ.get(NKAPP_THEME, "").strip().lower()
+    if not value:
+        return None
+
+    from PySide6.QtCore import Qt
+
+    if value == "dark":
+        return Qt.ColorScheme.Dark
+    if value == "light":
+        return Qt.ColorScheme.Light
+    logger.warning(f"{NKAPP_THEME} must be 'dark' or 'light', got {value!r}; using auto detection")
+    return None
 
 
 def should_use_ccid() -> bool:

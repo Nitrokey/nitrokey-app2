@@ -12,6 +12,7 @@ from PySide6.QtGui import QFont
 from nitrokeyapp import __version__
 from nitrokeyapp.gui import GUI
 from nitrokeyapp.logger import init_logging, log_environment
+from nitrokeyapp.utils import forced_color_scheme
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"], "ignore_unknown_options": True}
 
@@ -835,6 +836,9 @@ def run_gui(argv: list[str]) -> None:
     style_hints = app.styleHints()
 
     def apply_stylesheet(scheme: Qt.ColorScheme) -> None:
+        forced = forced_color_scheme()
+        if forced is not None:
+            scheme = forced
         app.setStyleSheet(_stylesheet_for_scheme(scheme))
 
     apply_stylesheet(style_hints.colorScheme())
