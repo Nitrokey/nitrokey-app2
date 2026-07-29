@@ -94,17 +94,18 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
         self.ui.comment_label.setText("Credential ID:")
         self.ui.comment.setReadOnly(True)
 
-        # secrets_tab.ui is shared with the Secrets tab, so these layouts are not
-        # ours to rely on: if they are ever renamed, degrade to hiding the extra
-        # metadata instead of breaking the whole tab.
-        # show the credential's signature algorithm as an extra detail row
+        # secrets_tab.ui is shared with the Secrets tab (if they are ever renamed, degrade to hiding the extra)
+        # show the credential's signature algorithm and protection policy as extra detail rows
         self.algorithm_value = QLabel(self.ui)
         self.algorithm_value.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        self.cred_protect_value = QLabel(self.ui)
+        self.cred_protect_value.setWordWrap(True)
         form_layout = self.ui.findChild(QFormLayout, "formLayout")
         if form_layout is not None:
             form_layout.addRow("Algorithm:", self.algorithm_value)
+            form_layout.addRow("Protection:", self.cred_protect_value)
         else:
-            logger.warning("fido2: formLayout not found, hiding algorithm row")
+            logger.warning("fido2: formLayout not found, hiding algorithm/protection rows")
 
         # show the number of stored/remaining passkey slots next to Refresh
         self.credential_count = QLabel(self.ui)
@@ -230,6 +231,7 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
         self.ui.password.setText(credential.user_name or "")
         self.ui.comment.setText(credential.credential_id.hex())
         self.algorithm_value.setText(credential.algorithm_label or "(unknown)")
+        self.cred_protect_value.setText(credential.cred_protect_label or "(not set)")
 
         self.ui.btn_delete.show()
 

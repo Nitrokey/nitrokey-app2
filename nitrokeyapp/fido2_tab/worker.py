@@ -58,6 +58,7 @@ def build_fido2_list_state(cred_mgmt: CredentialManagement) -> Fido2ListState:
                     user_display_name=user.get("displayName"),
                     credential_id=cid.get("id", b""),
                     algorithm=public_key.get(COSE_KEY_ALG_LABEL),
+                    cred_protect=cred.get(CredentialManagement.RESULT.CRED_PROTECT),
                 )
             )
     return state
