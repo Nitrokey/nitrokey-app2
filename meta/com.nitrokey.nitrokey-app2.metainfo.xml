@@ -34,7 +34,7 @@
     <release version="2.3.1" date="2024-07-19"/>
   </releases>
   <provides>
-    <binary>nitrokeyapp</binary>
+    <binary>nitrokey-app2</binary>
     <modalias>usb:v20A0p4108d*</modalias>
     <!-- Nitrokey 3 -->
     <modalias>usb:v20A0p42DDd*</modalias>

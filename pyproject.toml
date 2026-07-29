@@ -23,7 +23,7 @@ packages = [
 ]
 
 [project.scripts]
-nitrokeyapp = "nitrokeyapp.__main__:main"
+nitrokey-app2 = "nitrokeyapp.__main__:main"
 
 [tool.poetry]
 classifiers = [

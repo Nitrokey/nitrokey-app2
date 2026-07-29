@@ -2,8 +2,8 @@
 Name=Nitrokey App 2
 GenericName=Nitrokey 3 Management Application
 Comment=Manage your Nitrokey 3 devices
-TryExec=nitrokeyapp
-Exec=nitrokeyapp
+TryExec=nitrokey-app2
+Exec=nitrokey-app2
 Icon=com.nitrokey.nitrokey-app2
 Type=Application
 Categories=Utility;Security;Qt;
