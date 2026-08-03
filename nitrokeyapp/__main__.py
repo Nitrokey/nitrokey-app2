@@ -855,8 +855,15 @@ def run_gui(argv: list[str]) -> None:
 
     style_hints = app.styleHints()
 
+    # tell Qt (and thereby the platform, e.g. for window decorations) about the
+    # enforced scheme, not just our stylesheet; set before connecting the signal
+    # below so it cannot re-enter apply_stylesheet. setColorScheme needs Qt 6.8,
+    # while we support >= 6.6, hence the guard
+    forced = forced_color_scheme()
+    if forced is not None and hasattr(style_hints, "setColorScheme"):
+        style_hints.setColorScheme(forced)  # type: ignore [attr-defined]
+
     def apply_stylesheet(scheme: Qt.ColorScheme) -> None:
-        forced = forced_color_scheme()
         if forced is not None:
             scheme = forced
         app.setStyleSheet(_stylesheet_for_scheme(scheme))
