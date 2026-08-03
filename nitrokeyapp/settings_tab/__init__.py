@@ -155,9 +155,8 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         tree = self.ui.settings_tree
         tree.setRootIsDecorated(False)
-        tree.setItemsExpandable(False)
         tree.setIndentation(0)
-        tree.expandAll()
+        tree.collapseAll()
 
         tree.itemClicked.connect(self.show_widget)
 
@@ -246,18 +245,12 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         sta = item.data(1, 0)
         if sta in [State.Fido, State.Passwords]:
             self.view_overview(item)
-            self.collapse_all_except(item)
-            item.setExpanded(True)
+            item.setExpanded(not item.isExpanded())
+            self.refresh_section_icons()
         elif sta in [State.FidoPin, State.PasswordsPin]:
             self.view_edit_pin(item)
         elif sta in [State.FidoReset, State.PasswordsReset]:
             self.view_reset(item)
-
-    def collapse_all_except(self, item: QTreeWidgetItem) -> None:
-        for idx in range(self.ui.settings_tree.invisibleRootItem().childCount()):
-            top_level_item = self.ui.settings_tree.invisibleRootItem().child(idx)
-            if top_level_item is not item.parent():
-                top_level_item.setExpanded(False)
 
     def update_status_form(self, data: list[tuple[str, str]] | None = None) -> None:
         if data is not None:
@@ -411,10 +404,19 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         field.setEchoMode(mode)
         action.setIcon(icon)
 
+    def refresh_section_icons(self) -> None:
+        """show a chevron on the section headers reflecting their expanded state"""
+        expanded = self.get_qicon("down_arrow.svg")
+        collapsed = self.get_qicon("right_arrow.svg")
+        for state in (State.Fido, State.Passwords):
+            item = self.items[state]
+            item.setIcon(0, expanded if item.isExpanded() else collapsed)
+
     def refresh_icons(self) -> None:
         """re-resolve all themed icons, e.g. after a light/dark mode switch"""
         self.ui.btn_abort.setIcon(self.get_qicon("close.svg"))
         self.ui.btn_reset.setIcon(self.get_qicon("delete.svg"))
+        self.refresh_section_icons()
 
         show_icon = self.get_qicon("visibility.svg")
         hide_icon = self.get_qicon("visibility_off.svg")
