@@ -378,6 +378,16 @@ QLabel#repeat_password_label {
     font-weight: 600;
 }
 
+/* match the line edits' height so the labels line up with them vertically */
+QLabel#username_label,
+QLabel#password_label,
+QLabel#comment_label,
+QLabel#current_password_label,
+QLabel#new_password_label,
+QLabel#repeat_password_label {
+    min-height: 42px;
+}
+
 /* ── Section headlines inside cards ────────────────────────────────── */
 QLabel#headline_label,
 QLabel#nk3_label {
@@ -774,6 +784,16 @@ QLabel#new_password_label,
 QLabel#repeat_password_label {
     color: #8b949e;
     font-weight: 600;
+}
+
+/* match the line edits' height so the labels line up with them vertically */
+QLabel#username_label,
+QLabel#password_label,
+QLabel#comment_label,
+QLabel#current_password_label,
+QLabel#new_password_label,
+QLabel#repeat_password_label {
+    min-height: 42px;
 }
 
 /* ── Section headlines inside cards ────────────────────────────────── */
