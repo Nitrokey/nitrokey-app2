@@ -1,9 +1,12 @@
+import logging
 from collections.abc import Generator
 from contextlib import contextmanager
 
 from PySide6.QtCore import QObject, Signal, Slot
 
 from nitrokeyapp.common_ui import CommonUi
+
+logger = logging.getLogger(__name__)
 
 # TODO: DeviceJob
 # - connection management
@@ -29,11 +32,13 @@ class Job(QObject):
 
     @Slot(str)
     def trigger_error(self, msg: str) -> None:
+        logger.error(f"{self.__class__.__name__} failed: {msg}")
         self.common_ui.info.error.emit(self.__class__.__name__ + str(Exception(msg)))
         self.finished.emit()
 
     @Slot(Exception)
     def trigger_exception(self, exc: Exception) -> None:
+        logger.error(f"{self.__class__.__name__} raised: {exc}", exc_info=exc)
         self.common_ui.info.error.emit(self.__class__.__name__ + str(exc))
         self.finished.emit()
 
@@ -58,6 +63,7 @@ class Worker(QObject):
         self.common_ui = owner_common_ui
 
     def run(self, job: Job) -> None:
+        logger.info(f"{self.__class__.__name__} starting {job.__class__.__name__}")
         self.busy_state_changed.emit(True)
 
         job.finished.connect(lambda: self.busy_state_changed.emit(False))

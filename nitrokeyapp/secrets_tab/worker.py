@@ -164,6 +164,7 @@ class VerifyPinJob(Job):
 
     @Slot(str)
     def trigger_error(self, msg: str) -> None:
+        logger.error(f"{self.__class__.__name__} failed: {msg}")
         self.common_ui.info.error.emit(msg)
         self.pin_verified.emit(False)
 
