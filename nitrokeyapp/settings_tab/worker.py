@@ -52,6 +52,7 @@ class CheckPasswordsInfo(Job):
         pin_status: bool = False
         with self.data.open() as device:
             if not isinstance(device, NK3):
+                self.trigger_error("This device does not support Passwords")
                 return
             secrets = SecretsApp(device)
             status = secrets.select()
@@ -129,16 +130,17 @@ class SavePasswordsPinJob(Job):
         with self.touch_prompt():
             with self.data.open() as device:
                 if not isinstance(device, NK3):
-                    return
-                secrets = SecretsApp(device)
-                try:
-                    if passwords_state:
-                        secrets.change_pin_raw(self.old_pin, self.new_pin)
-                    else:
-                        secrets.set_pin_raw(self.new_pin)
-                    self.common_ui.info.info.emit("Passwords PIN changed!")
-                except SecretsAppException as e:
-                    self.trigger_error(f"PIN validation failed: {e}")
+                    self.trigger_error("This device does not support Passwords")
+                else:
+                    secrets = SecretsApp(device)
+                    try:
+                        if passwords_state:
+                            secrets.change_pin_raw(self.old_pin, self.new_pin)
+                        else:
+                            secrets.set_pin_raw(self.new_pin)
+                        self.common_ui.info.info.emit("Passwords PIN changed!")
+                    except SecretsAppException as e:
+                        self.trigger_error(f"PIN validation failed: {e}")
 
         self.change_pw_passwords.emit()
 
@@ -190,6 +192,7 @@ class ResetPasswords(Job):
     def run(self) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
+                self.trigger_error("This device does not support Passwords")
                 return
             secrets = SecretsApp(device)
             try:

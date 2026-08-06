@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 class Job(QObject):
     finished = Signal()
+    failed = Signal()
 
     def __init__(self, common_ui: CommonUi) -> None:
         super().__init__()
@@ -34,16 +35,24 @@ class Job(QObject):
     def trigger_error(self, msg: str) -> None:
         logger.error(f"{self.__class__.__name__} failed: {msg}")
         self.common_ui.info.error.emit(f"{self.__class__.__name__}: {msg}")
+        self.failed.emit()
         self.finished.emit()
 
     @Slot(Exception)
     def trigger_exception(self, exc: Exception) -> None:
         logger.error(f"{self.__class__.__name__} raised: {exc}", exc_info=exc)
         self.common_ui.info.error.emit(f"{self.__class__.__name__}: {exc}")
+        self.failed.emit()
         self.finished.emit()
 
     def spawn(self, job: "Job") -> None:
+        job.failed.connect(self.propagate_failure)
         job.run()
+
+    @Slot()
+    def propagate_failure(self) -> None:
+        self.failed.emit()
+        self.finished.emit()
 
     @contextmanager
     def touch_prompt(self) -> Generator[None, None, None]:
@@ -67,4 +76,7 @@ class Worker(QObject):
         self.busy_state_changed.emit(True)
 
         job.finished.connect(lambda: self.busy_state_changed.emit(False))
-        job.run()
+        try:
+            job.run()
+        except Exception as e:
+            job.trigger_exception(e)

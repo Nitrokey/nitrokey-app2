@@ -64,14 +64,13 @@ class CheckDeviceJob(Job):
         compatible = False
         try:
             with self.data.open() as device:
-                if not isinstance(device, NK3):
-                    return
-                secrets = SecretsApp(device)
-                try:
-                    compatible = secrets._semver_equal_or_newer("4.11.0")
-                except Exception:
-                    # TODO: catch a more specific exception
-                    pass
+                if isinstance(device, NK3):
+                    secrets = SecretsApp(device)
+                    try:
+                        compatible = secrets._semver_equal_or_newer("4.11.0")
+                    except Exception:
+                        # TODO: catch a more specific exception
+                        pass
         except Exception as e:
             logger.info(f"check device job failed: {e}")
             compatible = False
@@ -115,6 +114,7 @@ class VerifyPinJob(Job):
     def run(self) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
+                self.trigger_error("This device does not support Passwords")
                 return
             secrets = SecretsApp(device)
             select = secrets.select()
@@ -134,6 +134,7 @@ class VerifyPinJob(Job):
     def pin_queried(self, pin: str) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
+                self.trigger_error("This device does not support Passwords")
                 return
             secrets = SecretsApp(device)
             try:
@@ -151,6 +152,7 @@ class VerifyPinJob(Job):
     def pin_chosen(self, pin: str) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
+                self.trigger_error("This device does not support Passwords")
                 return
             secrets = SecretsApp(device)
             with self.touch_prompt():
@@ -298,6 +300,7 @@ class EditCredentialJob(Job):
     def edit_credential_final(self) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
+                self.trigger_error("This device does not support Passwords")
                 return
             secrets = SecretsApp(device)
             with self.touch_prompt():
@@ -380,6 +383,7 @@ class AddCredentialJob(Job):
 
         with self.data.open() as device:
             if not isinstance(device, NK3):
+                self.trigger_error("This device does not support Passwords")
                 return
             secrets = SecretsApp(device)
             with self.touch_prompt():
@@ -447,6 +451,7 @@ class DeleteCredentialJob(Job):
     def delete_credential(self) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
+                self.trigger_error("This device does not support Passwords")
                 return
             secrets = SecretsApp(device)
             try:
@@ -492,6 +497,7 @@ class GenerateOtpJob(Job):
     def generate_otp(self) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
+                self.trigger_error("This device does not support Passwords")
                 return
             secrets = SecretsApp(device)
 
@@ -548,6 +554,7 @@ class ListCredentialsJob(Job):
         else:
             with self.data.open() as device:
                 if not isinstance(device, NK3):
+                    self.trigger_error("This device does not support Passwords")
                     return
                 secrets = SecretsApp(device)
                 credentials = Credential.list(secrets)
@@ -561,6 +568,7 @@ class ListCredentialsJob(Job):
 
         with self.data.open() as device:
             if not isinstance(device, NK3):
+                self.trigger_error("This device does not support Passwords")
                 return
             secrets = SecretsApp(device)
             for credential in Credential.list(secrets):
@@ -604,6 +612,7 @@ class GetCredentialJob(Job):
     def get_credential(self) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
+                self.trigger_error("This device does not support Passwords")
                 return
             secrets = SecretsApp(device)
             try:
