@@ -262,7 +262,6 @@ class EditCredentialJob(Job):
         self.credential = credential
         self.delete_credential(delete_id)
 
-    @Slot()
     def delete_credential(self, cred_id: bytes) -> None:
         cred = Credential(
             id=cred_id,
@@ -280,7 +279,6 @@ class EditCredentialJob(Job):
         # drop credential
         self.credential_edited.emit(self.credential)
 
-    @Slot()
     def temp_rename_credential(self, from_cred_id: bytes) -> bytes:
         new_cred_id = b"__" + from_cred_id
         assert self.all_credentials
