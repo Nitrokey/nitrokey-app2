@@ -35,6 +35,30 @@ def forced_color_scheme() -> Optional["Qt.ColorScheme"]:
     return None
 
 
+def resolved_color_scheme() -> "Qt.ColorScheme":
+    """The color scheme to render with: NKAPP_THEME if set, else auto detection."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QPalette
+    from PySide6.QtWidgets import QApplication
+
+    forced = forced_color_scheme()
+    if forced is not None:
+        return forced
+
+    app = QApplication.instance()
+    if not isinstance(app, QApplication):
+        return Qt.ColorScheme.Light
+
+    scheme = app.styleHints().colorScheme()
+    if scheme != Qt.ColorScheme.Unknown:
+        return scheme
+
+    palette = app.palette()
+    window = palette.color(QPalette.ColorRole.Window)
+    text = palette.color(QPalette.ColorRole.WindowText)
+    return Qt.ColorScheme.Dark if window.lightness() < text.lightness() else Qt.ColorScheme.Light
+
+
 def should_use_ccid() -> bool:
     if os.environ.get(NITROKEY_FORCE_CTAPHID):
         if os.environ.get(NITROKEY_FORCE_CCID):

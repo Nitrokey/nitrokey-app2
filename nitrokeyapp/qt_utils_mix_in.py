@@ -5,7 +5,7 @@ from PySide6 import QtGui, QtWidgets
 from PySide6.QtCore import QDir, QObject, QSize, Qt
 
 from nitrokeyapp.ui_loader import UiLoader
-from nitrokeyapp.utils import forced_color_scheme
+from nitrokeyapp.utils import resolved_color_scheme
 
 Q = TypeVar("Q", bound=QObject)
 
@@ -52,12 +52,7 @@ class QtUtilsMixIn:
         if variants is None:
             return filename
         light, dark = variants
-        scheme = forced_color_scheme()
-        if scheme is None:
-            app = QtWidgets.QApplication.instance()
-            if app is not None:
-                scheme = app.styleHints().colorScheme()  # type: ignore [attr-defined]
-        return dark if scheme == Qt.ColorScheme.Dark else light
+        return dark if resolved_color_scheme() == Qt.ColorScheme.Dark else light
 
     @staticmethod
     def get_qicon(filename: str) -> QtGui.QIcon:

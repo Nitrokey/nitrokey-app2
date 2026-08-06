@@ -6,13 +6,13 @@ from typing import Any
 
 import click
 from PySide6 import QtWidgets
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import QEvent, QObject, Qt, QTimer
 from PySide6.QtGui import QFont
 
 from nitrokeyapp import __version__
 from nitrokeyapp.gui import GUI
 from nitrokeyapp.logger import init_logging, log_environment
-from nitrokeyapp.utils import forced_color_scheme
+from nitrokeyapp.utils import forced_color_scheme, resolved_color_scheme
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"], "ignore_unknown_options": True}
 
@@ -848,6 +848,19 @@ def _stylesheet_for_scheme(scheme: Qt.ColorScheme) -> str:
     return _STYLESHEET_DARK if scheme == Qt.ColorScheme.Dark else _STYLESHEET_LIGHT
 
 
+class PaletteWatcher(QObject):
+    """Re-applies the theme when the platform changes the application palette."""
+
+    def __init__(self, on_change: Callable[[], None]) -> None:
+        super().__init__()
+        self._on_change = on_change
+
+    def eventFilter(self, watched: QObject, event: QEvent) -> bool:
+        if event.type() == QEvent.Type.ApplicationPaletteChange:
+            self._on_change()
+        return super().eventFilter(watched, event)
+
+
 def run_gui(argv: list[str]) -> None:
     app = QtWidgets.QApplication(argv)
     app.setDesktopFileName("com.nitrokey.nitrokey-app2")
@@ -863,25 +876,36 @@ def run_gui(argv: list[str]) -> None:
     if forced is not None and hasattr(style_hints, "setColorScheme"):
         style_hints.setColorScheme(forced)  # type: ignore [attr-defined]
 
-    def apply_stylesheet(scheme: Qt.ColorScheme) -> None:
-        if forced is not None:
-            scheme = forced
-        app.setStyleSheet(_stylesheet_for_scheme(scheme))
+    applied: list[Qt.ColorScheme] = []
+    gui: list[GUI] = []
 
-    apply_stylesheet(style_hints.colorScheme())
-    style_hints.colorSchemeChanged.connect(apply_stylesheet)
+    def apply_theme(*_args: object) -> None:
+        scheme = resolved_color_scheme()
+        if applied and applied[-1] == scheme:
+            return
+        applied.append(scheme)
+        app.setStyleSheet(_stylesheet_for_scheme(scheme))
+        for window in gui:
+            window.refresh_themed_icons()
+
+    apply_theme()
+    style_hints.colorSchemeChanged.connect(apply_theme)
+
+    palette_watcher = PaletteWatcher(apply_theme)
+    app.installEventFilter(palette_watcher)
 
     with init_logging() as log_file:
         log_environment()
 
         window = GUI(app, log_file)
+        gui.append(window)
 
         def refresh_theme() -> None:
             # Qt's platform theme detection isn't always settled yet during
             # startup, so the stylesheet/icons set above can briefly use the
             # wrong variant; re-resolve both once the event loop is running
-            apply_stylesheet(style_hints.colorScheme())
-            window.refresh_themed_icons()
+            applied.clear()
+            apply_theme()
 
         QTimer.singleShot(0, refresh_theme)
         with exception_handler(window.trigger_handle_exception.emit):
