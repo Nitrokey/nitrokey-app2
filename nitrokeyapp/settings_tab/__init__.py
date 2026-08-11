@@ -252,6 +252,16 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         elif sta in [State.FidoReset, State.PasswordsReset]:
             self.view_reset(item)
 
+    @staticmethod
+    def _wrap_value(value: str, per_line: int = 2) -> str:
+        """Break comma separated values over several lines, so long ones
+        do not force the panel wider than the window."""
+        parts = [part.strip() for part in value.split(",")]
+        if len(parts) <= per_line:
+            return value
+        lines = [", ".join(parts[i : i + per_line]) for i in range(0, len(parts), per_line)]
+        return ",\n".join(lines)
+
     def update_status_form(self, data: list[tuple[str, str]] | None = None) -> None:
         if data is not None:
             self.ui.status_form.show()
@@ -264,7 +274,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
             if data is not None and len(data) > idx:
                 l_obj.setText(f"{data[idx][0]}: ")
-                d_obj.setText(data[idx][1])
+                d_obj.setText(self._wrap_value(data[idx][1]))
                 l_obj.show()
                 d_obj.show()
             else:

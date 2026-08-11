@@ -76,13 +76,13 @@
          </property>
          <property name="maximumSize">
           <size>
-           <width>260</width>
+           <width>200</width>
            <height>16777215</height>
           </size>
          </property>
          <property name="baseSize">
           <size>
-           <width>260</width>
+           <width>200</width>
            <height>0</height>
           </size>
          </property>
@@ -343,6 +343,9 @@
                <property name="textFormat">
                 <enum>Qt::TextFormat::MarkdownText</enum>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
+               </property>
               </widget>
              </item>
              <item row="0" column="1">
@@ -370,6 +373,9 @@
                </property>
                <property name="textFormat">
                 <enum>Qt::TextFormat::MarkdownText</enum>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
                </property>
               </widget>
              </item>
@@ -399,6 +405,9 @@
                <property name="textFormat">
                 <enum>Qt::TextFormat::MarkdownText</enum>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
+               </property>
               </widget>
              </item>
              <item row="2" column="1">
@@ -426,6 +435,9 @@
                </property>
                <property name="textFormat">
                 <enum>Qt::TextFormat::MarkdownText</enum>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
                </property>
               </widget>
              </item>
@@ -455,6 +467,9 @@
                <property name="textFormat">
                 <enum>Qt::TextFormat::MarkdownText</enum>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
+               </property>
               </widget>
              </item>
              <item row="4" column="1">
@@ -482,6 +497,9 @@
                </property>
                <property name="textFormat">
                 <enum>Qt::TextFormat::MarkdownText</enum>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
                </property>
               </widget>
              </item>
