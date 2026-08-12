@@ -142,11 +142,10 @@ class VerifyPinJob(Job):
                 self.pin_cache.update(self.data, pin)
                 self.pin_verified.emit(True)
             except SecretsAppException as e:
+                logger.warning(f"Secrets PIN verification failed: {e}")
                 self.pin_cache.clear()
                 # TODO: repeat on failure
-                # TODO: check error code
-                # TODO: improve error message
-                self.trigger_error(f"PIN validation failed: {e}")
+                self.trigger_error("Incorrect PIN. Please try again.")
 
     @Slot(str)
     def pin_chosen(self, pin: str) -> None:
@@ -212,9 +211,7 @@ class EditCredentialJob(Job):
             return
 
         if self.credential.id != self.old_cred_id and self.credential.id in self.all_credentials:
-            self.trigger_error(
-                f"A credential with the name {self.credential.name} does already exist."
-            )
+            self.trigger_error(f"A credential named '{self.credential.name}' already exists.")
             return
 
         if self.credential.protected:
@@ -258,7 +255,6 @@ class EditCredentialJob(Job):
         add_job.credential_added.connect(lambda cred: self.handle_created(cred, then_delete_id))
         self.spawn(add_job)
 
-    @Slot(Credential)
     def handle_created(self, credential: Credential, delete_id: bytes) -> None:
         self.credential = credential
         self.delete_credential(delete_id)
@@ -373,7 +369,7 @@ class AddCredentialJob(Job):
             verify_pin_job.pin_verified.connect(self.add_credential)
             self.spawn(verify_pin_job)
         else:
-            self.add_credential()
+            self.add_credential(True)
 
     @Slot(bool)
     def add_credential(self, successful: bool = True) -> None:
@@ -676,7 +672,7 @@ class SecretsWorker(Worker):
         job.received_credential.connect(self.received_credential)
         self.run(job)
 
-    @Slot(DeviceData, Credential, bytes, str)
+    @Slot(DeviceData, Credential, bytes, bytes)
     def edit_credential(
         self, data: DeviceData, credential: Credential, secret: bytes, old_cred_id: bytes
     ) -> None:

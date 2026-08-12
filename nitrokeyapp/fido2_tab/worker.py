@@ -281,7 +281,7 @@ class Fido2Worker(Worker):
         job.credentials_listed.connect(self.credentials_listed)
         self.run(job)
 
-    @Slot(DeviceData, object)
+    @Slot(DeviceData, Fido2Credential)
     def delete_credential(self, data: DeviceData, credential: Fido2Credential) -> None:
         job = DeleteCredentialJob(self.common_ui, self.pin_cache, self.pin_ui, data, credential)
         job.credential_deleted.connect(self.credential_deleted)
