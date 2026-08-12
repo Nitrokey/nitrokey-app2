@@ -4,11 +4,12 @@ from nitrokey.trussed import Model
 from PySide6.QtCore import Qt, QThread, Signal, Slot
 from PySide6.QtWidgets import (
     QFormLayout,
-    QHBoxLayout,
+    QGridLayout,
     QLabel,
     QLineEdit,
     QListWidgetItem,
     QMessageBox,
+    QSizePolicy,
     QWidget,
 )
 
@@ -94,26 +95,32 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
         self.ui.comment_label.setText("Credential ID:")
         self.ui.comment.setReadOnly(True)
 
-        # secrets_tab.ui is shared with the Secrets tab (if they are ever renamed, degrade to hiding the extra)
-        # show the credential's signature algorithm and protection policy as extra detail rows
         self.algorithm_value = QLabel(self.ui)
         self.algorithm_value.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         self.cred_protect_value = QLabel(self.ui)
         self.cred_protect_value.setWordWrap(True)
         form_layout = self.ui.findChild(QFormLayout, "formLayout")
         if form_layout is not None:
+            for i in range(form_layout.count()):
+                spacer = form_layout.itemAt(i).spacerItem()
+                if spacer is not None:
+                    spacer.changeSize(
+                        0, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding
+                    )
+            form_layout.invalidate()
             form_layout.addRow("Algorithm:", self.algorithm_value)
             form_layout.addRow("Protection:", self.cred_protect_value)
         else:
             logger.warning("fido2: formLayout not found, hiding algorithm/protection rows")
 
-        # show the number of stored/remaining passkey slots next to Refresh
         self.credential_count = QLabel(self.ui)
-        button_row = self.ui.findChild(QHBoxLayout, "horizontalLayout")
-        if button_row is not None:
-            button_row.insertWidget(1, self.credential_count)
+        grid = self.ui.findChild(QGridLayout, "gridLayout")
+        if grid is not None:
+            grid.addWidget(
+                self.credential_count, 1, 0, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop
+            )
         else:
-            logger.warning("fido2: horizontalLayout not found, hiding passkey count")
+            logger.warning("fido2: gridLayout not found, hiding passkey count")
 
     @property
     def title(self) -> str:
@@ -174,7 +181,8 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
         self.trigger_refresh_credentials.emit(self.data)
 
     @Slot(object)
-    def credentials_listed(self, state: Fido2ListState) -> None:
+    def credentials_listed(self, state: object) -> None:
+        assert isinstance(state, Fido2ListState)
         self.ui.secrets_list.clear()
         self.hide_credential()
         for credential in state.credentials:

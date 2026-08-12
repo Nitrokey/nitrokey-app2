@@ -80,8 +80,8 @@ class Fido2ListState:
         """Short human-readable slot summary, or ``None`` when unknown.
 
         ``remaining_count`` is the authenticator's *maximum possible* remaining
-        resident credentials; the real number can be lower depending on the
-        algorithm of future keys, so it is shown as an upper bound ("up to N").
+        resident credentials, the real number can be lower depending on the
+        algorithm of future keys, so it is shown as an upper bound.
         """
         if not self.valid:
             return None
