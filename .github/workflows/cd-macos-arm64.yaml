@@ -49,7 +49,7 @@ jobs:
       - name: Build onedir
         run: |
           source $(poetry env info --path)/bin/activate
-          pyinstaller ci-scripts/macOS/pyinstaller/nitrokey-app-onedir_arm64.spec
+          pyinstaller ci-scripts/macos/pyinstaller/nitrokey-app-onedir_arm64.spec
       - name: Set application metadata
         run: |
           plutil \
