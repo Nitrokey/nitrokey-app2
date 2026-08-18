@@ -115,7 +115,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
         with:
-          name: nitrokey-app-pkg-arm64
+          name: nitrokey-app2-pkg-arm64
           path: nitrokey-app2.pkg
   publish-pkg-installer:
     name: Publish PKG installer
@@ -128,7 +128,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v8
         with:
-          name: nitrokey-app-pkg-arm64
+          name: nitrokey-app2-pkg-arm64
       - name: Rename installer
         run: |
           mv \

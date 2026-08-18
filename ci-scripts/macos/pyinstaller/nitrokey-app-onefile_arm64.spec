@@ -36,7 +36,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='nitrokey-app',
+    name='nitrokey-app2',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
