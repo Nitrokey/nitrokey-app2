@@ -12,6 +12,7 @@ from PySide6.QtGui import QFont
 from nitrokeyapp import __version__
 from nitrokeyapp.gui import GUI
 from nitrokeyapp.logger import init_logging, log_environment
+from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.utils import forced_color_scheme, resolved_color_scheme
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"], "ignore_unknown_options": True}
@@ -864,6 +865,7 @@ class PaletteWatcher(QObject):
 def run_gui(argv: list[str]) -> None:
     app = QtWidgets.QApplication(argv)
     app.setDesktopFileName("com.nitrokey.nitrokey-app2")
+    app.setWindowIcon(QtUtilsMixIn.get_qicon("red_nitrokey-app-icon.svg"))
     app.setFont(QFont("Segoe UI", 11))
 
     style_hints = app.styleHints()
