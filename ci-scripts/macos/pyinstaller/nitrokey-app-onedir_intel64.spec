@@ -35,7 +35,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='nitrokey-app',
+    name='nitrokey-app2',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
