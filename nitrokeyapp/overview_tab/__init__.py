@@ -1,6 +1,7 @@
 import logging
 import shutil
 
+from nitrokey.trussed import Transport
 from nitrokey.trussed.admin_app import InitStatus
 from PySide6.QtCore import QThread, Signal, Slot
 from PySide6.QtWidgets import QFileDialog, QWidget
@@ -9,7 +10,7 @@ from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.update import UpdateResult, UpdateStatus
-from nitrokeyapp.utils import should_use_ccid
+from nitrokeyapp.utils import get_transport
 from nitrokeyapp.worker import Worker
 
 from .worker import OverviewWorker
@@ -50,7 +51,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         self.ui.btn_update_with_file.clicked.connect(self.update_with_file)
         self.ui.btn_update.clicked.connect(self.run_update)
 
-        self.using_ccid = should_use_ccid()
+        self.using_ccid = get_transport() == Transport.CCID
 
         self.reset()
 

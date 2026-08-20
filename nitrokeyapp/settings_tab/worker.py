@@ -1,6 +1,6 @@
 import logging
 
-from fido2.ctap2.base import Ctap2, Info
+from fido2.ctap2.base import Info
 from fido2.ctap2.pin import ClientPin
 from nitrokey.nk3 import NK3
 from nitrokey.nk3.secrets_app import SecretsApp, SecretsAppException, SelectResponse
@@ -25,8 +25,7 @@ class CheckFidoPinStatus(Job):
 
     def run(self) -> None:
         # pin_status: bool = False
-        with self.data.open() as device:
-            ctap2 = Ctap2(device.device)
+        with self.data.open_ctap2() as ctap2:
             # pin_status = ctap2.info.options["clientPin"]
 
             c_pin = ClientPin(ctap2)
@@ -78,15 +77,13 @@ class SaveFidoPinJob(Job):
 
     def check(self) -> bool:
         pin_status: bool = False
-        with self.data.open() as device:
-            ctap2 = Ctap2(device.device)
+        with self.data.open_ctap2() as ctap2:
             pin_status = ctap2.info.options["clientPin"]
         return pin_status
 
     def run(self) -> None:
         fido_state = self.check()
-        with self.data.open() as device:
-            ctap2 = Ctap2(device.device)
+        with self.data.open_ctap2() as ctap2:
             client_pin = ClientPin(ctap2)
 
             try:
@@ -161,9 +158,7 @@ class ResetFido(Job):
         self.reset_fido.connect(lambda: self.finished.emit())
 
     def run(self) -> None:
-        with self.data.open() as device:
-            ctap2 = Ctap2(device.device)
-
+        with self.data.open_ctap2() as ctap2:
             try:
                 with self.touch_prompt():
                     ctap2.reset()

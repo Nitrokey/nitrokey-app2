@@ -3,7 +3,7 @@ from enum import Enum
 
 from fido2.ctap2.base import Info
 from nitrokey.nk3.secrets_app import SelectResponse
-from nitrokey.trussed import Model
+from nitrokey.trussed import Model, Transport, TrussedDevice
 from PySide6.QtCore import QThread, Signal, Slot
 from PySide6.QtGui import QAction, QBrush, QColor, QFont
 from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem, QWidget
@@ -197,7 +197,9 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         has_passwords = self.data.model == Model.NK3
         for state in [State.Passwords, State.PasswordsPin, State.PasswordsReset]:
             self.items[state].setHidden(not has_passwords)
-        has_fido = not self.data._using_ccid
+        has_fido = False
+        if isinstance(self.data._device, TrussedDevice):
+            has_fido = self.data._device.transport == Transport.CTAPHID
         for state in [State.Fido, State.FidoPin, State.FidoReset]:
             self.items[state].setHidden(not has_fido)
 

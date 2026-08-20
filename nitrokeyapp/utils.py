@@ -5,7 +5,7 @@ import os
 import sys
 from typing import TYPE_CHECKING, Optional
 
-from nitrokey.trussed import should_default_ccid
+from nitrokey.trussed import Transport, recommended_transport
 
 if TYPE_CHECKING:
     from PySide6.QtCore import Qt
@@ -59,17 +59,17 @@ def resolved_color_scheme() -> "Qt.ColorScheme":
     return Qt.ColorScheme.Dark if window.lightness() < text.lightness() else Qt.ColorScheme.Light
 
 
-def should_use_ccid() -> bool:
+def get_transport() -> Transport:
     if os.environ.get(NITROKEY_FORCE_CTAPHID):
         if os.environ.get(NITROKEY_FORCE_CCID):
             logger.warning(
                 f"Both {NITROKEY_FORCE_CTAPHID} and {NITROKEY_FORCE_CCID} are set; "
                 f"{NITROKEY_FORCE_CTAPHID} takes priority"
             )
-        return False
+        return Transport.CTAPHID
     if os.environ.get(NITROKEY_FORCE_CCID):
-        return True
-    return should_default_ccid()
+        return Transport.CCID
+    return recommended_transport()
 
 
 def check_ccid_config(parent: Optional["QWidget"] = None) -> None:

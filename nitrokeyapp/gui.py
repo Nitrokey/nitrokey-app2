@@ -1,11 +1,12 @@
 import logging
 import signal
+import typing
 import webbrowser
 from time import sleep
 from types import FrameType, TracebackType
 
 from nitrokey import _VID_NITROKEY
-from nitrokey.trussed import Model
+from nitrokey.trussed import Model, Transport
 from PySide6 import QtWidgets
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal, Slot
 from PySide6.QtGui import QCursor
@@ -26,7 +27,7 @@ from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.secrets_tab import SecretsTab
 from nitrokeyapp.settings_tab import SettingsTab
 from nitrokeyapp.touch import TouchIndicator
-from nitrokeyapp.utils import check_ccid_config, should_use_ccid
+from nitrokeyapp.utils import check_ccid_config, get_transport
 
 # import wizards and stuff
 from nitrokeyapp.welcome_tab import WelcomeTab
@@ -163,7 +164,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # On Windows without admin rights, CTAPHID is unavailable so the
         # passkeys tab cannot list/delete credentials — keep it disabled and
         # surface the reason via tooltip on hover.
-        self.passkeys_admin_required = should_use_ccid()
+        self.passkeys_admin_required = get_transport() == Transport.CCID
         if self.passkeys_admin_required:
             self.tabs.setTabToolTip(PASSKEYS_TAB_INDEX, PASSKEYS_ADMIN_REQUIRED_MESSAGE)
 
@@ -226,7 +227,13 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         hid_classes = ("030000", "class_03", "0x03", "IOUSBHostFamily.kext")
 
         filter_success = False
-        filter_class = ccid_classes if should_use_ccid() else hid_classes
+        transport = get_transport()
+        if transport == Transport.CCID:
+            filter_class = ccid_classes
+        elif transport == Transport.CTAPHID:
+            filter_class = hid_classes
+        else:
+            typing.assert_never(transport)
 
         for interface in interfaces:
             if filter_success:

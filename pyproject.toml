@@ -34,14 +34,14 @@ classifiers = [
 [tool.poetry.dependencies]
 click = "^8"
 fido2 = "^2"
-nitrokey = { git = "https://github.com/Nitrokey/nitrokey-sdk-py.git", rev = "77aa6f91b408103f516aacd352712f7f0c6cbb94" }
+nitrokey = { git = "https://github.com/Nitrokey/nitrokey-sdk-py.git", rev = "45d45224bf3a5110d87179cfe00d961d1d9911e2" }
 pySide6 = ">=6.6.0"
 pywin32 = { version = ">=305", markers = "sys_platform =='win32'" }
 usb-monitor = "^1.21"
 
 [project.optional-dependencies]
 pcsc = [
-    "nitrokey[pcsc] @ git+https://github.com/Nitrokey/nitrokey-sdk-py.git@77aa6f91b408103f516aacd352712f7f0c6cbb94"
+    "nitrokey[pcsc] @ git+https://github.com/Nitrokey/nitrokey-sdk-py.git@45d45224bf3a5110d87179cfe00d961d1d9911e2"
 ]
 
 
