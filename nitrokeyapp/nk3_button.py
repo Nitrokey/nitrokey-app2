@@ -119,7 +119,7 @@ class Nk3Button(QtWidgets.QToolButton):
 
     def unfold(self) -> None:
         self.setChecked(False)
-        self.setText(self.data.name)
+        self.setText(self.data.name.replace(": ", "\n"))
         self.setMinimumWidth(178)
         self.setMaximumWidth(178)
         self.setIconSize(QtCore.QSize(32, 32))
