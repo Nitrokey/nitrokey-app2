@@ -88,6 +88,8 @@ class Credential:
     loaded: bool = False
     new_secret: bool = False
 
+    uri: str = ""
+
     @property
     def name(self) -> str:
         return self.id.decode(errors="replace")
