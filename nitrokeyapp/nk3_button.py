@@ -1,5 +1,6 @@
 from collections.abc import Callable
 
+from nitrokey.trussed import Model
 from PySide6 import QtCore, QtGui, QtWidgets
 
 from nitrokeyapp.device_data import DeviceData
@@ -119,7 +120,10 @@ class Nk3Button(QtWidgets.QToolButton):
 
     def unfold(self) -> None:
         self.setChecked(False)
-        self.setText(self.data.name)
+        text = self.data.name
+        if self.data.model == Model.NKPK:
+            text = text.replace(": ", ":\n")
+        self.setText(text)
         self.setMinimumWidth(178)
         self.setMaximumWidth(178)
         self.setIconSize(QtCore.QSize(32, 32))
