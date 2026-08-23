@@ -49,6 +49,12 @@ class QtUtilsMixIn:
         return loader.load(p_file.as_posix())
 
     @staticmethod
+    def register_icon_search_path() -> None:
+        """Make ui/icons reachable from stylesheets as url(icons:<file>)."""
+        p = Path(__file__).parent / "ui" / "icons"
+        QDir.setSearchPaths("icons", [p.as_posix()])
+
+    @staticmethod
     def _icon_relpath(filename: str) -> str:
         variants = _THEMED_ICONS.get(filename)
         if variants is None:
