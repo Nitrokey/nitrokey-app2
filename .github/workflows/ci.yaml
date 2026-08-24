@@ -113,6 +113,7 @@ jobs:
       uses: actions/checkout@v6
       with:
         repository: flathub/com.nitrokey.nitrokey-app2
+        ref: beta
         path: flatpak-build
     - name: Update flathub repository to use this commit
       run: |
