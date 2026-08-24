@@ -1,4 +1,5 @@
 import binascii
+import json
 import logging
 import string
 from base64 import b32decode, b32encode
@@ -13,6 +14,7 @@ from PySide6.QtGui import QGuiApplication, QKeyEvent, QKeySequence, QResizeEvent
 from PySide6.QtWidgets import (
     QAbstractSpinBox,
     QCheckBox,
+    QFileDialog,
     QFormLayout,
     QHBoxLayout,
     QLabel,
@@ -28,6 +30,7 @@ from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.worker import Worker
 
+from .backup_restore_ui import BackupRestoreAction, open_backup_restore_ui
 from .data import Credential, OtherKind, OtpData, OtpKind
 from .worker import SecretsWorker
 
@@ -124,6 +127,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     trigger_refresh_credentials = Signal(DeviceData, bool)
     trigger_get_credential = Signal(DeviceData, Credential)
     trigger_edit_credential = Signal(DeviceData, Credential, bytes, bytes)
+    trigger_backup_credential = Signal(DeviceData, bool, bool)
+    trigger_restore_credential = Signal(DeviceData, str, str)
 
     def __init__(self, parent: QWidget) -> None:
         QWidget.__init__(self, parent)
@@ -143,9 +148,13 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.trigger_refresh_credentials.connect(self._worker.refresh_credentials)
         self.trigger_get_credential.connect(self._worker.get_credential)
         self.trigger_edit_credential.connect(self._worker.edit_credential)
+        self.trigger_backup_credential.connect(self._worker.backup_credential)
+        self.trigger_restore_credential.connect(self._worker.restore_credential)
 
         self._worker.pin_cache.pin_cleared.connect(self.common_ui.info.pin_cleared)
         self._worker.pin_cache.pin_cleared.connect(lambda: self.uncheck_checkbox(True))
+        self._worker.credential_bkp.connect(self.save_credential_backup)
+        self._worker.credential_restore.connect(self.on_credential_restored)
 
         self._worker.pin_cache.pin_cached.connect(self.common_ui.info.pin_cached)
         self.common_ui.info.pin_pressed.connect(self._worker.pin_cache.clear)
@@ -171,11 +180,14 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.otp_timer.setInterval(1000)
 
         self.clipboard = QGuiApplication.clipboard()
+        self.originalText = self.clipboard.text()
+        self.backup_content: str = ""
 
         # self.ui === self -> this tricks mypy due to monkey-patching self
         self.ui = self.load_ui("secrets_tab.ui", self)
 
         icon_copy = self.get_qicon("content_copy.svg")
+        self.icon_copy = icon_copy
         icon_refresh = self.get_qicon("OTP_generate.svg")
         icon_edit = self.get_qicon("edit.svg")
         icon_visibility = self.get_qicon("visibility_off.svg")
@@ -255,6 +267,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.refresh_icons()
 
         self.ui.btn_add.pressed.connect(self.add_new_credential)
+        self.ui.btn_backup.pressed.connect(self.backup_credentials)
+        self.ui.btn_restore.pressed.connect(self.restore_credentials)
         self.ui.btn_abort.pressed.connect(lambda: self.show_secrets(True))
         self.ui.btn_save.pressed.connect(self.save_credential)
         self.ui.btn_edit.pressed.connect(self.prepare_edit_credential)
@@ -392,6 +406,38 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.ui.otp_timeout_progress.setVisible(data.validity is not None)
         self.ui.otp.show()
+
+    @Slot()
+    def backup_credentials(self) -> None:
+        if not self.data:
+            return
+        self._open_backup_restore(BackupRestoreAction.BACKUP, "Backup passwords")
+
+    @Slot(str)
+    def save_credential_backup(self, credential_list_formatted: str) -> None:
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Save Credential Backup", "credential_backup.json", "JSON Files (*.json)"
+        )
+        if path:
+            with open(path, "w") as f:
+                f.write(credential_list_formatted)
+
+    @Slot()
+    def restore_credentials(self) -> None:
+        if not self.data:
+            return
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Open Credential Backup", "", "JSON Files (*.json)"
+        )
+        if not path:
+            return
+        with open(path, "r") as f:
+            self.backup_content = f.read()
+        self._open_backup_restore(BackupRestoreAction.RESTORE, f"Restore passwords from {path}")
+
+    @Slot()
+    def on_credential_restored(self) -> None:
+        self.refresh_credential_list()
 
     def add_credential(self, credential: Credential) -> QListWidgetItem:
         icon = "lock" if credential.protected else "lock_open"
@@ -843,6 +889,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_delete.setIcon(self.get_qicon("delete.svg"))
         self.ui.btn_edit.setIcon(self.get_qicon("edit.svg"))
         self.ui.btn_refresh.setIcon(self.get_qicon("refresh.svg"))
+        self.ui.btn_backup.setIcon(self.get_qicon("export.svg"))
+        self.ui.btn_restore.setIcon(self.get_qicon("import.svg"))
 
         icon_copy = self.get_qicon("content_copy.svg")
         self.action_username_copy.setIcon(icon_copy)
@@ -1115,3 +1163,37 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     def generate_hmac(self) -> None:
         secret = b32encode(randbytes(20))
         self.ui.otp.setText(secret.decode())
+
+    def _open_backup_restore(self, action: BackupRestoreAction, title: str) -> None:
+        ui = open_backup_restore_ui(action, title, self.icon_copy, self)
+        ui.update_status("Idle")
+
+        self._worker.passphrase_ready.connect(ui.update_passphrase)
+        self._worker.backup_progress.connect(ui.update_fields)
+        self._worker.restore_progress.connect(ui.update_fields)
+        self._worker.credential_bkp.connect(lambda _: ui.update_status("Backup complete"))
+        self._worker.credential_restore.connect(lambda: ui.update_status("Restore complete"))
+
+        def on_begin(cleartext: bool, passphrase: str, action_name: BackupRestoreAction) -> None:
+            if action_name == BackupRestoreAction.BACKUP:
+                ui.update_status("Working... Press your Nitrokey if it blinks.")
+                self.trigger_backup_credential.emit(self.data, True, cleartext)
+            else:
+                try:
+                    tempdata = json.loads(self.backup_content)
+                    process_restore = True
+                    if "EncryptedCXF" in tempdata and not passphrase:
+                        ui.update_status("The backup is encrypted. Please enter the passphrase.")
+                        process_restore = False
+                    elif "EncryptedCXF" not in tempdata and passphrase:
+                        ui.update_status("The backup is not encrypted. Ignoring passphrase.")
+                        passphrase = ""
+                    if process_restore:
+                        ui.update_status("Working... Press your Nitrokey if it blinks.")
+                        self.trigger_restore_credential.emit(
+                            self.data, self.backup_content, passphrase
+                        )
+                except json.JSONDecodeError as e:
+                    ui.update_status(f"Invalid backup file {e}")
+
+        ui.begin(on_begin)

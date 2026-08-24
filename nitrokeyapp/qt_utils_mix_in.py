@@ -26,6 +26,8 @@ _THEMED_ICONS: dict[str, tuple[str, str]] = {
     "right_arrow.svg": ("light_mode/right_arrow.svg", "dark_mode/right_arrow_colored.svg"),
     "visibility.svg": ("light_mode/visibility.svg", "dark_mode/visibility_colored.svg"),
     "visibility_off.svg": ("light_mode/visibility_off.svg", "dark_mode/visibility_off_colored.svg"),
+    "export.svg": ("light_mode/export.svg", "dark_mode/export.svg"),
+    "import.svg": ("light_mode/import.svg", "dark_mode/import.svg"),
 }
 
 

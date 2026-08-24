@@ -631,8 +631,8 @@ pcsc = ["pyscard (>=2,<3)"]
 [package.source]
 type = "git"
 url = "https://github.com/Nitrokey/nitrokey-sdk-py.git"
-reference = "45d45224bf3a5110d87179cfe00d961d1d9911e2"
-resolved_reference = "45d45224bf3a5110d87179cfe00d961d1d9911e2"
+reference = "374577124ce3c643d89066c171e9eab74b645b1b"
+resolved_reference = "374577124ce3c643d89066c171e9eab74b645b1b"
 
 [[package]]
 name = "packaging"
@@ -1211,4 +1211,4 @@ pcsc = ["nitrokey"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.15"
-content-hash = "6dbd70fa484c2c54a9713faf6c9f4c377043e69326dd8172f5a910c0129372ed"
+content-hash = "1e899b1922d86f6c785aba8a1f0b9b173eb2b13aa5357200563196af9b511f10"
