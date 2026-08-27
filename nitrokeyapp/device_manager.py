@@ -1,6 +1,8 @@
 import logging
 from collections.abc import Iterator
 
+from nitrokey.trussed import Model
+
 from nitrokeyapp.device_data import DeviceData
 
 logger = logging.getLogger(__name__)
@@ -33,9 +35,9 @@ class DeviceManager:
     def clear(self) -> None:
         self._devices = []
 
-    def add(self) -> list[DeviceData]:
+    def add(self, model: Model | None = None) -> list[DeviceData]:
         try:
-            all_devs = DeviceData.list()
+            all_devs = DeviceData.list(model)
         except Exception as e:
             logger.error(f"failed listing nk3 devices: {e}")
             return []
