@@ -74,13 +74,14 @@ class DeviceData:
     @classmethod
     def list(cls, model: Model | None = None) -> list["DeviceData"]:
         transport = get_transport()
-
-        nk3_devices = [cls(dev) for dev in nk3.list(transport, exclusive=True)]
-        nkpk_devices = [cls(dev) for dev in nkpk.list(transport, exclusive=True)]
         if model == Model.NK3:
+            nk3_devices = [cls(dev) for dev in nk3.list(transport, exclusive=True)]
             return nk3_devices
         elif model == Model.NKPK:
+            nkpk_devices = [cls(dev) for dev in nkpk.list(transport, exclusive=True)]
             return nkpk_devices
+        nk3_devices = [cls(dev) for dev in nk3.list(transport, exclusive=True)]
+        nkpk_devices = [cls(dev) for dev in nkpk.list(transport, exclusive=True)]
         return nk3_devices + nkpk_devices  # Case if model is None
 
     @property

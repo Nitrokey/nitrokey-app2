@@ -237,13 +237,31 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
         return None
 
+    # Remove this function when we are natively able to differentiate between nk3 and nkpk
+    def _require_force_nk3(self, devices: dict[str, dict[str, str]]) -> bool:
+        nk3_present = False
+        nkpk_present = False
+        for _device_id, device_info in devices.items():
+            if self._get_device_model(device_info) == Model.NK3:
+                nk3_present = True
+            if self._get_device_model(device_info) == Model.NKPK:
+                nkpk_present = True
+        if nk3_present and nkpk_present:
+            logger.info("Forcing NK3 because multiple devices are found")
+            return True
+        return False
+
     def _detect_added_devices_init(self) -> None:
         devices = USBMonitor(filter_devices=self.device_filter).get_available_devices()
+        force_nk3 = self._require_force_nk3(devices)
         for device_id, device_info in devices.items():
-            self.detect_added_devices(device_id, device_info)
+            self.detect_added_devices(device_id, device_info, force_nk3=force_nk3)
 
     def detect_added_devices(
-        self, device_id: str | None = None, device_info: dict[str, str] | None = None
+        self,
+        device_id: str | None = None,
+        device_info: dict[str, str] | None = None,
+        force_nk3: bool = False,
     ) -> None:
         interfaces = device_info.get(ID_USB_INTERFACES, ()) if device_info else ()
         ccid_classes = ("0b0000", "class_0b", "0x0b", "IOUSBHostFamily.kext")
@@ -270,6 +288,9 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             return
 
         model = self._get_device_model(device_info)
+
+        if force_nk3:
+            model = Model.NK3
 
         # retry for up to 2secs
         for _tries in range(8):
