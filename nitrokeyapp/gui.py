@@ -11,7 +11,7 @@ from PySide6 import QtWidgets
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal, Slot
 from PySide6.QtGui import QCursor
 from usbmonitor import USBMonitor
-from usbmonitor.attributes import ID_USB_INTERFACES, ID_VENDOR_ID
+from usbmonitor.attributes import ID_MODEL_ID, ID_USB_INTERFACES, ID_VENDOR_ID
 
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.device_manager import DeviceManager
@@ -62,14 +62,14 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # - https://github.com/Eric-Canas/USBMonitor/issues/10
         # - https://github.com/Eric-Canas/USBMonitor/issues/12
         nk_vid = f"{_VID_NITROKEY:04x}"
-        device_filter = (
+        self.device_filter = (
             {ID_VENDOR_ID: nk_vid.upper()},
             {ID_VENDOR_ID: nk_vid.lower()},
             {ID_VENDOR_ID: f"0x{nk_vid.upper()}"},
             {ID_VENDOR_ID: f"0x{nk_vid.lower()}"},
             {ID_VENDOR_ID: str(_VID_NITROKEY)},
         )
-        monitor = USBMonitor(filter_devices=device_filter)
+        monitor = USBMonitor(filter_devices=self.device_filter)
         monitor.start_monitoring(
             on_connect=self.detect_added_devices, on_disconnect=self.detect_removed_devices
         )
@@ -219,8 +219,49 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             self.l_insert_nitrokey.show()
         self.overview_tab.set_update_enabled(device_count <= 1)
 
+    def _get_device_model(self, device_info: dict[str, str] | None) -> Model | None:
+        if not device_info:
+            return None
+        pid = device_info.get(ID_MODEL_ID, "")
+        for model in Model:
+            model_pid = model.pid
+            model_pid_str = f"{model_pid:04x}"
+            if pid in (
+                model_pid_str.upper(),
+                model_pid_str.lower(),
+                f"0x{model_pid_str.upper()}",
+                f"0x{model_pid_str.lower()}",
+                str(model_pid),
+            ):
+                return model
+
+        return None
+
+    # Remove this function when we are natively able to differentiate between nk3 and nkpk
+    def _require_force_nk3(self, devices: dict[str, dict[str, str]]) -> bool:
+        nk3_present = False
+        nkpk_present = False
+        for _device_id, device_info in devices.items():
+            if self._get_device_model(device_info) == Model.NK3:
+                nk3_present = True
+            if self._get_device_model(device_info) == Model.NKPK:
+                nkpk_present = True
+        if nk3_present and nkpk_present:
+            logger.info("Forcing NK3 because multiple devices are found")
+            return True
+        return False
+
+    def _detect_added_devices_init(self) -> None:
+        devices = USBMonitor(filter_devices=self.device_filter).get_available_devices()
+        force_nk3 = self._require_force_nk3(devices)
+        for device_id, device_info in devices.items():
+            self.detect_added_devices(device_id, device_info, force_nk3=force_nk3)
+
     def detect_added_devices(
-        self, device_id: str | None = None, device_info: dict[str, str] | None = None
+        self,
+        device_id: str | None = None,
+        device_info: dict[str, str] | None = None,
+        force_nk3: bool = False,
     ) -> None:
         interfaces = device_info.get(ID_USB_INTERFACES, ()) if device_info else ()
         ccid_classes = ("0b0000", "class_0b", "0x0b", "IOUSBHostFamily.kext")
@@ -246,9 +287,14 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         if not filter_success and interfaces:
             return
 
+        model = self._get_device_model(device_info)
+
+        if force_nk3:
+            model = Model.NK3
+
         # retry for up to 2secs
         for _tries in range(8):
-            devs = self.device_manager.add()
+            devs = self.device_manager.add(model)
             if devs:
                 break
             sleep(0.25)
@@ -281,7 +327,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         self.selected_device = None
         self.device_manager.clear()
 
-        self.detect_added_devices()
+        self._detect_added_devices_init()
 
     @Slot()
     def update_devices(self) -> None:
@@ -315,7 +361,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
 
     def init_gui(self) -> None:
         self.hide_device()
-        self.detect_added_devices()
+        self._detect_added_devices_init()
 
     def show_navigation(self) -> None:
         for btn in self.device_buttons:
