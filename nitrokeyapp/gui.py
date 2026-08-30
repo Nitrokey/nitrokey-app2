@@ -233,7 +233,11 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def on_device_connect(
         self, device_id: str | None = None, device_info: dict[str, str] | None = None
     ) -> None:
-        interfaces = device_info.get(ID_USB_INTERFACES, ()) if device_info else ()
+        interfaces: tuple[str, ...] | str = (
+            device_info.get(ID_USB_INTERFACES, ()) if device_info else ()
+        )
+        if isinstance(interfaces, str):
+            interfaces = ()
         ccid_classes = ("0b0000", "class_0b", "0x0b", "IOUSBHostFamily.kext")
         hid_classes = ("030000", "class_03", "0x03", "IOUSBHostFamily.kext")
 
