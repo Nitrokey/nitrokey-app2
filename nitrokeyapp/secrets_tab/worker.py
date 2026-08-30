@@ -16,6 +16,7 @@ from PySide6.QtWidgets import QWidget
 
 from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
+from nitrokeyapp.error_messages import passwords_unsupported_message, user_message
 from nitrokeyapp.worker import Job, Worker
 
 from .data import Credential, OtpData, OtpKind
@@ -120,7 +121,7 @@ class VerifyPinJob(Job):
     def run(self) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
-                self.trigger_error("This device does not support Passwords")
+                self.trigger_error(passwords_unsupported_message())
                 return
             secrets = SecretsApp(device)
             select = secrets.select()
@@ -140,7 +141,7 @@ class VerifyPinJob(Job):
     def pin_queried(self, pin: str) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
-                self.trigger_error("This device does not support Passwords")
+                self.trigger_error(passwords_unsupported_message())
                 return
             secrets = SecretsApp(device)
             try:
@@ -152,13 +153,13 @@ class VerifyPinJob(Job):
                 logger.warning(f"Secrets PIN verification failed: {e}")
                 self.pin_cache.clear()
                 # TODO: repeat on failure
-                self.trigger_error("Incorrect PIN. Please try again.")
+                self.trigger_error(user_message(e))
 
     @Slot(str)
     def pin_chosen(self, pin: str) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
-                self.trigger_error("This device does not support Passwords")
+                self.trigger_error(passwords_unsupported_message())
                 return
             secrets = SecretsApp(device)
             with self.touch_prompt():
@@ -168,7 +169,7 @@ class VerifyPinJob(Job):
         if select.pin_attempt_counter:
             self.pin_queried(pin)
         else:
-            self.trigger_error("Failed to set Secrets PIN")
+            self.trigger_error(self.tr("The Passwords PIN could not be set."))
 
     @Slot(str)
     def trigger_error(self, msg: str) -> None:
@@ -216,11 +217,17 @@ class EditCredentialJob(Job):
         # ids = set([credential.id for credential in credentials])
 
         if self.old_cred_id not in self.all_credentials:
-            self.trigger_error(f"A credential with the name {self.old_cred_id!r} does not exists.")
+            self.trigger_error(
+                self.tr("There is no credential named '{0}'.").format(
+                    self.old_cred_id.decode(errors="replace")
+                )
+            )
             return
 
         if self.credential.id != self.old_cred_id and self.credential.id in self.all_credentials:
-            self.trigger_error(f"A credential named '{self.credential.name}' already exists.")
+            self.trigger_error(
+                self.tr("A credential named '{0}' already exists.").format(self.credential.name)
+            )
             return
 
         if self.credential.protected:
@@ -304,7 +311,7 @@ class EditCredentialJob(Job):
     def edit_credential_final(self) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
-                self.trigger_error("This device does not support Passwords")
+                self.trigger_error(passwords_unsupported_message())
                 return
             secrets = SecretsApp(device)
             with self.touch_prompt():
@@ -365,7 +372,9 @@ class AddCredentialJob(Job):
     def check_credential(self, credentials: list[Credential]) -> None:
         ids = {credential.id for credential in credentials}
         if self.credential.id in ids:
-            self.trigger_error(f"A credential with the name {self.credential.name} already exists.")
+            self.trigger_error(
+                self.tr("A credential named '{0}' already exists.").format(self.credential.name)
+            )
         elif self.credential.protected:
             verify_pin_job = VerifyPinJob(
                 self.common_ui,
@@ -387,11 +396,11 @@ class AddCredentialJob(Job):
 
         with self.data.open() as device:
             if not isinstance(device, NK3):
-                self.trigger_error("This device does not support Passwords")
+                self.trigger_error(passwords_unsupported_message())
                 return
 
             if self.credential.uri and self.credential.id:
-                self.trigger_error("Other fields must be empty if URI is used")
+                self.trigger_error(self.tr("All other fields have to be empty when a URI is used."))
 
             secrets = SecretsApp(device)
             with self.touch_prompt():
@@ -471,7 +480,7 @@ class DeleteCredentialJob(Job):
     def delete_credential(self) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
-                self.trigger_error("This device does not support Passwords")
+                self.trigger_error(passwords_unsupported_message())
                 return
             secrets = SecretsApp(device)
             try:
@@ -517,7 +526,7 @@ class GenerateOtpJob(Job):
     def generate_otp(self) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
-                self.trigger_error("This device does not support Passwords")
+                self.trigger_error(passwords_unsupported_message())
                 return
             secrets = SecretsApp(device)
 
@@ -574,7 +583,7 @@ class ListCredentialsJob(Job):
         else:
             with self.data.open() as device:
                 if not isinstance(device, NK3):
-                    self.trigger_error("This device does not support Passwords")
+                    self.trigger_error(passwords_unsupported_message())
                     return
                 secrets = SecretsApp(device)
                 credentials = Credential.list(secrets)
@@ -588,7 +597,7 @@ class ListCredentialsJob(Job):
 
         with self.data.open() as device:
             if not isinstance(device, NK3):
-                self.trigger_error("This device does not support Passwords")
+                self.trigger_error(passwords_unsupported_message())
                 return
             secrets = SecretsApp(device)
             for credential in Credential.list(secrets):
@@ -632,7 +641,7 @@ class GetCredentialJob(Job):
     def get_credential(self) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
-                self.trigger_error("This device does not support Passwords")
+                self.trigger_error(passwords_unsupported_message())
                 return
             secrets = SecretsApp(device)
             try:
