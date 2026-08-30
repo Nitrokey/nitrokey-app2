@@ -1,4 +1,4 @@
-.PHONY: clean 
+.PHONY: clean translations-update translations-release check-translations
 
 -include variables.mk
 
@@ -28,15 +28,23 @@ semi-clean:
 clean: semi-clean
 	poetry env remove --all
 	rm -rf .mypy_cache
+	rm -f $(PACKAGE_NAME)/translations/*.qm
+
+# translations
+translations-update:
+	poetry run python ci-scripts/translations.py update
+
+translations-release:
+	poetry run python ci-scripts/translations.py release
 
 # build
-build:
+build: translations-release
 	poetry build
 
-build-pyinstaller-onefile:
+build-pyinstaller-onefile: translations-release
 	poetry run pyinstaller ci-scripts/linux/pyinstaller/nitrokey-app-onefile.spec
 
-build-pyinstaller-onedir:
+build-pyinstaller-onedir: translations-release
 	poetry run pyinstaller ci-scripts/linux/pyinstaller/nitrokey-app-onedir.spec
 
 # code checks
@@ -49,7 +57,10 @@ check-style:
 check-typing:
 	poetry run mypy $(PACKAGE_NAME)/
 
-check: check-format check-style check-typing
+check-translations:
+	poetry run python ci-scripts/translations.py check
+
+check: check-format check-style check-typing check-translations
 
 fix:
 	$(RUFF) format $(PACKAGE_NAME)/

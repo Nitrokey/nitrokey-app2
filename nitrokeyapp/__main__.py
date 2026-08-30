@@ -9,7 +9,7 @@ from PySide6 import QtWidgets
 from PySide6.QtCore import QEvent, QObject, Qt, QTimer
 from PySide6.QtGui import QFont
 
-from nitrokeyapp import __version__
+from nitrokeyapp import __version__, i18n
 from nitrokeyapp.gui import GUI
 from nitrokeyapp.logger import init_logging, log_environment
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
@@ -870,6 +870,8 @@ class PaletteWatcher(QObject):
 
 def run_gui(argv: list[str]) -> None:
     app = QtWidgets.QApplication(argv)
+    app.setOrganizationName(i18n.ORGANIZATION)
+    app.setApplicationName(i18n.APPLICATION)
     app.setDesktopFileName("com.nitrokey.nitrokey-app2")
     app.setWindowIcon(QtUtilsMixIn.get_qicon("red_nitrokey-app-icon.svg"))
     app.setFont(QFont("Segoe UI", 11))
@@ -906,6 +908,10 @@ def run_gui(argv: list[str]) -> None:
 
     with init_logging() as log_file:
         log_environment()
+
+        # after init_logging so the resolved language is logged, still before
+        # the first widget
+        i18n.install_translators(app)
 
         window = GUI(app, log_file)
         gui.append(window)

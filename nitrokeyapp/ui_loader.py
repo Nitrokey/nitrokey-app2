@@ -30,6 +30,8 @@ class UiLoader(QUiLoader):
         """
 
         QUiLoader.__init__(self, baseinstance)
+        self.setTranslationEnabled(True)
+        self.setLanguageChangeEnabled(True)
         self.baseinstance = baseinstance
         self.customWidgets = customWidgets or {}
 
