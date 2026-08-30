@@ -89,12 +89,12 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
         self.ui.is_touch_protected.hide()
 
         # repurpose the username/password/comment fields for FIDO2 details (read-only)
-        self.ui.username_label.setText("Display Name:")
+        self.ui.username_label.setText(self.tr("Display Name:"))
         self.ui.username.setReadOnly(True)
-        self.ui.password_label.setText("Username:")
+        self.ui.password_label.setText(self.tr("Username:"))
         self.ui.password.setReadOnly(True)
         self.ui.password.setEchoMode(QLineEdit.EchoMode.Normal)
-        self.ui.comment_label.setText("Credential ID:")
+        self.ui.comment_label.setText(self.tr("Credential ID:"))
         self.ui.comment.setReadOnly(True)
 
         self.algorithm_value = QLabel(self.ui)
@@ -126,7 +126,7 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
 
     @property
     def title(self) -> str:
-        return "Passkeys"
+        return self.tr("Passkeys")
 
     @property
     def widget(self) -> QWidget:
@@ -240,8 +240,8 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
         self.ui.username.setText(credential.user_display_name or "")
         self.ui.password.setText(credential.user_name or "")
         self.ui.comment.setText(credential.credential_id.hex())
-        self.algorithm_value.setText(credential.algorithm_label or "(unknown)")
-        self.cred_protect_value.setText(credential.cred_protect_label or "(not set)")
+        self.algorithm_value.setText(credential.algorithm_label or self.tr("(unknown)"))
+        self.cred_protect_value.setText(credential.cred_protect_label or self.tr("(not set)"))
 
         self.ui.btn_delete.show()
 
@@ -262,8 +262,10 @@ class Fido2Tab(QtUtilsMixIn, QWidget):
 
         confirm = QMessageBox.question(
             self,
-            "Delete Passkey",
-            f"Permanently delete the passkey '{credential.display}' from this device?",
+            self.tr("Delete Passkey"),
+            self.tr("Permanently delete the passkey '{0}' from this device?").format(
+                credential.display
+            ),
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.No,
         )

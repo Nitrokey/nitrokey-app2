@@ -19,8 +19,8 @@ class Fido2PinUi(QObject):
     def _query(self, attempts: int) -> None:
         pin, ok = QInputDialog.getText(
             self.app_widget,
-            "Enter FIDO2 PIN",
-            f"Please enter the FIDO2 PIN (remaining retries: {attempts}):",
+            self.tr("Enter FIDO2 PIN"),
+            self.tr("Please enter the FIDO2 PIN (remaining retries: {0}):").format(attempts),
             QLineEdit.EchoMode.Password,
         )
         if ok and pin:

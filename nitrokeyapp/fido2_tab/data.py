@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
 
+from PySide6.QtCore import QCoreApplication
+
 # COSE algorithm identifiers -> human readable names
 # see https://www.iana.org/assignments/cose/cose.xhtml#algorithms
 COSE_ALGORITHMS = {
@@ -16,13 +18,15 @@ COSE_ALGORITHMS = {
     -65535: "RS1",
 }
 
+
 # credProtect policy values -> human readable names
 # see CTAP 2.1, "Credential Protection (credProtect)"
-CRED_PROTECT_POLICIES = {
-    1: "User verification optional",
-    2: "User verification optional (with credential list)",
-    3: "User verification required",
-}
+def cred_protect_policies() -> dict[int, str]:
+    return {
+        1: QCoreApplication.translate("fido2", "User verification optional"),
+        2: QCoreApplication.translate("fido2", "User verification optional (with credential list)"),
+        3: QCoreApplication.translate("fido2", "User verification required"),
+    }
 
 
 @dataclass
@@ -42,7 +46,11 @@ class Fido2Credential:
 
     @property
     def user_label(self) -> str:
-        return self.user_display_name or self.user_name or "(no name)"
+        return (
+            self.user_display_name
+            or self.user_name
+            or QCoreApplication.translate("fido2", "(no name)")
+        )
 
     @property
     def algorithm_label(self) -> str | None:
@@ -54,7 +62,7 @@ class Fido2Credential:
     def cred_protect_label(self) -> str | None:
         if self.cred_protect is None:
             return None
-        return CRED_PROTECT_POLICIES.get(self.cred_protect, str(self.cred_protect))
+        return cred_protect_policies().get(self.cred_protect, str(self.cred_protect))
 
     @property
     def display(self) -> str:
@@ -85,7 +93,11 @@ class Fido2ListState:
         """
         if not self.valid:
             return None
-        parts = [f"{self.existing_count} stored"]
+        # not the %n plural form: lupdate drops a translate() call whose count
+        # argument is an attribute, and the string would never reach the catalog
+        parts = [QCoreApplication.translate("fido2", "{0} stored").format(self.existing_count)]
         if self.remaining_count is not None:
-            parts.append(f"up to {self.remaining_count} free")
-        return "Passkeys: " + ", ".join(parts)
+            parts.append(
+                QCoreApplication.translate("fido2", "up to {0} free").format(self.remaining_count)
+            )
+        return QCoreApplication.translate("fido2", "Passkeys: {0}").format(", ".join(parts))

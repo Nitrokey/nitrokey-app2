@@ -12,6 +12,8 @@ from nitrokey.trussed.admin_app import InitStatus
 from nitrokey.trussed.updates import DeviceHandler, Updater, UpdateUi, Warning
 from PySide6.QtCore import QCoreApplication
 
+from nitrokeyapp.error_messages import warning_message
+
 if TYPE_CHECKING:
     from nitrokeyapp.common_ui import CommonUi
 
@@ -60,20 +62,30 @@ class UpdateGUI(UpdateUi):
         return UpdateException(UpdateStatus.ABORTED, *msgs)
 
     def raise_warning(self, warning: Warning) -> Exception:
-        return UpdateException(UpdateStatus.ERROR, warning.message)
+        return UpdateException(UpdateStatus.ERROR, warning_message(warning))
 
     def show_warning(self, warning: Warning) -> None:
         res = self.run_confirm_dialog(
-            "DANGER - You can ignore this warning by pressing ok", warning.message
+            QCoreApplication.translate(
+                "update", "DANGER - you can ignore this warning by pressing OK"
+            ),
+            warning_message(warning),
         )
         if not res:
             logger.info("Cancel clicked (during warning)")
-            raise self.abort("Warning dialog canceled")
+            raise self.abort(
+                QCoreApplication.translate("update", "The firmware update was cancelled.")
+            )
 
         logger.info("OK clicked (warning dialog)")
 
     def abort_downgrade(self, current: Version, image: Version) -> Exception:
-        return self.abort(f"firmware {image} is older than the firmware on the device ({current})")
+        logger.warning(f"downgrade from {current} to {image}")
+        return self.abort(
+            QCoreApplication.translate(
+                "update", "The firmware image ({0}) is older than the firmware on the device ({1})."
+            ).format(image, current)
+        )
 
     def run_confirm_dialog(self, title: str, desc: str) -> bool:
         self.common_ui.prompt.confirm.emit(title, desc)
@@ -87,53 +99,71 @@ class UpdateGUI(UpdateUi):
 
     def confirm_download(self, current: Version | None, new: Version) -> None:
         res = self.run_confirm_dialog(
-            f"{self.model} Firmware Update", f"Do you want to download the firmware version {new}?"
+            self.update_title(),
+            QCoreApplication.translate(
+                "update", "Do you want to download firmware version {0}?"
+            ).format(new),
         )
         if not res:
             logger.info("Cancel clicked (confirm download)")
-            raise self.abort("Abort: canceled by user (confirm download)")
+            raise self.abort(
+                QCoreApplication.translate("update", "The firmware update was cancelled.")
+            )
 
         logger.info("OK clicked (confirm download)")
 
+    def update_title(self) -> str:
+        return QCoreApplication.translate("update", "{0} Firmware Update").format(self.model)
+
     def confirm_update(self, current: Version | None, new: Version) -> None:
+        warning = QCoreApplication.translate(
+            "update",
+            "Please do not remove the {0} or insert any other {0} devices during the "
+            "update. Doing so may damage the {0}.",
+        ).format(self.model)
+
         if self.is_qubesos:
-            res = self.run_confirm_dialog(
-                f"{self.model} Firmware Update",
-                f"Please do not remove the {self.model} or insert any other "
-                + f"{self.model} devices during the update. Doing so may "
-                + f"damage the {self.model}.\n\n"
-                + "QubesOS is detected!\n\n"
-                + f"After the touch prompt, the {self.model} will be loaded into the bootloader. The Nitrokey must then be reattach to the current Qube.\n\n"
-                + "Do you want to perform the firmware update now?",
+            question = QCoreApplication.translate(
+                "update",
+                "QubesOS is detected!\n\n"
+                "After the touch prompt, the {0} will be loaded into the bootloader. "
+                "The Nitrokey must then be reattached to the current Qube.\n\n"
+                "Do you want to perform the firmware update now?",
+            ).format(self.model)
+        else:
+            question = QCoreApplication.translate(
+                "update", "Do you want to perform the firmware update now?"
             )
 
-        else:
-            res = self.run_confirm_dialog(
-                f"{self.model} Firmware Update",
-                f"Please do not remove the {self.model} or insert any other "
-                + f"{self.model} devices during the update. Doing so may "
-                + f"damage the {self.model}. Do you want to perform the "
-                + "firmware update now?",
-            )
+        res = self.run_confirm_dialog(self.update_title(), f"{warning}\n\n{question}")
         if not res:
             logger.info("Cancel clicked (confirm update)")
-            raise self.abort("canceled by user (confirm update)")
+            raise self.abort(
+                QCoreApplication.translate("update", "The firmware update was cancelled.")
+            )
 
         logger.info("OK clicked (confirm update)")
         self.common_ui.touch.start.emit()
 
     def pre_bootloader_hint(self) -> None:
-        self.common_ui.info.info.emit("Device is in bootloader mode")
+        self.common_ui.info.info.emit(
+            QCoreApplication.translate("update", "Device is in bootloader mode")
+        )
 
     def confirm_update_same_version(self, version: Version) -> None:
         res = self.run_confirm_dialog(
-            f"{self.model} Firmware Update",
-            "The version of the firmware image is the same as on the device."
-            + "Do you want to continue anyway?",
+            self.update_title(),
+            QCoreApplication.translate(
+                "update",
+                "The version of the firmware image is the same as the one on the device. "
+                "Do you want to continue anyway?",
+            ),
         )
         if not res:
             logger.info("Cancel clicked (confirm same version)")
-            raise self.abort("canceled by user (confirm same version)")
+            raise self.abort(
+                QCoreApplication.translate("update", "The firmware update was cancelled.")
+            )
 
         logger.info("OK clicked (confirm same version)")
 
@@ -141,23 +171,41 @@ class UpdateGUI(UpdateUi):
         if len(txt) == 0:
             return
 
-        res = self.run_confirm_dialog("Confirm extra information", " ".join(txt))
+        res = self.run_confirm_dialog(
+            QCoreApplication.translate("update", "Confirm extra information"), " ".join(txt)
+        )
         if not res:
             logger.info("Cancel clicked (confirm extra info)")
-            raise self.abort("canceled by user (confirm extra info)")
+            raise self.abort(
+                QCoreApplication.translate("update", "The firmware update was cancelled.")
+            )
 
-        logger.info("OK clicked (confirm same version)")
+        logger.info("OK clicked (confirm extra info)")
 
     def abort_pynitrokey_version(self, current: Version, required: Version) -> Exception:
-        raise self.abort(f"pynitrokey {required} too old, need: {current}")
+        raise self.abort(self.pynitrokey_version_message(current, required))
 
     def confirm_pynitrokey_version(self, current: Version, required: Version) -> None:
         # TODO: implement
-        raise self.abort(f"pynitrokey {required} too old, need: {current}")
+        raise self.abort(self.pynitrokey_version_message(current, required))
+
+    def pynitrokey_version_message(self, current: Version, required: Version) -> str:
+        logger.error(f"pynitrokey {current} too old, need: {required}")
+        return QCoreApplication.translate(
+            "update",
+            "This version of the Nitrokey App is too old for the update. "
+            "Please install version {0} or newer.",
+        ).format(required)
 
     def request_repeated_update(self) -> Exception:
         logger.info("Bootloader mode enabled. Repeat to update")
-        return self.abort("bootloader enabled")
+        return self.abort(
+            QCoreApplication.translate(
+                "update",
+                "The device was switched to bootloader mode. "
+                "Please start the firmware update again.",
+            )
+        )
 
     def request_bootloader_confirmation(self) -> None:
         logger.info("requesting bootloader confirmation")
@@ -166,17 +214,17 @@ class UpdateGUI(UpdateUi):
     @contextmanager
     def update_progress_bar(self) -> Iterator[Callable[[int, int], None]]:
         self.common_ui.touch.stop.emit()
-        self.common_ui.progress.start.emit("Update")
+        self.common_ui.progress.start.emit(QCoreApplication.translate("update", "Update"))
         yield self.common_ui.progress.progress.emit
 
     @contextmanager
     def download_progress_bar(self, desc: str) -> Iterator[Callable[[int, int], None]]:
-        self.common_ui.progress.start.emit("Download")
+        self.common_ui.progress.start.emit(QCoreApplication.translate("update", "Download"))
         yield self.common_ui.progress.progress.emit
 
     @contextmanager
     def finalization_progress_bar(self) -> Iterator[Callable[[int, int], None]]:
-        self.common_ui.progress.start.emit("Finalization")
+        self.common_ui.progress.start.emit(QCoreApplication.translate("update", "Finalization"))
         yield self.common_ui.progress.progress.emit
 
 
@@ -189,11 +237,18 @@ class UpdateContext(DeviceHandler):
 
     def connect(self) -> TrussedBase:
         device = trussed.open(path=self.path, model=self.model)
-        # TODO: improve error handling
         if not device:
-            raise RuntimeError(f"Failed to open {self.model} device at {self.path}")
+            logger.error(f"failed to open {self.model} device at {self.path}")
+            raise RuntimeError(
+                QCoreApplication.translate("update", "The device is no longer available.")
+            )
         if device.model != self.model:
-            raise RuntimeError(f"Found {device.model} device at {self.path}, expected {self.model}")
+            logger.error(f"found {device.model} at {self.path}, expected {self.model}")
+            raise RuntimeError(
+                QCoreApplication.translate(
+                    "update", "Found a {0} where a {1} was expected."
+                ).format(device.model, self.model)
+            )
         return device
 
     def _await(
@@ -218,12 +273,22 @@ class UpdateContext(DeviceHandler):
                 logger.debug(f"No {name} device found, continuing")
                 continue
             if len(devices) > 1:
-                raise Exception(f"Multiple {name} devices found")
+                logger.error(f"multiple {name} devices found")
+                raise Exception(
+                    QCoreApplication.translate(
+                        "update",
+                        "More than one {0} is connected. Please connect only the device "
+                        "that should be updated.",
+                    ).format(name)
+                )
             if callback:
                 callback(100, 100)
             return devices[0]
 
-        raise Exception(f"No {name} device found")
+        logger.error(f"no {name} device found")
+        raise Exception(
+            QCoreApplication.translate("update", "The {0} could not be found.").format(name)
+        )
 
     def await_device(
         self,
@@ -256,8 +321,11 @@ class UpdateContext(DeviceHandler):
                 return UpdateResult(
                     model=self.model,
                     status=UpdateStatus.ERROR,
-                    message="External filesystem needs to be reformatted."
-                    " Please contact support@nitrokey.com for more information on how to solve this issue.",
+                    message=QCoreApplication.translate(
+                        "update",
+                        "The external filesystem of the device needs to be reformatted. "
+                        "Please contact {0} for more information on how to solve this issue.",
+                    ).format("support@nitrokey.com"),
                 )
 
         return UpdateResult(model=self.model, status=UpdateStatus.SUCCESS)
