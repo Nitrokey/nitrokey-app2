@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from functools import wraps
 from typing import Any, TypeVar, cast
 
-from PySide6.QtCore import QObject, Signal, Slot
+from PySide6.QtCore import QObject, Qt, Signal, Slot
 
 from nitrokeyapp.common_ui import CommonUi
 
@@ -117,5 +117,7 @@ class Worker(QObject):
         logger.info(f"{self.__class__.__name__} starting {job.__class__.__name__}")
         self.busy_state_changed.emit(True)
 
-        job.finished.connect(lambda: self.busy_state_changed.emit(False))
+        job.finished.connect(
+            lambda: self.busy_state_changed.emit(False), Qt.ConnectionType.SingleShotConnection
+        )
         job.run_guarded()

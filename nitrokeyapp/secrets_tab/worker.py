@@ -393,6 +393,7 @@ class AddCredentialJob(Job):
 
             if self.credential.uri and self.credential.id:
                 self.trigger_error("Other fields must be empty if URI is used")
+                return
 
             secrets = SecretsApp(device)
             with self.touch_prompt():
@@ -535,6 +536,7 @@ class GenerateOtpJob(Job):
                 validity = (valid_from, valid_until)
             else:
                 self.trigger_exception(RuntimeError(f"Unexpected OTP kind: {self.credential.otp}"))
+                return
 
             try:
                 with self.touch_prompt():
