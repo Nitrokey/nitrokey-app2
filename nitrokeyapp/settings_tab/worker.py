@@ -94,6 +94,7 @@ class SaveFidoPinJob(Job):
                     self.common_ui.info.info.emit("FIDO2 PIN changed!")
             except Exception as e:
                 self.trigger_error(f"fido2 change_pin failed: {e}")
+                return
         self.change_pw_fido.emit()
 
 
@@ -171,6 +172,7 @@ class ResetFido(Job):
                     )
                 else:
                     self.trigger_error(f"fido2 reset failed: {e}")
+                    return
         self.reset_fido.emit()
 
 
@@ -196,6 +198,7 @@ class ResetPasswords(Job):
                     self.common_ui.info.info.emit("PASSWORDS function reset successfully!")
             except SecretsAppException as e:
                 self.trigger_error(f"Passwords reset failed: {e}")
+                return
         self.reset_passwords.emit()
 
 
