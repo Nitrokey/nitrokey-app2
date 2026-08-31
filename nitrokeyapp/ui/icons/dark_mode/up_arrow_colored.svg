@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg2"
+   width="27.735645"
+   height="27.735645"
+   viewBox="0 0 27.735645 27.735645"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+    <defs id="defs6">
+    <filter id="to-color" color-interpolation-filters="sRGB">
+      <feColorMatrix type="matrix"
+        values="0 0 0 0 0.5451
+                0 0 0 0 0.5804
+                0 0 0 0 0.6196
+                0 0 0 1 0"/>
+    </filter>
+  </defs>
+  <g
+     id="g8">
+    <image
+       width="27.735645"
+       height="27.735645"
+       preserveAspectRatio="none"
+       style="image-rendering:optimizeQuality;filter:url(#to-color)"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAA1PCAANTwgGvdNcZAAAA
+GXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAeNJREFUaIHtl0tLQlEURhc4yChC
+JCKwIDR7vx/WD20c1MRB8wYNggZBQRAIQRBEYWllar8gG7hPmVy9+6hXjc6CPfLu71sb4YrgcDgc
+DofDkzhwJBPvsYs100AWqMhkgWRPjSxIAk/8yJt54g8cMYO3vJlneaYvmaUq2Ei+9ojZHjk2ZA7I
+4S9vJic7fcE8kEcvbyYvuz1lgdbka49Y6Lq1sAi8+Ahq5kWyusoS8NqmeO28SmZXWLaQz6F7M1WA
+N8kOlBUp0ghlqb7zk/z+VfY7YiUo+VWgoBR5BBI1uwngQblbkK6OsmYhfw9MeWRMyWeajHfp7Ajr
+EqgpvgMmm2RNyjPaI9bbld8AisrCWyCmyIzJs5rMoji0xKaF/A0wbpE9LjvaIzZt5beAkrIgA4zZ
+FshORtlREicV20BZGXwNjLYgbxiVDE1XWdyakrKQvwKibcgbopKlPSLVKGgH+FAGXQKRDsgbIsCF
+svsD2K0PGET/nj8HRjoobxiRbI1DQZy/iQGfisUzYDgAecOwdPh5fAIT9csHPkunwFCA8oYh6Wrm
+cui1GALSDRZOqPvKAmZQOr1c0uLqidcRx0A4WF9PwtKtljeEgD2q/5T2gYHgHH0ZEIe8OPnKOxwO
+h8PhcPwnvgAmI7SeZzbkwAAAAABJRU5ErkJggg==
+"
+       id="image10" />
+  </g>
+</svg>

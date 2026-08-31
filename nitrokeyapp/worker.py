@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from PySide6.QtCore import QObject, Signal, Slot
 
 from nitrokeyapp.common_ui import CommonUi
+from nitrokeyapp.error_messages import user_message
 
 logger = logging.getLogger(__name__)
 
@@ -34,14 +35,14 @@ class Job(QObject):
     @Slot(str)
     def trigger_error(self, msg: str) -> None:
         logger.error(f"{self.__class__.__name__} failed: {msg}")
-        self.common_ui.info.error.emit(f"{self.__class__.__name__}: {msg}")
+        self.common_ui.info.error.emit(msg)
         self.failed.emit()
         self.finished.emit()
 
     @Slot(Exception)
     def trigger_exception(self, exc: Exception) -> None:
         logger.error(f"{self.__class__.__name__} raised: {exc}", exc_info=exc)
-        self.common_ui.info.error.emit(f"{self.__class__.__name__}: {exc}")
+        self.common_ui.info.error.emit(user_message(exc))
         self.failed.emit()
         self.finished.emit()
 

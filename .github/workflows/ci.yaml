@@ -70,6 +70,22 @@ jobs:
         run: make init
       - name: Check code static typing
         run: make check-typing
+  lint-translations:
+    name: Check translation catalogs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install required packages
+        run: pip install poetry
+      - name: Create virtual environment
+        run: make init
+      - name: Check that the catalogs match the sources
+        run: make check-translations
   lint-flatpak-metadata:
     name: Check flatpak metadata
     runs-on: ubuntu-latest

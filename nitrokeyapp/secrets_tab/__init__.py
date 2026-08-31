@@ -41,6 +41,11 @@ from .worker import SecretsWorker
 
 logger = logging.getLogger(__name__)
 
+PASSWORD_ONLY = ""
+
+# the entries of the algorithm combo box, by position; the labels are translated
+ALGORITHM_KINDS = [PASSWORD_ONLY, "TOTP", "HOTP", "HMAC"]
+
 
 class PasswordGenRow(QWidget):
     """Password-generator filters that adapt to the available width.
@@ -209,7 +214,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.action_password_generate = self.ui.password.addAction(icon_generate, loc)
         self.action_password_generate.triggered.connect(self.act_toggle_password_gen)
-        self.action_password_generate.setToolTip("Generate random password")
+        self.action_password_generate.setToolTip(self.tr("Generate random password"))
 
         self._pw_gen_widget = self._create_password_gen_widget()
         self._pw_gen_widget.hide()
@@ -290,9 +295,25 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.reset()
 
+    def algorithm_kind(self) -> str:
+        """The credential kind selected in the algorithm combo box."""
+        index = self.ui.select_algorithm.currentIndex()
+        if 0 <= index < len(ALGORITHM_KINDS):
+            return ALGORITHM_KINDS[index]
+        return PASSWORD_ONLY
+
+    def select_algorithm_kind(self, kind: str) -> None:
+        if kind not in ALGORITHM_KINDS:
+            return
+        index = ALGORITHM_KINDS.index(kind)
+        # while editing, HMAC is dropped again (setMaxCount(3)) and selecting an
+        # index the combo box no longer has would clear it
+        if index < self.ui.select_algorithm.count():
+            self.ui.select_algorithm.setCurrentIndex(index)
+
     @property
     def title(self) -> str:
-        return "Passwords"
+        return self.tr("Passwords")
 
     @property
     def widget(self) -> QWidget:
@@ -393,7 +414,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     @Slot(OtpData)
     def otp_generated(self, data: OtpData) -> None:
         self.ui.otp.setText(data.otp)
-        self.common_ui.info.info.emit("Secret is generated")
+        self.common_ui.info.info.emit(self.tr("Secret is generated"))
 
         if data.validity:
             start, end = data.validity
@@ -411,12 +432,15 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     def backup_credentials(self) -> None:
         if not self.data:
             return
-        self._open_backup_restore(BackupRestoreAction.BACKUP, "Backup passwords")
+        self._open_backup_restore(BackupRestoreAction.BACKUP, self.tr("Backup passwords"))
 
     @Slot(str)
     def save_credential_backup(self, credential_list_formatted: str) -> None:
         path, _ = QFileDialog.getSaveFileName(
-            self, "Save Credential Backup", "credential_backup.json", "JSON Files (*.json)"
+            self,
+            self.tr("Save Credential Backup"),
+            "credential_backup.json",
+            self.tr("JSON Files (*.json)"),
         )
         if path:
             with open(path, "w") as f:
@@ -427,13 +451,15 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         if not self.data:
             return
         path, _ = QFileDialog.getOpenFileName(
-            self, "Open Credential Backup", "", "JSON Files (*.json)"
+            self, self.tr("Open Credential Backup"), "", self.tr("JSON Files (*.json)")
         )
         if not path:
             return
         with open(path, "r") as f:
             self.backup_content = f.read()
-        self._open_backup_restore(BackupRestoreAction.RESTORE, f"Restore passwords from {path}")
+        self._open_backup_restore(
+            BackupRestoreAction.RESTORE, self.tr("Restore passwords from {0}").format(path)
+        )
 
     @Slot()
     def on_credential_restored(self) -> None:
@@ -556,7 +582,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.ui.otp.show()
             self.ui.otp.setReadOnly(True)
             self.ui.algorithm.setText(str(credential.otp or credential.other) + ":")
-            self.ui.otp.setPlaceholderText("<hidden>")
+            self.ui.otp.setPlaceholderText(self.tr("<hidden>"))
 
             if credential.otp:
                 self.action_otp_copy.setVisible(True)
@@ -644,7 +670,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         if credential.otp or credential.other:
             self.ui.otp.setReadOnly(True)
 
-            self.ui.select_algorithm.setCurrentText(str(credential.otp or credential.other))
+            self.select_algorithm_kind(str(credential.otp or credential.other))
             self.ui.select_algorithm.setEnabled(False)
             self.action_hmac_gen.setVisible(False)
 
@@ -652,20 +678,20 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.action_otp_gen.setVisible(False)
             if credential.otp:
                 self.action_otp_edit.setVisible(True)
-                self.ui.otp.setPlaceholderText("<hidden - click to edit>")
+                self.ui.otp.setPlaceholderText(self.tr("<hidden - click to edit>"))
             else:
                 self.ui.algorithm_show.show()
                 self.ui.algorithm_edit.hide()
                 self.ui.algorithm.setText(str(credential.otp or credential.other) + ":")
                 self.action_otp_edit.setVisible(False)
-                self.ui.otp.setPlaceholderText("<cannot edit>")
+                self.ui.otp.setPlaceholderText(self.tr("<cannot edit>"))
 
         # no otp there, just offer it as in add
         else:
             self.ui.otp.clear()
             self.ui.otp.setReadOnly(False)
-            self.ui.otp.setPlaceholderText("<empty>")
-            self.ui.select_algorithm.setCurrentText("Password only")
+            self.ui.otp.setPlaceholderText(self.tr("<empty>"))
+            self.select_algorithm_kind(PASSWORD_ONLY)
             self.ui.select_algorithm.setEnabled(True)
 
         self.check_credential()
@@ -681,7 +707,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.ui.otp.setReadOnly(False)
         self.ui.select_algorithm.setEnabled(True)
-        self.ui.otp.setPlaceholderText("<empty>")
+        self.ui.otp.setPlaceholderText(self.tr("<empty>"))
         self.ui.otp.clear()
 
         self.check_credential()
@@ -722,7 +748,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.name.clear()
 
         self.ui.otp.clear()
-        self.ui.otp.setPlaceholderText("<empty>")
+        self.ui.otp.setPlaceholderText(self.tr("<empty>"))
         self.ui.username.clear()
         self.ui.password.clear()
         self.ui.comment.clear()
@@ -751,7 +777,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.algorithm_show.hide()
 
         self.ui.select_algorithm.show()
-        self.ui.select_algorithm.setCurrentText("Password only")
+        self.select_algorithm_kind(PASSWORD_ONLY)
         self.ui.select_algorithm.setEnabled(True)
         self.action_hmac_gen.setVisible(False)
 
@@ -766,7 +792,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     def check_credential(self) -> None:
         self.common_ui.info.info.emit("")
 
-        tool_Tip = "Credential cannot be saved:"
+        tool_Tip = self.tr("Credential cannot be saved:")
         can_save = True
         check_secret = self.ui.otp.text().replace(" ", "").replace("-", "")
 
@@ -775,7 +801,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         password_len = len(str.encode(self.ui.password.text()))
         comment_len = len(str.encode(self.ui.comment.text()))
 
-        algo = self.ui.select_algorithm.currentText()
+        algo = self.algorithm_kind()
 
         if len(self.ui.uri.text()) > 9:
             can_save = True
@@ -783,81 +809,85 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             if len(self.ui.name.text()) < 3:
                 can_save = False
             if len(self.ui.name.text()) == 0:
-                self.common_ui.info.info.emit("Enter a Credential Name")
-                tool_Tip = tool_Tip + "\n- Enter a Credential Name"
+                self.common_ui.info.info.emit(self.tr("Enter a Credential Name"))
+                tool_Tip = tool_Tip + "\n- " + self.tr("Enter a Credential Name")
             if len(self.ui.name.text()) >= 1 and len(self.ui.name.text()) < 3:
-                self.common_ui.info.info.emit("Credential Name is too short")
-                tool_Tip = tool_Tip + "\n- Credential Name is too short"
+                self.common_ui.info.info.emit(self.tr("Credential Name is too short"))
+                tool_Tip = tool_Tip + "\n- " + self.tr("Credential Name is too short")
             if name_len >= 128:
                 can_save = False
-                self.common_ui.info.info.emit("Credential Name is too long")
-                tool_Tip = tool_Tip + "\n- Credential Name is too long"
+                self.common_ui.info.info.emit(self.tr("Credential Name is too long"))
+                tool_Tip = tool_Tip + "\n- " + self.tr("Credential Name is too long")
 
             if username_len >= 128:
                 can_save = False
-                self.common_ui.info.info.emit("Username is too long")
-                tool_Tip = tool_Tip + "\n- Username is too long"
+                self.common_ui.info.info.emit(self.tr("Username is too long"))
+                tool_Tip = tool_Tip + "\n- " + self.tr("Username is too long")
 
             if password_len >= 128:
                 can_save = False
-                self.common_ui.info.info.emit("Password is too long")
-                tool_Tip = tool_Tip + "\n- Password is too long"
+                self.common_ui.info.info.emit(self.tr("Password is too long"))
+                tool_Tip = tool_Tip + "\n- " + self.tr("Password is too long")
 
             if comment_len >= 128:
                 can_save = False
-                self.common_ui.info.info.emit("Comment is too long")
-                tool_Tip = tool_Tip + "\n- Comment is too long"
+                self.common_ui.info.info.emit(self.tr("Comment is too long"))
+                tool_Tip = tool_Tip + "\n- " + self.tr("Comment is too long")
 
         if self.ui.select_algorithm.isEnabled():
-            if algo == "Password only":
+            if algo == PASSWORD_ONLY:
                 self.ui.otp.setReadOnly(True)
-                self.ui.otp.setPlaceholderText("OTP not configured")
+                self.ui.otp.setPlaceholderText(self.tr("OTP not configured"))
             else:
                 self.ui.otp.setReadOnly(False)
-                self.ui.otp.setPlaceholderText("<empty>")
+                self.ui.otp.setPlaceholderText(self.tr("<empty>"))
 
                 if algo == "HMAC":
                     self.show_hmac_view()
                     if len(check_secret) != 32:
                         can_save = False
-                        self.common_ui.info.info.emit("The HMAC-Secret is not 32 chars long")
-                        tool_Tip = tool_Tip + "\n- The HMAC-Secret is not 32 chars long"
+                        self.common_ui.info.info.emit(
+                            self.tr("The HMAC-Secret is not 32 chars long")
+                        )
+                        tool_Tip = (
+                            tool_Tip + "\n- " + self.tr("The HMAC-Secret is not 32 chars long")
+                        )
                 else:
                     self.hide_hmac_view()
 
-                if algo != "None" and len(check_secret) != len(check_secret.encode()):
+                if len(check_secret) != len(check_secret.encode()):
                     can_save = False
-                    self.common_ui.info.info.emit("Invalid character in Secret")
-                    tool_Tip = tool_Tip + "\n- Invalid character in Secret"
+                    self.common_ui.info.info.emit(self.tr("Invalid character in Secret"))
+                    tool_Tip = tool_Tip + "\n- " + self.tr("Invalid character in Secret")
                 elif not is_base32(check_secret) and len(check_secret) > 1:
                     can_save = False
-                    self.common_ui.info.info.emit("Secret is not in Base32")
-                    tool_Tip = tool_Tip + "\n- Secret is not in Base32"
+                    self.common_ui.info.info.emit(self.tr("Secret is not in Base32"))
+                    tool_Tip = tool_Tip + "\n- " + self.tr("Secret is not in Base32")
 
-            if algo != "Password only" and len(check_secret) != len(check_secret.encode()):
+            if algo != PASSWORD_ONLY and len(check_secret) != len(check_secret.encode()):
                 can_save = False
-                self.common_ui.info.info.emit("Invalid character in Secret")
-                tool_Tip = tool_Tip + "\n- Invalid character in Secret"
+                self.common_ui.info.info.emit(self.tr("Invalid character in Secret"))
+                tool_Tip = tool_Tip + "\n- " + self.tr("Invalid character in Secret")
             elif not is_base32(check_secret) and len(check_secret) > 1:
                 can_save = False
-                self.common_ui.info.info.emit("Secret is not valid Base32")
-                tool_Tip = tool_Tip + "\n- Secret is not valid Base32"
+                self.common_ui.info.info.emit(self.tr("Secret is not valid Base32"))
+                tool_Tip = tool_Tip + "\n- " + self.tr("Secret is not valid Base32")
 
-            if algo != "Password only" and len(check_secret) < 1:
+            if algo != PASSWORD_ONLY and len(check_secret) < 1:
                 can_save = False
-                self.common_ui.info.info.emit("Enter a Secret")
-                tool_Tip = tool_Tip + "\n- Enter a Secret"
+                self.common_ui.info.info.emit(self.tr("Enter a Secret"))
+                tool_Tip = tool_Tip + "\n- " + self.tr("Enter a Secret")
 
         self.ui.btn_save.setEnabled(can_save)
         if can_save:
-            tool_Tip = "Credential Save"
+            tool_Tip = self.tr("Save credential")
 
         self.ui.btn_save.setToolTip(tool_Tip)
 
     def act_copy_line_edit(self, obj: QLineEdit) -> None:
         copied_text = obj.text()
         self.clipboard.setText(copied_text)
-        self.common_ui.info.info.emit("contents copied to clipboard")
+        self.common_ui.info.info.emit(self.tr("Contents copied to clipboard"))
         self.line2copy_action[obj].setIcon(self.get_qicon("done.svg"))
         QTimer.singleShot(
             5000, lambda: self.line2copy_action[obj].setIcon(self.get_qicon("content_copy.svg"))
@@ -924,7 +954,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             alphabet += "!#$%&()*+,-.:;<=>?@[]^_{|}~"
         if not alphabet:
             self.common_ui.info.info.emit(
-                "Select at least one character group to generate a password"
+                self.tr("Select at least one character group to generate a password")
             )
             return
         password = "".join(choice(alphabet) for _ in range(self._pw_gen_length.value()))
@@ -946,11 +976,11 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             widget.setMinimumWidth(width)
 
     def _create_password_gen_widget(self) -> QWidget:
-        self._pw_gen_letters = QCheckBox("Letters")
+        self._pw_gen_letters = QCheckBox(self.tr("Letters"))
         self._pw_gen_letters.setChecked(True)
-        self._pw_gen_digits = QCheckBox("Digits")
+        self._pw_gen_digits = QCheckBox(self.tr("Digits"))
         self._pw_gen_digits.setChecked(True)
-        self._pw_gen_punctuation = QCheckBox("Symbols")
+        self._pw_gen_punctuation = QCheckBox(self.tr("Symbols"))
         self._pw_gen_punctuation.setChecked(True)
 
         self._pw_gen_length = QSpinBox()
@@ -968,7 +998,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         length_group.setStyleSheet("QWidget#pw_gen_length_group { background: transparent; }")
         length_layout = QHBoxLayout(length_group)
         length_layout.setContentsMargins(0, 0, 0, 0)
-        length_layout.addWidget(QLabel("Length:"))
+        length_layout.addWidget(QLabel(self.tr("Length:")))
         length_layout.addWidget(self._pw_gen_length)
 
         return PasswordGenRow(
@@ -1045,7 +1075,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.otp_timer.stop()
         self.ui.otp_timeout_progress.hide()
         self.ui.otp.clear()
-        self.ui.otp.setPlaceholderText("<hidden>")
+        self.ui.otp.setPlaceholderText(self.tr("<hidden>"))
 
     @Slot()
     def update_otp_timeout(self) -> None:
@@ -1090,10 +1120,10 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         msg_box = QMessageBox(self)
         msg_box.setIcon(QMessageBox.Icon.Warning)
-        msg_box.setWindowTitle("Delete Credential")
-        msg_box.setText(f"Delete '{credential.name}' from the device?")
-        msg_box.setInformativeText("This action cannot be undone.")
-        delete_btn = msg_box.addButton("Delete", QMessageBox.ButtonRole.DestructiveRole)
+        msg_box.setWindowTitle(self.tr("Delete Credential"))
+        msg_box.setText(self.tr("Delete '{0}' from the device?").format(credential.name))
+        msg_box.setInformativeText(self.tr("This action cannot be undone."))
+        delete_btn = msg_box.addButton(self.tr("Delete"), QMessageBox.ButtonRole.DestructiveRole)
         msg_box.addButton(QMessageBox.StandardButton.Cancel)
         msg_box.setDefaultButton(QMessageBox.StandardButton.Cancel)
         msg_box.exec()
@@ -1109,7 +1139,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         comment = self.ui.comment.text()
         user_presence = self.ui.is_touch_protected.isChecked()
         pin_protected = self.ui.is_pin_protected.isChecked()
-        kind_str = self.ui.select_algorithm.currentText()
+        kind_str = self.algorithm_kind()
         uri = self.ui.uri.text()
 
         if len(name) < 3:
@@ -1139,7 +1169,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             touch_required=user_presence,
             uri=uri,
             new_secret=self.ui.select_algorithm.isEnabled()
-            and self.ui.select_algorithm.currentText() != "Password only",
+            and self.algorithm_kind() != PASSWORD_ONLY,
         )
 
         if self.active_credential is None:
@@ -1166,34 +1196,43 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     def _open_backup_restore(self, action: BackupRestoreAction, title: str) -> None:
         ui = open_backup_restore_ui(action, title, self.icon_copy, self)
-        ui.update_status("Idle")
+        ui.update_status(self.tr("Idle"))
 
         self._worker.passphrase_ready.connect(ui.update_passphrase)
         self._worker.backup_progress.connect(ui.update_fields)
         self._worker.restore_progress.connect(ui.update_fields)
-        self._worker.credential_bkp.connect(lambda _: ui.update_status("Backup complete"))
-        self._worker.credential_restore.connect(lambda: ui.update_status("Restore complete"))
+        self._worker.credential_bkp.connect(lambda _: ui.update_status(self.tr("Backup complete")))
+        self._worker.credential_restore.connect(
+            lambda: ui.update_status(self.tr("Restore complete"))
+        )
+
+        working = self.tr("Working... Press your Nitrokey if it blinks.")
 
         def on_begin(cleartext: bool, passphrase: str, action_name: BackupRestoreAction) -> None:
             if action_name == BackupRestoreAction.BACKUP:
-                ui.update_status("Working... Press your Nitrokey if it blinks.")
+                ui.update_status(working)
                 self.trigger_backup_credential.emit(self.data, True, cleartext)
             else:
                 try:
                     tempdata = json.loads(self.backup_content)
                     process_restore = True
                     if "EncryptedCXF" in tempdata and not passphrase:
-                        ui.update_status("The backup is encrypted. Please enter the passphrase.")
+                        ui.update_status(
+                            self.tr("The backup is encrypted. Please enter the passphrase.")
+                        )
                         process_restore = False
                     elif "EncryptedCXF" not in tempdata and passphrase:
-                        ui.update_status("The backup is not encrypted. Ignoring passphrase.")
+                        ui.update_status(
+                            self.tr("The backup is not encrypted, the passphrase is ignored.")
+                        )
                         passphrase = ""
                     if process_restore:
-                        ui.update_status("Working... Press your Nitrokey if it blinks.")
+                        ui.update_status(working)
                         self.trigger_restore_credential.emit(
                             self.data, self.backup_content, passphrase
                         )
                 except json.JSONDecodeError as e:
-                    ui.update_status(f"Invalid backup file {e}")
+                    logger.error(f"invalid backup file: {e}")
+                    ui.update_status(self.tr("The backup file could not be read."))
 
         ui.begin(on_begin)

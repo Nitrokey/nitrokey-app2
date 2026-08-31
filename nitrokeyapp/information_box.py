@@ -34,6 +34,8 @@ class InfoBox(QObject):
         self.status.hide()
         self.device = device
 
+        self.touch_status = False
+
         self.icon = icon
         self.icon.setFixedSize(QtCore.QSize(16, 16))
         self.icon.hide()
@@ -58,6 +60,7 @@ class InfoBox(QObject):
 
     @Slot(str, int, str)
     def set_status(self, text: str, timeout: int = 7000, icon: str | None = None) -> None:
+        self.touch_status = False
         self.status.setText(text)
         self.status.setStyleSheet("color: #1a1a1a;")
         self.status.show()
@@ -80,18 +83,19 @@ class InfoBox(QObject):
 
     @Slot()
     def hide_status(self) -> None:
+        self.touch_status = False
         self.status.setText("")
         self.status.setStyleSheet("")
         self.icon.hide()
 
     @Slot()
     def set_touch_status(self) -> None:
-        self.set_status("Press your Nitrokey to confirm...", 15000, "touch.svg")
+        self.set_status(self.tr("Press your Nitrokey to confirm..."), 15000, "touch.svg")
+        self.touch_status = True
 
     @Slot()
     def hide_touch(self) -> None:
-        # TODO: no good
-        if "Press" in self.status.text():
+        if self.touch_status:
             self.hide_status()
 
     def set_device(self, text: str) -> None:
@@ -114,8 +118,8 @@ class InfoBox(QObject):
     def set_pin_icon(self, pin_cached: bool = True) -> None:
         if pin_cached:
             self.pin_icon.setIcon(QtUtilsMixIn.get_qicon("dialpad.svg"))
-            self.pin_icon.setToolTip("Passwords PIN is cached - click to clear")
+            self.pin_icon.setToolTip(self.tr("Passwords PIN is cached - click to clear"))
         else:
             self.pin_icon.setIcon(QtUtilsMixIn.get_qicon("dialpad_off.svg"))
-            self.pin_icon.setToolTip("Passwords PIN locked")
+            self.pin_icon.setToolTip(self.tr("Passwords PIN locked"))
         self.pin_icon.show()
