@@ -16,7 +16,7 @@ from PySide6.QtWidgets import QWidget
 
 from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
-from nitrokeyapp.worker import Job, Worker
+from nitrokeyapp.worker import Job, Worker, guarded_slot
 
 from .data import Credential, OtpData, OtpKind
 from .ui import PinUi
@@ -136,7 +136,7 @@ class VerifyPinJob(Job):
         else:
             self.pin_verified.emit(False)
 
-    @Slot(str)
+    @guarded_slot(str)
     def pin_queried(self, pin: str) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
@@ -154,7 +154,7 @@ class VerifyPinJob(Job):
                 # TODO: repeat on failure
                 self.trigger_error("Incorrect PIN. Please try again.")
 
-    @Slot(str)
+    @guarded_slot(str)
     def pin_chosen(self, pin: str) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
@@ -210,7 +210,7 @@ class EditCredentialJob(Job):
         list_credentials_job.credentials_listed.connect(self.check_credential)
         self.spawn(list_credentials_job)
 
-    @Slot(list)
+    @guarded_slot(list)
     def check_credential(self, credentials: list[Credential]) -> None:
         self.all_credentials = {cred.id: cred for cred in credentials}
         # ids = set([credential.id for credential in credentials])
@@ -236,7 +236,7 @@ class EditCredentialJob(Job):
         else:
             self.edit_credential()
 
-    @Slot()
+    @guarded_slot()
     def edit_credential(self, successful: bool = True) -> None:
         if not successful:
             self.finished.emit()
@@ -264,6 +264,7 @@ class EditCredentialJob(Job):
         add_job.credential_added.connect(lambda cred: self.handle_created(cred, then_delete_id))
         self.spawn(add_job)
 
+    @guarded_slot(Credential, bytes)
     def handle_created(self, credential: Credential, delete_id: bytes) -> None:
         self.credential = credential
         self.delete_credential(delete_id)
@@ -280,7 +281,7 @@ class EditCredentialJob(Job):
         del_job.credential_deleted.connect(self.handle_deleted)
         self.spawn(del_job)
 
-    @Slot(Credential)
+    @guarded_slot(Credential)
     def handle_deleted(self, credential: Credential) -> None:
         # drop credential
         self.credential_edited.emit(self.credential)
@@ -300,7 +301,7 @@ class EditCredentialJob(Job):
 
         return new_cred_id
 
-    @Slot()
+    @guarded_slot()
     def edit_credential_final(self) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
@@ -361,7 +362,7 @@ class AddCredentialJob(Job):
         list_credentials_job.credentials_listed.connect(self.check_credential)
         self.spawn(list_credentials_job)
 
-    @Slot(list)
+    @guarded_slot(list)
     def check_credential(self, credentials: list[Credential]) -> None:
         ids = {credential.id for credential in credentials}
         if self.credential.id in ids:
@@ -379,7 +380,7 @@ class AddCredentialJob(Job):
         else:
             self.add_credential(True)
 
-    @Slot(bool)
+    @guarded_slot(bool)
     def add_credential(self, successful: bool = True) -> None:
         if not successful:
             self.finished.emit()
@@ -467,7 +468,7 @@ class DeleteCredentialJob(Job):
             else:
                 self.delete_credential()
 
-    @Slot()
+    @guarded_slot()
     def delete_credential(self) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
@@ -513,7 +514,7 @@ class GenerateOtpJob(Job):
         else:
             self.generate_otp()
 
-    @Slot()
+    @guarded_slot()
     def generate_otp(self) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
@@ -580,7 +581,7 @@ class ListCredentialsJob(Job):
                 credentials = Credential.list(secrets)
             self.credentials_listed.emit(credentials)
 
-    @Slot(bool)
+    @guarded_slot(bool)
     def list_protected_credentials(self, successful: bool) -> None:
         credentials = []
         if not successful:
@@ -628,7 +629,7 @@ class GetCredentialJob(Job):
             else:
                 self.get_credential()
 
-    @Slot()
+    @guarded_slot()
     def get_credential(self) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
@@ -685,10 +686,11 @@ class BackupCredentialJob(Job):
             list(status.skipped_credentials),
         )
 
-    @Slot()
+    @guarded_slot()
     def get_credential_backup(self) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
+                self.trigger_error("This device does not support Passwords")
                 return
             secrets = SecretsApp(device)
             pin = self.pin_cache.get(self.data) or ""
@@ -745,7 +747,7 @@ class RestoreCredentialJob(Job):
             list(status.skipped_credentials),
         )
 
-    @Slot(bool)
+    @guarded_slot(bool)
     def restore_credential_backup(self, successful: bool) -> None:
         if not successful:
             self.credential_restore.emit()
@@ -759,6 +761,7 @@ class RestoreCredentialJob(Job):
 
         with self.data.open() as device:
             if not isinstance(device, NK3):
+                self.trigger_error("This device does not support Passwords")
                 return
             secrets = SecretsApp(device)
             pin = self.pin_cache.get(self.data) or ""
