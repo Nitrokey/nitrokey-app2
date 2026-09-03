@@ -6,8 +6,7 @@ from base64 import b32decode, b32encode
 from collections.abc import Callable
 from datetime import datetime, timedelta
 from enum import Enum
-from random import randbytes
-from secrets import choice
+from secrets import choice, token_bytes
 
 from PySide6.QtCore import QEvent, QObject, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QGuiApplication, QKeyEvent, QKeySequence, QResizeEvent
@@ -1161,7 +1160,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     @Slot()
     def generate_hmac(self) -> None:
-        secret = b32encode(randbytes(20))
+        secret = b32encode(token_bytes(20))
         self.ui.otp.setText(secret.decode())
 
     def _open_backup_restore(self, action: BackupRestoreAction, title: str) -> None:
