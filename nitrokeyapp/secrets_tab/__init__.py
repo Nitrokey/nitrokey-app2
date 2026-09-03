@@ -11,7 +11,9 @@ from secrets import choice, token_bytes
 from PySide6.QtCore import QEvent, QObject, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QGuiApplication, QKeyEvent, QKeySequence, QResizeEvent
 from PySide6.QtWidgets import (
+    QAbstractScrollArea,
     QAbstractSpinBox,
+    QApplication,
     QCheckBox,
     QFileDialog,
     QFormLayout,
@@ -233,6 +235,11 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.action_hmac_gen = self.ui.otp.addAction(icon_generate, loc)
         self.action_hmac_gen.triggered.connect(self.generate_hmac)
+
+        self._wheel_guarded: list[QWidget] = [self.ui.select_algorithm, self._pw_gen_length]
+        for guarded in self._wheel_guarded:
+            guarded.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+            guarded.installEventFilter(self)
 
         self.line_actions = [
             self.action_username_copy,
@@ -879,6 +886,16 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     def eventFilter(self, obj: QObject, event: QEvent) -> bool:
         if (
+            event.type() == QEvent.Type.Wheel
+            and isinstance(obj, QWidget)
+            and any(obj is guarded for guarded in self._wheel_guarded)
+            and not obj.hasFocus()
+        ):
+            viewport = self._scrollable_viewport(obj)
+            if viewport is not None:
+                QApplication.sendEvent(viewport, event)
+            return True
+        if (
             event.type() == QEvent.Type.KeyPress
             and isinstance(obj, QLineEdit)
             and isinstance(event, QKeyEvent)
@@ -889,6 +906,16 @@ class SecretsTab(QtUtilsMixIn, QWidget):
                 self._clipboard_expected[obj] = selected
                 self._clipboard_timers[obj].start()
         return False
+
+    @staticmethod
+    def _scrollable_viewport(widget: QWidget) -> QWidget | None:
+        """The viewport of the scroll area the widget sits in, if any."""
+        parent = widget.parentWidget()
+        while parent is not None:
+            if isinstance(parent, QAbstractScrollArea):
+                return parent.viewport()
+            parent = parent.parentWidget()
+        return None
 
     def refresh_icons(self) -> None:
         """re-resolve all themed icons, e.g. after a light/dark mode switch"""
