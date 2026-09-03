@@ -815,6 +815,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             if algo == "Password only":
                 self.ui.otp.setReadOnly(True)
                 self.ui.otp.setPlaceholderText("OTP not configured")
+                self.hide_hmac_view()
             else:
                 self.ui.otp.setReadOnly(False)
                 self.ui.otp.setPlaceholderText("<empty>")
