@@ -181,6 +181,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.clipboard = QGuiApplication.clipboard()
         self.originalText = self.clipboard.text()
         self.backup_content: str = ""
+        self._check_generation = 0
 
         # self.ui === self -> this tricks mypy due to monkey-patching self
         self.ui = self.load_ui("secrets_tab.ui", self)
@@ -763,6 +764,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     @Slot()
     def check_credential(self) -> None:
+        self._check_generation += 1
+        generation = self._check_generation
+
         self.common_ui.info.info.emit("")
 
         tool_Tip = "Credential cannot be saved:"
@@ -846,6 +850,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
                 can_save = False
                 self.common_ui.info.info.emit("Enter a Secret")
                 tool_Tip = tool_Tip + "\n- Enter a Secret"
+
+        if generation != self._check_generation:
+            return
 
         self.ui.btn_save.setEnabled(can_save)
         if can_save:
