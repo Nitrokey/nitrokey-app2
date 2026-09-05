@@ -42,34 +42,50 @@ from .worker import SecretsWorker
 logger = logging.getLogger(__name__)
 
 
-class PasswordGenRow(QWidget):
-    """Password-generator filters that adapt to the available width.
+class GeneratorRow(QWidget):
+    """Generator options that adapt to the available width.
 
-    In the narrow (default) view the filters spread out evenly to fill the whole
+    In the narrow (default) view the options spread out evenly to fill the whole
     row. In the wide (full-screen) view they group together on the left, aligned
-    under the password field, with the free space collected on the right.
+    under the field they belong to, with the free space collected on the right.
+
+    A row whose options are narrow enough to sit under the field at any width
+    has no use for the spread and can ask for the grouped layout throughout by
+    passing bunch_width=0.
     """
 
     _BUNCH_WIDTH = 700
+    _BUNCH_GAP = 28
 
-    def __init__(self, items: list[QWidget], indent_source: QWidget) -> None:
+    def __init__(
+        self, items: list[QWidget], indent_source: QWidget, bunch_width: int | None = None
+    ) -> None:
         super().__init__()
         self._items = items
         self._indent_source = indent_source
+        self._bunch_width = self._BUNCH_WIDTH if bunch_width is None else bunch_width
         self._layout = QHBoxLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._bunched: bool | None = None
-        self._relayout(bunched=False)
+        self._indent = 0
+        self._relayout(self.width() >= self._bunch_width)
+
+    def _indent_for(self, bunched: bool) -> int:
+        if not bunched:
+            return 0
+        return max(self._indent_source.x() - self.x(), 0)
 
     def _relayout(self, bunched: bool) -> None:
         self._bunched = bunched
+        self._indent = self._indent_for(bunched)
         while self._layout.count():
             self._layout.takeAt(0)
         if bunched:
-            indent = max(self._indent_source.x() - self.x(), 0)
-            if indent:
-                self._layout.addSpacing(indent)
-            for item in self._items:
+            if self._indent:
+                self._layout.addSpacing(self._indent)
+            for index, item in enumerate(self._items):
+                if index:
+                    self._layout.addSpacing(self._BUNCH_GAP)
                 self._layout.addWidget(item)
             self._layout.addStretch()
         else:
@@ -80,8 +96,8 @@ class PasswordGenRow(QWidget):
 
     def resizeEvent(self, event: QResizeEvent) -> None:
         super().resizeEvent(event)
-        bunched = self.width() >= self._BUNCH_WIDTH
-        if bunched != self._bunched:
+        bunched = self.width() >= self._bunch_width
+        if bunched != self._bunched or self._indent_for(bunched) != self._indent:
             self._relayout(bunched)
 
 
@@ -971,7 +987,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         length_layout.addWidget(QLabel("Length:"))
         length_layout.addWidget(self._pw_gen_length)
 
-        return PasswordGenRow(
+        return GeneratorRow(
             [length_group, self._pw_gen_letters, self._pw_gen_digits, self._pw_gen_punctuation],
             self.ui.password,
         )
