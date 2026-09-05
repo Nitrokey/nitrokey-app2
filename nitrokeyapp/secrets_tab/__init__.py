@@ -13,6 +13,7 @@ from PySide6.QtCore import QEvent, QObject, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QGuiApplication, QKeyEvent, QKeySequence, QResizeEvent
 from PySide6.QtWidgets import (
     QAbstractSpinBox,
+    QApplication,
     QCheckBox,
     QFileDialog,
     QFormLayout,
@@ -263,6 +264,14 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         form.insertRow(otp_row + 1, self._hmac_gen_widget)
 
         self._pin_label_column(form)
+
+        self._gen_rows: dict[QLineEdit, QWidget] = {
+            self.ui.password: self._pw_gen_widget,
+            self.ui.otp: self._hmac_gen_widget,
+        }
+        qapp = QApplication.instance()
+        if isinstance(qapp, QApplication):
+            qapp.focusChanged.connect(self.act_focus_changed)
 
         self.line_actions = [
             self.action_username_copy,
@@ -942,6 +951,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     def act_toggle_password_gen(self) -> None:
         self._pw_gen_widget.show()
+        self.ui.password.setFocus()
         self.act_password_generate()
 
     def act_password_gen_setting_changed(self) -> None:
@@ -964,6 +974,22 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         password = "".join(choice(alphabet) for _ in range(self._pw_gen_length.value()))
         self.ui.password.setText(password)
         self.set_password_show(show=True)
+
+    @Slot(QWidget, QWidget)
+    def act_focus_changed(self, old: QWidget | None, new: QWidget | None) -> None:
+        """Fold an open generator row away once the user works somewhere else.
+
+        The row stays put while the focus is in its own field or on one of its
+        own options; the trailing icons of a QLineEdit take no focus, so the
+        generate button keeps working while the row is open.
+        """
+        if new is None:
+            return
+        for field, row in self._gen_rows.items():
+            if row.isHidden():
+                continue
+            if new is not field and not row.isAncestorOf(new):
+                row.hide()
 
     @staticmethod
     def _pin_label_column(form: QFormLayout) -> None:
@@ -1012,6 +1038,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     def act_toggle_hmac_gen(self) -> None:
         self._hmac_gen_widget.show()
+        self.ui.otp.setFocus()
         self.generate_hmac()
 
     def act_hmac_gen_alphabet_changed(self) -> None:
@@ -1101,6 +1128,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.credential_empty.show()
         self.ui.credential_show.hide()
 
+        self._pw_gen_widget.hide()
+        self._hmac_gen_widget.hide()
+
         self.ui.btn_abort.hide()
         self.ui.btn_delete.hide()
         self.ui.btn_edit.hide()
@@ -1130,6 +1160,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.ui.password_label.hide()
         self.ui.password.hide()
+        self._pw_gen_widget.hide()
 
         self.ui.comment_label.hide()
         self.ui.comment.hide()
