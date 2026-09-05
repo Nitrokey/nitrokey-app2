@@ -53,8 +53,8 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
         with:
-          name: nitrokey-app-onedir-unsigned
-          path: dist/nitrokey-app
+          name: nitrokey-app2-onedir-unsigned
+          path: dist/nitrokey-app2
   sign-onedir:
     name: Sign onedir
     runs-on:
@@ -66,11 +66,11 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v8
         with:
-          name: nitrokey-app-onedir-unsigned
-          path: dist/nitrokey-app
+          name: nitrokey-app2-onedir-unsigned
+          path: dist/nitrokey-app2
       - name: Sign the artifact
         run: |
-          mv dist/nitrokey-app/nitrokey-app.exe nitrokey-app_unsigned.exe
+          mv dist/nitrokey-app2/nitrokey-app2.exe nitrokey-app2_unsigned.exe
           osslsigncode \
             sign \
             -provider /usr/lib/aarch64-linux-gnu/engines-3/pkcs11.so \
@@ -79,14 +79,14 @@ jobs:
             -key "${{ secrets.PKCS11_KEY_URI_WINDOWS }}" \
             -h sha256 \
             -ts "http://ts.ssl.com" \
-            -in nitrokey-app_unsigned.exe \
-            -out nitrokey-app_signed.exe
-          mv nitrokey-app_signed.exe dist/nitrokey-app/nitrokey-app.exe
+            -in nitrokey-app2_unsigned.exe \
+            -out nitrokey-app2_signed.exe
+          mv nitrokey-app2_signed.exe dist/nitrokey-app2/nitrokey-app2.exe
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: nitrokey-app-onedir-signed
-          path: dist/nitrokey-app
+          name: nitrokey-app2-onedir-signed
+          path: dist/nitrokey-app2
   build-msi-installer:
     name: Build MSI installer
     runs-on: windows-latest
@@ -98,13 +98,13 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v8
         with:
-          name: nitrokey-app-onedir-signed
-          path: dist/nitrokey-app
+          name: nitrokey-app2-onedir-signed
+          path: dist/nitrokey-app2
       - name: Create sources file
         run: |
           $Env:Path += ";" + "$Env:WIX" + "bin"
           heat `
-            dir .\dist\nitrokey-app\ `
+            dir .\dist\nitrokey-app2\ `
             -dr INSTALLFOLDER `
             -ag `
             -cg ApplicationFilesDynamic `
@@ -126,16 +126,16 @@ jobs:
         run: |
           $Env:Path += ";" + "$Env:WIX" + "bin"
           light `
-            -b .\dist\nitrokey-app\ `
+            -b .\dist\nitrokey-app2\ `
             -sice:ICE80 `
             .\Product.wixobj `
             .\Sources.wixobj `
-            -o nitrokey-app.msi
+            -o nitrokey-app2.msi
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: nitrokey-app-installer-unsigned
-          path: nitrokey-app.msi
+          name: nitrokey-app2-installer-unsigned
+          path: nitrokey-app2.msi
   sign-msi-installer:
     name: Sign MSI installer
     runs-on:
@@ -147,10 +147,10 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v8
         with:
-          name: nitrokey-app-installer-unsigned
+          name: nitrokey-app2-installer-unsigned
       - name: Sign the artifact
         run: |
-          mv nitrokey-app.msi nitrokey-app_unsigned.msi
+          mv nitrokey-app2.msi nitrokey-app2_unsigned.msi
           osslsigncode \
             sign \
             -provider /usr/lib/aarch64-linux-gnu/engines-3/pkcs11.so \
@@ -159,13 +159,13 @@ jobs:
             -key "${{ secrets.PKCS11_KEY_URI_WINDOWS }}" \
             -h sha256 \
             -ts "http://ts.ssl.com" \
-            -in nitrokey-app_unsigned.msi \
-            -out nitrokey-app.msi
+            -in nitrokey-app2_unsigned.msi \
+            -out nitrokey-app2.msi
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: nitrokey-app-installer-signed
-          path: nitrokey-app.msi
+          name: nitrokey-app2-installer-signed
+          path: nitrokey-app2.msi
   publish-msi-installer:
     name: Publish MSI installer
     runs-on: windows-latest
@@ -177,13 +177,13 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v8
         with:
-          name: nitrokey-app-installer-signed
+          name: nitrokey-app2-installer-signed
       - name: Rename installer
         run: |
           mv `
-            nitrokey-app.msi `
-            nitrokey-app-${{ github.event.release.tag_name }}-x64-windows-installer.msi
+            nitrokey-app2.msi `
+            nitrokey-app2-${{ github.event.release.tag_name }}-x64-windows-installer.msi
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
-          files: nitrokey-app-${{ github.event.release.tag_name }}-x64-windows-installer.msi
+          files: nitrokey-app2-${{ github.event.release.tag_name }}-x64-windows-installer.msi
