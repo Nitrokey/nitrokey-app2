@@ -1,12 +1,12 @@
 import binascii
 import json
 import logging
+import math
 import string
-from base64 import b32decode, b32encode
+from base64 import b32decode
 from collections.abc import Callable
 from datetime import datetime, timedelta
 from enum import Enum
-from random import randbytes
 from secrets import choice
 
 from PySide6.QtCore import QEvent, QObject, Qt, QThread, QTimer, Signal, Slot
@@ -102,6 +102,13 @@ class GeneratorRow(QWidget):
 
 
 CLIPBOARD_CLEAR_TIMEOUT_MS = 10_000
+
+HMAC_SECRET_BYTES = 20
+HMAC_SECRET_CHARS = 32
+HMAC_SECRET_BITS = HMAC_SECRET_BYTES * 8
+
+B32_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+B32_DIGITS = "234567"
 
 
 def parse_base32(s: str) -> bytes:
@@ -233,7 +240,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         assert isinstance(form, QFormLayout)
         pw_row = form.getWidgetPosition(self.ui.password)[0]  # type: ignore[index]
         form.insertRow(pw_row + 1, self._pw_gen_widget)
-        self._pin_label_column(form)
 
         self.action_comment_copy = self.ui.comment.addAction(icon_copy, loc)
         self.action_comment_copy.triggered.connect(lambda: self.act_copy_line_edit(self.ui.comment))
@@ -248,7 +254,15 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.action_otp_edit.triggered.connect(self.act_enable_otp_edit)
 
         self.action_hmac_gen = self.ui.otp.addAction(icon_generate, loc)
-        self.action_hmac_gen.triggered.connect(self.generate_hmac)
+        self.action_hmac_gen.triggered.connect(self.act_toggle_hmac_gen)
+        self.action_hmac_gen.setToolTip("Generate random HMAC secret")
+
+        self._hmac_gen_widget = self._create_hmac_gen_widget()
+        self._hmac_gen_widget.hide()
+        otp_row = form.getWidgetPosition(self.ui.otp)[0]  # type: ignore[index]
+        form.insertRow(otp_row + 1, self._hmac_gen_widget)
+
+        self._pin_label_column(form)
 
         self.line_actions = [
             self.action_username_copy,
@@ -508,6 +522,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             action.setVisible(True)
         self.action_password_generate.setVisible(False)
         self._pw_gen_widget.hide()
+        self._hmac_gen_widget.hide()
         self.hide_uri()
 
         self.ui.credential_empty.hide()
@@ -615,6 +630,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.action_password_generate.setVisible(True)
         self.action_password_generate.setEnabled(True)
         self._pw_gen_widget.hide()
+        self._hmac_gen_widget.hide()
 
         self.ui.name.show()
         self.ui.name_label.hide()
@@ -732,6 +748,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.action_password_generate.setVisible(True)
         self.action_password_generate.setEnabled(True)
         self._pw_gen_widget.hide()
+        self._hmac_gen_widget.hide()
 
         self.ui.name.show()
         self.ui.name_label.hide()
@@ -834,10 +851,11 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
                 if algo == "HMAC":
                     self.show_hmac_view()
-                    if len(check_secret) != 32:
+                    if len(check_secret) != HMAC_SECRET_CHARS:
                         can_save = False
-                        self.common_ui.info.info.emit("The HMAC-Secret is not 32 chars long")
-                        tool_Tip = tool_Tip + "\n- The HMAC-Secret is not 32 chars long"
+                        msg = f"The HMAC-Secret is not {HMAC_SECRET_CHARS} chars long"
+                        self.common_ui.info.info.emit(msg)
+                        tool_Tip = tool_Tip + f"\n- {msg}"
                 else:
                     self.hide_hmac_view()
 
@@ -992,6 +1010,85 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.ui.password,
         )
 
+    def act_toggle_hmac_gen(self) -> None:
+        self._hmac_gen_widget.show()
+        self.generate_hmac()
+
+    def act_hmac_gen_alphabet_changed(self) -> None:
+        self.update_hmac_strength()
+        if self._hmac_gen_widget.isVisible():
+            self.generate_hmac()
+
+    def hmac_alphabet(self) -> str:
+        alphabet = ""
+        if self._hmac_gen_letters.isChecked():
+            alphabet += B32_LETTERS
+        if self._hmac_gen_digits.isChecked():
+            alphabet += B32_DIGITS
+        return alphabet
+
+    def update_hmac_strength(self) -> None:
+        """Keep the readout in step with the alphabet.
+
+        The length is fixed, so narrowing the alphabet is the one way to end up
+        with a weaker key than the slot could hold - digits alone halve it. The
+        row itself stays as terse as the password one, so what the alphabet
+        actually buys goes in the tooltip, and a narrowed one says so out loud.
+        """
+        alphabet = self.hmac_alphabet()
+        rule = (
+            f"A challenge-response secret is a fixed {HMAC_SECRET_BYTES} bytes, which is "
+            f"exactly {HMAC_SECRET_CHARS} Base32 characters."
+        )
+        if not alphabet:
+            self._hmac_gen_length_group.setToolTip(rule)
+            return
+        bits = round(HMAC_SECRET_CHARS * math.log2(len(alphabet)))
+        self._hmac_gen_length_group.setToolTip(
+            f"{rule} With {len(alphabet)} of those {len(B32_LETTERS) + len(B32_DIGITS)} "
+            f"characters in use, {bits} of the {HMAC_SECRET_BITS} bits are random."
+        )
+        if bits < HMAC_SECRET_BITS:
+            self.common_ui.info.info.emit(
+                f"{len(alphabet)} of the {len(B32_LETTERS) + len(B32_DIGITS)} Base32 "
+                f"characters leaves {bits} bits instead of {HMAC_SECRET_BITS}"
+            )
+
+    def _create_hmac_gen_widget(self) -> QWidget:
+        """The password-generator options row, restated for an HMAC secret.
+
+        The character groups carry over, but they are the two halves of the
+        Base32 alphabet rather than the password ones: anything outside A-Z and
+        2-7 cannot be saved as a secret. The length cannot carry over at all,
+        since the slot takes a fixed HMAC_SECRET_BYTES byte key. That leaves the
+        alphabet as the only thing that changes the strength, which the tooltip
+        reads back in bits.
+        """
+        self._hmac_gen_length_group = QWidget()
+        self._hmac_gen_length_group.setObjectName("hmac_gen_length_group")
+        self._hmac_gen_length_group.setStyleSheet(
+            "QWidget#hmac_gen_length_group { background: transparent; }"
+        )
+        length_layout = QHBoxLayout(self._hmac_gen_length_group)
+        length_layout.setContentsMargins(0, 0, 0, 0)
+        length_layout.addWidget(QLabel("Length:"))
+        length_layout.addWidget(QLabel(str(HMAC_SECRET_CHARS)))
+
+        self._hmac_gen_letters = QCheckBox("Letters")
+        self._hmac_gen_letters.setChecked(True)
+        self._hmac_gen_digits = QCheckBox("Digits")
+        self._hmac_gen_digits.setChecked(True)
+
+        self._hmac_gen_letters.stateChanged.connect(self.act_hmac_gen_alphabet_changed)
+        self._hmac_gen_digits.stateChanged.connect(self.act_hmac_gen_alphabet_changed)
+        self.update_hmac_strength()
+
+        return GeneratorRow(
+            [self._hmac_gen_length_group, self._hmac_gen_letters, self._hmac_gen_digits],
+            self.ui.otp,
+            bunch_width=0,
+        )
+
     def set_password_show(self, show: bool = True) -> None:
         icon_show = self.get_qicon("visibility.svg")
         icon_hide = self.get_qicon("visibility_off.svg")
@@ -1023,6 +1120,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         else:
             self.action_hmac_gen.setVisible(False)
             self.action_otp_copy.setVisible(False)
+            self._hmac_gen_widget.hide()
 
         self.ui.name.hide()
         self.ui.name_label.show()
@@ -1045,6 +1143,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             self.ui.otp.clear()
 
         self.action_hmac_gen.setVisible(False)
+        self._hmac_gen_widget.hide()
 
         self.ui.username_label.show()
         self.ui.username.show()
@@ -1177,8 +1276,13 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     @Slot()
     def generate_hmac(self) -> None:
-        secret = b32encode(randbytes(20))
-        self.ui.otp.setText(secret.decode())
+        alphabet = self.hmac_alphabet()
+        if not alphabet:
+            self.common_ui.info.info.emit(
+                "Select at least one character group to generate a secret"
+            )
+            return
+        self.ui.otp.setText("".join(choice(alphabet) for _ in range(HMAC_SECRET_CHARS)))
 
     def _open_backup_restore(self, action: BackupRestoreAction, title: str) -> None:
         ui = open_backup_restore_ui(action, title, self.icon_copy, self)
