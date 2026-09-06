@@ -30,6 +30,10 @@ classifiers = [
   "Intended Audience :: Developers",
   "Intended Audience :: End Users/Desktop",
 ]
+# the compiled catalogs are build artifacts, `make build` compiles them first
+include = [
+  { path = "nitrokeyapp/translations/*.qm", format = ["sdist", "wheel"] },
+]
 
 [tool.poetry.dependencies]
 click = "^8"

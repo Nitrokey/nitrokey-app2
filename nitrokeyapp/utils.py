@@ -79,8 +79,14 @@ def check_ccid_config(parent: Optional["QWidget"] = None) -> None:
             logger.warning(message)
             sys.stderr.write(f"WARNING: {message}\n")
 
+            from PySide6.QtCore import QCoreApplication
             from PySide6.QtWidgets import QMessageBox
 
             QMessageBox.warning(
-                parent, "Missing Dependency", f"{message}.\nPlease install it to use CCID mode."
+                parent,
+                QCoreApplication.translate("utils", "Missing Dependency"),
+                QCoreApplication.translate(
+                    "utils",
+                    "{0} is set but pyscard is not installed.\nPlease install it to use CCID mode.",
+                ).format(NITROKEY_FORCE_CCID),
             )

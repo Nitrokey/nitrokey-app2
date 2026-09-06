@@ -46,6 +46,8 @@ jobs:
         run: |
           poetry env use python${{ env.PYTHON_VERSION }}
           poetry install
+      - name: Compile translations
+        run: poetry run python ci-scripts/translations.py release
       - name: Build onedir
         run: |
           source $(poetry env info --path)/bin/activate

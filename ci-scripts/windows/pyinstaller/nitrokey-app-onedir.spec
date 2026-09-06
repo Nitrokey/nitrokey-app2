@@ -7,6 +7,7 @@ venv_path = os.popen('poetry env info --path').read().rstrip()
 datas = [
     (venv_path + '\\Lib\\site-packages\\fido2\\public_suffix_list.dat', 'fido2'),
     ('..\\..\\..\\nitrokeyapp\\ui', 'nitrokeyapp\\ui'),
+    ('..\\..\\..\\nitrokeyapp\\translations', 'nitrokeyapp\\translations'),
     ('..\\..\\..\\LICENSE', '.')
 ]
 datas += copy_metadata('fido2')

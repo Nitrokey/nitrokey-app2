@@ -57,7 +57,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
 
     @property
     def title(self) -> str:
-        return "Overview"
+        return self.tr("Overview")
 
     @property
     def widget(self) -> QWidget:
@@ -80,12 +80,16 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         # catch too old firmware
         if data.is_too_old:
             self.set_device_data(
-                str(data.path), "n/a", "n/a", "Update Your Nitrokey 3 for full functionality", "n/a"
+                str(data.path),
+                "n/a",
+                "n/a",
+                self.tr("Update your Nitrokey 3 for full functionality"),
+                "n/a",
             )
             self.ui.status_label.hide()
             self.ui.nk3_status.hide()
             self.ui.more_info.hide()
-            self.ui.nk3_label.setText("Nitrokey 3 (old firmware)")
+            self.ui.nk3_label.setText(self.tr("Nitrokey 3 (old firmware)"))
             self.status_error(InitStatus(0))
             return
 
@@ -94,7 +98,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             self.ui.status_label.hide()
             self.ui.nk3_status.hide()
             self.ui.more_info.hide()
-            self.ui.nk3_label.setText(f"{data.model} Bootloader")
+            self.ui.nk3_label.setText(self.tr("{0} Bootloader").format(data.model))
             self.status_error(InitStatus(0))
 
         else:
@@ -136,23 +140,23 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         tooltip = ""
         btn_really_enabled = enabled and not self.using_ccid
         if enabled and self.using_ccid:
-            self.common_ui.info.info.emit(
-                "Please restart the application as an administrator to be able to update"
+            tooltip = self.tr(
+                "Please restart the application as an administrator to be able to update."
             )
-            tooltip = "Please restart the application as an administrator to be able to update"
+            self.common_ui.info.info.emit(tooltip)
 
         if not enabled:
-            self.common_ui.info.info.emit(
+            tooltip = self.tr(
                 "Please remove all Nitrokey devices except the one you want to update."
             )
-            tooltip = "Please remove all Nitrokey devices except the one you want to update."
+            self.common_ui.info.info.emit(tooltip)
 
         for btn in [self.ui.btn_update, self.ui.btn_update_with_file]:
             btn.setEnabled(btn_really_enabled)
             btn.setToolTip(tooltip)
 
     def update_btns_during_update(self, enabled: bool) -> None:
-        tooltip = "" if enabled else "Update is already running. Please wait."
+        tooltip = "" if enabled else self.tr("Update is already running. Please wait.")
         self.busy_state_changed.emit(not enabled)
         for btn in [self.ui.btn_update, self.ui.btn_update_with_file]:
             btn.setEnabled(enabled)
@@ -170,18 +174,24 @@ class OverviewTab(QtUtilsMixIn, QWidget):
     def device_updated(self, result: UpdateResult) -> None:
         self.update_btns_during_update(True)
 
-        msg = ""
+        if result.status == UpdateStatus.SUCCESS:
+            text = self.tr("{0} successfully updated").format(result.model)
+        elif result.status == UpdateStatus.ERROR:
+            text = self.tr("{0} update failed").format(result.model)
+        elif result.status == UpdateStatus.ABORTED:
+            text = self.tr("{0} update aborted").format(result.model)
+        else:
+            logger.error(f"unexpected update result: {result.status}")
+            text = self.tr("{0} update failed").format(result.model)
+
+        # the message is already translated, see nitrokeyapp.update
         if result.message is not None:
-            msg = ": " + result.message
+            text = self.tr("{0}: {1}").format(text, result.message)
 
         if result.status == UpdateStatus.SUCCESS:
-            self.common_ui.info.info.emit(f"{result.model} successfully updated{msg}")
-        elif result.status == UpdateStatus.ERROR:
-            self.common_ui.info.error.emit(f"{result.model} update failed{msg}")
-        elif result.status == UpdateStatus.ABORTED:
-            self.common_ui.info.error.emit(f"{result.model} update aborted{msg}")
+            self.common_ui.info.info.emit(text)
         else:
-            self.common_ui.info.error.emit(f"Unexpected update result: {result.status}{msg}")
+            self.common_ui.info.error.emit(text)
 
         self.common_ui.gui.refresh_devices.emit()
 

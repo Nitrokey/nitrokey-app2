@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 nitrokeyapp/ui/*.py
+nitrokeyapp/translations/*.qm
 build/
 dist/
 variables.mk

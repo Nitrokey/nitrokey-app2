@@ -103,7 +103,7 @@ class Nk3Button(QtWidgets.QToolButton):
 
     def start_touch(self) -> None:
         self.animation.start()
-        self.setToolTip("touch your Nitrokey 3")
+        self.setToolTip(self.tr("Touch your Nitrokey 3"))
 
     def stop_touch(self) -> None:
         self.animation.stop()

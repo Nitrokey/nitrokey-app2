@@ -141,7 +141,7 @@ class ListCredentialsJob(Job):
 
         retries = self._get_pin_retries()
         if retries is None:
-            self.trigger_error("FIDO2 PIN is not set on this device")
+            self.trigger_error(self.tr("No FIDO2 PIN is set on this device"))
             return
 
         self._pin_ui_conn = self.pin_ui.connect_actions(
@@ -169,10 +169,11 @@ class ListCredentialsJob(Job):
             state = self._enumerate(pin)
         except CtapError as e:
             self.pin_cache.clear()
-            self.trigger_error(f"FIDO2 PIN authentication failed: {e}")
+            self.trigger_exception(e)
             return
         except Exception as e:
-            self.trigger_error(f"Failed to list FIDO2 credentials: {e}")
+            logger.error(f"failed to list fido2 credentials: {e}", exc_info=e)
+            self.trigger_error(self.tr("The passkeys could not be read from the device."))
             return
 
         if pin_was_queried:
@@ -221,7 +222,7 @@ class DeleteCredentialJob(Job):
 
         retries = self._get_pin_retries()
         if retries is None:
-            self.trigger_error("FIDO2 PIN is not set on this device")
+            self.trigger_error(self.tr("No FIDO2 PIN is set on this device"))
             return
 
         self._pin_ui_conn = self.pin_ui.connect_actions(
@@ -258,16 +259,17 @@ class DeleteCredentialJob(Job):
                 cred_mgmt.delete_cred(descriptor)
         except CtapError as e:
             self.pin_cache.clear()
-            self.trigger_error(f"FIDO2 delete failed: {e}")
+            self.trigger_exception(e)
             return
         except Exception as e:
-            self.trigger_error(f"Failed to delete FIDO2 credential: {e}")
+            logger.error(f"failed to delete fido2 credential: {e}", exc_info=e)
+            self.trigger_error(self.tr("The passkey could not be deleted."))
             return
 
         if pin_was_queried:
             self.pin_cache.update(self.data, pin)
 
-        self.common_ui.info.info.emit("FIDO2 credential deleted")
+        self.common_ui.info.info.emit(self.tr("Passkey deleted"))
         self.credential_deleted.emit(self.credential)
 
 

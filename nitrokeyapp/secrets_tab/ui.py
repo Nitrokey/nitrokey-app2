@@ -23,14 +23,16 @@ class PinUi(QObject):
         logger.info(f"Querying secrets PIN (remaining attempts: {attempts})")
 
         if attempts <= 2:
-            title = f"Enter Passwords PIN — {attempts} attempt(s) remaining"
-            message = (
-                f"Enter the Passwords PIN.\n\n"
-                f"WARNING: Only {attempts} attempt(s) remaining before the device locks permanently."
+            title = self.tr("Enter Passwords PIN - %n attempt(s) remaining", "", attempts)
+            message = self.tr(
+                "Enter the Passwords PIN.\n\n"
+                "WARNING: only %n attempt(s) remaining before the device locks permanently.",
+                "",
+                attempts,
             )
         else:
-            title = "Enter Passwords PIN"
-            message = f"Enter the Passwords PIN ({attempts} attempts remaining):"
+            title = self.tr("Enter Passwords PIN")
+            message = self.tr("Enter the Passwords PIN (%n attempt(s) remaining):", "", attempts)
 
         pin, ok = QInputDialog.getText(self.app_widget, title, message, QLineEdit.EchoMode.Password)
         if ok and pin:
@@ -45,8 +47,8 @@ class PinUi(QObject):
         logger.info("Prompting user to set secrets PIN")
         pin, ok = QInputDialog.getText(
             self.app_widget,
-            "Set Passwords PIN",
-            "Please enter the new PIN for Passwords:",
+            self.tr("Set Passwords PIN"),
+            self.tr("Please enter the new PIN for Passwords:"),
             QLineEdit.EchoMode.Password,
         )
         if not (ok and pin):
@@ -56,8 +58,8 @@ class PinUi(QObject):
 
         confirm_pin, ok = QInputDialog.getText(
             self.app_widget,
-            "Confirm Passwords PIN",
-            "Please confirm the new PIN for Passwords:",
+            self.tr("Confirm Passwords PIN"),
+            self.tr("Please confirm the new PIN for Passwords:"),
             QLineEdit.EchoMode.Password,
         )
         if not (ok and confirm_pin):
@@ -69,8 +71,8 @@ class PinUi(QObject):
             logger.warning("PIN confirmation mismatch — not setting PIN")
             QMessageBox.warning(
                 self.app_widget,
-                "PIN Mismatch",
-                "The PINs you entered do not match. The PIN has not been changed.",
+                self.tr("PIN Mismatch"),
+                self.tr("The PINs you entered do not match. The PIN has not been changed."),
             )
             self.cancelled.emit()
             return

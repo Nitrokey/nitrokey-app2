@@ -9,7 +9,7 @@ from PySide6 import QtWidgets
 from PySide6.QtCore import QEvent, QObject, Qt, QTimer
 from PySide6.QtGui import QFont
 
-from nitrokeyapp import __version__
+from nitrokeyapp import __version__, i18n
 from nitrokeyapp.gui import GUI
 from nitrokeyapp.logger import init_logging, log_environment
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
@@ -207,6 +207,9 @@ QComboBox {
 }
 QComboBox:focus          { border: 1px solid #6e7781; outline: none; }
 QComboBox::drop-down     { border: none; width: 24px; }
+QComboBox::down-arrow    { image: url(icons:light_mode/down_arrow.svg); width: 12px; height: 12px; }
+QComboBox::down-arrow:on { image: url(icons:light_mode/up_arrow.svg); }
+QComboBox::down-arrow:disabled { image: none; }
 QComboBox QAbstractItemView {
     background-color: #ffffff;
     border: 1px solid #d0d7de;
@@ -615,6 +618,9 @@ QComboBox {
 }
 QComboBox:focus          { border: 1px solid #768390; outline: none; }
 QComboBox::drop-down     { border: none; width: 24px; }
+QComboBox::down-arrow    { image: url(icons:dark_mode/down_arrow_colored.svg); width: 12px; height: 12px; }
+QComboBox::down-arrow:on { image: url(icons:dark_mode/up_arrow_colored.svg); }
+QComboBox::down-arrow:disabled { image: none; }
 QComboBox QAbstractItemView {
     background-color: #161b22;
     border: 1px solid #30363d;
@@ -864,6 +870,8 @@ class PaletteWatcher(QObject):
 
 def run_gui(argv: list[str]) -> None:
     app = QtWidgets.QApplication(argv)
+    app.setOrganizationName(i18n.ORGANIZATION)
+    app.setApplicationName(i18n.APPLICATION)
     app.setDesktopFileName("com.nitrokey.nitrokey-app2")
     app.setWindowIcon(QtUtilsMixIn.get_qicon("red_nitrokey-app-icon.svg"))
     app.setFont(QFont("Segoe UI", 11))
@@ -900,6 +908,10 @@ def run_gui(argv: list[str]) -> None:
 
     with init_logging() as log_file:
         log_environment()
+
+        # after init_logging so the resolved language is logged, still before
+        # the first widget
+        i18n.install_translators(app)
 
         window = GUI(app, log_file)
         gui.append(window)

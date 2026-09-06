@@ -29,30 +29,35 @@ class BackupRestoreUi(QDialog):
         super().__init__(parent)
 
         self.name = name
-        self.setWindowTitle(name.capitalize())
+        self.setWindowTitle(
+            self.tr("Backup") if name == BackupRestoreAction.BACKUP else self.tr("Restore")
+        )
 
-        self.action_edit = QLabel(f"Action: {title}")
+        self.action_edit = QLabel(self.tr("Action: {0}").format(title))
 
         action_layout = QHBoxLayout()
         action_layout.addWidget(self.action_edit)
 
-        self.cleartext_checkbox = QCheckBox("Cleartext")
+        self.cleartext_checkbox = QCheckBox(self.tr("Cleartext"))
         self.cleartext_checkbox.setToolTip(
-            "This option disables encryption of the generated backup and is discouraged. Only use for interoperability with other password managers."
+            self.tr(
+                "This option disables encryption of the generated backup and is discouraged. "
+                "Only use it for interoperability with other password managers."
+            )
         )
         self.cleartext_checkbox.setVisible(name == BackupRestoreAction.BACKUP)
 
         self.passphrase_edit = QLineEdit()
         self.passphrase_edit.setToolTip(
-            "Passphrase is automatically created during an encrypted backup."
+            self.tr("The passphrase is created automatically during an encrypted backup.")
         )
         self.passphrase_edit.setReadOnly(name == BackupRestoreAction.BACKUP)
 
         self.copy_passphrase_button = QToolButton()
         self.copy_passphrase_button.setIcon(icon)
-        self.copy_passphrase_button.setToolTip("Copy passphrase")
+        self.copy_passphrase_button.setToolTip(self.tr("Copy passphrase"))
 
-        self.begin_button = QPushButton("Begin")
+        self.begin_button = QPushButton(self.tr("Begin"))
 
         passphrase_layout = QHBoxLayout()
         passphrase_layout.setContentsMargins(0, 0, 0, 0)
@@ -63,7 +68,7 @@ class BackupRestoreUi(QDialog):
         middle_layout = QHBoxLayout()
         middle_layout.addWidget(self.cleartext_checkbox)
         middle_layout.addStretch(1)
-        middle_layout.addWidget(QLabel("Passphrase"))
+        middle_layout.addWidget(QLabel(self.tr("Passphrase")))
         middle_layout.addLayout(passphrase_layout, 1)
         middle_layout.addWidget(self.begin_button)
 
@@ -74,22 +79,32 @@ class BackupRestoreUi(QDialog):
         self.skipped_list = QListWidget()
 
         self.failed_name = (
-            "Not passwords" if name == BackupRestoreAction.BACKUP else "Already exists"
-        )
-
-        self.successful_label = QLabel("Successful (0)")
-        self.successful_label.setToolTip("Operation on these credentials completed successfully")
-
-        self.failed_label = QLabel(f"{self.failed_name} (0)")
-        self.failed_label.setToolTip(
-            "Credentials without a password (for example OTP only) are skipped during the backup as they cannot be extracted from the device."
+            self.tr("Not passwords")
             if name == BackupRestoreAction.BACKUP
-            else "Credentials not imported because a credential with same label already exists on the device"
+            else self.tr("Already exists")
         )
 
-        self.skipped_label = QLabel("Skipped (0)")
+        self.successful_label = QLabel(self.count_label(self.tr("Successful"), 0))
+        self.successful_label.setToolTip(
+            self.tr("The operation on these credentials completed successfully")
+        )
+
+        self.failed_label = QLabel(self.count_label(self.failed_name, 0))
+        self.failed_label.setToolTip(
+            self.tr(
+                "Credentials without a password (for example OTP only) are skipped during "
+                "the backup, as they cannot be extracted from the device."
+            )
+            if name == BackupRestoreAction.BACKUP
+            else self.tr(
+                "Credentials that were not imported because a credential with the same "
+                "label already exists on the device"
+            )
+        )
+
+        self.skipped_label = QLabel(self.count_label(self.tr("Skipped"), 0))
         self.skipped_label.setToolTip(
-            "Credentials are skipped if they are PIN protected but PIN is not supplied."
+            self.tr("Credentials are skipped if they are PIN protected but no PIN was supplied.")
         )
 
         lists_layout = QHBoxLayout()
@@ -107,7 +122,7 @@ class BackupRestoreUi(QDialog):
         # self.status_edit.setReadOnly(True)
 
         status_layout = QHBoxLayout()
-        status_layout.addWidget(QLabel("Status"))
+        status_layout.addWidget(QLabel(self.tr("Status")))
         status_layout.addWidget(self.status_edit)
 
         layout = QVBoxLayout()
@@ -120,12 +135,15 @@ class BackupRestoreUi(QDialog):
 
         self.resize(900, 520)
 
+    def count_label(self, name: str, count: int) -> str:
+        return self.tr("{0} ({1})").format(name, count)
+
     def copy_passphrase(self) -> None:
         if self.passphrase_edit.text() != "":
             QGuiApplication.clipboard().setText(self.passphrase_edit.text())
-            self.update_status("Passphrase copied!")
+            self.update_status(self.tr("Passphrase copied"))
         else:
-            self.update_status("Nothing to copy!")
+            self.update_status(self.tr("Nothing to copy"))
 
     def update_fields(
         self, success_list: List[bytes], failed_list: List[bytes], skipped_list: List[bytes]
@@ -143,9 +161,9 @@ class BackupRestoreUi(QDialog):
         for item in skipped_list:
             self.skipped_list.addItem(item.decode("utf-8", errors="ignore"))
 
-        self.successful_label.setText(f"Successful ({len(success_list)})")
-        self.failed_label.setText(f"{self.failed_name} ({len(failed_list)})")
-        self.skipped_label.setText(f"Skipped ({len(skipped_list)})")
+        self.successful_label.setText(self.count_label(self.tr("Successful"), len(success_list)))
+        self.failed_label.setText(self.count_label(self.failed_name, len(failed_list)))
+        self.skipped_label.setText(self.count_label(self.tr("Skipped"), len(skipped_list)))
 
     def update_status(self, status: str) -> None:
         self.status_edit.showMessage(status)

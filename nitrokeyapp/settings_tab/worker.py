@@ -1,5 +1,6 @@
 import logging
 
+from fido2.ctap import CtapError
 from fido2.ctap2.base import Info
 from fido2.ctap2.pin import ClientPin
 from nitrokey.nk3 import NK3
@@ -8,6 +9,7 @@ from PySide6.QtCore import Signal, Slot
 
 from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
+from nitrokeyapp.error_messages import passwords_unsupported_message, user_message
 from nitrokeyapp.worker import Job, Worker
 
 logger = logging.getLogger(__name__)
@@ -51,7 +53,7 @@ class CheckPasswordsInfo(Job):
         pin_status: bool = False
         with self.data.open() as device:
             if not isinstance(device, NK3):
-                self.trigger_error("This device does not support Passwords")
+                self.trigger_error(passwords_unsupported_message())
                 return
             secrets = SecretsApp(device)
             status = secrets.select()
@@ -91,9 +93,9 @@ class SaveFidoPinJob(Job):
                     client_pin.change_pin(self.old_pin, self.new_pin)
                 else:
                     client_pin.set_pin(self.new_pin)
-                    self.common_ui.info.info.emit("FIDO2 PIN changed!")
+                    self.common_ui.info.info.emit(self.tr("FIDO2 PIN changed"))
             except Exception as e:
-                self.trigger_error(f"fido2 change_pin failed: {e}")
+                self.trigger_error(user_message(e))
         self.change_pw_fido.emit()
 
 
@@ -127,7 +129,7 @@ class SavePasswordsPinJob(Job):
         with self.touch_prompt():
             with self.data.open() as device:
                 if not isinstance(device, NK3):
-                    self.trigger_error("This device does not support Passwords")
+                    self.trigger_error(passwords_unsupported_message())
                 else:
                     secrets = SecretsApp(device)
                     try:
@@ -135,9 +137,9 @@ class SavePasswordsPinJob(Job):
                             secrets.change_pin_raw(self.old_pin, self.new_pin)
                         else:
                             secrets.set_pin_raw(self.new_pin)
-                        self.common_ui.info.info.emit("Passwords PIN changed!")
+                        self.common_ui.info.info.emit(self.tr("Passwords PIN changed"))
                     except SecretsAppException as e:
-                        self.trigger_error(f"PIN validation failed: {e}")
+                        self.trigger_error(user_message(e))
 
         self.change_pw_passwords.emit()
 
@@ -162,15 +164,19 @@ class ResetFido(Job):
             try:
                 with self.touch_prompt():
                     ctap2.reset()
-                    self.common_ui.info.info.emit("FIDO2 function reset successfully!")
-            except Exception as e:
-                a = str(e)
-                if a == "CTAP error: 0x30 - NOT_ALLOWED":
+                    self.common_ui.info.info.emit(self.tr("FIDO2 was reset successfully"))
+            except CtapError as e:
+                if e.code == CtapError.ERR.NOT_ALLOWED:
                     self.common_ui.info.error.emit(
-                        "Device connected for more than 10 sec. Re-plugging for reset!"
+                        self.tr(
+                            "The device has been connected for more than 10 seconds. "
+                            "Please re-plug it to reset FIDO2."
+                        )
                     )
                 else:
-                    self.trigger_error(f"fido2 reset failed: {e}")
+                    self.trigger_error(user_message(e))
+            except Exception as e:
+                self.trigger_error(user_message(e))
         self.reset_fido.emit()
 
 
@@ -187,15 +193,15 @@ class ResetPasswords(Job):
     def run(self) -> None:
         with self.data.open() as device:
             if not isinstance(device, NK3):
-                self.trigger_error("This device does not support Passwords")
+                self.trigger_error(passwords_unsupported_message())
                 return
             secrets = SecretsApp(device)
             try:
                 with self.touch_prompt():
                     secrets.reset()
-                    self.common_ui.info.info.emit("PASSWORDS function reset successfully!")
+                    self.common_ui.info.info.emit(self.tr("Passwords was reset successfully"))
             except SecretsAppException as e:
-                self.trigger_error(f"Passwords reset failed: {e}")
+                self.trigger_error(user_message(e))
         self.reset_passwords.emit()
 
 

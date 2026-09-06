@@ -1,0 +1,6 @@
+Copyright (c) Nitrokey GmbH
+SPDX-License-Identifier: Apache-2.0
+
+Source: nitrokeyapp/ui/icons/light_mode/down_arrow.svg
+
+Modified: the same chevron, rotated by 180 degrees and scaled to 48 px.

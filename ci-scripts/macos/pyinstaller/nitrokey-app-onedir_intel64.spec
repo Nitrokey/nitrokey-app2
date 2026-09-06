@@ -9,6 +9,7 @@ python_version = str(sys.version_info[0]) + '.' + str(sys.version_info[1])
 datas = [
     (venv_path + '/lib/python' + python_version + '/site-packages/fido2/public_suffix_list.dat', 'fido2'),
     ('../../../nitrokeyapp/ui', 'nitrokeyapp/ui'),
+    ('../../../nitrokeyapp/translations', 'nitrokeyapp/translations'),
     ('../../../LICENSE', '.')
 ]
 datas += copy_metadata('fido2')

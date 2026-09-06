@@ -8,7 +8,7 @@ from types import FrameType, TracebackType
 from nitrokey import _VID_NITROKEY
 from nitrokey.trussed import Model, Transport
 from PySide6 import QtWidgets
-from PySide6.QtCore import QEvent, Qt, QTimer, Signal, Slot
+from PySide6.QtCore import QCoreApplication, QEvent, Qt, QTimer, Signal, Slot
 from PySide6.QtGui import QCursor
 from usbmonitor import USBMonitor
 from usbmonitor.attributes import ID_USB_INTERFACES, ID_VENDOR_ID
@@ -35,15 +35,23 @@ from nitrokeyapp.welcome_tab import WelcomeTab
 logger = logging.getLogger(__name__)
 
 PASSKEYS_TAB_INDEX = 2
-PASSKEYS_ADMIN_REQUIRED_MESSAGE = (
-    "Managing passkeys requires administrator privileges on Windows. "
-    "Please restart the Nitrokey App as administrator to list or delete passkeys."
-)
 
-UPDATE_IN_PROGRESS_MESSAGE = (
-    "A firmware update is in progress. Please wait until it has finished "
-    "before closing the application."
-)
+
+def passkeys_admin_required_message() -> str:
+    return QCoreApplication.translate(
+        "GUI",
+        "Managing passkeys requires administrator privileges on Windows. "
+        "Please restart the Nitrokey App as administrator to list or delete passkeys.",
+    )
+
+
+def update_in_progress_message() -> str:
+    return QCoreApplication.translate(
+        "GUI",
+        "A firmware update is in progress. Please wait until it has finished "
+        "before closing the application.",
+    )
+
 
 SIGNAL_WAKEUP_INTERVAL_MS = 200
 
@@ -166,7 +174,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         # surface the reason via tooltip on hover.
         self.passkeys_admin_required = get_transport() == Transport.CCID
         if self.passkeys_admin_required:
-            self.tabs.setTabToolTip(PASSKEYS_TAB_INDEX, PASSKEYS_ADMIN_REQUIRED_MESSAGE)
+            self.tabs.setTabToolTip(PASSKEYS_TAB_INDEX, passkeys_admin_required_message())
 
         # set some spacing between Nitrokey buttons
         self.ui.nitrokeyButtonsLayout.setSpacing(8)
@@ -207,7 +215,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def handle_sigint(self, sig: int, frame: FrameType | None) -> None:
         if self.is_update_running():
             logger.warning("Ignoring SIGINT: a firmware update is in progress")
-            self.info_box.set_error_status(UPDATE_IN_PROGRESS_MESSAGE)
+            self.info_box.set_error_status(update_in_progress_message())
             return
 
         logger.info("Received SIGINT, closing application")
@@ -455,7 +463,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     def closeEvent(self, event: QEvent) -> None:
         if self.is_update_running():
             logger.warning("Ignoring close request: a firmware update is in progress")
-            self.info_box.set_error_status(UPDATE_IN_PROGRESS_MESSAGE)
+            self.info_box.set_error_status(update_in_progress_message())
             event.ignore()
             return
 

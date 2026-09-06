@@ -11,6 +11,7 @@ from datetime import datetime
 from importlib.metadata import version as package_version
 from pathlib import Path
 
+from PySide6.QtCore import QCoreApplication
 from PySide6.QtWidgets import QFileDialog, QWidget
 
 logger = logging.getLogger(__name__)
@@ -66,7 +67,8 @@ def log_environment() -> None:
 
 
 def save_log(log_file: str, parent: QWidget) -> None:
-    path, _ = QFileDialog.getSaveFileName(parent, "Save Log File")
+    title = QCoreApplication.translate("logger", "Save Log File")
+    path, _ = QFileDialog.getSaveFileName(parent, title)
     if path:
         root_logger = logging.getLogger()
         for handler in root_logger.handlers:

@@ -41,6 +41,8 @@ jobs:
         run: poetry install
       - name: Create virtual environment
         run: poetry install --extras pcsc 
+      - name: Compile translations
+        run: poetry run python ci-scripts/translations.py release
       - name: Create Windows version info file
         run: |
           poetry run create-version-file `

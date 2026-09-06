@@ -4,7 +4,7 @@ from enum import Enum
 from fido2.ctap2.base import Info
 from nitrokey.nk3.secrets_app import SelectResponse
 from nitrokey.trussed import Model, Transport, TrussedDevice
-from PySide6.QtCore import QThread, Signal, Slot
+from PySide6.QtCore import QCoreApplication, QThread, Signal, Slot
 from PySide6.QtGui import QAction, QBrush, QColor, QFont
 from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem, QWidget
 
@@ -36,44 +36,66 @@ RESET_ICON = QtUtilsMixIn.get_qicon("refresh.svg")
 SHOW_ICON = QtUtilsMixIn.get_qicon("visibility.svg")
 HIDE_ICON = QtUtilsMixIn.get_qicon("visibility_off.svg")
 
-SETTINGS: dict[State, dict] = {
-    State.Fido: {
-        "parent": None,
-        "icon": None,
-        "name": "FIDO2",
-        "desc": "FIDO2 is an authentication standard that enables secure "
-        + "and passwordless access to online services. It uses public "
-        + "key cryptography to provide strong authentication and "
-        + "protect against phishing and other security threats.",
-    },
-    State.FidoPin: {"parent": State.Fido, "icon": PIN_ICON, "name": "Pin Change"},
-    State.FidoReset: {
-        "parent": State.Fido,
-        "icon": RESET_ICON,
-        "name": "Factory Reset",
-        "desc": "During a FIDO reset, the password is not set. All "
-        + "previously set credentials are removed. "
-        + "Any existing authentication data, such as U2F, Passkeys and FIDO2 "
-        + "authentication factors are deleted. After the reset, the user "
-        + "will need to re-register or re-enroll their authentication "
-        + "credentials to access the system or service again.",
-    },
-    State.Passwords: {
-        "parent": None,
-        "icon": None,
-        "name": "Passwords",
-        "desc": "Within Passwords various credentials and 2FAs like OTPs can "
-        + "be stored and managed. Supported are: Plain usernames using a "
-        + "password, HOTPs, TOTPs, ReverseHOTPs and HMAC.",
-    },
-    State.PasswordsPin: {"parent": State.Passwords, "icon": PIN_ICON, "name": "Pin Change"},
-    State.PasswordsReset: {
-        "parent": State.Passwords,
-        "icon": RESET_ICON,
-        "name": "Factory Reset",
-        "desc": "This operation will inevitably remove all your credentials in Passwords!",
-    },
-}
+
+def settings_entries() -> dict[State, dict]:
+    return {
+        State.Fido: {
+            "parent": None,
+            "icon": None,
+            "name": "FIDO2",
+            "desc": QCoreApplication.translate(
+                "SettingsTab",
+                "FIDO2 is an authentication standard that enables secure "
+                "and passwordless access to online services. It uses public "
+                "key cryptography to provide strong authentication and "
+                "protect against phishing and other security threats.",
+            ),
+        },
+        State.FidoPin: {
+            "parent": State.Fido,
+            "icon": PIN_ICON,
+            "name": QCoreApplication.translate("SettingsTab", "PIN Change"),
+        },
+        State.FidoReset: {
+            "parent": State.Fido,
+            "icon": RESET_ICON,
+            "name": QCoreApplication.translate("SettingsTab", "Factory Reset"),
+            "desc": QCoreApplication.translate(
+                "SettingsTab",
+                "During a FIDO reset, the password is not set. All "
+                "previously set credentials are removed. "
+                "Any existing authentication data, such as U2F, Passkeys and FIDO2 "
+                "authentication factors are deleted. After the reset, the user "
+                "will need to re-register or re-enroll their authentication "
+                "credentials to access the system or service again.",
+            ),
+        },
+        State.Passwords: {
+            "parent": None,
+            "icon": None,
+            "name": QCoreApplication.translate("SettingsTab", "Passwords"),
+            "desc": QCoreApplication.translate(
+                "SettingsTab",
+                "Within Passwords various credentials and 2FAs like OTPs can "
+                "be stored and managed. Supported are: Plain usernames using a "
+                "password, HOTPs, TOTPs, ReverseHOTPs and HMAC.",
+            ),
+        },
+        State.PasswordsPin: {
+            "parent": State.Passwords,
+            "icon": PIN_ICON,
+            "name": QCoreApplication.translate("SettingsTab", "PIN Change"),
+        },
+        State.PasswordsReset: {
+            "parent": State.Passwords,
+            "icon": RESET_ICON,
+            "name": QCoreApplication.translate("SettingsTab", "Factory Reset"),
+            "desc": QCoreApplication.translate(
+                "SettingsTab",
+                "This operation will inevitably remove all your credentials in Passwords!",
+            ),
+        },
+    }
 
 
 class SettingsTab(QtUtilsMixIn, QWidget):
@@ -130,9 +152,10 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_reset.pressed.connect(self.reset_action)
 
         self.items = {}
+        self.settings = settings_entries()
 
         # top-lvl items
-        for state, data in SETTINGS.items():
+        for state, data in self.settings.items():
             if data.get("parent") is None:
                 item = QTreeWidgetItem(self.ui.settings_tree)
                 item.setText(0, data["name"].upper())
@@ -146,7 +169,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
                 self.items[state] = item
 
         # sub-items
-        for state, data in SETTINGS.items():
+        for state, data in self.settings.items():
             if data.get("parent") is not None:
                 item = QTreeWidgetItem(self.items[data["parent"]])
                 item.setText(0, data["name"])
@@ -172,7 +195,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
     @property
     def title(self) -> str:
-        return "Settings"
+        return self.tr("Settings")
 
     @property
     def widget(self) -> QWidget:
@@ -297,7 +320,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_save.hide()
 
         state = item.data(1, 0)
-        tmpl = SETTINGS[state]
+        tmpl = self.settings[state]
         name = tmpl.get("name")
         desc = tmpl.get("desc")
 
@@ -311,7 +334,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
     def view_edit_pin(self, item: QTreeWidgetItem) -> None:
         state = item.data(1, 0)
-        tmpl = SETTINGS[state]
+        tmpl = self.settings[state]
 
         self.show_current_password(False)
 
@@ -334,17 +357,17 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_save.show()
 
         self.ui.btn_save.setEnabled(False)
-        self.ui.btn_save.setToolTip("Cannot save")
+        self.ui.btn_save.setToolTip(self.tr("Cannot save"))
 
-        name = SETTINGS[SETTINGS[state]["parent"]]["name"]
+        name = self.settings[self.settings[state]["parent"]]["name"]
         name += " | " + tmpl["name"]
         self.ui.headline_label.setText(name)
 
     def view_reset(self, item: QTreeWidgetItem) -> None:
         state = item.data(1, 0)
-        tmpl = SETTINGS[state]
+        tmpl = self.settings[state]
 
-        name = SETTINGS[SETTINGS[state]["parent"]]["name"]
+        name = self.settings[self.settings[state]["parent"]]["name"]
         name += " | " + tmpl["name"]
         desc = tmpl.get("desc")
 
@@ -359,7 +382,10 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_save.hide()
 
         self.ui.warning_label.setText(
-            "**Reset for FIDO 2 is only possible within 10secs after plugging in the device.**"
+            self.tr(
+                "**Reset for FIDO2 is only possible within 10 seconds "
+                "after plugging in the device.**"
+            )
         )
 
         if state == State.FidoReset:
@@ -394,7 +420,9 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         if state == State.FidoPin:
             self.trigger_fido_change_pw.emit(self.data, old_pin, new_pin)
             self.field_clear()
-            self.common_ui.info.info.emit("done - please use new pin to verify key")
+            self.common_ui.info.info.emit(
+                self.tr("Done - please use the new PIN to verify the key")
+            )
         elif state == State.PasswordsPin:
             self.trigger_passwords_change_pw.emit(self.data, old_pin, new_pin)
             self.field_clear()
@@ -460,10 +488,10 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         if show:
             self.ui.current_password.setEnabled(True)
-            self.ui.current_password.setPlaceholderText("<insert old PIN>")
+            self.ui.current_password.setPlaceholderText(self.tr("<insert old PIN>"))
         else:
             self.ui.current_password.setEnabled(False)
-            self.ui.current_password.setPlaceholderText("<No PIN Set>")
+            self.ui.current_password.setPlaceholderText(self.tr("<no PIN set>"))
 
     @Slot(Info, int)
     def handle_status_fido(self, fido_state: Info, pin_retries: int) -> None:
@@ -476,10 +504,10 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         if state in [State.Fido, State.FidoReset]:
             self.update_status_form(
                 [
-                    ("PIN set", "yes" if has_pin else "no"),
-                    ("PIN retries", str(pin_retries) if has_pin else "n/a"),
-                    ("Versions", ", ".join(fido_state.versions)),
-                    ("Extensions", ", ".join(fido_state.extensions)),
+                    (self.tr("PIN set"), self.tr("yes") if has_pin else self.tr("no")),
+                    (self.tr("PIN retries"), str(pin_retries) if has_pin else self.tr("n/a")),
+                    (self.tr("Versions"), ", ".join(fido_state.versions)),
+                    (self.tr("Extensions"), ", ".join(fido_state.extensions)),
                 ]
             )
         elif state == State.FidoPin:
@@ -494,12 +522,12 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         state = self.active_item.data(1, 0)
         if state in [State.Passwords, State.PasswordsReset]:
             data = [
-                ("PIN set", "yes" if pin_set else "no"),
-                ("PIN retries", str(status.pin_attempt_counter)),
-                ("Version", status.version_str()),
+                (self.tr("PIN set"), self.tr("yes") if pin_set else self.tr("no")),
+                (self.tr("PIN retries"), str(status.pin_attempt_counter)),
+                (self.tr("Version"), status.version_str()),
             ]
             if status.serial_number is not None:
-                data += [("Serial", str(status.serial_number.hex()).upper())]
+                data += [(self.tr("Serial"), str(status.serial_number.hex()).upper())]
 
             self.update_status_form(data)
             self.show_current_password(pin_set)
@@ -531,7 +559,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
     def check_credential(self) -> None:
         self.common_ui.info.info.emit("")
 
-        tool_Tip = "Credential cannot be saved:"
+        tool_Tip = self.tr("Credential cannot be saved:")
         can_save = True
 
         new_password = self.ui.new_password.text()
@@ -552,35 +580,38 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             if current_password_len <= 3:
                 can_save = False
             if current_password_len == 0:
-                tool_Tip = tool_Tip + "\n- Enter your Current Password"
+                tool_Tip = tool_Tip + "\n- " + self.tr("Enter your Current Password")
             if current_password_len >= 1:
                 self.action_current_password_show.setVisible(True)
             if current_password_len >= 1 and current_password_len <= 3:
-                self.common_ui.info.info.emit("Current Password is too short")
-                tool_Tip = tool_Tip + "\n- Current Password is too short"
+                message = self.tr("Current Password is too short")
+                self.common_ui.info.info.emit(message)
+                tool_Tip = tool_Tip + "\n- " + message
 
         if new_password_len <= 3:
             can_save = False
         if new_password_len == 0:
-            tool_Tip = tool_Tip + "\n- Enter your New Password"
+            tool_Tip = tool_Tip + "\n- " + self.tr("Enter your New Password")
         if new_password_len == 0 and current_password_len >= 4:
-            self.common_ui.info.info.emit("Enter your New Password")
+            self.common_ui.info.info.emit(self.tr("Enter your New Password"))
         if new_password_len >= 1:
             self.action_new_password_show.setVisible(True)
         if new_password_len >= 1 and new_password_len <= 3:
             can_save = False
-            self.common_ui.info.info.emit("New Password is too short")
-            tool_Tip = tool_Tip + "\n- New Password is too short"
+            message = self.tr("New Password is too short")
+            self.common_ui.info.info.emit(message)
+            tool_Tip = tool_Tip + "\n- " + message
 
         if repeat_password_len == 0:
             can_save = False
-            tool_Tip = tool_Tip + "\n- Repeat your New Password"
+            tool_Tip = tool_Tip + "\n- " + self.tr("Repeat your New Password")
         if repeat_password_len >= 1:
             self.action_repeat_password_show.setVisible(True)
         if repeat_password_len >= 1 and repeat_password != new_password:
             can_save = False
-            self.common_ui.info.info.emit("Repeat Password are not equal")
-            tool_Tip = tool_Tip + "\n- Repeat Password are not equal"
+            message = self.tr("The repeated password is not equal")
+            self.common_ui.info.info.emit(message)
+            tool_Tip = tool_Tip + "\n- " + message
             self.show_repeat_password_check.setVisible(False)
             self.show_repeat_password_false.setVisible(True)
         if repeat_password_len >= 4 and new_password == repeat_password:
@@ -589,6 +620,6 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         self.ui.btn_save.setEnabled(can_save)
         if can_save:
-            tool_Tip = "Credential Save"
+            tool_Tip = self.tr("Save credential")
 
         self.ui.btn_save.setToolTip(tool_Tip)
