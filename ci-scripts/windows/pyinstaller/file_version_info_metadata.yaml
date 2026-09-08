@@ -1,8 +1,8 @@
 CompanyName: Nitrokey
 FileDescription: Graphical application to manage Nitrokey devices
-InternalName: Nitrokey-App
+InternalName: Nitrokey App 2
 LegalCopyright: Apache License
-OriginalFilename: Nitrokey-App.exe
+OriginalFilename: nitrokey-app2.exe
 ProductName: Nitrokey-App
 Translation:
   - langID: 0x0409

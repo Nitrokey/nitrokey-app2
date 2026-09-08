@@ -75,8 +75,8 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
         with:
-          name: nitrokey-app-onefile
-          path: dist/nitrokey-app
+          name: nitrokey-app2-onefile
+          path: dist/nitrokey-app2
   publish-binary:
     name: Publish binary
     runs-on: ubuntu-latest
@@ -89,13 +89,13 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v8
         with:
-          name: nitrokey-app-onefile
+          name: nitrokey-app2-onefile
       - name: Rename binary
         run: |
           mv \
-            nitrokey-app \
-            nitrokey-app-${{ github.event.release.tag_name }}-x64-linux-binary
+            nitrokey-app2 \
+            nitrokey-app2-${{ github.event.release.tag_name }}-x64-linux-binary
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
-          files: nitrokey-app-${{ github.event.release.tag_name }}-x64-linux-binary
+          files: nitrokey-app2-${{ github.event.release.tag_name }}-x64-linux-binary

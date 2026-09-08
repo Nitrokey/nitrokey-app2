@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <Product Id="*"
-        Name="Nitrokey-App"
+        Name="Nitrokey App 2"
         Language="1033"
-        Version="!(bind.FileVersion.nitrokey_app.exe)"
+        Version="!(bind.FileVersion.nitrokey_app2.exe)"
         Manufacturer="Nitrokey GmbH"
         UpgradeCode="{F928EC81-A9D6-4022-BE9B-EC35EF33444F}">
 
         <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Platform="x64" />
     
-        <MajorUpgrade DowngradeErrorMessage="A newer version of Nitrokey-App is already installed." />
+        <MajorUpgrade DowngradeErrorMessage="A newer version of Nitrokey App 2 is already installed." />
 
         <MediaTemplate EmbedCab="yes"/>
 
-        <Feature Id="ProductFeature" Title="Nitrokey-App" Level="1">
+        <Feature Id="ProductFeature" Title="Nitrokey App 2" Level="1">
             <ComponentGroupRef Id="ApplicationFiles" />
             <ComponentRef Id="ApplicationShortcut" />
             <ComponentRef Id="DesktopShortcut" />
@@ -26,7 +26,7 @@
             <!-- Application files -->
             <Directory Id="ProgramFiles64Folder">
                 <Directory Id="MANUFACTURER" Name="Nitrokey">
-                    <Directory Id="INSTALLFOLDER" Name="Nitrokey-App" />
+                    <Directory Id="INSTALLFOLDER" Name="Nitrokey App 2" />
                 </Directory>
             </Directory>
 
@@ -55,8 +55,8 @@
             <Component Id="ApplicationShortcut" Guid="*">
                 <Shortcut
                     Id="StartMenuShortcut"
-                    Name="Nitrokey-App"
-                    Target="[INSTALLFOLDER]nitrokey-app.exe"
+                    Name="Nitrokey App 2"
+                    Target="[INSTALLFOLDER]nitrokey-app2.exe"
                     WorkingDirectory="INSTALLFOLDER" />
                 <RemoveFolder
                     Id="CleanupShortcut"
@@ -79,8 +79,8 @@
            <Component Id="DesktopShortcut" Guid="*">
                <Shortcut
                    Id="ApplicationDesktopShortcut"
-                   Name="Nitrokey-App"
-                   Target="[INSTALLFOLDER]nitrokey-app.exe"
+                   Name="Nitrokey App 2"
+                   Target="[INSTALLFOLDER]nitrokey-app2.exe"
                    WorkingDirectory="INSTALLFOLDER" />
                <RemoveFolder Id="DesktopFolder" On="uninstall"/>
                <RegistryValue

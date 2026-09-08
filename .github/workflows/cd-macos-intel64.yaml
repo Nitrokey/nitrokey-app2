@@ -49,7 +49,7 @@ jobs:
       - name: Build onedir
         run: |
           source $(poetry env info --path)/bin/activate
-          pyinstaller ci-scripts/macOS/pyinstaller/nitrokey-app-onedir_intel64.spec
+          pyinstaller ci-scripts/macos/pyinstaller/nitrokey-app-onedir_intel64.spec
       - name: Set application metadata
         run: |
           plutil \
@@ -115,7 +115,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
         with:
-          name: nitrokey-app-pkg-intel64
+          name: nitrokey-app2-pkg-intel64
           path: nitrokey-app2.pkg
   publish-pkg-installer:
     name: Publish PKG installer
@@ -128,7 +128,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v8
         with:
-          name: nitrokey-app-pkg-intel64
+          name: nitrokey-app2-pkg-intel64
       - name: Rename installer
         run: |
           mv \
