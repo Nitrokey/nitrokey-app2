@@ -17,14 +17,14 @@ from PySide6.QtWidgets import (
 )
 
 
-class BackupRestoreAction(str, Enum):
-    BACKUP = "backup"
-    RESTORE = "restore"
+class ExportImportAction(str, Enum):
+    EXPORT = "export"
+    IMPORT = "import"
 
 
-class BackupRestoreUi(QDialog):
+class ExportImportUi(QDialog):
     def __init__(
-        self, name: BackupRestoreAction, title: str, icon: QIcon, parent: Optional[QWidget] = None
+        self, name: ExportImportAction, title: str, icon: QIcon, parent: Optional[QWidget] = None
     ) -> None:
         super().__init__(parent)
 
@@ -38,15 +38,15 @@ class BackupRestoreUi(QDialog):
 
         self.cleartext_checkbox = QCheckBox("Cleartext")
         self.cleartext_checkbox.setToolTip(
-            "This option disables encryption of the generated backup and is discouraged. Only use for interoperability with other password managers."
+            "This option disables encryption of the exported file and is discouraged. Only use for interoperability with other password managers."
         )
-        self.cleartext_checkbox.setVisible(name == BackupRestoreAction.BACKUP)
+        self.cleartext_checkbox.setVisible(name == ExportImportAction.EXPORT)
 
         self.passphrase_edit = QLineEdit()
         self.passphrase_edit.setToolTip(
-            "Passphrase is automatically created during an encrypted backup."
+            "Passphrase is automatically created during an encrypted export."
         )
-        self.passphrase_edit.setReadOnly(name == BackupRestoreAction.BACKUP)
+        self.passphrase_edit.setReadOnly(name == ExportImportAction.EXPORT)
 
         self.copy_passphrase_button = QToolButton()
         self.copy_passphrase_button.setIcon(icon)
@@ -57,7 +57,7 @@ class BackupRestoreUi(QDialog):
         passphrase_layout = QHBoxLayout()
         passphrase_layout.setContentsMargins(0, 0, 0, 0)
         passphrase_layout.addWidget(self.passphrase_edit)
-        if self.name == BackupRestoreAction.BACKUP:
+        if self.name == ExportImportAction.EXPORT:
             passphrase_layout.addWidget(self.copy_passphrase_button)
 
         middle_layout = QHBoxLayout()
@@ -74,7 +74,7 @@ class BackupRestoreUi(QDialog):
         self.skipped_list = QListWidget()
 
         self.failed_name = (
-            "Not passwords" if name == BackupRestoreAction.BACKUP else "Already exists"
+            "Not passwords" if name == ExportImportAction.EXPORT else "Already exists"
         )
 
         self.successful_label = QLabel("Successful (0)")
@@ -82,8 +82,8 @@ class BackupRestoreUi(QDialog):
 
         self.failed_label = QLabel(f"{self.failed_name} (0)")
         self.failed_label.setToolTip(
-            "Credentials without a password (for example OTP only) are skipped during the backup as they cannot be extracted from the device."
-            if name == BackupRestoreAction.BACKUP
+            "Credentials without a password (for example OTP only) are skipped during the export as they cannot be extracted from the device."
+            if name == ExportImportAction.EXPORT
             else "Credentials not imported because a credential with same label already exists on the device"
         )
 
@@ -153,16 +153,16 @@ class BackupRestoreUi(QDialog):
     def update_passphrase(self, passphrase: str) -> None:
         self.passphrase_edit.setText(passphrase)
 
-    def begin(self, callback: Callable[[bool, str, BackupRestoreAction], None]) -> None:
+    def begin(self, callback: Callable[[bool, str, ExportImportAction], None]) -> None:
         def on_clicked() -> None:
             callback(self.cleartext_checkbox.isChecked(), self.passphrase_edit.text(), self.name)
 
         self.begin_button.clicked.connect(on_clicked)
 
 
-def open_backup_restore_ui(
-    action: BackupRestoreAction, title: str, icon: QIcon, parent: Optional[QWidget] = None
-) -> BackupRestoreUi:
-    ui = BackupRestoreUi(action, title, icon, parent)
+def open_export_import_ui(
+    action: ExportImportAction, title: str, icon: QIcon, parent: Optional[QWidget] = None
+) -> ExportImportUi:
+    ui = ExportImportUi(action, title, icon, parent)
     ui.show()
     return ui

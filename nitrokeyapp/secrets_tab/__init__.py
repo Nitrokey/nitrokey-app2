@@ -30,8 +30,8 @@ from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.worker import Worker
 
-from .backup_restore_ui import BackupRestoreAction, open_backup_restore_ui
 from .data import Credential, OtherKind, OtpData, OtpKind
+from .export_import_ui import ExportImportAction, open_export_import_ui
 from .worker import SecretsWorker
 
 # TODO:
@@ -411,12 +411,12 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     def backup_credentials(self) -> None:
         if not self.data:
             return
-        self._open_backup_restore(BackupRestoreAction.BACKUP, "Backup passwords")
+        self._open_export_import(ExportImportAction.EXPORT, "Export passwords")
 
     @Slot(str)
     def save_credential_backup(self, credential_list_formatted: str) -> None:
         path, _ = QFileDialog.getSaveFileName(
-            self, "Save Credential Backup", "credential_backup.json", "JSON Files (*.json)"
+            self, "Export Passwords", "credential_export.json", "JSON Files (*.json)"
         )
         if path:
             with open(path, "w") as f:
@@ -426,14 +426,12 @@ class SecretsTab(QtUtilsMixIn, QWidget):
     def restore_credentials(self) -> None:
         if not self.data:
             return
-        path, _ = QFileDialog.getOpenFileName(
-            self, "Open Credential Backup", "", "JSON Files (*.json)"
-        )
+        path, _ = QFileDialog.getOpenFileName(self, "Import Passwords", "", "JSON Files (*.json)")
         if not path:
             return
         with open(path, "r") as f:
             self.backup_content = f.read()
-        self._open_backup_restore(BackupRestoreAction.RESTORE, f"Restore passwords from {path}")
+        self._open_export_import(ExportImportAction.IMPORT, f"Import passwords from {path}")
 
     @Slot()
     def on_credential_restored(self) -> None:
@@ -1164,18 +1162,18 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         secret = b32encode(randbytes(20))
         self.ui.otp.setText(secret.decode())
 
-    def _open_backup_restore(self, action: BackupRestoreAction, title: str) -> None:
-        ui = open_backup_restore_ui(action, title, self.icon_copy, self)
+    def _open_export_import(self, action: ExportImportAction, title: str) -> None:
+        ui = open_export_import_ui(action, title, self.icon_copy, self)
         ui.update_status("Idle")
 
         self._worker.passphrase_ready.connect(ui.update_passphrase)
         self._worker.backup_progress.connect(ui.update_fields)
         self._worker.restore_progress.connect(ui.update_fields)
-        self._worker.credential_bkp.connect(lambda _: ui.update_status("Backup complete"))
-        self._worker.credential_restore.connect(lambda: ui.update_status("Restore complete"))
+        self._worker.credential_bkp.connect(lambda _: ui.update_status("Export complete"))
+        self._worker.credential_restore.connect(lambda: ui.update_status("Import complete"))
 
-        def on_begin(cleartext: bool, passphrase: str, action_name: BackupRestoreAction) -> None:
-            if action_name == BackupRestoreAction.BACKUP:
+        def on_begin(cleartext: bool, passphrase: str, action_name: ExportImportAction) -> None:
+            if action_name == ExportImportAction.EXPORT:
                 ui.update_status("Working... Press your Nitrokey if it blinks.")
                 self.trigger_backup_credential.emit(self.data, True, cleartext)
             else:
@@ -1183,10 +1181,10 @@ class SecretsTab(QtUtilsMixIn, QWidget):
                     tempdata = json.loads(self.backup_content)
                     process_restore = True
                     if "EncryptedCXF" in tempdata and not passphrase:
-                        ui.update_status("The backup is encrypted. Please enter the passphrase.")
+                        ui.update_status("The file is encrypted. Please enter the passphrase.")
                         process_restore = False
                     elif "EncryptedCXF" not in tempdata and passphrase:
-                        ui.update_status("The backup is not encrypted. Ignoring passphrase.")
+                        ui.update_status("The file is not encrypted. Ignoring passphrase.")
                         passphrase = ""
                     if process_restore:
                         ui.update_status("Working... Press your Nitrokey if it blinks.")
@@ -1194,6 +1192,6 @@ class SecretsTab(QtUtilsMixIn, QWidget):
                             self.data, self.backup_content, passphrase
                         )
                 except json.JSONDecodeError as e:
-                    ui.update_status(f"Invalid backup file {e}")
+                    ui.update_status(f"Invalid import file {e}")
 
         ui.begin(on_begin)
