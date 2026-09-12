@@ -86,6 +86,7 @@ class CheckDeviceJob(Job):
 
 class VerifyPinJob(Job):
     pin_verified = Signal(bool)
+    pin_rejected = Signal()
 
     # internal signals
     query_pin = Signal(int)
@@ -110,9 +111,7 @@ class VerifyPinJob(Job):
         self.query_pin.connect(pin_ui.query)
         self.choose_pin.connect(pin_ui.choose)
 
-        self.pin_ui = pin_ui.connect_actions(
-            self.pin_queried, self.pin_chosen, lambda: self.pin_verified.emit(False)
-        )
+        self.pin_ui = pin_ui.connect_actions(self.pin_queried, self.pin_chosen, self.pin_cancelled)
 
     def cleanup(self) -> None:
         self.pin_ui.disconnect()
@@ -125,12 +124,16 @@ class VerifyPinJob(Job):
             secrets = SecretsApp(device)
             select = secrets.select()
 
-        if select.pin_attempt_counter:
+        counter = select.pin_attempt_counter
+        if counter:
             pin = self.pin_cache.get(self.data)
             if pin:
                 self.pin_queried(pin)
             else:
-                self.query_pin.emit(select.pin_attempt_counter)
+                self.query_pin.emit(counter)
+        elif counter == 0:
+            self.pin_cache.clear()
+            self.trigger_error("The Passwords PIN is blocked after too many incorrect attempts.")
         elif self.set_pin:
             self.choose_pin.emit()
         else:
@@ -170,10 +173,17 @@ class VerifyPinJob(Job):
         else:
             self.trigger_error("Failed to set Secrets PIN")
 
+    @Slot()
+    def pin_cancelled(self) -> None:
+        logger.info("Secrets PIN prompt cancelled")
+        self.pin_rejected.emit()
+        self.pin_verified.emit(False)
+
     @Slot(str)
     def trigger_error(self, msg: str) -> None:
         logger.error(f"{self.__class__.__name__} failed: {msg}")
         self.common_ui.info.error.emit(msg)
+        self.pin_rejected.emit()
         self.pin_verified.emit(False)
 
 
@@ -205,7 +215,12 @@ class EditCredentialJob(Job):
 
     def run(self) -> None:
         list_credentials_job = ListCredentialsJob(
-            self.common_ui, self.pin_cache, self.pin_ui, self.data, pin_protected=True
+            self.common_ui,
+            self.pin_cache,
+            self.pin_ui,
+            self.data,
+            pin_protected=True,
+            abort_on_pin_failure=True,
         )
         list_credentials_job.credentials_listed.connect(self.check_credential)
         self.spawn(list_credentials_job)
@@ -239,6 +254,7 @@ class EditCredentialJob(Job):
     @Slot()
     def edit_credential(self, successful: bool = True) -> None:
         if not successful:
+            self.failed.emit()
             self.finished.emit()
             return
 
@@ -262,7 +278,21 @@ class EditCredentialJob(Job):
             self.common_ui, self.pin_cache, self.pin_ui, self.data, credential=cred, secret=secret
         )
         add_job.credential_added.connect(lambda cred: self.handle_created(cred, then_delete_id))
+        if then_delete_id != self.old_cred_id:
+            add_job.failed.connect(lambda: self.undo_temp_rename(then_delete_id))
         self.spawn(add_job)
+
+    def undo_temp_rename(self, temp_cred_id: bytes) -> None:
+        logger.info(f"Restoring {self.old_cred_id!r} after a failed edit")
+        with self.data.open() as device:
+            if not isinstance(device, NK3):
+                return
+            secrets = SecretsApp(device)
+            try:
+                with self.touch_prompt():
+                    secrets.update_credential(cred_id=temp_cred_id, new_name=self.old_cred_id)
+            except SecretsAppException as e:
+                logger.error(f"Could not restore {self.old_cred_id!r} after a failed edit: {e}")
 
     def handle_created(self, credential: Credential, delete_id: bytes) -> None:
         self.credential = credential
@@ -356,7 +386,12 @@ class AddCredentialJob(Job):
 
     def run(self) -> None:
         list_credentials_job = ListCredentialsJob(
-            self.common_ui, self.pin_cache, self.pin_ui, self.data, pin_protected=True
+            self.common_ui,
+            self.pin_cache,
+            self.pin_ui,
+            self.data,
+            pin_protected=True,
+            abort_on_pin_failure=True,
         )
         list_credentials_job.credentials_listed.connect(self.check_credential)
         self.spawn(list_credentials_job)
@@ -382,6 +417,7 @@ class AddCredentialJob(Job):
     @Slot(bool)
     def add_credential(self, successful: bool = True) -> None:
         if not successful:
+            self.failed.emit()
             self.finished.emit()
             return
 
@@ -556,6 +592,7 @@ class ListCredentialsJob(Job):
         pin_ui: PinUi,
         data: DeviceData,
         pin_protected: bool,
+        abort_on_pin_failure: bool = False,
     ) -> None:
         super().__init__(common_ui)
 
@@ -563,12 +600,15 @@ class ListCredentialsJob(Job):
         self.pin_ui = pin_ui
         self.data = data
         self.pin_protected = pin_protected
+        self.abort_on_pin_failure = abort_on_pin_failure
+        self.pin_rejected = False
 
         self.credentials_listed.connect(lambda _: self.finished.emit())
 
     def run(self) -> None:
         if self.pin_protected:
             verify_pin_job = VerifyPinJob(self.common_ui, self.pin_cache, self.pin_ui, self.data)
+            verify_pin_job.pin_rejected.connect(self.handle_pin_rejected)
             verify_pin_job.pin_verified.connect(self.list_protected_credentials)
             self.spawn(verify_pin_job)
         else:
@@ -580,8 +620,21 @@ class ListCredentialsJob(Job):
                 credentials = Credential.list(secrets)
             self.credentials_listed.emit(credentials)
 
+    @Slot()
+    def handle_pin_rejected(self) -> None:
+        self.pin_rejected = True
+
     @Slot(bool)
     def list_protected_credentials(self, successful: bool) -> None:
+        if self.pin_rejected and self.abort_on_pin_failure:
+            logger.error(
+                f"{self.__class__.__name__} aborted: cannot list the PIN-protected "
+                "credentials without a verified Passwords PIN"
+            )
+            self.failed.emit()
+            self.finished.emit()
+            return
+
         credentials = []
         if not successful:
             self.uncheck_checkbox.emit(True)
