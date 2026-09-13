@@ -1,0 +1,6 @@
+Copyright (c) Google LLC
+SPDX-License-Identifier: Apache-2.0
+
+Source: ../light_mode/touch.svg
+
+Modified: filled white for dark mode.
