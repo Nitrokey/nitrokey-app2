@@ -1,7 +1,15 @@
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtCore import QObject, Signal, Slot
+from PySide6.QtCore import QObject, Qt, Signal, Slot
 
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
+from nitrokeyapp.utils import resolved_color_scheme
+
+
+def _status_colors() -> tuple[str, str]:
+    """(normal, error) status text color, taken from the palettes in __main__.py"""
+    if resolved_color_scheme() == Qt.ColorScheme.Dark:
+        return "#c9d1d9", "#ff6b5b"
+    return "#24292f", "#c0392b"
 
 
 class InfoUi(QObject):
@@ -31,12 +39,16 @@ class InfoBox(QObject):
         self.information_frame.show()
 
         self.status = status
+        self.status.setText("")
         self.status.hide()
         self.device = device
 
         self.icon = icon
         self.icon.setFixedSize(QtCore.QSize(16, 16))
         self.icon.hide()
+
+        self.icon_name = "info.svg"
+        self.is_error = False
 
         self.pin_icon = pin_icon
         self.pin_icon.setStyleSheet(
@@ -58,14 +70,20 @@ class InfoBox(QObject):
 
     @Slot(str, int, str)
     def set_status(self, text: str, timeout: int = 7000, icon: str | None = None) -> None:
+        self.show_status(text, timeout, icon or "info.svg", is_error=False)
+
+    @Slot(str)
+    def set_error_status(self, text: str) -> None:
+        self.show_status(text, 12000, "warning.svg", is_error=True)
+
+    def show_status(self, text: str, timeout: int, icon: str, is_error: bool) -> None:
         self.status.setText(text)
-        self.status.setStyleSheet("color: #1a1a1a;")
+        self.icon_name = icon
+        self.is_error = is_error
+        self.apply_theme()
+
         self.status.show()
         self.information_frame.show()
-        if not icon:
-            self.icon.setPixmap(QtUtilsMixIn.get_pixmap("info.svg"))
-        else:
-            self.icon.setPixmap(QtUtilsMixIn.get_pixmap(icon))
         self.icon.show()
 
         if self.hide_timer.isActive():
@@ -73,15 +91,26 @@ class InfoBox(QObject):
         self.hide_timer.setInterval(timeout)
         self.hide_timer.start()
 
-    @Slot(str)
-    def set_error_status(self, text: str) -> None:
-        self.set_status(text, 12000, "warning.svg")
-        self.status.setStyleSheet("color: #c0392b; font-weight: bold;")
+    def apply_theme(self) -> None:
+        """set the status color and icon matching the active color scheme"""
+        normal, error = _status_colors()
+        if self.is_error:
+            self.status.setStyleSheet(f"color: {error}; font-weight: bold;")
+        else:
+            self.status.setStyleSheet(f"color: {normal};")
+        self.icon.setPixmap(QtUtilsMixIn.get_pixmap(self.icon_name))
+
+    @Slot()
+    def refresh_theme(self) -> None:
+        """re-resolve the status color and icon after a light/dark mode switch"""
+        if self.status.text():
+            self.apply_theme()
 
     @Slot()
     def hide_status(self) -> None:
         self.status.setText("")
         self.status.setStyleSheet("")
+        self.is_error = False
         self.icon.hide()
 
     @Slot()
