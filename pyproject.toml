@@ -52,7 +52,7 @@ mypy = ">=1.18,<1.19"
 
 [tool.poetry.group.deploy.dependencies]
 pyinstaller = "^6.18.0"
-pyinstaller-versionfile = { version = "2.1.1", markers = "sys_platform=='win32'" }
+packaging = { version = "^26.2", markers = "sys_platform=='win32'" }
 
 [tool.ruff]
 line-length = 100

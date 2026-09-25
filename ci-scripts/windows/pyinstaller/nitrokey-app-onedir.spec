@@ -1,5 +1,9 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import copy_metadata
+from PyInstaller.utils.win32.versioninfo import VSVersionInfo, FixedFileInfo, StringFileInfo, StringTable, StringStruct, VarFileInfo, VarStruct
+from importlib.metadata import version
+from packaging.version import parse
+import importlib.metadata
 import os
 
 venv_path = os.popen('poetry env info --path').read().rstrip()
@@ -15,6 +19,51 @@ datas += copy_metadata('nitrokey')
 
 
 block_cipher = None
+
+
+try:
+    version = parse(version('nitrokeyapp'))
+except importlib.metadata.PackageNotFoundError:
+    raise Exception("Nitrokeyapp was not found. Make sure it is installed.")
+except packaging.version.InvalidVersion:
+    raise Exception("Could not parse version from nitrokeyapp installation.")
+
+major = version.major
+minor = version.minor
+patch = version.micro
+build = version.pre[1] if version.pre is not None and isinstance(version.pre[1], int) else 0
+flags = 0x2 if version.pre is not None else 0x0
+
+versioninfo = VSVersionInfo(
+    ffi=FixedFileInfo(
+        filevers = (major, minor, patch, build),
+        prodvers = (major, minor, patch, build),
+        mask = 0x3f,
+        flags = flags,
+        OS = 0x40004,
+        fileType = 0x1,
+        subtype = 0x0,
+        date = (0,0)
+    ),
+    kids=[
+        StringFileInfo([
+            StringTable(
+                u'040904B0',
+                [
+                    StringStruct('CompanyName', 'Nitrokey GmbH'),
+                    StringStruct('FileDescription', 'Graphical application to manage Nitrokey devices'),
+                    StringStruct('FileVersion', f"{str(version)}"),
+                    StringStruct('InternalName', 'Nitrokey App 2'),
+                    StringStruct('LegalCopyright', 'Nitrokey GmbH and contributors'),
+                    StringStruct('OriginalFilename', 'nitrokey-app2.exe'),
+                    StringStruct('ProductName', 'Nitrokey App 2'),
+                    StringStruct('ProductVersion', f"{str(version)}")
+                ]
+            )
+        ]),
+        VarFileInfo([VarStruct(u'Translation', [1033, 4608])])
+    ]
+)
 
 
 a = Analysis(
@@ -51,7 +100,7 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon=['nitrokey-app.ico'],
-    version='file_version_info.txt',
+    version=versioninfo,
     uac_admin=False,
     contents_directory='.',
 )
