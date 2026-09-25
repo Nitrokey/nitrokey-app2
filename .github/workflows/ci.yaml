@@ -9,6 +9,7 @@ env:
   UV_EXCLUDE_NEWER: 0 days
   PIP_UPLOADED_PRIOR_TO: P0D
   POETRY_SOLVER_MIN_RELEASE_AGE: 0
+  POETRY_SPEC: poetry >=2,<3
     
 jobs:
   pyproject-lock-file-check:
@@ -19,9 +20,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
       - name: Install required packages
-        run: pip install poetry
-      - name: Check pyproject.toml syntax and consistency with poetry.lock
+        run: pip install "${POETRY_SPEC}" toml-cli
+      - name: Check pyproject syntax
         run: poetry check
+      - name: Check project version format
+        shell: bash
+        run: |
+          PYPROJECT_VERSION=$(toml get --toml-path pyproject.toml project.version)
+          REGEX='^[0-9]+\.[0-9]+\.[0-9]+(rc[1-9]+)?$'
+          if [[ "$PYPROJECT_VERSION" =~ $REGEX ]]; then exit 0; else exit 1; fi
   format-code:
     name: Check code format
     runs-on: ubuntu-latest
