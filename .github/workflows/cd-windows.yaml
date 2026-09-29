@@ -8,27 +8,29 @@ on:
     types: [prereleased, released]
   workflow_dispatch:
 
+env:
+  PYTHON_VERSION: "3.11"
+  POETRY_SPEC: poetry >=2,<3
+
 jobs:
-  version-check:
-    name: Check versioning
+  check-version-tag:
+    name: Check version tag
     runs-on: windows-latest
     if: github.event_name == 'release'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-      - name: Install required packages
-        run: choco install poetry --source python
-      - name: Create virtual envrionment
-        run: make init
-      - name: Check version tag format
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install dependencies
+        run: pip install toml-cli
+      - name: Check version tag
         run: |
-          $VERSION_TAG="${{ github.event.release.tag_name }}"
-          if ($VERSION_TAG -match "^v[0-9]+.[0-9]+.[0-9]+$") {exit 0} else {exit 1}
-      - name: Check if version tag and package version are equal
-        run: |
-          $VERSION_TAG="${{ github.event.release.tag_name }}"
-          $VERSION_PACKAGE=poetry version --short
-          if ($VERSION_TAG.Substring(1) -eq $VERSION_PACKAGE) {exit 0} else {exit 1}
+          $PYPROJECT_VERSION="v$(toml get --toml-path pyproject.toml project.version)"
+          $TAG_VERSION="${{ github.event.release.tag_name }}"
+          if ($PYPROJECT_VERSION -eq $TAG_VERSION) {exit 0} else {exit 1}
   build-onedir:
     name: Build onedir
     runs-on: windows-latest
@@ -41,12 +43,6 @@ jobs:
         run: poetry install
       - name: Create virtual environment
         run: poetry install --extras pcsc 
-      - name: Create Windows version info file
-        run: |
-          poetry run create-version-file `
-            --outfile .\ci-scripts\windows\pyinstaller\file_version_info.txt `
-            --version "$(poetry version --short)" `
-            .\ci-scripts\windows\pyinstaller\file_version_info_metadata.yaml
       - name: Build onedir
         run: |
           poetry run pyinstaller ci-scripts/windows/pyinstaller/nitrokey-app-onedir.spec
@@ -60,7 +56,7 @@ jobs:
     runs-on:
       group: "Windows Software Signing"
       labels: ["self-hosted", "Linux", "ARM64"]
-    needs: [build-onedir, version-check]
+    needs: [build-onedir, check-version-tag]
     if: github.event_name == 'release'
     steps:
       - name: Download artifact
