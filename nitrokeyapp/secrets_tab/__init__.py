@@ -41,6 +41,14 @@ from .worker import SecretsWorker
 
 logger = logging.getLogger(__name__)
 
+ALGORITHM_TOOLTIPS = {
+    "Password only": "Stores only username, password and comment",
+    "TOTP": "Code that changes every 30 seconds, the usual website 2FA",
+    "HOTP": "Code that changes on each use, only if the service asks for HOTP",
+    "HMAC": "Challenge-response for tools like KeePassXC, needs a 32-character Base32 secret",
+    "REVERSE_HOTP": "The Nitrokey verifies the code instead of generating it",
+}
+
 
 class PasswordGenRow(QWidget):
     """Password-generator filters that adapt to the available width.
@@ -279,6 +287,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.password.textChanged.connect(self.check_credential)
         self.ui.otp.textChanged.connect(self.check_credential)
         self.ui.select_algorithm.currentIndexChanged.connect(self.check_credential)
+        self.ui.select_algorithm.currentIndexChanged.connect(self.update_algorithm_tooltips)
         self.ui.comment.textChanged.connect(self.check_credential)
 
         self.ui.btn_refresh.pressed.connect(self.refresh_credential_list)
@@ -287,6 +296,8 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.secrets_list.itemClicked.connect(self.credential_clicked)
 
         self.ui.btn_delete.pressed.connect(self.delete_credential)
+
+        self.update_algorithm_tooltips()
 
         self.reset()
 
@@ -635,6 +646,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.algorithm_tab.show()
         self.ui.algorithm_tab.setCurrentIndex(0)
         self.ui.select_algorithm.setMaxCount(3)
+        self.update_algorithm_tooltips()
         self.ui.algorithm_show.hide()
         self.ui.algorithm_edit.show()
         self.ui.select_algorithm.show()
@@ -657,6 +669,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
                 self.ui.algorithm_show.show()
                 self.ui.algorithm_edit.hide()
                 self.ui.algorithm.setText(str(credential.otp or credential.other) + ":")
+                self.ui.algorithm.setToolTip(
+                    ALGORITHM_TOOLTIPS.get(str(credential.otp or credential.other), "")
+                )
                 self.action_otp_edit.setVisible(False)
                 self.ui.otp.setPlaceholderText("<cannot edit>")
 
@@ -746,6 +761,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.algorithm_tab.show()
         self.ui.select_algorithm.setMaxCount(4)
         self.ui.select_algorithm.addItem("HMAC")
+        self.update_algorithm_tooltips()
         self.ui.algorithm_tab.setCurrentIndex(0)
         self.ui.algorithm_edit.show()
         self.ui.algorithm_show.hide()
@@ -761,6 +777,22 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.ui.btn_save.show()
 
         self.check_credential()
+
+    def update_algorithm_tooltips(self) -> None:
+        """(Re)apply the descriptions of the credential-kind selector.
+
+        Every entry gets its own tooltip in the dropdown, and the selector
+        itself describes whatever is currently picked. The entry list is
+        rebuilt whenever HMAC is added or dropped, so the item data has to be
+        set again each time.
+        """
+        combo = self.ui.select_algorithm
+        for idx in range(combo.count()):
+            tooltip = ALGORITHM_TOOLTIPS.get(combo.itemText(idx))
+            if tooltip:
+                combo.setItemData(idx, tooltip, Qt.ItemDataRole.ToolTipRole)
+
+        combo.setToolTip(ALGORITHM_TOOLTIPS.get(combo.currentText(), ""))
 
     @Slot()
     def check_credential(self) -> None:
