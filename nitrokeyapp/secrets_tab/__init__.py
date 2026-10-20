@@ -6,13 +6,14 @@ from base64 import b32decode, b32encode
 from collections.abc import Callable
 from datetime import datetime, timedelta
 from enum import Enum
-from random import randbytes
-from secrets import choice
+from secrets import choice, token_bytes
 
 from PySide6.QtCore import QEvent, QObject, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QGuiApplication, QKeyEvent, QKeySequence, QResizeEvent
 from PySide6.QtWidgets import (
+    QAbstractScrollArea,
     QAbstractSpinBox,
+    QApplication,
     QCheckBox,
     QFileDialog,
     QFormLayout,
@@ -182,6 +183,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
         self.clipboard = QGuiApplication.clipboard()
         self.originalText = self.clipboard.text()
         self.backup_content: str = ""
+        self._check_generation = 0
 
         # self.ui === self -> this tricks mypy due to monkey-patching self
         self.ui = self.load_ui("secrets_tab.ui", self)
@@ -233,6 +235,11 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
         self.action_hmac_gen = self.ui.otp.addAction(icon_generate, loc)
         self.action_hmac_gen.triggered.connect(self.generate_hmac)
+
+        self._wheel_guarded: list[QWidget] = [self.ui.select_algorithm, self._pw_gen_length]
+        for guarded in self._wheel_guarded:
+            guarded.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+            guarded.installEventFilter(self)
 
         self.line_actions = [
             self.action_username_copy,
@@ -764,6 +771,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     @Slot()
     def check_credential(self) -> None:
+        self._check_generation += 1
+        generation = self._check_generation
+
         self.common_ui.info.info.emit("")
 
         tool_Tip = "Credential cannot be saved:"
@@ -812,6 +822,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
             if algo == "Password only":
                 self.ui.otp.setReadOnly(True)
                 self.ui.otp.setPlaceholderText("OTP not configured")
+                self.hide_hmac_view()
             else:
                 self.ui.otp.setReadOnly(False)
                 self.ui.otp.setPlaceholderText("<empty>")
@@ -848,6 +859,9 @@ class SecretsTab(QtUtilsMixIn, QWidget):
                 self.common_ui.info.info.emit("Enter a Secret")
                 tool_Tip = tool_Tip + "\n- Enter a Secret"
 
+        if generation != self._check_generation:
+            return
+
         self.ui.btn_save.setEnabled(can_save)
         if can_save:
             tool_Tip = "Credential Save"
@@ -872,6 +886,16 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     def eventFilter(self, obj: QObject, event: QEvent) -> bool:
         if (
+            event.type() == QEvent.Type.Wheel
+            and isinstance(obj, QWidget)
+            and any(obj is guarded for guarded in self._wheel_guarded)
+            and not obj.hasFocus()
+        ):
+            viewport = self._scrollable_viewport(obj)
+            if viewport is not None:
+                QApplication.sendEvent(viewport, event)
+            return True
+        if (
             event.type() == QEvent.Type.KeyPress
             and isinstance(obj, QLineEdit)
             and isinstance(event, QKeyEvent)
@@ -882,6 +906,16 @@ class SecretsTab(QtUtilsMixIn, QWidget):
                 self._clipboard_expected[obj] = selected
                 self._clipboard_timers[obj].start()
         return False
+
+    @staticmethod
+    def _scrollable_viewport(widget: QWidget) -> QWidget | None:
+        """The viewport of the scroll area the widget sits in, if any."""
+        parent = widget.parentWidget()
+        while parent is not None:
+            if isinstance(parent, QAbstractScrollArea):
+                return parent.viewport()
+            parent = parent.parentWidget()
+        return None
 
     def refresh_icons(self) -> None:
         """re-resolve all themed icons, e.g. after a light/dark mode switch"""
@@ -1161,7 +1195,7 @@ class SecretsTab(QtUtilsMixIn, QWidget):
 
     @Slot()
     def generate_hmac(self) -> None:
-        secret = b32encode(randbytes(20))
+        secret = b32encode(token_bytes(20))
         self.ui.otp.setText(secret.decode())
 
     def _open_backup_restore(self, action: BackupRestoreAction, title: str) -> None:
