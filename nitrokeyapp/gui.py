@@ -407,6 +407,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
     @Slot()
     def refresh_themed_icons(self) -> None:
         """re-resolve icons that have light/dark variants after a system theme switch"""
+        self.info_box.refresh_theme()
         self.welcome_widget.refresh_icons()
         self.secrets_tab.refresh_icons()
         self.fido2_tab.refresh_icons()

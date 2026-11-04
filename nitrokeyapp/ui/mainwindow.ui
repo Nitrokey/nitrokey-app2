@@ -107,7 +107,7 @@
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap>nitrokeyapp/ui/icons/info.svg</pixmap>
+            <pixmap>icons/light_mode/info.svg</pixmap>
            </property>
            <property name="scaledContents">
             <bool>true</bool>
