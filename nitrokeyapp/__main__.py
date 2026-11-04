@@ -1,3 +1,4 @@
+import logging
 import sys
 from collections.abc import Callable, Generator
 from contextlib import contextmanager
@@ -6,14 +7,18 @@ from typing import Any
 
 import click
 from PySide6 import QtWidgets
-from PySide6.QtCore import QEvent, QObject, Qt, QTimer
-from PySide6.QtGui import QFont
+from PySide6.QtCore import QEvent, QObject, QSize, Qt, QTimer
+from PySide6.QtGui import QFont, QIcon
 
 from nitrokeyapp import __version__
 from nitrokeyapp.gui import GUI
 from nitrokeyapp.logger import init_logging, log_environment
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.utils import forced_color_scheme, resolved_color_scheme
+
+logger = logging.getLogger(__name__)
+
+APP_ID = "com.nitrokey.nitrokey-app2"
 
 CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"], "ignore_unknown_options": True}
 
@@ -862,10 +867,39 @@ class PaletteWatcher(QObject):
         return super().eventFilter(watched, event)
 
 
+def set_app_user_model_id() -> None:
+    """make the Windows taskbar show our icon instead of python's"""
+    if sys.platform != "win32" or getattr(sys, "frozen", False):
+        return
+
+    import ctypes
+
+    try:
+        hresult = ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(APP_ID)
+    except (AttributeError, OSError):
+        logger.warning("failed to set the Windows AppUserModelID", exc_info=True)
+        return
+
+    if hresult != 0:
+        code = hresult & 0xFFFFFFFF
+        logger.warning(f"setting the Windows AppUserModelID failed with HRESULT {code:#010x}")
+
+
+def app_icon() -> QIcon:
+    """the app icon in fixed sizes, macOS ignores a scalable-only one"""
+    icon = QIcon()
+    scalable = QtUtilsMixIn.get_qicon("red_nitrokey-app-icon.svg")
+    for size in (16, 24, 32, 48, 64, 128, 256, 512):
+        icon.addPixmap(scalable.pixmap(QSize(size, size), 1.0))
+    return icon
+
+
 def run_gui(argv: list[str]) -> None:
+    set_app_user_model_id()
+
     app = QtWidgets.QApplication(argv)
-    app.setDesktopFileName("com.nitrokey.nitrokey-app2")
-    app.setWindowIcon(QtUtilsMixIn.get_qicon("red_nitrokey-app-icon.svg"))
+    app.setDesktopFileName(APP_ID)
+    app.setWindowIcon(app_icon())
     app.setFont(QFont("Segoe UI", 11))
 
     QtUtilsMixIn.register_icon_search_path()
