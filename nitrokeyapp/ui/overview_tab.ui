@@ -487,6 +487,21 @@
             </property>
            </widget>
           </item>
+          <item row="9" column="0" colspan="2">
+           <widget class="QPushButton" name="btn_check_genuine">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Check for Authenticity</string>
+            </property>
+            <property name="toolTip">
+              <string>Verify the authenticity of the device with attestation certificates</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
