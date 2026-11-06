@@ -5,7 +5,6 @@ from typing import Any, Tuple
 
 from fido2.attestation.packed import PackedAttestation
 from fido2.client import DefaultClientDataCollector, Fido2Client, UserInteraction, WebAuthnClient
-from fido2.client.windows import WindowsClient
 from fido2.server import Fido2Server
 from fido2.webauthn import (
     AttestationConveyancePreference,
@@ -113,7 +112,12 @@ class VerifyGenuine(Job):
                 user_interaction=Interaction(),
             )
         else:
-            fido2_client = WindowsClient(client_data_collector)
+            try:
+                from fido2.client.windows import WindowsClient
+
+                fido2_client = WindowsClient(client_data_collector)
+            except Exception as e:
+                logger.warning(f"Unexpected state. This button should not have been enabled. {e}")
 
         firmware_version = self.data._device.admin.version()
         server = Fido2Server(
