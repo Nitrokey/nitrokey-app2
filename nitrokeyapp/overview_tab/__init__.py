@@ -2,7 +2,7 @@ import logging
 import shutil
 
 from fido2.client import DefaultClientDataCollector, Fido2Client
-from nitrokey.trussed import Transport, TrussedDevice, recommended_transport
+from nitrokey.trussed import Transport, TrussedDevice
 from nitrokey.trussed._connection.ctaphid import CtapHidConnection
 from nitrokey.trussed.admin_app import InitStatus
 from PySide6.QtCore import QThread, Signal, Slot
@@ -18,6 +18,15 @@ from nitrokeyapp.worker import Worker
 from .worker import OverviewWorker
 
 logger = logging.getLogger(__name__)
+
+
+def _windows_client_available() -> bool:
+    try:
+        from fido2.client.windows import WindowsClient
+
+        return WindowsClient.is_available()
+    except Exception:
+        return False
 
 
 class OverviewTab(QtUtilsMixIn, QWidget):
@@ -139,9 +148,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
                 self.ui.btn_check_genuine().setEnabled(False)
                 self.ui.btn_check_genuine.setToolTip("Please update firmware to continue")
 
-        if (
-            transport == Transport.CCID and recommended_transport() != Transport.CCID
-        ):  # recommended_transport() checks whether its CCID because its on unpriviledged Windows. Checking for not CCID here means checking whether CCID is forced on other OS
+        if not (transport == Transport.CTAPHID or _windows_client_available()):
             self.ui.btn_check_genuine().setEnabled(False)
             self.ui.btn_check_genuine.setToolTip("Unable to communicate for FIDO commands")
 
