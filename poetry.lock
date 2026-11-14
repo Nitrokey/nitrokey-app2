@@ -514,14 +514,14 @@ files = [
 
 [[package]]
 name = "nitrokey"
-version = "0.5.0rc3"
+version = "0.5.0"
 description = "Nitrokey Python SDK"
 optional = false
 python-versions = "<4,>=3.11"
 groups = ["main"]
 files = [
-    {file = "nitrokey-0.5.0rc3-py3-none-any.whl", hash = "sha256:1b4825e470aca49378fabbc3289e37ede826deb9390ad594690ba77378c9bbcc"},
-    {file = "nitrokey-0.5.0rc3.tar.gz", hash = "sha256:8285054e89fe0462a7c6e1fa0ce12158be5924d1e23579d5310faa930a730084"},
+    {file = "nitrokey-0.5.0-py3-none-any.whl", hash = "sha256:671a573a865c7d2818c71b9b334d4281b0d1e0b84f868eddcbf2afe540e2caa2"},
+    {file = "nitrokey-0.5.0.tar.gz", hash = "sha256:5f3a5e6298cd11f8575f1aa47344d8193541f5c2ac3958578b3dbeb1703c9d5b"},
 ]
 
 [package.dependencies]
@@ -1034,4 +1034,4 @@ pcsc = ["nitrokey"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.15"
-content-hash = "255d00fb70e3b4574b7261b3da57ca77f207ba465d77726f31611056b2c08301"
+content-hash = "24e68acac651156aa037c9b9d6bf6a9d023502a0fc6ac7c0b07c290f679cb219"
