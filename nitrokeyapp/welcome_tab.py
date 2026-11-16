@@ -1,17 +1,19 @@
+import logging
 import webbrowser
 
 from nitrokey.trussed import Version
-from nitrokey.updates import Repository
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QWidget
 
-from nitrokeyapp import __version__
+from nitrokeyapp import __version__, release_check
 from nitrokeyapp.logger import save_log
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 
+logger = logging.getLogger(__name__)
+
 REPOSITORY_OWNER = "Nitrokey"
 REPOSITORY_NAME = "nitrokey-app2"
-REPOSITORY = Repository(owner=REPOSITORY_OWNER, name=REPOSITORY_NAME)
+RELEASES_URL = release_check.releases_url(REPOSITORY_OWNER, REPOSITORY_NAME)
 
 
 class WelcomeTab(QtUtilsMixIn, QWidget):
@@ -20,6 +22,7 @@ class WelcomeTab(QtUtilsMixIn, QWidget):
         QtUtilsMixIn.__init__(self)
 
         self.log_file = log_file
+        self.update_available = False
 
         # self.ui === self -> this tricks mypy due to monkey-patching self
         self.ui = self.load_ui("welcome_tab.ui", self)
@@ -33,20 +36,31 @@ class WelcomeTab(QtUtilsMixIn, QWidget):
         self.ui.AppIcon.setPixmap(self.get_pixmap("app_logo.svg"))
 
     def check_update(self) -> None:
-        try:
-            release = REPOSITORY.get_latest_release()
-        except Exception:
-            self.ui.CheckUpdate.setText("No connection")
+        if self.update_available:
+            # the button now leads to the download page, no need to ask GitHub again
+            webbrowser.open(RELEASES_URL)
             return
 
-        current = Version.from_str(__version__)
-        latest = Version.from_v_str(release.tag)
+        try:
+            tag = release_check.get_latest_tag(REPOSITORY_OWNER, REPOSITORY_NAME)
+            latest = Version.from_v_str(tag)
+            current = Version.from_str(__version__)
+        except release_check.RateLimited as e:
+            logger.warning(f"update check was rate limited: {e}")
+            self.ui.CheckUpdate.setText("Try again later")
+            return
+        except release_check.Unreachable as e:
+            logger.warning(f"update check failed, GitHub is not reachable: {e}")
+            self.ui.CheckUpdate.setText("No connection")
+            return
+        except (release_check.ReleaseCheckError, ValueError) as e:
+            logger.warning(f"update check failed: {e}")
+            self.ui.CheckUpdate.setText("Check failed")
+            return
 
         if current < latest:
+            self.update_available = True
             self.ui.CheckUpdate.setText("update available")
-            self.ui.CheckUpdate.pressed.connect(
-                lambda: webbrowser.open("https://github.com/Nitrokey/nitrokey-app2/releases")
-            )
         else:
             self.ui.CheckUpdate.setText("App is up to date")
 
