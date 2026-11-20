@@ -5,11 +5,14 @@ import os
 import sys
 from typing import TYPE_CHECKING, Optional
 
-from nitrokey.trussed import Transport, recommended_transport
+from nitrokey.trussed import Transport, TrussedDevice, recommended_transport
+from nitrokey.trussed._connection.ctaphid import CtapHidConnection
 
 if TYPE_CHECKING:
     from PySide6.QtCore import Qt
     from PySide6.QtWidgets import QWidget
+
+    from nitrokeyapp.device_data import DeviceData
 
 NITROKEY_FORCE_CCID = "NITROKEY_FORCE_CCID"
 NITROKEY_FORCE_CTAPHID = "NITROKEY_FORCE_CTAPHID"
@@ -84,3 +87,16 @@ def check_ccid_config(parent: Optional["QWidget"] = None) -> None:
             QMessageBox.warning(
                 parent, "Missing Dependency", f"{message}.\nPlease install it to use CCID mode."
             )
+
+
+def instantiate_device_on_new_channel_hid(data: "DeviceData") -> "DeviceData":
+    from nitrokeyapp.device_data import DeviceData
+
+    assert isinstance(data._device, TrussedDevice)
+    assert isinstance(data._device.connection, CtapHidConnection)
+    data._device.connection.device._connection.close()
+    devices = DeviceData.list()  # Internally calls INIT which creates new channel
+    for d in devices:
+        if data._uuid == d._device.uuid():
+            return d
+    return data  # Try with exisitng if device was not found in search. This should never hit, just keeping here to satisfy the return type.

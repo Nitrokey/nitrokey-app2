@@ -487,6 +487,32 @@
             </property>
            </widget>
           </item>
+          <item row="9" column="0" colspan="2">
+            <layout class="QHBoxLayout" name="horizontalLayout_auth">
+              <item>
+                <widget class="QPushButton" name="btn_check_authenticity">
+                  <property name="font">
+                    <font>
+                      <pointsize>11</pointsize>
+                    </font>
+                  </property>
+                  <property name="text">
+                    <string>Check for Authenticity</string>
+                  </property>
+                  <property name="toolTip">
+                    <string>Verify the authenticity of the device with attestation certificates</string>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <widget class="QToolButton" name="btn_help_authenticity">
+                  <property name="toolTip">
+                    <string>Learn more about authenticity checks</string>
+                  </property>
+                </widget>
+              </item>
+            </layout>
+          </item>
          </layout>
         </widget>
        </item>
