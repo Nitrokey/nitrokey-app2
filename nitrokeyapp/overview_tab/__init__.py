@@ -1,21 +1,33 @@
 import logging
 import shutil
 
-from nitrokey.trussed import Transport
+from fido2.client import DefaultClientDataCollector, Fido2Client
+from nitrokey.trussed import Transport, TrussedDevice
+from nitrokey.trussed._connection.ctaphid import CtapHidConnection
 from nitrokey.trussed.admin_app import InitStatus
-from PySide6.QtCore import QThread, Signal, Slot
-from PySide6.QtWidgets import QFileDialog, QWidget
+from PySide6.QtCore import QThread, QUrl, Signal, Slot
+from PySide6.QtGui import QDesktopServices
+from PySide6.QtWidgets import QFileDialog, QStyle, QWidget
 
 from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.update import UpdateResult, UpdateStatus
-from nitrokeyapp.utils import get_transport
+from nitrokeyapp.utils import get_transport, instantiate_device_on_new_channel_hid
 from nitrokeyapp.worker import Worker
 
 from .worker import OverviewWorker
 
 logger = logging.getLogger(__name__)
+
+
+def _windows_client_available() -> bool:
+    try:
+        from fido2.client.windows import WindowsClient
+
+        return WindowsClient.is_available()
+    except Exception:
+        return False
 
 
 class OverviewTab(QtUtilsMixIn, QWidget):
@@ -25,6 +37,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
     # worker triggers
     trigger_update = Signal(DeviceData, bool)
     trigger_update_file = Signal(DeviceData, str, bool)
+    trigger_check_authenticity = Signal(DeviceData)
 
     def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
@@ -40,16 +53,28 @@ class OverviewTab(QtUtilsMixIn, QWidget):
 
         self.trigger_update.connect(self._worker.update_device)
         self.trigger_update_file.connect(self._worker.update_device_file)
+        self.trigger_check_authenticity.connect(self._worker.check_authenticity)
 
         self._worker.device_updated.connect(self.device_updated)
+        self._worker.authenticity_device.connect(self.authenticity_result)
 
         # self.ui === self -> this tricks mypy due to monkey-patching self
         self.ui = self.load_ui("overview_tab.ui", self)
 
         self.is_qubesos = shutil.which("qubesdb-read") is not None
 
+        self.ui.btn_help_authenticity.setIcon(
+            self.ui.style().standardIcon(QStyle.StandardPixmap.SP_MessageBoxQuestion)
+        )
+        self.ui.btn_help_authenticity.clicked.connect(
+            lambda: QDesktopServices.openUrl(
+                QUrl("https://docs.nitrokey.com/nitrokeys/features/fido2/authenticity")
+            )
+        )
+
         self.ui.btn_update_with_file.clicked.connect(self.update_with_file)
         self.ui.btn_update.clicked.connect(self.run_update)
+        self.ui.btn_check_authenticity.clicked.connect(self.check_authenticity)
 
         self.using_ccid = get_transport() == Transport.CCID
 
@@ -76,6 +101,11 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             return
         self.reset()
         self.data = data
+        self.ui.btn_check_authenticity.setStyleSheet("")
+        self.ui.btn_check_authenticity.setText("Check for Authenticity")
+        self.ui.btn_check_authenticity.setToolTip(
+            "Verify the authenticity of the device with attestation certificates"
+        )
 
         # catch too old firmware
         if data.is_too_old:
@@ -114,6 +144,25 @@ class OverviewTab(QtUtilsMixIn, QWidget):
                 self.status_error(InitStatus(data.status.init_status))
                 self.ui.status_label.show()
                 self.ui.nk3_status.show()
+
+        transport = get_transport()
+        if transport == Transport.CTAPHID:
+            self.data = instantiate_device_on_new_channel_hid(self.data)
+            assert isinstance(self.data._device, TrussedDevice)
+            assert isinstance(self.data._device.connection, CtapHidConnection)
+            fido2_client = Fido2Client(
+                device=self.data._device.connection.device,
+                client_data_collector=DefaultClientDataCollector(origin="https://example.com"),
+            )
+            if not (fido2_client._backend.info.options.get("makeCredUvNotRqd", False)):
+                self.ui.btn_check_authenticity.setEnabled(False)
+                self.ui.btn_check_authenticity.setToolTip(
+                    "Please update firmware or disable always UV to continue"
+                )
+
+        if not (transport == Transport.CTAPHID or _windows_client_available()):
+            self.ui.btn_check_authenticity.setEnabled(False)
+            self.ui.btn_check_authenticity.setToolTip("Unable to communicate for FIDO commands")
 
     def set_device_data(
         self, path: str, uuid: str, version: str, variant: str, init_status: str
@@ -196,3 +245,37 @@ class OverviewTab(QtUtilsMixIn, QWidget):
             file = filenames[0]
 
             self.trigger_update_file.emit(self.data, file, self.is_qubesos)
+
+    @Slot()
+    def check_authenticity(self) -> None:
+        assert self.data
+        self.ui.btn_check_authenticity.setEnabled(False)
+        self.trigger_check_authenticity.emit(self.data)
+
+    @Slot(bool, str)
+    def authenticity_result(self, result_val: bool, result_reason: str) -> None:
+        result_button = self.ui.btn_check_authenticity
+        if result_val:
+            result_button.setText("Verified Authentic")
+            result_button.setStyleSheet(
+                "QPushButton {"
+                "background-color: rgba(115, 215, 125, 0.18);"
+                "border: 1px solid rgba(115, 215, 125, 0.5);"
+                "border-radius: 6px; color: rgb(115, 215, 125); font-weight: 600;"
+                "}"
+            )
+            logger.info("Authenticator verified")
+        else:
+            result_button.setText("Verification Failed")
+            result_button.setStyleSheet(
+                "QPushButton {"
+                "background-color: rgba(192, 57, 43, 0.18);"
+                "border: 1px solid rgba(192, 57, 43, 0.5);"
+                "border-radius: 6px; color: #ff8070; font-weight: 600;"
+                "}"
+            )
+            logger.warning("Authenticator verification failed")
+            logger.warning(result_reason)
+
+        result_button.setToolTip(result_reason)
+        result_button.setEnabled(True)
