@@ -54,6 +54,7 @@ class DeviceManager:
             ):
                 self._devices[0].path = candidate.path
                 self._devices[0]._device = candidate._device
+                self._devices[0].label = candidate.label
                 continue
 
             # typical case
@@ -63,6 +64,7 @@ class DeviceManager:
                     if match(my_dev, candidate):
                         my_dev.path = candidate.path
                         my_dev._device = candidate._device
+                        my_dev.label = candidate.label
                         matched = True
                         break
                 except Exception:

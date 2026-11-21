@@ -70,6 +70,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
     def reset(self) -> None:
         self.data = None
         self.set_device_data("?", "?", "?", "?", "?")
+        self.set_device_label("")
 
     def refresh(self, data: DeviceData, force: bool = False) -> None:
         if data == self.data and not force:
@@ -106,6 +107,7 @@ class OverviewTab(QtUtilsMixIn, QWidget):
                 str(data.status.variant.name),
                 str(data.status.init_status),
             )
+            self.set_device_label(data.display_label)
             self.ui.nk3_label.setText(str(data.model))
             if data.status.init_status is None:
                 self.ui.status_label.hide()
@@ -123,6 +125,11 @@ class OverviewTab(QtUtilsMixIn, QWidget):
         self.ui.nk3_version.setText(version)
         self.ui.nk3_variant.setText(variant)
         self.ui.nk3_status.setText(init_status)
+
+    def set_device_label(self, label: str) -> None:
+        self.ui.nk3_device_label.setText(label)
+        self.ui.device_label_caption.setVisible(bool(label))
+        self.ui.nk3_device_label.setVisible(bool(label))
 
     def status_error(self, init: InitStatus) -> None:
         if init.is_error():
