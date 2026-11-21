@@ -4,12 +4,13 @@ from enum import Enum
 from fido2.ctap2.base import Info
 from nitrokey.nk3.secrets_app import SelectResponse
 from nitrokey.trussed import Model, Transport, TrussedDevice
-from PySide6.QtCore import QThread, Signal, Slot
+from PySide6.QtCore import Qt, QThread, Signal, Slot
 from PySide6.QtGui import QAction, QBrush, QColor, QFont
 from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem, QWidget
 
 from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
+from nitrokeyapp.device_label import LABEL_MAX_BYTES, validate_label
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
 from nitrokeyapp.worker import Worker
 
@@ -28,6 +29,9 @@ class State(Enum):
     PasswordsPin = 5
     PasswordsReset = 6
 
+    Device = 7
+    DeviceLabel = 8
+
     NotAvailable = 99
 
 
@@ -37,6 +41,23 @@ SHOW_ICON = QtUtilsMixIn.get_qicon("visibility.svg")
 HIDE_ICON = QtUtilsMixIn.get_qicon("visibility_off.svg")
 
 SETTINGS: dict[State, dict] = {
+    State.Device: {
+        "parent": None,
+        "icon": None,
+        "name": "Device",
+        "desc": "Settings that apply to the whole Nitrokey.",
+    },
+    State.DeviceLabel: {
+        "parent": State.Device,
+        "icon": None,
+        "name": "Label",
+        "desc": "Give this Nitrokey a name to tell it apart from "
+        + "your other Nitrokeys. Besides letters and numbers, you can also paste in emoji. "
+        + "The label is stored on "
+        + "the Nitrokey and shown in the device list. It can be up to "
+        + f"{LABEL_MAX_BYTES} bytes long."
+        + "<br><br><b>Leave the field empty to remove the label.</b>",
+    },
     State.Fido: {
         "parent": None,
         "icon": None,
@@ -93,6 +114,10 @@ class SettingsTab(QtUtilsMixIn, QWidget):
     trigger_fido_reset = Signal(DeviceData)
     trigger_passwords_reset = Signal(DeviceData)
 
+    trigger_set_label = Signal(DeviceData, str)
+
+    device_label_changed = Signal(DeviceData)
+
     def __init__(self, parent: QWidget | None = None) -> None:
         QWidget.__init__(self, parent)
         QtUtilsMixIn.__init__(self)
@@ -112,6 +137,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.trigger_fido_change_pw.connect(self._worker.fido_change_pw)
         self.trigger_fido_reset.connect(self._worker.fido_reset)
         self.trigger_passwords_reset.connect(self._worker.passwords_reset)
+        self.trigger_set_label.connect(self._worker.set_label)
 
         # incoming signals
         self._worker.status_fido.connect(self.handle_status_fido)
@@ -122,6 +148,8 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         self._worker.reset_fido.connect(self.handle_reset)
         self._worker.reset_passwords.connect(self.handle_reset)
+
+        self._worker.label_set.connect(self.handle_label_set)
 
         self.ui = self.load_ui("settings_tab.ui", self)
 
@@ -163,6 +191,14 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.current_password.textChanged.connect(self.check_credential)
         self.ui.new_password.textChanged.connect(self.check_credential)
         self.ui.repeat_password.textChanged.connect(self.check_credential)
+        self.ui.device_label_edit.textChanged.connect(self.check_label)
+        self.ui.device_label_edit.returnPressed.connect(
+            lambda: self.save_action() if self.ui.btn_save.isEnabled() else None
+        )
+
+        for idx in range(6):
+            getattr(self.ui, f"value_{idx}").setTextFormat(Qt.TextFormat.PlainText)
+        self.ui.info_label.setTextFormat(Qt.TextFormat.RichText)
 
         self.active_item: QTreeWidgetItem | None = None
 
@@ -202,6 +238,9 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             has_fido = self.data._device.transport == Transport.CTAPHID
         for state in [State.Fido, State.FidoPin, State.FidoReset]:
             self.items[state].setHidden(not has_fido)
+        has_label = self.data.label is not None
+        for state in [State.Device, State.DeviceLabel]:
+            self.items[state].setHidden(not has_label)
 
     def field_btn(self) -> None:
         icon_visibility = self.get_qicon("visibility_off.svg")
@@ -245,7 +284,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             return
 
         sta = item.data(1, 0)
-        if sta in [State.Fido, State.Passwords]:
+        if sta in [State.Device, State.Fido, State.Passwords]:
             self.view_overview(item)
             item.setExpanded(not item.isExpanded())
             self.refresh_section_icons()
@@ -253,6 +292,8 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             self.view_edit_pin(item)
         elif sta in [State.FidoReset, State.PasswordsReset]:
             self.view_reset(item)
+        elif sta == State.DeviceLabel:
+            self.view_edit_label(item)
 
     @staticmethod
     def _wrap_value(value: str, per_line: int = 2) -> str:
@@ -264,7 +305,9 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         lines = [", ".join(parts[i : i + per_line]) for i in range(0, len(parts), per_line)]
         return ",\n".join(lines)
 
-    def update_status_form(self, data: list[tuple[str, str]] | None = None) -> None:
+    def update_status_form(
+        self, data: list[tuple[str, str]] | None = None, wrap: bool = True
+    ) -> None:
         if data is not None:
             self.ui.status_form.show()
         else:
@@ -276,7 +319,8 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
             if data is not None and len(data) > idx:
                 l_obj.setText(f"{data[idx][0]}: ")
-                d_obj.setText(self._wrap_value(data[idx][1]))
+                value = data[idx][1]
+                d_obj.setText(self._wrap_value(value) if wrap else value)
                 l_obj.show()
                 d_obj.show()
             else:
@@ -288,6 +332,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         self.ui.status_form.show()
         self.ui.pin_form.hide()
+        self.ui.label_form.hide()
 
         self.ui.info_label.show()
         self.ui.warning_label.hide()
@@ -304,7 +349,11 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.headline_label.setText(name)
         self.ui.info_label.setText(desc)
 
-        if state == State.Fido:
+        if state == State.Device:
+            assert self.data
+            label = self.data.display_label or "not set"
+            self.update_status_form([("Label", label)], wrap=False)
+        elif state == State.Fido:
             self.trigger_fido_status.emit(self.data)
         elif state == State.Passwords:
             self.trigger_passwords_status.emit(self.data)
@@ -318,6 +367,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.settings_frame.show()
         self.ui.pin_form.show()
         self.ui.status_form.hide()
+        self.ui.label_form.hide()
 
         self.ui.warning_label.hide()
         self.ui.info_label.hide()
@@ -351,6 +401,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         self.ui.settings_frame.show()
         self.ui.pin_form.hide()
         self.ui.status_form.show()
+        self.ui.label_form.hide()
 
         self.ui.info_label.show()
 
@@ -370,6 +421,31 @@ class SettingsTab(QtUtilsMixIn, QWidget):
 
         self.ui.headline_label.setText(name)
         self.ui.info_label.setText(desc)
+
+    def view_edit_label(self, item: QTreeWidgetItem) -> None:
+        assert self.data
+        state = item.data(1, 0)
+        tmpl = SETTINGS[state]
+
+        self.ui.settings_frame.show()
+        self.ui.label_form.show()
+        self.ui.status_form.hide()
+        self.ui.pin_form.hide()
+
+        self.ui.info_label.setText(tmpl["desc"])
+        self.ui.info_label.show()
+        self.ui.warning_label.hide()
+
+        self.ui.btn_abort.show()
+        self.ui.btn_reset.hide()
+        self.ui.btn_save.show()
+
+        name = SETTINGS[tmpl["parent"]]["name"] + " | " + tmpl["name"]
+        self.ui.headline_label.setText(name)
+
+        self.ui.device_label_edit.setText(self.data.display_label)
+        self.check_label()
+        self.ui.device_label_edit.setFocus()
 
     def view_settings_empty(self) -> None:
         self.ui.settings_frame.hide()
@@ -398,6 +474,9 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         elif state == State.PasswordsPin:
             self.trigger_passwords_change_pw.emit(self.data, old_pin, new_pin)
             self.field_clear()
+        elif state == State.DeviceLabel:
+            label = self.ui.device_label_edit.text().strip()
+            self.trigger_set_label.emit(self.data, label)
 
     def reset_action(self) -> None:
         assert isinstance(self.active_item, QTreeWidgetItem)
@@ -420,7 +499,7 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         """show a chevron on the section headers reflecting their expanded state"""
         expanded = self.get_qicon("down_arrow.svg")
         collapsed = self.get_qicon("right_arrow.svg")
-        for state in (State.Fido, State.Passwords):
+        for state in (State.Device, State.Fido, State.Passwords):
             item = self.items[state]
             item.setIcon(0, expanded if item.isExpanded() else collapsed)
 
@@ -518,6 +597,19 @@ class SettingsTab(QtUtilsMixIn, QWidget):
         elif state == State.PasswordsReset:
             self.trigger_passwords_status.emit(self.data)
 
+    @Slot(DeviceData, str)
+    def handle_label_set(self, data: DeviceData, label: str) -> None:
+        data.label = label
+        self.device_label_changed.emit(data)
+        self.common_ui.info.info.emit("Label saved" if label else "Label removed")
+
+        if data == self.data and self.is_active(State.DeviceLabel):
+            self.ui.device_label_edit.setText(data.display_label)
+            self.check_label()
+
+    def is_active(self, state: State) -> bool:
+        return self.active_item is not None and self.active_item.data(1, 0) == state
+
     @Slot()
     def handle_pin_change(self) -> None:
         if self.active_item is None:
@@ -527,6 +619,24 @@ class SettingsTab(QtUtilsMixIn, QWidget):
             self.trigger_fido_status.emit(self.data)
         elif state == State.PasswordsPin:
             self.trigger_passwords_status.emit(self.data)
+
+    def check_label(self) -> None:
+        if self.data is None or not self.is_active(State.DeviceLabel):
+            return
+
+        label = self.ui.device_label_edit.text().strip()
+        error = validate_label(label)
+        if error:
+            self.ui.warning_label.setText(error)
+            self.ui.warning_label.show()
+            self.ui.btn_save.setEnabled(False)
+            self.ui.btn_save.setToolTip("Label cannot be saved")
+            return
+
+        self.ui.warning_label.hide()
+        changed = label != (self.data.label or "")
+        self.ui.btn_save.setEnabled(changed)
+        self.ui.btn_save.setToolTip("Save label" if changed else "The label has not changed")
 
     def check_credential(self) -> None:
         self.common_ui.info.info.emit("")

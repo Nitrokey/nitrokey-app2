@@ -8,6 +8,7 @@ from PySide6.QtCore import Signal, Slot
 
 from nitrokeyapp.common_ui import CommonUi
 from nitrokeyapp.device_data import DeviceData
+from nitrokeyapp.device_label import LABEL_CONFIG_KEY
 from nitrokeyapp.worker import Job, Worker
 
 logger = logging.getLogger(__name__)
@@ -199,6 +200,29 @@ class ResetPasswords(Job):
         self.reset_passwords.emit()
 
 
+class SetDeviceLabel(Job):
+    label_set = Signal(DeviceData, str)
+
+    def __init__(self, common_ui: CommonUi, data: DeviceData, label: str) -> None:
+        super().__init__(common_ui)
+
+        self.data = data
+        self.label = label
+
+        self.label_set.connect(lambda _data, _label: self.finished.emit())
+
+    def run(self) -> None:
+        with self.data.open() as device:
+            try:
+                device.admin.set_config(LABEL_CONFIG_KEY, self.label)
+                # show what the device stored, not what was sent
+                label = device.admin.get_config(LABEL_CONFIG_KEY)
+            except Exception as e:
+                self.trigger_error(f"Failed to save the label: {e}")
+                return
+        self.label_set.emit(self.data, label)
+
+
 class SettingsWorker(Worker):
     change_pw_fido = Signal()
     change_pw_passwords = Signal()
@@ -206,9 +230,16 @@ class SettingsWorker(Worker):
     reset_passwords = Signal()
     status_fido = Signal(Info, int)
     info_passwords = Signal(bool, SelectResponse)
+    label_set = Signal(DeviceData, str)
 
     def __init__(self, common_ui: CommonUi) -> None:
         super().__init__(common_ui)
+
+    @Slot(DeviceData, str)
+    def set_label(self, data: DeviceData, label: str) -> None:
+        job = SetDeviceLabel(self.common_ui, data, label)
+        job.label_set.connect(self.label_set)
+        self.run(job)
 
     @Slot(DeviceData)
     def fido_status(self, data: DeviceData) -> None:
