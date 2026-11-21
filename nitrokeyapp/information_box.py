@@ -33,6 +33,7 @@ class InfoBox(QObject):
         self.status = status
         self.status.hide()
         self.device = device
+        self.device.setTextFormat(QtCore.Qt.TextFormat.PlainText)
 
         self.icon = icon
         self.icon.setFixedSize(QtCore.QSize(16, 16))

@@ -19,6 +19,7 @@ from nitrokey.trussed import (
 )
 from nitrokey.trussed.admin_app import Status
 
+from nitrokeyapp.device_label import read_label, sanitize_label
 from nitrokeyapp.update import UpdateContext, UpdateGUI, UpdateResult, UpdateStatus
 from nitrokeyapp.utils import get_transport
 
@@ -54,10 +55,14 @@ class DeviceData:
         self._version: Version | None = None
         self._device = device
 
+        # None if the device cannot store a label, "" if no label is set
+        self.label: str | None = None
+
         if isinstance(self._device, TrussedDevice):
             self._status = self._device.admin.status()
             self._uuid = self._device.uuid()
             self._version = self._device.admin.version()
+            self.label = read_label(self._device)
 
     def __repr__(self) -> str:
         fields = {
@@ -86,6 +91,15 @@ class DeviceData:
             return f"{self.model} (BL)"
         else:
             return f"{self.model}: {self.uuid_prefix}"
+
+    @property
+    def display_label(self) -> str:
+        return sanitize_label(self.label) if self.label else ""
+
+    @property
+    def display_name(self) -> str:
+        label = self.display_label
+        return f"{label} ({self.name})" if label else self.name
 
     @property
     def is_bootloader(self) -> bool:

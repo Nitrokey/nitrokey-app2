@@ -121,6 +121,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         ]
 
         self.settings_tab._worker.reset_passwords.connect(self.secrets_tab.invalidate)
+        self.settings_tab.device_label_changed.connect(self.refresh_device_label)
         self.busy_count = 0
         for view in self.views:
             if view.worker:
@@ -313,6 +314,16 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
         else:
             self.l_insert_nitrokey.show()
 
+    @Slot(DeviceData)
+    def refresh_device_label(self, data: DeviceData) -> None:
+        for btn in self.device_buttons:
+            if btn.data == data:
+                btn.refresh_text()
+
+        if self.selected_device == data:
+            self.info_box.set_device(data.display_name)
+            self.overview_tab.refresh(data, force=True)
+
     def init_gui(self) -> None:
         self.hide_device()
         self.detect_added_devices()
@@ -349,7 +360,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             else:
                 btn.setChecked(False)
 
-        self.info_box.set_device(data.name)
+        self.info_box.set_device(data.display_name)
         self.tabs.show()
         self.tabs.setCurrentIndex(0)
 

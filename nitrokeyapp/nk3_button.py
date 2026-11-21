@@ -1,9 +1,16 @@
+import html
 from collections.abc import Callable
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
 from nitrokeyapp.device_data import DeviceData
 from nitrokeyapp.qt_utils_mix_in import QtUtilsMixIn
+
+FOLDED_WIDTH = 58
+FOLDED_ICON_SIZE = 40
+UNFOLDED_WIDTH = 178
+UNFOLDED_ICON_SIZE = 32
+ICON_SPACING = 6
 
 
 class Nk3Button(QtWidgets.QToolButton):
@@ -14,6 +21,8 @@ class Nk3Button(QtWidgets.QToolButton):
 
         self.data = data
         self.bootloader_data: DeviceData | None = None
+        self.folded = False
+        self.device_tooltip = ""
 
         self.clicked.connect(lambda: on_click(self.data))
 
@@ -75,6 +84,7 @@ class Nk3Button(QtWidgets.QToolButton):
             }
         """
         )
+        self.refresh_text()
 
     def set_stylesheet_small(self) -> None:
         self.setStyleSheet(
@@ -100,6 +110,7 @@ class Nk3Button(QtWidgets.QToolButton):
             }
         """
         )
+        self.refresh_text()
 
     def start_touch(self) -> None:
         self.animation.start()
@@ -107,20 +118,51 @@ class Nk3Button(QtWidgets.QToolButton):
 
     def stop_touch(self) -> None:
         self.animation.stop()
-        self.setToolTip("")
+        self.setToolTip(self.device_tooltip)
         self.effect.setStrength(0)
 
     def fold(self) -> None:
-        self.setText(self.data.uuid_prefix if not self.data.is_bootloader else "BL")
-        self.setMinimumWidth(58)
-        self.setMaximumWidth(58)
-        self.setIconSize(QtCore.QSize(40, 40))
+        self.folded = True
+        self.setMinimumWidth(FOLDED_WIDTH)
+        self.setMaximumWidth(FOLDED_WIDTH)
+        self.setIconSize(QtCore.QSize(FOLDED_ICON_SIZE, FOLDED_ICON_SIZE))
         self.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
+        self.refresh_text()
 
     def unfold(self) -> None:
+        self.folded = False
         self.setChecked(False)
-        self.setText(self.data.name.replace(": ", "\n"))
-        self.setMinimumWidth(178)
-        self.setMaximumWidth(178)
-        self.setIconSize(QtCore.QSize(32, 32))
+        self.setMinimumWidth(UNFOLDED_WIDTH)
+        self.setMaximumWidth(UNFOLDED_WIDTH)
+        self.setIconSize(QtCore.QSize(UNFOLDED_ICON_SIZE, UNFOLDED_ICON_SIZE))
         self.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        self.refresh_text()
+
+    def refresh_text(self) -> None:
+        label = self.data.display_label
+        if self.data.is_bootloader:
+            text = "BL" if self.folded else self.data.name
+        elif not label:
+            text = self.data.uuid_prefix if self.folded else self.data.name.replace(": ", "\n")
+        elif self.folded:
+            text = self.elide(label)
+        else:
+            text = self.elide(label) + "\n" + self.data.uuid_prefix
+        # a single "&" would be taken as a keyboard shortcut marker
+        self.setText(text.replace("&", "&&"))
+
+        if label:
+            self.device_tooltip = f"<p>{html.escape(label)}<br>{html.escape(self.data.name)}</p>"
+        else:
+            self.device_tooltip = self.data.name
+        self.setToolTip(self.device_tooltip)
+
+    def elide(self, text: str) -> str:
+        # the style sheet sets the font, a horizontal padding of 0.5em and a 1px border
+        self.ensurePolished()
+        frame = self.fontInfo().pixelSize() + 2
+        if self.folded:
+            width = FOLDED_WIDTH - frame
+        else:
+            width = UNFOLDED_WIDTH - frame - UNFOLDED_ICON_SIZE - ICON_SPACING
+        return self.fontMetrics().elidedText(text, QtCore.Qt.TextElideMode.ElideRight, width)
