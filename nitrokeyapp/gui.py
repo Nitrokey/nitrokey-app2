@@ -349,7 +349,7 @@ class GUI(QtUtilsMixIn, QtWidgets.QMainWindow):
             else:
                 btn.setChecked(False)
 
-        self.info_box.set_device(data.name)
+        self.info_box.set_device(data.display_name)
         self.tabs.show()
         self.tabs.setCurrentIndex(0)
 
